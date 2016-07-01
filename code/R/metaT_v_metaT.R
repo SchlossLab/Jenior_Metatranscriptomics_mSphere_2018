@@ -8,19 +8,37 @@ for (dep in deps){
 }
 
 # Define input file names
-#metagenome_file <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
-#metatranscriptome1_file <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-#metatranscriptome2_file <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-metagenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
-metatranscriptome1_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-metatranscriptome2_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+cef_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
+clinda_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
+strep_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
+conv_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
 
-
+cef_630_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+cef_mock_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+clinda_630_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+clinda_mock_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+strep_630_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+strep_mock_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+conv_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
 
 # Load in data
-metagenome <- read.delim(metagenome_file, sep='\t', header=TRUE, row.names=4)
-metatranscriptome1 <- read.delim(metatranscriptome1_file, sep='\t', header=TRUE, row.names=4)
-metatranscriptome2 <- read.delim(metatranscriptome2_file, sep='\t', header=TRUE, row.names=4)
+cef_pangenome <- read.delim(metagenome_file, sep='\t', header=TRUE, row.names=4)
+clinda_pangenome <- read.delim(metagenome_file, sep='\t', header=TRUE, row.names=4)
+strep_pangenome <- read.delim(metagenome_file, sep='\t', header=TRUE, row.names=4)
+conv_pangenome <- read.delim(metagenome_file, sep='\t', header=TRUE, row.names=4)
+rm(cef_pangenome, clinda_pangenome, strep_pangenome, conv_pangenome)
+
+cef_630_metatranscriptome <- read.delim(cef_630_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+cef_mock_metatranscriptome <- read.delim(cef_mock_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+rm(cef_630_metatranscriptome_file, cef_mock_metatranscriptome_file)
+clinda_630_metatranscriptome <- read.delim(clinda_630_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+clinda_mock_metatranscriptome <- read.delim(clinda_mock_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+rm(clinda_630_metatranscriptome_file, clinda_mock_metatranscriptome_file)
+strep_630_metatranscriptome <- read.delim(strep_630_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+strep_mock_metatranscriptome <- read.delim(strep_mock_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+rm(strep_630_metatranscriptome_file, strep_mock_metatranscriptome_file)
+conv_metatranscriptome <- read.delim(conv_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+rm(conv_metatranscriptome_file)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -74,7 +92,6 @@ norm_max <- max(combined_mapping[,c(1,2)])
 # Plotting Metatranscriptome VS Metatranscriptome
 
 # Subset data to color specific groups 
-# Subset data to color specific groups
 # Highest resolution - Known C. difficile 630 carbon sources
 glycolysis <- subset(combined_mapping, grepl('*Glycolysis_/_Gluconeogenesis*', combined_mapping$pathway_annotation))
 amino_sugar <- subset(combined_mapping, grepl('*Amino_sugar*', combined_mapping$pathway_annotation))
