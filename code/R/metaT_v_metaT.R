@@ -13,13 +13,13 @@ clinda_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DN
 strep_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
 conv_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
 
-cef_630_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-cef_mock_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-clinda_630_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-clinda_mock_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-strep_630_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-strep_mock_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-conv_metatranscriptome_file <- '/media/mjenior/Data/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+cef_630_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+cef_mock_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+clinda_630_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+clinda_mock_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+strep_630_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+strep_mock_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+conv_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
 
 # Load in data
 cef_pangenome <- read.delim(metagenome_file, sep='\t', header=TRUE, row.names=4)

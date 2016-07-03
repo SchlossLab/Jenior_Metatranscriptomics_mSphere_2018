@@ -11,7 +11,7 @@ for (dep in deps){
 rm(dep, deps)
 
 fox <- wes_palette("FantasticFox")
-plot_file <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/results/figures/figure_1.pdf'
+plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2015/results/figures/figure_1.pdf'
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
