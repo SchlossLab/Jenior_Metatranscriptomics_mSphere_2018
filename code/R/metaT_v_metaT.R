@@ -8,49 +8,68 @@ for (dep in deps){
 }
 
 # Define input file names
-cef_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
-clinda_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
-strep_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
-conv_pangenome_file <- '/media/mjenior/Data/mapping/metagenome/Cefoperazone.DNA_reads2metaG.all.pool.norm.remove.annotated.txt'
+cef_metagenome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_metagenome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_metagenome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+conv_metagenome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
 
-cef_630_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-cef_mock_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-clinda_630_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-clinda_mock_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-strep_630_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-strep_mock_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_mock.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
-conv_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/mapping/metatranscriptome/remove_cdf/cefoperazone_630.RNA_reads2metaG.cdf.all.pool.norm.remove.annotated.txt'
+cef_630_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metatranscriptome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_mock_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metatranscriptome/cefoperazone_mock.RNA_reads2metaG.cdf.all.norm.remove.annotated.txt'
+clinda_630_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metatranscriptome/cefoperazone_630.RNA_reads2metaG.cdf.all.norm.remove.annotated.txt'
+clinda_mock_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metatranscriptome/cefoperazone_mock.RNA_reads2metaG.cdf.all.norm.remove.annotated.txt'
+strep_630_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metatranscriptome/cefoperazone_630.RNA_reads2metaG.cdf.all.norm.remove.annotated.txt'
+strep_mock_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metatranscriptome/cefoperazone_mock.RNA_reads2metaG.cdf.all.norm.remove.annotated.txt'
+conv_metatranscriptome_file <- '/media/mjenior/Jenior\ HD/data/mapping/pangenome/metatranscriptome/cefoperazone_630.RNA_reads2metaG.cdf.all.norm.remove.annotated.txt'
 
 # Load in data
-cef_pangenome <- read.delim(metagenome_file, sep='\t', header=TRUE, row.names=4)
-clinda_pangenome <- read.delim(metagenome_file, sep='\t', header=TRUE, row.names=4)
-strep_pangenome <- read.delim(metagenome_file, sep='\t', header=TRUE, row.names=4)
-conv_pangenome <- read.delim(metagenome_file, sep='\t', header=TRUE, row.names=4)
-rm(cef_pangenome, clinda_pangenome, strep_pangenome, conv_pangenome)
-
-cef_630_metatranscriptome <- read.delim(cef_630_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
-cef_mock_metatranscriptome <- read.delim(cef_mock_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+# Metagenomes
+cef_metagenome <- read.delim(cef_metagenome_file, sep='\t', header=FALSE, row.names=1)
+colnames(cef_metagenome) <- c('reads', 'ko', 'gene', 'pathway')
+clinda_metagenome <- read.delim(clinda_metagenome_file, sep='\t', header=FALSE, row.names=1)
+colnames(clinda_metagenome) <- c('reads', 'ko', 'gene', 'pathway')
+strep_metagenome <- read.delim(strep_metagenome_file, sep='\t', header=FALSE, row.names=1)
+colnames(strep_metagenome) <- c('reads', 'ko', 'gene', 'pathway')
+conv_metagenome <- read.delim(conv_metagenome_file, sep='\t', header=FALSE, row.names=1)
+colnames(conv_metagenome) <- c('reads', 'ko', 'gene', 'pathway')
+rm(cef_metagenome_file, clinda_metagenome_file, strep_metagenome_file, conv_metagenome_file)
+# MEtatranscriptomes
+cef_630_metatranscriptome <- read.delim(cef_630_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
+colnames(cef_630_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
+cef_mock_metatranscriptome <- read.delim(cef_mock_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
+colnames(cef_mock_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
 rm(cef_630_metatranscriptome_file, cef_mock_metatranscriptome_file)
-clinda_630_metatranscriptome <- read.delim(clinda_630_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
-clinda_mock_metatranscriptome <- read.delim(clinda_mock_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+clinda_630_metatranscriptome <- read.delim(clinda_630_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
+colnames(clinda_630_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
+clinda_mock_metatranscriptome <- read.delim(clinda_mock_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
+colnames(clinda_mock_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
 rm(clinda_630_metatranscriptome_file, clinda_mock_metatranscriptome_file)
-strep_630_metatranscriptome <- read.delim(strep_630_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
-strep_mock_metatranscriptome <- read.delim(strep_mock_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+strep_630_metatranscriptome <- read.delim(strep_630_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
+colnames(strep_630_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
+strep_mock_metatranscriptome <- read.delim(strep_mock_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
+colnames(strep_mock_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
 rm(strep_630_metatranscriptome_file, strep_mock_metatranscriptome_file)
-conv_metatranscriptome <- read.delim(conv_metatranscriptome_file, sep='\t', header=TRUE, row.names=4)
+conv_metatranscriptome <- read.delim(conv_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
+colnames(conv_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
 rm(conv_metatranscriptome_file)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Format data for merging
-metagenome$gene_annotation <- NULL
-metagenome$evalue <- NULL
-metagenome$KEGG_ortholog <- NULL
-metagenome$pathway_annotation <- NULL
-metatranscriptome1$gene_annotation <- NULL
-metatranscriptome1$evalue <- NULL
-metatranscriptome1$KEGG_ortholog <- NULL
-metatranscriptome1$pathway_annotation <- NULL
+cef_metagenome$ko <- NULL
+cef_metagenome$gene <- NULL
+cef_metagenome$pathway <- NULL
+clinda_metagenome$ko <- NULL
+clinda_metagenome$gene <- NULL
+clinda_metagenome$pathway <- NULL
+strep_metagenome$ko <- NULL
+strep_metagenome$gene <- NULL
+strep_metagenome$pathway <- NULL
+conv_metagenome$ko <- NULL
+conv_metagenome$gene <- NULL
+conv_metagenome$pathway <- NULL
+
+
+
 
 # Merge tables
 combined_mapping <- merge(metagenome, metatranscriptome1, by='row.names')
