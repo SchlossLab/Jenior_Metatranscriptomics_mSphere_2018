@@ -186,73 +186,49 @@ conv_metatranscriptome[,1] <- log10(conv_metatranscriptome[,1])
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-
-
-
-
-
 # Subset data to color specific groups 
-# Highest resolution - Known C. difficile 630 carbon sources
-glycolysis <- subset(combined_mapping, grepl('*Glycolysis_/_Gluconeogenesis*', combined_mapping$pathway_annotation))
-amino_sugar <- subset(combined_mapping, grepl('*Amino_sugar*', combined_mapping$pathway_annotation))
-galactose <- subset(combined_mapping, grepl('*Galactose*', combined_mapping$pathway_annotation))
-fructose_mannose <- subset(combined_mapping, grepl('*Fructose_and_mannose*', combined_mapping$pathway_annotation))
-starch_sucrose <- subset(combined_mapping, grepl('*Starch_and_sucrose*', combined_mapping$pathway_annotation))
-glycan_degradation <- subset(combined_mapping, grepl('*glycan_degradation*', combined_mapping$pathway_annotation))
+# Known C. difficile 630 carbon sources
+cef_glycolysis <- subset(cef_metatranscriptome, grepl('*Glycolysis_/_Gluconeogenesis*', cef_metatranscriptome$pathway))
+cef_amino_sugar <- subset(cef_metatranscriptome, grepl('*Amino_sugar*', cef_metatranscriptome$pathway))
+cef_galactose <- subset(cef_metatranscriptome, grepl('*Galactose*', cef_metatranscriptome$pathway))
+cef_fructose_mannose <- subset(cef_metatranscriptome, grepl('*Fructose_and_mannose*', cef_metatranscriptome$pathway))
+cef_starch_sucrose <- subset(cef_metatranscriptome, grepl('*Starch_and_sucrose*', cef_metatranscriptome$pathway))
+cef_glycan_degradation <- subset(cef_metatranscriptome, grepl('*glycan_degradation*', cef_metatranscriptome$pathway))
+cef_pentose <- subset(cef_metatranscriptome, grepl('*Pentose*', cef_metatranscriptome$pathway))
+cef_proline <- subset(cef_metatranscriptome, grepl('*roline*', cef_metatranscriptome$pathway))
+cef_glycine_serine_threonine <- subset(cef_metatranscriptome, grepl('*Glycine,_serine_and_threonine*', cef_metatranscriptome$pathway))
 
-pentose <- subset(combined_mapping, grepl('*Pentose*', combined_mapping$pathway_annotation))
-cdf_carbohydates <- rbind(glycolysis, amino_sugar, galactose, fructose_mannose, starch_sucrose, glycan_degradation)
+clinda_glycolysis <- subset(clinda_metatranscriptome, grepl('*Glycolysis_/_Gluconeogenesis*', clinda_metatranscriptome$pathway))
+clinda_amino_sugar <- subset(clinda_metatranscriptome, grepl('*Amino_sugar*', clinda_metatranscriptome$pathway))
+clinda_galactose <- subset(clinda_metatranscriptome, grepl('*Galactose*', clinda_metatranscriptome$pathway))
+clinda_fructose_mannose <- subset(clinda_metatranscriptome, grepl('*Fructose_and_mannose*', clinda_metatranscriptome$pathway))
+clinda_starch_sucrose <- subset(clinda_metatranscriptome, grepl('*Starch_and_sucrose*', clinda_metatranscriptome$pathway))
+clinda_glycan_degradation <- subset(clinda_metatranscriptome, grepl('*glycan_degradation*', clinda_metatranscriptome$pathway))
+clinda_pentose <- subset(clinda_metatranscriptome, grepl('*Pentose*', clinda_metatranscriptome$pathway))
+clinda_proline <- subset(clinda_metatranscriptome, grepl('*roline*', clinda_metatranscriptome$pathway))
+clinda_glycine_serine_threonine <- subset(clinda_metatranscriptome, grepl('*Glycine,_serine_and_threonine*', clinda_metatranscriptome$pathway))
 
-amino_sugar <- rbind(amino_sugar, glycan_degradation)
-sugars <- rbind(glycolysis, fructose_mannose, starch_sucrose)
-
-proline <- subset(combined_mapping, grepl('*roline*', combined_mapping$pathway_annotation))
-
-cysteine_methionine <- subset(combined_mapping, grepl('*Cysteine_and_methionine*', combined_mapping$pathway_annotation))
-valine_leucine_isoleucine <- subset(combined_mapping, grepl('*Valine,_leucine_and_isoleucine*', combined_mapping$pathway_annotation))
-glycine_serine_threonine <- subset(combined_mapping, grepl('*Glycine,_serine_and_threonine*', combined_mapping$pathway_annotation))
-alanine_aspartate_glutamate <- subset(combined_mapping, grepl('*Alanine,_aspartate_and_glutamate*', combined_mapping$pathway_annotation))
-cdf_amino_acids <- rbind(cysteine_methionine, valine_leucine_isoleucine, glycine_serine_threonine, alanine_aspartate_glutamate)
-
-cdf_carbon_sources <- rbind(cdf_carbohydates, cdf_amino_acids)
-
-
-butanoate <- subset(combined_mapping, grepl('*Butanoate*', combined_mapping$pathway_annotation))[,c(1:2)]
-pentose_glucuronate <- subset(combined_mapping, grepl('*Pentose_and_glucuronate*', combined_mapping$pathway_annotation))[,c(1:2)]
-phenylalanine_tyrosine_tryptophan <- subset(combined_mapping, grepl('*Phenylalanine,_tyrosine_and_tryptophan*', combined_mapping$pathway_annotation))[,c(1:2)]
-tca_cycle <- subset(combined_mapping, grepl('*TCA_cycle*', combined_mapping$pathway_annotation))[,c(1:2)]
-lipopolysaccharide <- subset(combined_mapping, grepl('*Lipopolysaccharide*', combined_mapping$pathway_annotation))[,c(1:2)]
-oxidative_phosphorylation <- subset(combined_mapping, grepl('*Oxidative_phosphorylation*', combined_mapping$pathway_annotation))[,c(1:2)]
-glyoxylate_dicarboxylate <- subset(combined_mapping, grepl('*Glyoxylate_and_dicarboxylate*', combined_mapping$pathway_annotation))[,c(1:2)]
-streptomycin_biosynthesis <- subset(combined_mapping, grepl('*Streptomycin_biosynthesis*', combined_mapping$pathway_annotation))[,c(1:2)]
-polyketide_sugar_biosynthesis <- subset(combined_mapping, grepl('*Polyketide_sugar_unit_biosynthesis*', combined_mapping$pathway_annotation))[,c(1:2)]
-lysine <- subset(combined_mapping, grepl('*Lysine*', combined_mapping$pathway_annotation))[,c(1:2)]
-arginine_proline <- subset(combined_mapping, grepl('*Arginine_and_proline*', combined_mapping$pathway_annotation))[,c(1:2)]
-pyruvate <- subset(combined_mapping, grepl('*Pyruvate*', combined_mapping$pathway_annotation))[,c(1:2)]
-peptidoglycan <- subset(combined_mapping, grepl('*Peptidoglycan*', combined_mapping$pathway_annotation))[,c(1:2)]
-glycan_degradation <- subset(combined_mapping, grepl('*glycan_degradation*', combined_mapping$pathway_annotation))[,c(1:2)]
-secondary_bile <- subset(combined_mapping, grepl('*Secondary_bile*', combined_mapping$pathway_annotation))[,c(1:2)]
-# More general scale
-energy_metabolism <- subset(combined_mapping, grepl('*Energy_metabolism*', combined_mapping$pathway_annotation))[,c(1:2)]
-carbohydrate_metabolism <- subset(combined_mapping, grepl('*Carbohydrate_metabolism*', combined_mapping$pathway_annotation))[,c(1:2)]
-amino_acid_metabolism <- subset(combined_mapping, grepl('*Amino_acid_metabolism*', combined_mapping$pathway_annotation))[,c(1:2)]
-nucleotide_metabolism <- subset(combined_mapping, grepl('*Nucleotide_metabolism*', combined_mapping$pathway_annotation))[,c(1:2)]
-lipid_metabolism <- subset(combined_mapping, grepl('*Lipid_metabolism*', combined_mapping$pathway_annotation))[,c(1:2)]
-cofactors_and_vitamins <- subset(combined_mapping, grepl('*cofactors_and_vitamins*', combined_mapping$pathway_annotation))[,c(1:2)]
-diverse_environments <- subset(combined_mapping, grepl('*diverse_environments*', combined_mapping$pathway_annotation))[,c(1:2)]
-sulfur_metabolism <- subset(combined_mapping, grepl('*Sulfur_metabolism*', combined_mapping$pathway_annotation))[,c(1:2)]
-secondary_metabolites <- subset(combined_mapping, grepl('*secondary_metabolites*', combined_mapping$pathway_annotation))[,c(1:2)]
+strep_glycolysis <- subset(strep_metatranscriptome, grepl('*Glycolysis_/_Gluconeogenesis*', strep_metatranscriptome$pathway))
+strep_amino_sugar <- subset(strep_metatranscriptome, grepl('*Amino_sugar*', strep_metatranscriptome$pathway))
+strep_galactose <- subset(strep_metatranscriptome, grepl('*Galactose*', strep_metatranscriptome$pathway))
+strep_fructose_mannose <- subset(strep_metatranscriptome, grepl('*Fructose_and_mannose*', strep_metatranscriptome$pathway))
+strep_starch_sucrose <- subset(strep_metatranscriptome, grepl('*Starch_and_sucrose*', strep_metatranscriptome$pathway))
+strep_glycan_degradation <- subset(strep_metatranscriptome, grepl('*glycan_degradation*', strep_metatranscriptome$pathway))
+strep_pentose <- subset(strep_metatranscriptome, grepl('*Pentose*', strep_metatranscriptome$pathway))
+strep_proline <- subset(strep_metatranscriptome, grepl('*roline*', strep_metatranscriptome$pathway))
+strep_glycine_serine_threonine <- subset(strep_metatranscriptome, grepl('*Glycine,_serine_and_threonine*', strep_metatranscriptome$pathway))
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Define which pathway to plot and the ouput file name
-pathway <- diverse_environments
-point_color <- 'forestgreen'
-#pathway_name <- 'Carbohydrate Metabolism'
-plot_file <- '~/Desktop/test3.pdf'
+plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2015/results/figures/figure_3.pdf'
+pdf(file=plot_file, width=14, height=14)
+layout(matrix(c(1,2,
+                3,4), 
+              nrow=2, ncol=2, byrow = TRUE))
 
-# Plot it!
-pdf(file=plot_file, width=10, height=9)
+#-------------------------------------------------------------------------------------------------------------------------#
+
 par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0))
 plot(x=combined_mapping$infected_metatranscriptome, y=combined_mapping$mock_metatranscriptome, 
      xlim=c(0,4), ylim=c(0,4), pch=20, col='black', xaxt='n', yaxt='n', cex.label=1.5,
@@ -262,8 +238,7 @@ segments(-2, -2, 8, 8, lwd=2, lty=2)
 axis_labels <- parse(text=paste(rep(10,4), '^', seq(0,4,1), sep=''))
 axis(side=1, at=c(0:4), axis_labels, tick=TRUE)
 axis(side=2, at=c(0:4), axis_labels, tick=TRUE, las=1)
-#points(pathway[,c(1,2)], cex=1.5, pch=21, bg=point_color, col='black')
- 
+
 
 points(sugars[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[1], col='black')
 points(amino_sugar[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[2], col='black')
@@ -271,9 +246,19 @@ points(galactose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[3], col
 points(pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[4], col='black')
 points(valine_leucine_isoleucine[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling2")[4], col='black')
 points(glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg='green3', col='black')
+
+
+
+
+
+
 legend('bottomright', legend=c('Glucose/Fructose/Sucrose/Mannose', 'Amino sugars', 'Galactose', 'Pentose', 'Valine/Leucine/Isoleucine', 'Glycine/Serine/Threonine'), 
        pt.bg=c(wes_palette("Darjeeling")[1], wes_palette("Darjeeling")[2], wes_palette("Darjeeling")[3], wes_palette("Darjeeling")[4], wes_palette("Darjeeling2")[4], 'green3'), 
        pch=21, cex=1.2, pt.cex=1.5, bty='n')
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Clean up
 dev.off()
 
 
