@@ -66,65 +66,130 @@ strep_metagenome$gene <- NULL
 strep_metagenome$pathway <- NULL
 
 # Merge metagenome tables
-temp_metagenome <- merge(cef_metagenome, clinda_metagenome, by='row.names')
-rownames(temp_metagenome) <- temp_metagenome$Row.names
-temp_metagenome$Row.names <- NULL
-temp_metagenome <- merge(temp_metagenome, strep_metagenome, by='row.names')
-rownames(temp_metagenome) <- temp_metagenome$Row.names
-temp_metagenome$Row.names <- NULL
-temp_metagenome <- merge(temp_metagenome, conv_metagenome, by='row.names')
-rownames(temp_metagenome) <- temp_metagenome$Row.names
-temp_metagenome$Row.names <- NULL
-
-
-
-# Merge metatranscriptome tables
-cef_630_mapping <- merge(cef_metagenome, cef_630_metatranscriptome, by='row.names')
-rownames(cef_630_mapping) <- cef_630_mapping$Row.names
-cef_630_mapping$Row.names <- NULL
-cef_all_mapping <- merge(cef_630_mapping, cef_mock_metatranscriptome, by='row.names')
-rownames(cef_all_mapping) <- cef_all_mapping$Row.names
-cef_all_mapping$Row.names <- NULL
-colnames(cef_all_mapping) <- c('metagenomic_reads', 'infected_metatranscriptomic_reads', 'mock_metatranscriptomic_reads','ko', 'gene', 'pathway')
-rm(cef_630_metatranscriptome, cef_mock_metatranscriptome)
-
-
-
-
-
-
-
-
-
-
-
-
-# Rarefy mappings to be equal within sequencing type
-read_totals <- colSums(combined_mapping[,c(1:3)])
-metaG_size <- round(read_totals[1] * 0.9) # 8309039
-metaT_size <- round(min(read_totals[2:3]) * 0.9) # 3375147
-combined_mapping$metagenome <- t(rrarefy(combined_mapping$metagenome, sample=metaG_size))
-combined_mapping$infected_metatranscriptome <- t(rrarefy(combined_mapping$infected_metatranscriptome, sample=metaT_size))
-combined_mapping$mock_metatranscriptome <- t(rrarefy(combined_mapping$mock_metatranscriptome, sample=metaT_size))
-
-# Eliminate genes with no metagenomic mappings
-combined_mapping <- subset(combined_mapping, metagenome != 0)
-
-# Normalize to metagenomic coverage
-combined_mapping <- subset(combined_mapping, infected_metatranscriptome != 0 & mock_metatranscriptome != 0)
-combined_mapping$infected_metatranscriptome <- combined_mapping$infected_metatranscriptome / combined_mapping$metagenome
-combined_mapping$mock_metatranscriptome <- combined_mapping$mock_metatranscriptome / combined_mapping$metagenome
-combined_mapping$metagenome <- NULL
-
-# Filter lowly abundant categories from normalized data, then log10 transform the data
-combined_mapping <- subset(combined_mapping, infected_metatranscriptome > 1 & mock_metatranscriptome > 1)
-combined_mapping$infected_metatranscriptome <- log10(combined_mapping$infected_metatranscriptome)
-combined_mapping$mock_metatranscriptome <- log10(combined_mapping$mock_metatranscriptome)
-norm_max <- max(combined_mapping[,c(1,2)])
+all_metagenome <- merge(cef_metagenome, clinda_metagenome, by='row.names')
+rownames(all_metagenome) <- all_metagenome$Row.names
+all_metagenome$Row.names <- NULL
+all_metagenome <- merge(all_metagenome, strep_metagenome, by='row.names')
+rownames(all_metagenome) <- all_metagenome$Row.names
+all_metagenome$Row.names <- NULL
+all_metagenome <- merge(all_metagenome, conv_metagenome, by='row.names')
+rownames(all_metagenome) <- all_metagenome$Row.names
+all_metagenome$Row.names <- NULL
+colnames(all_metagenome) <- c('cefoperazone', 'clindamycin', 'streptomycin', 'conventional', 'ko', 'gene', 'pathway')
+rm(cef_metagenome, clinda_metagenome, strep_metagenome, conv_metagenome)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Plotting Metatranscriptome VS Metatranscriptome
+# Format metatranscriptomic data for merging
+cef_630_metatranscriptome$ko <- NULL
+cef_630_metatranscriptome$gene <- NULL
+cef_630_metatranscriptome$pathway <- NULL
+cef_mock_metatranscriptome$ko <- NULL
+cef_mock_metatranscriptome$gene <- NULL
+cef_mock_metatranscriptome$pathway <- NULL
+clinda_630_metatranscriptome$ko <- NULL
+clinda_630_metatranscriptome$gene <- NULL
+clinda_630_metatranscriptome$pathway <- NULL
+clinda_mock_metatranscriptome$ko <- NULL
+clinda_mock_metatranscriptome$gene <- NULL
+clinda_mock_metatranscriptome$pathway <- NULL
+strep_630_metatranscriptome$ko <- NULL
+strep_630_metatranscriptome$gene <- NULL
+strep_630_metatranscriptome$pathway <- NULL
+strep_mock_metatranscriptome$ko <- NULL
+strep_mock_metatranscriptome$gene <- NULL
+strep_mock_metatranscriptome$pathway <- NULL
+
+# Merge metatranscriptome tables
+all_metatranscriptome <- merge(cef_630_metatranscriptome, cef_mock_metatranscriptome, by='row.names')
+rownames(all_metatranscriptome) <- all_metatranscriptome$Row.names
+all_metatranscriptome$Row.names <- NULL
+all_metatranscriptome <- merge(all_metatranscriptome, clinda_630_metatranscriptome, by='row.names')
+rownames(all_metatranscriptome) <- all_metatranscriptome$Row.names
+all_metatranscriptome$Row.names <- NULL
+all_metatranscriptome <- merge(all_metatranscriptome, clinda_mock_metatranscriptome, by='row.names')
+rownames(all_metatranscriptome) <- all_metatranscriptome$Row.names
+all_metatranscriptome$Row.names <- NULL
+all_metatranscriptome <- merge(all_metatranscriptome, strep_630_metatranscriptome, by='row.names')
+rownames(all_metatranscriptome) <- all_metatranscriptome$Row.names
+all_metatranscriptome$Row.names <- NULL
+all_metatranscriptome <- merge(all_metatranscriptome, strep_mock_metatranscriptome, by='row.names')
+rownames(all_metatranscriptome) <- all_metatranscriptome$Row.names
+all_metatranscriptome$Row.names <- NULL
+all_metatranscriptome <- merge(all_metatranscriptome, conv_metatranscriptome, by='row.names')
+rownames(all_metatranscriptome) <- all_metatranscriptome$Row.names
+all_metatranscriptome$Row.names <- NULL
+colnames(all_metatranscriptome) <- c('cefoperazone_630', 'cefoperazone_mock', 'clindamycin_630', 'clindamycin_mock', 'streptomycin_630', 'streptomycin_mock','conventional','ko', 'gene', 'pathway')
+rm(cef_630_metatranscriptome, cef_mock_metatranscriptome, clinda_630_metatranscriptome, 
+   clinda_mock_metatranscriptome, strep_630_metatranscriptome, strep_mock_metatranscriptome, conv_metatranscriptome)
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Determine subsample sizes
+metagenome_totals <- colSums(all_metagenome[,c(1:4)])
+metatranscriptome_totals <- colSums(all_metatranscriptome[,c(1:7)])
+metaG_size <- round(min(metagenome_totals) * 0.9) # 
+metaT_size <- round(min(metatranscriptome_totals) * 0.9) # 
+rm(metagenome_totals, metatranscriptome_totals)
+
+# Rarefy metagenomic data
+all_metagenome$cefoperazone <- t(rrarefy(all_metagenome$cefoperazone, sample=metaG_size))
+all_metagenome$clindamycin <- t(rrarefy(all_metagenome$clindamycin, sample=metaG_size))
+all_metagenome$streptomycin <- t(rrarefy(all_metagenome$streptomycin, sample=metaG_size))
+all_metagenome$conventional <- t(rrarefy(all_metagenome$conventional, sample=metaG_size))
+rm(metaG_size)
+
+# Eliminate genes with no metagenomic mappings
+all_metagenome$rowSums <- rowSums(all_metagenome[,c(1:4)])
+all_metagenome <- subset(all_metagenome, all_metagenome$rowSums != 0)
+all_metagenome$rowSums <- NULL
+   
+# Rarefy metatranscriptomic data
+all_metatranscriptome$cefoperazone_630 <- t(rrarefy(all_metatranscriptome$cefoperazone_630, sample=metaT_size))
+all_metatranscriptome$cefoperazone_mock <- t(rrarefy(all_metatranscriptome$cefoperazone_mock, sample=metaT_size))
+all_metatranscriptome$clindamycin_630 <- t(rrarefy(all_metatranscriptome$clindamycin_630, sample=metaT_size))
+all_metatranscriptome$clindamycin_mock <- t(rrarefy(all_metatranscriptome$clindamycin_mock, sample=metaT_size))
+all_metatranscriptome$streptomycin_630 <- t(rrarefy(all_metatranscriptome$streptomycin_630, sample=metaT_size))
+all_metatranscriptome$streptomycin_mock <- t(rrarefy(all_metatranscriptome$streptomycin_mock, sample=metaT_size))
+all_metatranscriptome$conventional <- t(rrarefy(all_metatranscriptome$conventional, sample=metaT_size))
+rm(metaT_size)
+
+# Normalize to metagenomic coverage
+all_metatranscriptome$cefoperazone_630 <- all_metatranscriptome$cefoperazone_630 / all_metagenome$cefoperazone
+all_metatranscriptome$cefoperazone_mock <- all_metatranscriptome$cefoperazone_mock / all_metagenome$cefoperazone
+all_metatranscriptome$clindamycin_630 <- all_metatranscriptome$clindamycin_630 / all_metagenome$clindamycin
+all_metatranscriptome$clindamycin_mock <- all_metatranscriptome$clindamycin_mock / all_metagenome$clindamycin
+all_metatranscriptome$streptomycin_630 <- all_metatranscriptome$streptomycin_630 / all_metagenome$streptomycin
+all_metatranscriptome$streptomycin_mock <- all_metatranscriptome$streptomycin_mock / all_metagenome$streptomycin
+all_metatranscriptome$conventional <- all_metatranscriptome$conventional / all_metagenome$conventional
+rm(all_metagenome)
+
+# Separate treatment groups
+cef_metatranscriptome <- all_metatranscriptome[,c(1,2,8:10)]
+clinda_metatranscriptome <- all_metatranscriptome[,c(3,4,8:10)]
+strep_metatranscriptome <- all_metatranscriptome[,c(5,6,8:10)]
+conv_metatranscriptome <- all_metatranscriptome[,c(7:10)]
+rm(all_metatranscriptome)
+
+# Filter lowly abundant categories from normalized data, then log10 transform the data
+cef_metatranscriptome$cefoperazone_630[cef_metatranscriptome$cefoperazone_630 == 0] <- 1
+cef_metatranscriptome$cefoperazone_6mock[cef_metatranscriptome$cefoperazone_mock == 0] <- 1
+cef_metatranscriptome[,c(1,2)] <- log10(cef_metatranscriptome[,c(1,2)])
+clinda_metatranscriptome$clindamycin_630[clinda_metatranscriptome$clindamycin_630 == 0] <- 1
+clinda_metatranscriptome$clindamycin_mock[clinda_metatranscriptome$clindamycin_mock == 0] <- 1
+clinda_metatranscriptome[,c(1,2)] <- log10(clinda_metatranscriptome[,c(1,2)])
+strep_metatranscriptome$streptomycin_630[strep_metatranscriptome$streptomycin_630 == 0] <- 1
+strep_metatranscriptome$streptomycin_mock[strep_metatranscriptome$streptomycin_mock == 0] <- 1
+strep_metatranscriptome[,c(1,2)] <- log10(strep_metatranscriptome[,c(1,2)])
+conv_metatranscriptome$conventional[conv_metatranscriptome$conventional == 0] <- 1
+conv_metatranscriptome[,1] <- log10(conv_metatranscriptome[,1])
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+
+
+
+
 
 # Subset data to color specific groups 
 # Highest resolution - Known C. difficile 630 carbon sources
