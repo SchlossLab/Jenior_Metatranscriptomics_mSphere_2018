@@ -247,12 +247,15 @@ points(pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[4], col='
 points(valine_leucine_isoleucine[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling2")[4], col='black')
 points(glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg='green3', col='black')
 
+legend('topleft', 'Cefoperazone')
+
+
+#-------------------------------------------------------------------------------------------------------------------------#
 
 
 
 
-
-legend('bottomright', legend=c('Glucose/Fructose/Sucrose/Mannose', 'Amino sugars', 'Galactose', 'Pentose', 'Valine/Leucine/Isoleucine', 'Glycine/Serine/Threonine'), 
+legend('center', legend=c('Glucose/Fructose/Sucrose/Mannose', 'Amino sugars', 'Galactose', 'Pentose', 'Valine/Leucine/Isoleucine', 'Glycine/Serine/Threonine'), 
        pt.bg=c(wes_palette("Darjeeling")[1], wes_palette("Darjeeling")[2], wes_palette("Darjeeling")[3], wes_palette("Darjeeling")[4], wes_palette("Darjeeling2")[4], 'green3'), 
        pch=21, cex=1.2, pt.cex=1.5, bty='n')
 
