@@ -119,7 +119,7 @@ all_metatranscriptome$Row.names <- NULL
 all_metatranscriptome <- merge(all_metatranscriptome, conv_metatranscriptome, by='row.names')
 rownames(all_metatranscriptome) <- all_metatranscriptome$Row.names
 all_metatranscriptome$Row.names <- NULL
-colnames(all_metatranscriptome) <- c('cefoperazone_630', 'cefoperazone_mock', 'clindamycin_630', 'clindamycin_mock', 'streptomycin_630', 'streptomycin_mock','conventional_630','ko', 'gene', 'pathway')
+colnames(all_metatranscriptome) <- c('cefoperazone_630', 'cefoperazone_mock', 'clindamycin_630', 'clindamycin_mock', 'streptomycin_630', 'streptomycin_mock','conventional_metaT','ko', 'gene', 'pathway')
 rm(cef_630_metatranscriptome, cef_mock_metatranscriptome, clinda_630_metatranscriptome, 
    clinda_mock_metatranscriptome, strep_630_metatranscriptome, strep_mock_metatranscriptome, conv_metatranscriptome)
 
@@ -130,14 +130,14 @@ metagenome_totals <- colSums(all_metagenome[,c(1:4)])
 metatranscriptome_totals <- colSums(all_metatranscriptome[,c(1:7)])
 metaG_size <- round(min(metagenome_totals) * 0.9) # 
 metaT_size <- round(min(metatranscriptome_totals) * 0.9) # 
-rm(metagenome_totals, metatranscriptome_totals)
+optimal_size <- min(c(metaG_size, metaT_size))
+rm(metagenome_totals, metatranscriptome_totals, metaG_size, metaT_size)
 
 # Rarefy metagenomic data
-all_metagenome$cefoperazone <- t(rrarefy(all_metagenome$cefoperazone, sample=metaG_size))
-all_metagenome$clindamycin <- t(rrarefy(all_metagenome$clindamycin, sample=metaG_size))
-all_metagenome$streptomycin <- t(rrarefy(all_metagenome$streptomycin, sample=metaG_size))
-all_metagenome$conventional <- t(rrarefy(all_metagenome$conventional, sample=metaG_size))
-rm(metaG_size)
+all_metagenome$cefoperazone <- t(rrarefy(all_metagenome$cefoperazone, sample=optimal_size))
+all_metagenome$clindamycin <- t(rrarefy(all_metagenome$clindamycin, sample=optimal_size))
+all_metagenome$streptomycin <- t(rrarefy(all_metagenome$streptomycin, sample=optimal_size))
+all_metagenome$conventional <- t(rrarefy(all_metagenome$conventional, sample=optimal_size))
 
 # Eliminate genes with no metagenomic mappings
 all_metagenome$cefoperazone[all_metagenome$cefoperazone == 0] <- 1
@@ -146,14 +146,14 @@ all_metagenome$streptomycin[all_metagenome$streptomycin == 0] <- 1
 all_metagenome$conventional[all_metagenome$conventional == 0] <- 1
 
 # Rarefy metatranscriptomic data
-all_metatranscriptome$cefoperazone_630 <- t(rrarefy(all_metatranscriptome$cefoperazone_630, sample=metaT_size))
-all_metatranscriptome$cefoperazone_mock <- t(rrarefy(all_metatranscriptome$cefoperazone_mock, sample=metaT_size))
-all_metatranscriptome$clindamycin_630 <- t(rrarefy(all_metatranscriptome$clindamycin_630, sample=metaT_size))
-all_metatranscriptome$clindamycin_mock <- t(rrarefy(all_metatranscriptome$clindamycin_mock, sample=metaT_size))
-all_metatranscriptome$streptomycin_630 <- t(rrarefy(all_metatranscriptome$streptomycin_630, sample=metaT_size))
-all_metatranscriptome$streptomycin_mock <- t(rrarefy(all_metatranscriptome$streptomycin_mock, sample=metaT_size))
-all_metatranscriptome$conventional <- t(rrarefy(all_metatranscriptome$conventional, sample=metaT_size))
-rm(metaT_size)
+all_metatranscriptome$cefoperazone_630 <- t(rrarefy(all_metatranscriptome$cefoperazone_630, sample=optimal_size))
+all_metatranscriptome$cefoperazone_mock <- t(rrarefy(all_metatranscriptome$cefoperazone_mock, sample=optimal_size))
+all_metatranscriptome$clindamycin_630 <- t(rrarefy(all_metatranscriptome$clindamycin_630, sample=optimal_size))
+all_metatranscriptome$clindamycin_mock <- t(rrarefy(all_metatranscriptome$clindamycin_mock, sample=optimal_size))
+all_metatranscriptome$streptomycin_630 <- t(rrarefy(all_metatranscriptome$streptomycin_630, sample=optimal_size))
+all_metatranscriptome$streptomycin_mock <- t(rrarefy(all_metatranscriptome$streptomycin_mock, sample=optimal_size))
+all_metatranscriptome$conventional <- t(rrarefy(all_metatranscriptome$conventional, sample=optimal_size))
+rm(optimal_size)
 
 # Merge metagenomes and metatranscriptomes
 all_metagenome$ko <- NULL
@@ -162,28 +162,21 @@ all_metagenome$pathway <- NULL
 full_mapping <- merge(all_metagenome, all_metatranscriptome, by='row.names')
 rm(all_metagenome, all_metatranscriptome)
 
-
-
-
 # Normalize to metagenomic coverage
-
-
-
-all_metatranscriptome$cefoperazone_630 <- all_metatranscriptome$cefoperazone_630 / all_metagenome$cefoperazone
-all_metatranscriptome$cefoperazone_mock <- all_metatranscriptome$cefoperazone_mock / all_metagenome$cefoperazone
-all_metatranscriptome$clindamycin_630 <- all_metatranscriptome$clindamycin_630 / all_metagenome$clindamycin
-all_metatranscriptome$clindamycin_mock <- all_metatranscriptome$clindamycin_mock / all_metagenome$clindamycin
-all_metatranscriptome$streptomycin_630 <- all_metatranscriptome$streptomycin_630 / all_metagenome$streptomycin
-all_metatranscriptome$streptomycin_mock <- all_metatranscriptome$streptomycin_mock / all_metagenome$streptomycin
-all_metatranscriptome$conventional <- all_metatranscriptome$conventional / all_metagenome$conventional
-rm(all_metagenome)
+full_mapping$cefoperazone_630 <- full_mapping$cefoperazone_630 / full_mapping$cefoperazone
+full_mapping$cefoperazone_mock <- full_mapping$cefoperazone_mock / full_mapping$cefoperazone
+full_mapping$clindamycin_630 <- full_mapping$clindamycin_630 / full_mapping$clindamycin
+full_mapping$clindamycin_mock <- full_mapping$clindamycin_mock / full_mapping$clindamycin
+full_mapping$streptomycin_630 <- full_mapping$streptomycin_630 / full_mapping$streptomycin
+full_mapping$streptomycin_mock <- full_mapping$streptomycin_mock / full_mapping$streptomycin
+full_mapping$conventional_metaT <- full_mapping$conventional_metaT / full_mapping$conventional
 
 # Separate treatment groups
-cef_metatranscriptome <- all_metatranscriptome[,c(1,2,8:10)]
-clinda_metatranscriptome <- all_metatranscriptome[,c(3,4,8:10)]
-strep_metatranscriptome <- all_metatranscriptome[,c(5,6,8:10)]
-conv_metatranscriptome <- all_metatranscriptome[,c(7:10)]
-rm(all_metatranscriptome)
+cef_metatranscriptome <- full_mapping[,c(1,2,13:15)]
+clinda_metatranscriptome <- full_mapping[,c(3,4,13:15)]
+strep_metatranscriptome <- full_mapping[,c(5,6,13:15)]
+conv_metatranscriptome <- full_mapping[,c(7,8,13:15)]
+rm(full_mapping)
 
 # Filter lowly abundant categories from normalized data, then log10 transform the data
 cef_metatranscriptome$cefoperazone_630[cef_metatranscriptome$cefoperazone_630 < 1] <- 1
