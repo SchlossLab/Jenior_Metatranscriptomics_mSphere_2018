@@ -305,46 +305,4 @@ legend('center', legend=c('Glycolysis', 'Amino sugars', 'Galactose', 'Fructose/M
 
 # Clean up
 dev.off()
-
-
-
-
-
-
-
-# Subset cef treatment to zoom in on mock upregulation
-mock_enriched <- subset(combined_mapping, infected_metatranscriptome < 1.2 & mock_metatranscriptome > 1.8)
-par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0))
-plot(x=mock_enriched$infected_metatranscriptome, y=mock_enriched$mock_metatranscriptome, 
-     xlim=c(0,1.2), ylim=c(1.8,3), pch=20, col='gray25', xaxt='n', yaxt='n',
-     xlab='Normalized cDNA Read Abundance (Infected)', ylab='Normalized cDNA Read Abundance (Mock)')
-abline(a=0, b=1, lwd=2)
-
-xaxis_labels <- parse(text=paste(rep(10,4), '^', seq(0,1.2,0.2), sep=''))
-yaxis_labels <- parse(text=paste(rep(10,4), '^', seq(1.8,3,0.2), sep=''))
-axis(side=1, at=seq(0,1.2,0.2), xaxis_labels, tick=TRUE)
-axis(side=2, at=seq(1.8,3,0.2), yaxis_labels, tick=TRUE, las=1)
-points(pathway[,c(1,2)], cex=1.5, pch=21, bg=point_color, col='black')
-
-abline(h=1.3, lwd=2)
-abline(v=1.8, lwd=2)
-
-
-# Subset cef treatment to zoom in on mock upregulation
-mock_enriched <- subset(combined_mapping, infected_metatranscriptome < 1.2 & mock_metatranscriptome > 1.8)
-par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0))
-plot(x=mock_enriched$infected_metatranscriptome, y=mock_enriched$mock_metatranscriptome, 
-     xlim=c(0,1.2), ylim=c(1.8,3), pch=20, col='gray25', xaxt='n', yaxt='n',
-     xlab='Normalized cDNA Read Abundance (Infected)', ylab='Normalized cDNA Read Abundance (Mock)')
-#legend('topleft', legend=pathway_name, bty='n', cex=1.5) 
-abline(a=0, b=1, lwd=2)
-
-xaxis_labels <- parse(text=paste(rep(10,4), '^', seq(0,1.2,0.2), sep=''))
-yaxis_labels <- parse(text=paste(rep(10,4), '^', seq(1.8,3,0.2), sep=''))
-axis(side=1, at=seq(0,1.2,0.2), xaxis_labels, tick=TRUE)
-axis(side=2, at=seq(1.8,3,0.2), yaxis_labels, tick=TRUE, las=1)
-points(pathway[,c(1,2)], cex=1.5, pch=21, bg=point_color, col='black')
-
-
-
-
+rm(cef_metatranscriptome, clinda_metatranscriptome, strep_metatranscriptome, plot_file)
