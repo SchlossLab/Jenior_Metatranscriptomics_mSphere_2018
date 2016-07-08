@@ -252,7 +252,7 @@ points(cef_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeelin
 points(cef_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling2")[4], col='black')
 points(cef_proline[,c(1,2)], cex=1.5, pch=21, bg='green3', col='black')
 points(cef_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg='red', col='black')
-legend('topleft', 'Cefoperazone')
+legend('topleft', 'Cefoperazone', cex=0.8)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -272,7 +272,7 @@ points(clinda_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjee
 points(clinda_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling2")[4], col='black')
 points(clinda_proline[,c(1,2)], cex=1.5, pch=21, bg='green3', col='black')
 points(clinda_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg='red', col='black')
-legend('topleft', 'Clindamycin')
+legend('topleft', 'Clindamycin', cex=0.8)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -292,7 +292,7 @@ points(strep_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeel
 points(strep_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling2")[4], col='black')
 points(strep_proline[,c(1,2)], cex=1.5, pch=21, bg='green3', col='black')
 points(strep_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg='red', col='black')
-legend('topleft', 'Streptomycin')
+legend('topleft', 'Streptomycin', cex=0.8)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -305,4 +305,4 @@ legend('center', legend=c('Glycolysis', 'Amino sugars', 'Galactose', 'Fructose/M
 
 # Clean up
 dev.off()
-rm(cef_metatranscriptome, clinda_metatranscriptome, strep_metatranscriptome, plot_file)
+#rm(cef_metatranscriptome, clinda_metatranscriptome, strep_metatranscriptome, plot_file)
