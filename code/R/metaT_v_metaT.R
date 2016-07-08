@@ -9,24 +9,24 @@ for (dep in deps){
 
 # Define input file names
 cef_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Clindamycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Streptomycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+conv_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Conventional.DNA_reads2pangenome.all.norm.remove.annotated.txt'
 
 cef_630_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 cef_mock_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/cefoperazone_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_630_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_mock_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/cefoperazone_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_630_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_mock_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/cefoperazone_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_630_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/clindamycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_mock_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/clindamycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_630_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/streptomycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_mock_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+conv_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 
 # Load in data
 # Metagenomes
 cef_metagenome <- read.delim(cef_metagenome_file, sep='\t', header=FALSE, row.names=1)
-colnames(cef_metagenome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(cef_metagenome) <- c('cefoperazone_metaG', 'ko', 'gene', 'pathway')
 clinda_metagenome <- read.delim(clinda_metagenome_file, sep='\t', header=FALSE, row.names=1)
-colnames(clinda_metagenome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(clinda_metagenome) <- c('clindamycin_metaG', 'ko', 'gene', 'pathway')
 strep_metagenome <- read.delim(strep_metagenome_file, sep='\t', header=FALSE, row.names=1)
 colnames(strep_metagenome) <- c('reads', 'ko', 'gene', 'pathway')
 conv_metagenome <- read.delim(conv_metagenome_file, sep='\t', header=FALSE, row.names=1)
@@ -234,7 +234,7 @@ strep_glycine_serine_threonine <- subset(strep_metatranscriptome, grepl('*Glycin
 
 # Define which pathway to plot and the ouput file name
 plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/figures/figure_3.pdf'
-pdf(file=plot_file, width=14, height=14)
+pdf(file=plot_file, width=10, height=10)
 layout(matrix(c(1,2,
                 3,4), 
               nrow=2, ncol=2, byrow = TRUE))
@@ -242,65 +242,63 @@ layout(matrix(c(1,2,
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Cefoperazone
-par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0))
+par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0), xaxs='i', yaxs='i')
 plot(x=cef_metatranscriptome$cefoperazone_630, y=cef_metatranscriptome$cefoperazone_mock, 
      xlim=c(0,4), ylim=c(0,4), pch=20, col='black', xaxt='n', yaxt='n', 
      xlab='Normalized cDNA Read Abundance (Infected)', ylab='Normalized cDNA Read Abundance (Mock)')
 segments(-2, -2, 8, 8, lwd=2, lty=2)
-axis_labels <- parse(text=paste(rep(10,4), '^', seqs(0,4,1), sep=''))
+axis_labels <- parse(text=paste(rep(10,4), '^', seq(0,4,1), sep=''))
 axis(side=1, at=c(0:4), axis_labels, tick=TRUE)
 axis(side=2, at=c(0:4), axis_labels, tick=TRUE, las=1)
-points(cef_glycolysis[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[1], col='black')
-points(cef_amino_sugar[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[2], col='black')
-points(cef_galactose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[3], col='black')
-points(cef_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[4], col='black')
-points(cef_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling2")[4], col='black')
-points(cef_proline[,c(1,2)], cex=1.5, pch=21, bg='green3', col='black')
-points(cef_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg='red', col='black')
-legend('topleft', 'Cefoperazone', bty='n')
+points(cef_glycolysis[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[5], col='black')
+points(cef_amino_sugar[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[3], col='black')
+points(cef_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[4], col='black')
+points(cef_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[3], col='black')
+points(cef_proline[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[4], col='black')
+points(cef_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Zissou')[3], col='black')
+legend('topleft', 'Cefoperazone', bty='n', cex=1.4)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clindamycin
-par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0))
+par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0), xaxs='i', yaxs='i')
 plot(x=clinda_metatranscriptome$clindamycin_630, y=clinda_metatranscriptome$clindamycin_mock, 
      xlim=c(0,4), ylim=c(0,4), pch=20, col='black', xaxt='n', yaxt='n', 
      xlab='Normalized cDNA Read Abundance (Infected)', ylab='Normalized cDNA Read Abundance (Mock)')
 segments(-2, -2, 8, 8, lwd=2, lty=2)
 axis(side=1, at=c(0:4), axis_labels, tick=TRUE)
 axis(side=2, at=c(0:4), axis_labels, tick=TRUE, las=1)
-points(clinda_glycolysis[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[1], col='black')
-points(clinda_amino_sugar[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[2], col='black')
-points(clinda_galactose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[3], col='black')
-points(clinda_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[4], col='black')
-points(clinda_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling2")[4], col='black')
-points(clinda_proline[,c(1,2)], cex=1.5, pch=21, bg='green3', col='black')
-points(clinda_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg='red', col='black')
-legend('topleft', 'Clindamycin', bty='n')
+points(clinda_glycolysis[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[5], col='black')
+points(clinda_amino_sugar[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[3], col='black')
+points(clinda_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[4], col='black')
+points(clinda_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[3], col='black')
+points(clinda_proline[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[4], col='black')
+points(clinda_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Zissou')[3], col='black')
+legend('topleft', 'Clindamycin', bty='n', cex=1.4)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Streptomycin
-par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0))
+par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0), xaxs='i', yaxs='i')
 plot(x=strep_metatranscriptome$streptomycin_630, y=strep_metatranscriptome$streptomycin_mock, 
      xlim=c(0,4), ylim=c(0,4), pch=20, col='black', xaxt='n', yaxt='n', 
      xlab='Normalized cDNA Read Abundance (Infected)', ylab='Normalized cDNA Read Abundance (Mock)')
 segments(-2, -2, 8, 8, lwd=2, lty=2)
 axis(side=1, at=c(0:4), axis_labels, tick=TRUE)
 axis(side=2, at=c(0:4), axis_labels, tick=TRUE, las=1)
-points(strep_glycolysis[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[1], col='black')
-points(strep_amino_sugar[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[2], col='black')
-points(strep_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling")[4], col='black')
-points(strep_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette("Darjeeling2")[4], col='black')
-points(strep_proline[,c(1,2)], cex=1.5, pch=21, bg='green3', col='black')
-points(strep_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg='red', col='black')
-legend('topleft', 'Streptomycin', bty='n')
+points(strep_glycolysis[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[5], col='black')
+points(strep_amino_sugar[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[3], col='black')
+points(strep_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[4], col='black')
+points(strep_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[3], col='black')
+points(strep_proline[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[4], col='black')
+points(strep_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Zissou')[3], col='black')
+legend('topleft', 'Streptomycin', bty='n', cex=1.4)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 plot(1, type="n", axes=F, xlab="", ylab="")
 legend('center', legend=c('Glycolysis', 'Amino sugars', 'Fructose/Mannose','Pentose', 'Proline', 'Glycine/Serine/Threonine'), 
-       pt.bg=c(wes_palette("Darjeeling")[1], wes_palette("Darjeeling")[2], wes_palette("Darjeeling")[4], wes_palette("Darjeeling2")[4], 'green3', 'red'), 
+       pt.bg=c(wes_palette('Rushmore')[5], wes_palette('FantasticFox')[3], wes_palette('Rushmore')[4], wes_palette('Rushmore')[3], wes_palette('FantasticFox')[4], wes_palette('Zissou')[3]), 
        pch=21, cex=1.6, pt.cex=2.5)
 
 #-------------------------------------------------------------------------------------------------------------------------#
