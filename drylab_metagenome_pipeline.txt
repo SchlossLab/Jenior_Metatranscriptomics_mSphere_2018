@@ -1,0 +1,229 @@
+# Matt Jenior - Schloss Laboratory - University of Michigan - 2016
+
+# This pipeline curates metagenomic reads, assembles, and annotates them to enable metagenomic-enabled metatranscriptomics
+
+# Table of Contents
+# 1. Read pooling
+# 2. Quality trimming
+# 3. Assembly
+# 4. Contig QC
+# 5. Gene calling
+# 6. Annotation
+# 7. Read mapping
+# 8. Appendix
+
+
+# Single command to curate, assemble, and annotate all metagneomes
+for condition in 'Conventional' 'Cefoperazone' 'Streptomycin' 'Clindamycin'; do bash /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pbs/curate_metagenome.bash $condition; done
+
+# Single command to map all RNA and DNA reads to respective metagenomes 
+for condition in 'Conventional' 'Cefoperazone' 'Streptomycin' 'Clindamycin'; do bash /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pbs/mapping.bash $condition 50 250; done
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 1. Pool raw read files from the same sample
+
+zcat *_L001_R1_*.fastq.gz > metagenome.lane1.read1.fastq.gz
+zcat *_L001_R2_*.fastq.gz > metagenome.lane1.read2.fastq.gz
+zcat *_L002_R1_*.fastq.gz > metagenome.lane2.read1.fastq.gz
+zcat *_L002_R2_*.fastq.gz > metagenome.lane2.read2.fastq.gz
+
+zcat metagenome.lane1.read1.fastq.gz metagenome.lane2.read1.fastq.gz > metagenome.read1.pool.fastq.gz
+zcat metagenome.lane1.read2.fastq.gz metagenome.lane2.read2.fastq.gz > metagenome.read2.pool.fastq.gz
+
+rm *.read1.fastq.gz *.read2.fastq.gz
+gunzip metagenome.*.pool.fastq.gz
+
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.read1.pool.fastq > metagenome.pooling.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.read2.pool.fastq >> metagenome.pooling.summary
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 2. Quality trim the data
+
+# Trim residual adapter sequences
+python2.7 /mnt/EXT/Schloss-data/bin/cutadapt-1.9.1/bin/cutadapt --error-rate=0.1 --overlap=10 -a ${forward} -A ${reverse} -o metagenome.read1.pool.cut.fastq -p metagenome.read2.pool.cut.fastq metagenome.read1.pool.fastq metagenome.read2.pool.fastq
+
+# Trim based on quality scores
+/home/mljenior/bin/sickle/sickle pe -t sanger -f metagenome.read1.pool.cut.fastq -r metagenome.read2.pool.cut.fastq -o metagenome.read1.pool.cut.trim.fastq -p metagenome.read2.pool.cut.trim.fastq -s metagenome.pool.cut.trim.orphan.fastq
+
+# Convert fastqs to fastas
+awk '{print ">" substr($0,2);getline;print;getline;getline}' metagenome.read1.pool.cut.trim.fastq > metagenome.read1.pool.cut.trim.fasta
+awk '{print ">" substr($0,2);getline;print;getline;getline}' metagenome.read2.pool.cut.trim.fastq > metagenome.read2.pool.cut.trim.fasta
+awk '{print ">" substr($0,2);getline;print;getline;getline}' metagenome.pool.cut.trim.orphan.fastq > metagenome.pool.cut.trim.orphan.fasta
+
+# Return states on trimmed fastas
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.read1.pool.cut.trim.fasta > metagenome.trimming.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.read2.pool.cut.trim.fasta >> metagenome.trimming.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.pool.cut.trim.orphan.fasta >> metagenome.trimming.summary
+
+# Clean up intermediate files
+rm *.trim.fastq *.orphan.fastq *.pool.fastq *.cut.fastq
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 3. Assembly
+
+# Assemble reads 
+python /home/mljenior/bin/megahit/megahit -t 16 -m 45000000000 -l 251 -1 /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/metagenome/fastq/metagenome.read1.pool.cut.trim.fasta -2 /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/metagenome/fastq/metagenome.read2.pool.cut.trim.fasta -r /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/metagenome/fastq/metagenome.pool.cut.trim.orphan.fasta --k-min 87 --k-max 127 --k-step 10 -o metagenome.megahit
+
+# Remove contigs shorter than read length
+python /share/scratch/bin/removeShortContigs.py metagenome.megahit/final.contigs.fa metagenome.megahit/metagenome.final.contigs.250.fa 250
+
+# Return some stats on the final contigs
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.megahit/metagenome.final.contigs.250.fa > metagenome.megahit/metagenome.assembly.summary
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 4. Quality check of contigs
+
+# Build bowtie database from contigs
+cp /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/metagenome/assembly/metagenome.megahit/metagenome.final.contigs.250.fa ./
+/home/mljenior/bin/bowtie2/bowtie2-build metagenome.final.contigs.250.fa metagenome_contig_database
+rm metagenome.final.contigs.250.fa
+
+# Align reads to contigs
+/home/mljenior/bin/bowtie2/bowtie2 -f --fr -x metagenome_contig_database -1 /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/metagenome/fastq/metagenome.read1.pool.cut.trim.fasta -2 /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/metagenome/fastq/metagenome.read2.pool.cut.trim.fasta -S metagenome.DNA_reads2contigs.sam
+
+# Translate the results to human readable format
+samtools view -bS metagenome.reads2contigs.sam > metagenome.DNA_reads2contigs.bam
+samtools sort metagenome.DNA_reads2contigs.bam metagenome.DNA_reads2contigs.sorted
+samtools index metagenome.DNA_reads2contigs.sorted.bam
+samtools idxstats metagenome.DNA_reads2contigs.sorted.bam > metagenome.DNA_	reads2contigs.txt
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 5. Call genes
+
+cp /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/metagenome/assembly/metagenome.megahit/metagenome.final.contigs.250.fa ./
+
+/home/mljenior/bin/Prodigal/prodigal -i metagenome.final.contigs.250.fa -o metagenome.genes.coords -d metagenome.genes.fna -a metagenome.genes.faa
+
+rm metagenome.final.contigs.250.fa
+
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.genes.fna > metagenome.gene_calling.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.genes.faa >> metagenome.gene_calling.summary
+
+python /share/scratch/bin/removeShortContigs.py metagenome.genes.fna metagenome.genes.250.fna 250
+python /share/scratch/bin/removeShortContigs.py metagenome.genes.faa metagenome.genes.80.faa 80
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.genes.250.fna >> metagenome.gene_calling.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.genes.80.faa >> metagenome.gene_calling.summary
+
+python /home/mljenior/scripts/format_fasta.py metagenome.genes.250.fna metagenome.genes.250.format.fna
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.genes.250.format.fna >> metagenome.gene_calling.summary
+
+python /home/mljenior/scripts/format_fasta.py metagenome.genes.80.faa metagenome.genes.80.format.faa
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.genes.80.format.faa >> metagenome.gene_calling.summary
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 6. Annotate called genes
+
+/mnt/EXT/Schloss-data/bin/diamond blastp -p 16 -d /mnt/EXT/Schloss-data/kegg/kegg/genes/fasta/kegg.diamond.prot.db -q metagenome.genes.80.format.faa -a /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/metagenome/annotation/metagenome.annotated --max-target-seqs 1
+/mnt/EXT/Schloss-data/bin/diamond view -a metagenome.annotated.daa -f tab -o metagenome.protVprot.out
+
+python /home/mljenior/scripts/annotate_fasta.py metagenome.genes.250.format.fna metagenome.protVprot.out metagenome.genes.250.format.annotated.fna
+
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metagenome.genes.250.format.annotated.filter.fna > metagenome.annotation.summary
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 7. Map reads back onto annotated genes
+
+/home/mljenior/bin/bowtie2/bowtie2 -f --fr -x metagenome_metaG_db -1 metagenome.read1.pool.cut.trim.fasta -2 metagenome.read2.pool.cut.trim.fasta -S metagenome.pair.DNA_reads2metaG.sam
+samtools view -bS metagenome.pair.DNA_reads2metaG.sam > metagenome.pair.DNA_reads2metaG.bam
+samtools sort metagenome.pair.DNA_reads2metaG.bam metagenome.pair.DNA_reads2metaG.sorted
+
+/home/mljenior/bin/bowtie2/bowtie2 -f -x metagenome_metaG_db -U metagenome.pool.cut.trim.orphan.fasta -S metagenome.orphan.DNA_reads2metaG.sam
+samtools view -bS metagenome.orphan.DNA_reads2metaG.sam > metagenome.orphan.DNA_reads2metaG.bam
+samtools sort metagenome.orphan.DNA_reads2metaG.bam metagenome.orphan.DNA_reads2metaG.sorted
+
+samtools merge metagenome.DNA_reads2metaG.sorted.merge.bam metagenome.pair.DNA_reads2metaG.sorted.bam metagenome.orphan.DNA_reads2metaG.sorted.bam
+samtools index metagenome.DNA_reads2metaG.sorted.merge.bam
+samtools idxstats metagenome.DNA_reads2metaG.sorted.merge.bam > metagenome.DNA_reads2metaG.txt
+
+/home/mljenior/scripts/idxstats/pool_unmapped_idxstats.py metagenome.DNA_reads2metaG.txt
+/home/mljenior/scripts/idxstats/normalize_idxstats.py metagenome.DNA_reads2metaG.pool.txt 250
+/home/mljenior/scripts/idxstats/count_idxstats.py metagenome.DNA_reads2metaG.pool.norm.txt
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 8. After counting mapped reads, subsample evenly within a study (~90% smallest)
+
+/home/mljenior/scripts/idxstats/rarefy_idxstats.py metagenome.DNA_reads2metaG.pool.norm.txt count
+/home/mljenior/scripts/idxstats/relabund_idxstats.py metagenome.DNA_reads2metaG.pool.norm.pick.txt
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 9. Extra
+
+Making diamond blast db
+
+metagenomic bowtie2 dbs
+
+
+
+
+
+#!/bin/bash
+
+# Set up output directories
+mkdir /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/$1/assembly
+mkdir /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/$1/assembly/QC
+mkdir /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/$1/annotation
+
+
+# Assign correct Nextera XT primer pair that was used (5' + 3' reverse complement)
+if [ $1 = 'Conventional' ]; then
+	F_primer=CAAGCAGAAGACGGCATACGAGATTAAGGCGAGTCTCGTGGGCTCGG
+	R_primer=GACGCTGCCGACGAGCGATCTAGTGTAGATCTCGGTGGTCGCCGTATCATT
+fi
+
+if [ $1 = 'Cefoperazone' ]; then
+	F_primer=CAAGCAGAAGACGGCATACGAGATAGGCAGAAGTCTCGTGGGCTCGG
+	R_primer=GACGCTGCCGACGAAGAGGATAGTGTAGATCTCGGTGGTCGCCGTATCATT
+fi
+
+if [ $1 = 'Streptomycin' ]; then
+	F_primer=CAAGCAGAAGACGGCATACGAGATTCCTGAGCGTCTCGTGGGCTCGG
+	R_primer=GACGCTGCCGACGATCTACTCTGTGTAGATCTCGGTGGTCGCCGTATCATT
+fi
+
+if [ $1 = 'Clindamycin' ]; then
+	F_primer=CAAGCAGAAGACGGCATACGAGATCGTACTAGGTCTCGTGGGCTCGG
+	R_primer=AATGATACGGCGACCACCGAGATCTACACCTCTCTATTCGTCGGCAGCGTC
+fi
+
+
+# Lane pooling and quality trimming 
+cd /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/$1/fastq/
+pooling_job_id=$(qsub -v metagenome=$1 /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pbs/pool.pbs | sed 's/\..*$//')
+echo $1 read pooling job submitted. Job ID $pooling_job_id
+trimming_job_id=$(qsub -v metagenome=$1,forward=$F_primer,reverse=$R_primer -W depend=afterok:$pooling_job_id /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pbs/trimming.pbs | sed 's/\..*$//')
+echo $1 quality trimming job submitted. Job ID $trimming_job_id
+
+
+# Assembly and quality control
+cd /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/$1/assembly
+assembly_job_id=$(qsub -v metagenome=$1 -W depend=afterok:$trimming_job_id /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pbs/assembly.pbs | sed 's/\..*$//')
+echo $1 assembly job submitted. Job ID $assembly_job_id
+cd /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/$1/assembly/QC
+bowtie_job_id=$(qsub -v metagenome=$1 -W depend=afterok:$assembly_job_id /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pbs/reads2contigs.pbs | sed 's/\..*$//')
+echo $1 read-to-contig mapping job submitted. Job ID $bowtie_job_id
+
+
+# Gene calling and annotation
+cd /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/$1/annotation
+genes_job_id=$(qsub -v metagenome=$1 -W depend=afterok:$assembly_job_id /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pbs/gene_calling.pbs | sed 's/\..*$//')
+echo $1 gene calling job submitted. Job ID $genes_job_id
+annotation_job_id=$(qsub -v metagenome=$1,count=$2 -W depend=afterok:$genes_job_id /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pbs/annotation.pbs | sed 's/\..*$//')
+echo $1 annotation job submitted. Job ID $annotation_job_id
+
+echo
+
+
+
+
+
+
+
