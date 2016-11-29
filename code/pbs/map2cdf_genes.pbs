@@ -1,0 +1,67 @@
+#!/bin/sh
+#PBS -N map2cdf_RNA
+#PBS -l nodes=1:ppn=8
+#PBS -l walltime=500:00:00
+#PBS -l mem=46gb
+#PBS -j oe
+#PBS -m abe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -q first
+#PBS -A schloss_lab
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+
+cd $PBS_O_WORKDIR
+
+NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
+
+
+# Align paired reads to C. difficile 630 genes
+/home/mljenior/bin/bowtie2/bowtie2 -f --fr -p 8 -x /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/dbs/cdf/cdf_db -1 /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/curated/${transcriptome}.read1.pool.cut.trim.silva_filter.mus_filter.fasta -2 /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/curated/${transcriptome}.read2.pool.cut.trim.silva_filter.mus_filter.fasta -S ${transcriptome}.pair.RNA_reads2cdf630.sam
+samtools view -bS ${transcriptome}.pair.RNA_reads2cdf630.sam > ${transcriptome}.pair.RNA_reads2cdf630.bam
+samtools sort ${transcriptome}.pair.RNA_reads2cdf630.bam ${transcriptome}.pair.RNA_reads2cdf630.sort
+rm ${transcriptome}.pair.RNA_reads2cdf630.sam ${transcriptome}.pair.RNA_reads2cdf630.bam
+
+# Align orphan reads to C. difficile 630 genes
+/home/mljenior/bin/bowtie2/bowtie2 -f -p 8 -x /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/dbs/cdf/cdf_db -U /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/curated/${transcriptome}.orphan.pool.cut.trim.silva_filter.mus_filter.fasta -S ${transcriptome}.orphan.RNA_reads2cdf630.sam
+samtools view -bS ${transcriptome}.orphan.RNA_reads2cdf630.sam > ${transcriptome}.orphan.RNA_reads2cdf630.bam
+samtools sort ${transcriptome}.orphan.RNA_reads2cdf630.bam ${transcriptome}.orphan.RNA_reads2cdf630.sort
+rm ${transcriptome}.orphan.RNA_reads2cdf630.sam ${transcriptome}.orphan.RNA_reads2cdf630.bam
+
+# Merge and sort PE and SE mappings
+samtools merge ${transcriptome}.RNA_reads2cdf630.sort.merge.bam ${transcriptome}.pair.RNA_reads2cdf630.sort.bam ${transcriptome}.orphan.RNA_reads2cdf630.sort.bam
+samtools sort ${transcriptome}.RNA_reads2cdf630.sort.merge.bam ${transcriptome}.RNA_reads2cdf630.sort.merge.sort
+rm ${transcriptome}.pair.RNA_reads2cdf630.sort.bam ${transcriptome}.orphan.RNA_reads2cdf630.sort.bam ${transcriptome}.RNA_reads2cdf630.sort.merge.bam
+
+# Remove PCR duplicates and sort
+/share/apps/rhel6/java/1.8.0/bin/java -Xmx10g -jar /share/apps/rhel6/picard/1.77/MarkDuplicates.jar \
+	INPUT=${transcriptome}.RNA_reads2cdf630.sort.merge.sort.bam \
+	OUTPUT=${transcriptome}.RNA_reads2cdf630.sort.merge.sort.rmdup.bam \
+	METRICS_FILE=${transcriptome}.RNA_reads2cdf630.sort.merge.sort.rmdup.metrics \
+	AS=TRUE \
+	VALIDATION_STRINGENCY=LENIENT \
+	MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 \
+	REMOVE_DUPLICATES=TRUE
+
+# Sort and index final BAM files
+samtools sort ${transcriptome}.RNA_reads2cdf630.sort.merge.sort.rmdup.bam ${transcriptome}.RNA_reads2cdf630.sort.merge.sort.rmdup.sort
+samtools index ${transcriptome}.RNA_reads2cdf630.sort.merge.sort.rmdup.sort.bam
+rm ${transcriptome}.RNA_reads2cdf630.sort.merge.sort.rmdup.bam ${transcriptome}.RNA_reads2cdf630.sort.merge.sort.bam
+
+# Convert to human-readable format
+samtools idxstats ${transcriptome}.RNA_reads2cdf630.sort.merge.sort.rmdup.sort.bam > ${transcriptome}.RNA_reads2cdf630.txt
+rm ${transcriptome}.RNA_reads2cdf630.sort.merge.sort.rmdup.sort.bam.bai
+
+# Normalize idxstats file
+/home/mljenior/scripts/idxstats/normalize_idxstats.py ${transcriptome}.RNA_reads2cdf630.txt ${length}
+/home/mljenior/scripts/idxstats/count_idxstats.py ${transcriptome}.RNA_reads2cdf630.norm.txt
+rm ${transcriptome}.RNA_reads2cdf630.txt
+gzip ${transcriptome}.RNA_reads2cdf630.sort.merge.sort.rmdup.sort.bam
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit

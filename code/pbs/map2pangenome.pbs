@@ -1,0 +1,71 @@
+#!/bin/sh
+#PBS -N map2pangenome_RNA
+#PBS -l nodes=1:ppn=8
+#PBS -l walltime=400:00:00
+#PBS -l mem=44gb
+#PBS -j oe
+#PBS -m abe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -q first
+#PBS -A schloss_lab
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+
+cd $PBS_O_WORKDIR
+
+NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
+
+
+# Map paired reads to corresponding metagenome
+/home/mljenior/bin/bowtie2/bowtie2 -f --fr -p 8 -x /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pangenome/pangenome_gene_db -1 /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/curated/${metatranscriptome}.read1.pool.cut.trim.silva_filter.mus_filter.cdf_filter.fasta -2 /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/curated/${metatranscriptome}.read2.pool.cut.trim.silva_filter.mus_filter.cdf_filter.fasta -S ${metatranscriptome}.pair.RNA_reads2pangenome.sam
+samtools view -bS ${metatranscriptome}.pair.RNA_reads2pangenome.sam > ${metatranscriptome}.pair.RNA_reads2pangenome.bam
+samtools sort ${metatranscriptome}.pair.RNA_reads2pangenome.bam ${metatranscriptome}.pair.RNA_reads2pangenome.sort
+rm ${metatranscriptome}.pair.RNA_reads2pangenome.sam ${metatranscriptome}.pair.RNA_reads2pangenome.bam
+
+# Map orphan reads to corresponding metagenome
+/home/mljenior/bin/bowtie2/bowtie2 -f -p 8 -x /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pangenome/pangenome_gene_db -U /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/curated/${metatranscriptome}.orphan.pool.cut.trim.silva_filter.mus_filter.cdf_filter.fasta -S ${metatranscriptome}.orphan.RNA_reads2pangenome.sam
+samtools view -bS ${metatranscriptome}.orphan.RNA_reads2pangenome.sam > ${metatranscriptome}.orphan.RNA_reads2pangenome.bam
+samtools sort ${metatranscriptome}.orphan.RNA_reads2pangenome.bam ${metatranscriptome}.orphan.RNA_reads2pangenome.sort
+rm ${metatranscriptome}.orphan.RNA_reads2pangenome.sam ${metatranscriptome}.orphan.RNA_reads2pangenome.bam
+
+# Merge the paired and orphan mappings
+samtools merge ${metatranscriptome}.RNA_reads2pangenome.sort.merge.bam ${metatranscriptome}.pair.RNA_reads2pangenome.sort.bam ${metatranscriptome}.orphan.RNA_reads2pangenome.sort.bam
+samtools sort ${metatranscriptome}.RNA_reads2pangenome.sort.merge.bam ${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort
+rm ${metatranscriptome}.pair.RNA_reads2pangenome.sort.bam ${metatranscriptome}.orphan.RNA_reads2pangenome.sort.bam
+
+# Remove PCR duplicates and sort
+/share/apps/rhel6/java/1.8.0/bin/java -Xmx10g -jar /share/apps/rhel6/picard/1.77/MarkDuplicates.jar \
+	INPUT=${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort.bam \
+	OUTPUT=${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort.rmdup.bam \
+	METRICS_FILE=${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort.rmdup.metrics \
+	AS=TRUE \
+	VALIDATION_STRINGENCY=LENIENT \
+	MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 \
+	REMOVE_DUPLICATES=TRUE
+
+# Sort and index the filtered SAM file
+samtools sort ${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort.rmdup.bam ${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort.rmdup.sort
+samtools index ${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort.rmdup.sort.bam
+rm ${metatranscriptome}.RNA_reads2pangenome.sort.merge.bam ${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort.rmdup.bam
+
+# Convert to human-readable format
+samtools idxstats ${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort.rmdup.sort.bam > ${metatranscriptome}.RNA_reads2pangenome.all.txt
+rm ${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort.rmdup.sort.bam.bai
+
+# Normalize idxstats file
+/home/mljenior/scripts/idxstats/normalize_idxstats.py ${metatranscriptome}.RNA_reads2pangenome.all.txt ${length}
+/home/mljenior/scripts/idxstats/remove_idxstats.py ${metatranscriptome}.RNA_reads2pangenome.all.norm.txt mmu
+/home/mljenior/scripts/idxstats/count_idxstats.py ${metatranscriptome}.RNA_reads2pangenome.all.norm.remove.txt
+rm ${metatranscriptome}.RNA_reads2pangenome.all.txt ${metatranscriptome}.RNA_reads2pangenome.all.pool.norm.txt
+gzip ${metatranscriptome}.RNA_reads2pangenome.sort.merge.sort.rmdup.sort.bam
+
+# Files are ready for analysis in R, still may require subsampling or normalization by metagenomic coverage
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit
+

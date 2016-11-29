@@ -1,0 +1,57 @@
+#!/bin/sh
+#PBS -N filtering_RNA
+#PBS -l nodes=1:ppn=8
+#PBS -l walltime=500:00:00
+#PBS -l mem=44gb
+#PBS -j oe
+#PBS -m abe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -q first
+#PBS -A schloss_lab
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+
+cd $PBS_O_WORKDIR
+
+NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
+
+
+## Remove contaminating bacterial rRNA sequences
+/home/mljenior/bin/bowtie2/bowtie2 -f --fr -x /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/dbs/silva/silva_db -1 ${transcriptome}.read1.pool.cut.trim.fasta -2 ${transcriptome}.read2.pool.cut.trim.fasta --un-conc ${transcriptome}.filter.read.fasta
+mv ${transcriptome}.filter.read.1.fasta ${transcriptome}.read1.pool.cut.trim.silva_filter.fasta
+mv ${transcriptome}.filter.read.2.fasta ${transcriptome}.read2.pool.cut.trim.silva_filter.fasta
+/home/mljenior/bin/bowtie2/bowtie2 -f -x /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/dbs/silva/silva_db -U ${transcriptome}.orphan.pool.cut.trim.fasta --un ${transcriptome}.orphan.pool.cut.trim.silva_filter.fasta
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.read1.pool.cut.trim.silva_filter.fasta > ${transcriptome}.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.read2.pool.cut.trim.silva_filter.fasta >> ${transcriptome}.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.orphan.pool.cut.trim.silva_filter.fasta >> ${transcriptome}.filtering.summary
+
+## Remove residual Mus musculus (mouse) exome sequences
+/home/mljenior/bin/bowtie2/bowtie2 -f --fr -x /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/dbs/mus_musculus/mus_db -1 ${transcriptome}.read1.pool.cut.trim.silva_filter.fasta -2 ${transcriptome}.read2.pool.cut.trim.silva_filter.fasta --un-conc ${transcriptome}.filter.read.fasta
+mv ${transcriptome}.filter.read.1.fasta ${transcriptome}.read1.pool.cut.trim.silva_filter.mus_filter.fasta
+mv ${transcriptome}.filter.read.2.fasta ${transcriptome}.read2.pool.cut.trim.silva_filter.mus_filter.fasta
+/home/mljenior/bin/bowtie2/bowtie2 -f -x /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/dbs/mus_musculus/mus_db -U ${transcriptome}.orphan.pool.cut.trim.silva_filter.fasta --un ${transcriptome}.orphan.pool.cut.trim.silva_filter.mus_filter.fasta
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.read1.pool.cut.trim.silva_filter.mus_filter.fasta >> ${transcriptome}.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.read2.pool.cut.trim.silva_filter.mus_filter.fasta >> ${transcriptome}.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.orphan.pool.cut.trim.silva_filter.mus_filter.fasta >> ${transcriptome}.filtering.summary
+
+## Remove C. difficile 630 sequences, bin C. diff sequences into a new file
+/home/mljenior/bin/bowtie2/bowtie2 -f --fr -x /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/dbs/cdf/cdf_db -1 ${transcriptome}.read1.pool.cut.trim.silva_filter.mus_filter.fasta -2 ${transcriptome}.read2.pool.cut.trim.silva_filter.mus_filter.fasta --un-conc ${transcriptome}.filter.read.fasta
+mv ${transcriptome}.filter.read.1.fasta ${transcriptome}.read1.pool.cut.trim.silva_filter.mus_filter.cdf_filter.fasta
+mv ${transcriptome}.filter.read.2.fasta ${transcriptome}.read2.pool.cut.trim.silva_filter.mus_filter.cdf_filter.fasta
+/home/mljenior/bin/bowtie2/bowtie2 -f -x /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/dbs/cdf/cdf_db -U ${transcriptome}.orphan.pool.cut.trim.silva_filter.mus_filter.fasta --un ${transcriptome}.orphan.pool.cut.trim.silva_filter.mus_filter.cdf_filter.fasta
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.read1.pool.cut.trim.silva_filter.mus_filter.cdf_filter.fasta >> ${transcriptome}.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.read2.pool.cut.trim.silva_filter.mus_filter.cdf_filter.fasta >> ${transcriptome}.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.orphan.pool.cut.trim.silva_filter.mus_filter.cdf_filter.fasta >> ${transcriptome}.filtering.summary
+
+## Move filtered files to final directory
+mv ${transcriptome}.read1.pool.cut.trim.silva_filter.mus_filter*fasta /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/curated
+mv ${transcriptome}.read2.pool.cut.trim.silva_filter.mus_filter*fasta /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/curated
+mv ${transcriptome}.orphan.pool.cut.trim.silva_filter.mus_filter*fasta /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/curated
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit
