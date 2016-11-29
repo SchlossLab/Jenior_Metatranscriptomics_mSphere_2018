@@ -1,0 +1,49 @@
+#!/bin/sh
+#PBS -N trimming_RNA
+#PBS -l nodes=1:ppn=8
+#PBS -l walltime=500:00:00
+#PBS -l mem=44gb
+#PBS -j oe
+#PBS -m abe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -q first
+#PBS -A schloss_lab
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+
+cd $PBS_O_WORKDIR
+
+NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
+
+
+# Get pooled fastq files for processing
+mv /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/fastq/${transcriptome}/*.pool.fastq ./
+
+# Cut residual Illumina adapters
+python2.7 /mnt/EXT/Schloss-data/bin/cutadapt-1.9.1/bin/cutadapt --error-rate=0.1 --overlap=10 -a ${forward} -A ${reverse} -o ${transcriptome}.read1.pool.cut.fastq -p ${transcriptome}.read2.pool.cut.fastq ${transcriptome}.read1.pool.fastq ${transcriptome}.read2.pool.fastq
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.read1.pool.cut.fastq > ${transcriptome}.trimming.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.read2.pool.cut.fastq >> ${transcriptome}.trimming.summary
+rm *.pool.fastq
+
+# Quality trim the reads based on quality scores
+/home/mljenior/bin/sickle/sickle pe -f ${transcriptome}.read1.pool.cut.fastq -r ${transcriptome}.read2.pool.cut.fastq -t sanger -o ${transcriptome}.read1.pool.cut.trim.fastq -p ${transcriptome}.read2.pool.cut.trim.fastq -s ${transcriptome}.orphan.pool.cut.trim.fastq -q 30 -l 21
+rm *.cut.fastq
+
+# Convert fastqs to fasta files
+awk '{print ">" substr($0,2);getline;print;getline;getline}' ${transcriptome}.read1.pool.cut.trim.fastq > ${transcriptome}.read1.pool.cut.trim.fasta
+awk '{print ">" substr($0,2);getline;print;getline;getline}' ${transcriptome}.read2.pool.cut.trim.fastq > ${transcriptome}.read2.pool.cut.trim.fasta
+awk '{print ">" substr($0,2);getline;print;getline;getline}' ${transcriptome}.orphan.pool.cut.trim.fastq > ${transcriptome}.orphan.pool.cut.trim.fasta
+rm *.trim.fastq 
+
+# Record stats about the rest of the trimming
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.read1.pool.cut.trim.fasta >> ${transcriptome}.trimming.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.read2.pool.cut.trim.fasta >> ${transcriptome}.trimming.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py ${transcriptome}.orphan.pool.cut.trim.fasta >> ${transcriptome}.trimming.summary
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit
