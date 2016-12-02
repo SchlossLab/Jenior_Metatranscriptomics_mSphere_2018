@@ -1,0 +1,186 @@
+# Matt Jenior - Schloss Laboratory - University of Michigan - 2016
+
+# This pipeline curates metatranscriptomic reads for mapping to a corresponding metagenome
+
+# Table of Contents
+# 1. Read pooling
+# 2. Quality trimming
+# 3. Contaminant filtering
+# 4. Read mapping
+# 5. Appendix
+
+# Single command to curate and filter all metatransciptomes
+for condition in 'cefoperazone_630' 'cefoperazone_mock' 'conventional' 'clindamycin_mock' 'clindamycin_630' 'streptomycin_630' 'streptomycin_mock' 'germfree'; do bash /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/pbs/curate_metatranscriptome.bash $condition 50; done
+
+# Single command to map all RNA and DNA reads to respective metagenomes 
+for condition in 'Conventional' 'Cefoperazone' 'Streptomycin' 'Clindamycin'; do bash /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/pbs/mapping.bash $condition 50 250; done
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 1. Pool raw read files from the same sample
+
+# Unzip and pool the right reads
+zcat *_L00*_R1_*.fastq > metatranscriptome.read1.pool.fastq.gz
+zcat *_L00*_R2_*.fastq > metatranscriptome.read2.pool.fastq.gz
+gunzip metatranscriptome.*.pool.fastq.gz
+
+# Record some statistics about the initial reads
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read1.pool.fastq > metatranscriptome.pooling.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read2.pool.fastq >> metatranscriptome.pooling.summary
+
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 2. Quality trim the data
+
+# Cut residual Illumina adapters
+python2.7 /mnt/EXT/Schloss-data/bin/cutadapt-1.9.1/bin/cutadapt --error-rate=0.1 --overlap=10 -a forward -A reverse -o metatranscriptome.read1.pool.cut.fastq -p metatranscriptome.read2.pool.cut.fastq metatranscriptome.read1.pool.fastq metatranscriptome.read2.pool.fastq
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read1.pool.cut.fastq > metatranscriptome.trimming.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read2.pool.cut.fastq >> metatranscriptome.trimming.summary
+
+# Quality trim the reads based on quality scores
+/home/mljenior/bin/sickle/sickle pe -f metatranscriptome.read1.pool.cut.fastq -r metatranscriptome.read2.pool.cut.fastq -t sanger -o metatranscriptome.read1.pool.cut.trim.fastq -p metatranscriptome.read2.pool.cut.trim.fastq -s metatranscriptome.orphan.pool.cut.trim.fastq -q 30 -l 21
+
+# Convert fastqs to fasta files
+awk '{print ">" substr($0,2);getline;print;getline;getline}' metatranscriptome.read1.pool.cut.trim.fastq > metatranscriptome.read1.pool.cut.trim.fasta
+awk '{print ">" substr($0,2);getline;print;getline;getline}' metatranscriptome.read2.pool.cut.trim.fastq > metatranscriptome.read2.pool.cut.trim.fasta
+awk '{print ">" substr($0,2);getline;print;getline;getline}' metatranscriptome.orphan.pool.cut.trim.fastq > metatranscriptome.orphan.pool.cut.trim.fasta
+
+# Record stats about the rest of the trimming
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read1.pool.cut.trim.fasta >> metatranscriptome.trimming.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read2.pool.cut.trim.fasta >> metatranscriptome.trimming.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.orphan.pool.cut.trim.fasta >> metatranscriptome.trimming.summary
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 3. Filter out contaminant reads and bin C. difficile reads to another files for separate analysis
+
+# Remove contaminating bacterial rRNA sequences
+/home/mljenior/bin/bowtie/bowtie /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/silva/silva_db -f -p 4 -1 metatranscriptome.read1.pool.cut.trim.fasta -2 metatranscriptome.read2.pool.cut.trim.fasta --un metatranscriptome.filter.read.fasta
+mv metatranscriptome.filtered.read_1.fasta metatranscriptome.read1.pool.cut.trim.filt1.fasta
+mv metatranscriptome.filtered.read_2.fasta metatranscriptome.read2.pool.cut.trim.filt1.fasta
+/home/mljenior/bin/bowtie/bowtie /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/silva/silva_db -f -p 4 metatranscriptome.orphan.pool.cut.trim.fasta --un metatranscriptome.orphan.pool.cut.trim.filt1.fasta
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read1.pool.cut.trim.filt1.fasta > metatranscriptome.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read2.pool.cut.trim.filt1.fasta >> metatranscriptome.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.orphan.pool.cut.trim.filt1.fasta >> metatranscriptome.filtering.summary
+
+# Remove residual Mus musculus (mouse) exome sequences
+/home/mljenior/bin/bowtie/bowtie /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/mus_musculus/mus_db -f -p 4 -1 metatranscriptome.read1.pool.cut.trim.filt1.fasta -2 metatranscriptome.read2.pool.cut.trim.filt1.fasta --un metatranscriptome.filtered.read.fasta
+mv metatranscriptome.filtered.read_1.fasta metatranscriptome.read1.pool.cut.trim.filt1.filt2.fasta
+mv metatranscriptome.filtered.read_2.fasta metatranscriptome.read2.pool.cut.trim.filt1.filt2.fasta
+/home/mljenior/bin/bowtie/bowtie /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/mus_musculus/mus_db -f -p 4 metatranscriptome.orphan.pool.cut.trim.filt1.fasta --un metatranscriptome.orphan.pool.cut.trim.filt1.filt2.fasta
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read1.pool.cut.trim.filt1.filt2.fasta >> metatranscriptome.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read2.pool.cut.trim.filt1.filt2.fasta >> metatranscriptome.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.orphan.pool.cut.trim.filt1.filt2.fasta >> metatranscriptome.filtering.summary
+
+# Remove C. difficile 630 sequences, bin C. diff sequences into a new file
+/home/mljenior/bin/bowtie/bowtie /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/cdf/cdf_db -f -p 4 -1 metatranscriptome.read1.pool.cut.trim.filt1.filt2.fasta -2 metatranscriptome.read2.pool.cut.trim.filt1.filt2.fasta ${reads}.aligned.paired.transcripts2cdf630.sam --un metatranscriptome.filtered.read.fasta
+mv metatranscriptome.filtered.read_1.fasta metatranscriptome.read1.pool.cut.trim.filter.fasta
+mv metatranscriptome.filtered.read_2.fasta metatranscriptome.read2.pool.cut.trim.filter.fasta
+/home/mljenior/bin/bowtie/bowtie /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/cdf/cdf_db -f -p 4 metatranscriptome.orphan.pool.cut.trim.filt1.fasta ${reads}.aligned.orphan.transcripts2cdf630.sam --un metatranscriptome.orphan.pool.cut.trim.filt1.filt2.fasta
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read1.pool.cut.trim.filter.fasta >> metatranscriptome.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.read2.pool.cut.trim.filter.fasta >> metatranscriptome.filtering.summary
+python /mnt/EXT/Schloss-data/bin/seq_stats.py metatranscriptome.orphan.pool.cut.trim.filter.fasta >> metatranscriptome.filtering.summary
+
+# Cleanup
+rm *.filt1.fasta *.filt2.fasta *.trim.fasta
+
+# Format alignment to C. difficile
+samtools view -bS metatranscriptome.aligned.paired.transcripts2cdf630.sam > metatranscriptome.aligned.paired.transcripts2cdf630.bam
+samtools sort metatranscriptome.aligned.paired.transcripts2cdf630.bam metatranscriptome.aligned.paired.transcripts2cdf630.sorted
+samtools view -bS metatranscriptome.aligned.orphan.transcripts2cdf630.sam > metatranscriptome.aligned.orphan.transcripts2cdf630.bam
+samtools sort metatranscriptome.aligned.orphan.transcripts2cdf630.bam metatranscriptome.aligned.orphan.transcripts2cdf630.sorted
+
+samtools merge metatranscriptome.aligned.transcripts2cdf630.sorted.merge.bam metatranscriptome.aligned.paired.transcripts2cdf630.sorted.bam metatranscriptome.aligned.orphan.transcripts2cdf630.sorted.bam
+samtools index metatranscriptome.aligned.transcripts2cdf630.sorted.merge.bam
+samtools idxstats metatranscriptome.aligned.transcripts2cdf630.sorted.merge.bam > metatranscriptome.mapped2cdf630.txt
+
+rm metatranscriptome.aligned.paired.transcripts2cdf630.sam metatranscriptome.aligned.orphan.transcripts2cdf630.sam
+
+/home/mljenior/scripts/idxstats/pool_unmapped_idxstats.py metatranscriptome.mapped2cdf630.txt
+/home/mljenior/scripts/idxstats/normalize_idxstats.py metatranscriptome.mapped2cdf630.pool.txt
+/home/mljenior/scripts/idxstats/count_idxstats.py input_file metatranscriptome.mapped2cdf630.pool.norm.txt
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# 4. Map reads to their corresponding metagenome
+
+/home/mljenior/bin/bowtie2/bowtie2 -f --fr -x metagenome_metaG_db -1 metatranscriptome.read1.pool.cut.trim.filter.fasta -2 metatranscriptome.read2.pool.cut.trim.filter.fasta -S metatranscriptome.pair.RNA_reads2metaG.sam
+samtools view -bS metatranscriptome.pair.RNA_reads2metaG.sam > metatranscriptome.pair.RNA_reads2metaG.bam
+rm metatranscriptome.pair.RNA_reads2metaG.sam
+samtools sort metatranscriptome.pair.RNA_reads2metaG.bam metatranscriptome.pair.RNA_reads2metaG.sorted
+
+/home/mljenior/bin/bowtie2/bowtie2 -f -x metagenome_metaG_db -U metatranscriptome.orphan.pool.cut.trim.filter.fasta -S metatranscriptome.orphan.RNA_reads2metaG.sam
+samtools view -bS metatranscriptome.orphan.RNA_reads2metaG.sam > metatranscriptome.orphan.RNA_reads2metaG.bam
+samtools sort metatranscriptome.orphan.RNA_reads2metaG.bam metatranscriptome.orphan.RNA_reads2metaG.sorted
+
+samtools merge metatranscriptome.RNA_reads2metaG.sorted.merge.bam metatranscriptome.pair.RNA_reads2metaG.sorted.bam metatranscriptome.orphan.RNA_reads2metaG.sorted.bam
+samtools index metatranscriptome.RNA_reads2metaG.sorted.merge.bam
+samtools idxstats metatranscriptome.RNA_reads2metaG.sorted.merge.bam > metatranscriptome.RNA_reads2metaG.all.txt
+
+/home/mljenior/scripts/idxstats/pool_unmapped_idxstats.py metatranscriptome.RNA_reads2metaG.all.txt
+/home/mljenior/scripts/idxstats/normalize_idxstats.py metatranscriptome.RNA_reads2metaG.all.pool.txt 50
+/home/mljenior/scripts/idxstats/count_idxstats.py metatranscriptome.RNA_reads2metaG.all.pool.norm.txt
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+
+Extra
+
+Making diamond blast db
+
+metagenomic bowtie2 dbs
+
+
+
+
+#!/bin/bash
+
+cd /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/fastq/$1
+
+pool_job_id=$(qsub -v transcriptome=$1 /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/pbs/pool.pbs | sed 's/\..*$//')
+echo $1 read pooling: $pool_job_id
+
+
+# Select correct sequencing primers
+F_primer=AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT
+if [ $1 = 'cefoperazone_630' ]; then
+	R_primer=CAAGCAGAAGACGGCATACGAGATCGTGATGTGACTGGAGTTCAGACGTGTGCTCTTCCGATC
+fi
+if [ $1 = 'cefoperazone_mock' ]; then
+	R_primer=CAAGCAGAAGACGGCATACGAGATACATCGGTGACTGGAGTTCAGACGTGTGCTCTTCCGATC
+fi
+if [ $1 = 'clindamycin_630' ]; then
+	R_primer=CAAGCAGAAGACGGCATACGAGATTGGTCAGTGACTGGAGTTCAGACGTGTGCTCTTCCGATC
+fi
+if [ $1 = 'clindamycin_mock' ]; then
+	R_primer=CAAGCAGAAGACGGCATACGAGATGATCTGGTGACTGGAGTTCAGACGTGTGCTCTTCCGATC
+fi
+if [ $1 = 'streptomycin_630' ]; then
+	R_primer=CAAGCAGAAGACGGCATACGAGATAAGCTAGTGACTGGAGTTCAGACGTGTGCTCTTCCGATC
+fi
+if [ $1 = 'streptomycin_mock' ]; then
+	R_primer=CAAGCAGAAGACGGCATACGAGATCGTTTCACGTGACTGGAGTTCAGACGTGTGCTCTTCCGATC
+fi
+if [ $1 = 'conventional' ]; then
+	R_primer=CAAGCAGAAGACGGCATACGAGATAAGGCCACGTGACTGGAGTTCAGACGTGTGCTCTTCCGATC
+fi
+if [ $1 = 'germfree' ]; then
+	R_primer=CAAGCAGAAGACGGCATACGAGATATCCACTCGTGACTGGAGTTCAGACGTGTGCTCTTCCGATC
+fi
+
+trimming_job_id=$(qsub -v transcriptome=$1,forward=$F_primer,reverse=$R_primer -W depend=afterok:$pool_job_id /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/pbs/trimming.pbs | sed 's/\..*$//')
+echo $1 quality trimming: $trimming_job_id
+
+filter_job_id=$(qsub -v transcriptome=$1 -W depend=afterok:$trimming_job_id /mnt/EXT/Schloss-data/matt/metatranscriptomes_HiSeq/pbs/filter.pbs | sed 's/\..*$//')
+echo $1 filtering reads: $filter_job_id
+
+echo
+
+
+
+
+
+
+
+

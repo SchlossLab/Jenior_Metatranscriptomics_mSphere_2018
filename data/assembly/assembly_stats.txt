@@ -1,0 +1,66 @@
+# Assembly: Cefoperazone
+# Total sequences: 2539357
+# Total bases: 1362.21 Mb
+# Sequence N50: 598
+# Sequence L50: 2817
+# Sequence N90: 317
+# Median sequence length: 459
+# Interquartile range: 319
+# Shortest sequence length: 250
+# Longest sequence length: 133258
+# Sequences > 1 kb: 158781
+# Sequences > 5 kb: 479
+# Total reads: 74541405
+# Mapped reads: 26301739
+# Unmapped reads: 48239666
+# Percent mapped of total reads: 35.28%
+
+
+# Assembly: Clindamycin
+# Total sequences: 811592
+# Total bases: 310.32 Mb
+# Sequence N50: 400
+# Sequence L50: 1646
+# Sequence N90: 255
+# Median sequence length: 335
+# Interquartile range: 197
+# Shortest sequence length: 250
+# Longest sequence length: 99846
+# Sequences > 1 kb: 3913
+# Sequences > 5 kb: 85
+# Total reads: 48306501
+# Mapped reads: 8345247
+# Unmapped reads: 39961254
+# Percent mapped of total reads: 17.28%
+
+
+# Assembly: Streptomycin
+# Total sequences: 1317910
+# Total bases: 355.64 Mb
+# Sequence N50: 255
+# Sequence L50: 1106640
+# Sequence N90: 255
+# Median sequence length: 255
+# Interquartile range: 0
+# Shortest sequence length: 250
+# Longest sequence length: 60398
+# Sequences > 1 kb: 2479
+# Sequences > 5 kb: 448
+
+
+# Assembly: Conventional.final.contigs.250.fa
+# Total sequences: 496917
+# Total bases: 471.39 Mb
+# Sequence N50: 1434
+# Sequence L50: 44
+# Sequence N90: 369
+# Median sequence length: 474
+# Interquartile range: 423
+# Shortest sequence length: 250
+# Longest sequence length: 201752
+# Sequences > 1 kb: 83535
+# Sequences > 5 kb: 10603
+# Total reads: 34794805
+# Mapped reads: 17476331
+# Unmapped reads: 17318474
+# Percent mapped of total reads: 50.23%
