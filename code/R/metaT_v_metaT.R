@@ -29,9 +29,9 @@ strep_630_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscrip
 strep_mock_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 conv_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 
-  
-  
-  
+
+
+
 # Load in data
 # Metagenomes
 cef_metagenome <- read.delim(cef_metagenome_file, sep='\t', header=FALSE, row.names=1)
