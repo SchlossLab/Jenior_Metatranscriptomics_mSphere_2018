@@ -7,20 +7,31 @@ for (dep in deps){
   library(dep, verbose=FALSE, character.only=TRUE)
 }
 
+dist2d <- function(a, b, c) {
+  v1 <- b - c
+  v2 <- a - b
+  m <- cbind(v1,v2)
+  d <- abs(det(m))/sqrt(sum(v1*v1))
+} 
+
+
 # Define input file names
-cef_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Clindamycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Streptomycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_metagenome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/Conventional.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_metagenome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_metagenome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Clindamycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_metagenome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Streptomycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+conv_metagenome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Conventional.DNA_reads2pangenome.all.norm.remove.annotated.txt'
 
-cef_630_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-cef_mock_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/cefoperazone_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_630_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/clindamycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_mock_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/clindamycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_630_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/streptomycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_mock_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_metatranscriptome_file <- '/Users/mattjenior/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/mapping/pangenome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_630_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_mock_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/cefoperazone_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_630_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/clindamycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_mock_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/clindamycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_630_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_mock_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+conv_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 
+  
+  
+  
 # Load in data
 # Metagenomes
 cef_metagenome <- read.delim(cef_metagenome_file, sep='\t', header=FALSE, row.names=1)
@@ -134,25 +145,19 @@ optimal_size <- min(c(metaG_size, metaT_size))
 rm(metagenome_totals, metatranscriptome_totals, metaG_size, metaT_size)
 
 # Rarefy metagenomic data
-all_metagenome$cefoperazone <- t(rrarefy(all_metagenome$cefoperazone, sample=optimal_size))
-all_metagenome$clindamycin <- t(rrarefy(all_metagenome$clindamycin, sample=optimal_size))
-all_metagenome$streptomycin <- t(rrarefy(all_metagenome$streptomycin, sample=optimal_size))
-all_metagenome$conventional <- t(rrarefy(all_metagenome$conventional, sample=optimal_size))
-
-# Eliminate genes with no metagenomic mappings
-all_metagenome$cefoperazone[all_metagenome$cefoperazone == 0] <- 1
-all_metagenome$clindamycin[all_metagenome$clindamycin == 0] <- 1
-all_metagenome$streptomycin[all_metagenome$streptomycin == 0] <- 1
-all_metagenome$conventional[all_metagenome$conventional == 0] <- 1
+all_metagenome$cefoperazone <- t(rrarefy(all_metagenome$cefoperazone, sample=optimal_size)) + 1
+all_metagenome$clindamycin <- t(rrarefy(all_metagenome$clindamycin, sample=optimal_size)) + 1
+all_metagenome$streptomycin <- t(rrarefy(all_metagenome$streptomycin, sample=optimal_size)) + 1
+all_metagenome$conventional <- t(rrarefy(all_metagenome$conventional, sample=optimal_size)) + 1
 
 # Rarefy metatranscriptomic data
-all_metatranscriptome$cefoperazone_630 <- t(rrarefy(all_metatranscriptome$cefoperazone_630, sample=optimal_size))
-all_metatranscriptome$cefoperazone_mock <- t(rrarefy(all_metatranscriptome$cefoperazone_mock, sample=optimal_size))
-all_metatranscriptome$clindamycin_630 <- t(rrarefy(all_metatranscriptome$clindamycin_630, sample=optimal_size))
-all_metatranscriptome$clindamycin_mock <- t(rrarefy(all_metatranscriptome$clindamycin_mock, sample=optimal_size))
-all_metatranscriptome$streptomycin_630 <- t(rrarefy(all_metatranscriptome$streptomycin_630, sample=optimal_size))
-all_metatranscriptome$streptomycin_mock <- t(rrarefy(all_metatranscriptome$streptomycin_mock, sample=optimal_size))
-all_metatranscriptome$conventional_metaT <- t(rrarefy(all_metatranscriptome$conventional_metaT, sample=optimal_size))
+all_metatranscriptome$cefoperazone_630 <- t(rrarefy(all_metatranscriptome$cefoperazone_630, sample=optimal_size)) + 1
+all_metatranscriptome$cefoperazone_mock <- t(rrarefy(all_metatranscriptome$cefoperazone_mock, sample=optimal_size)) + 1
+all_metatranscriptome$clindamycin_630 <- t(rrarefy(all_metatranscriptome$clindamycin_630, sample=optimal_size)) + 1
+all_metatranscriptome$clindamycin_mock <- t(rrarefy(all_metatranscriptome$clindamycin_mock, sample=optimal_size)) + 1
+all_metatranscriptome$streptomycin_630 <- t(rrarefy(all_metatranscriptome$streptomycin_630, sample=optimal_size)) + 1
+all_metatranscriptome$streptomycin_mock <- t(rrarefy(all_metatranscriptome$streptomycin_mock, sample=optimal_size)) + 1
+all_metatranscriptome$conventional_metaT <- t(rrarefy(all_metatranscriptome$conventional_metaT, sample=optimal_size)) + 1
 rm(optimal_size)
 
 # Merge metagenomes and metatranscriptomes
@@ -181,14 +186,8 @@ strep_metatranscriptome <- full_mapping[,c(9,10,12:14)]
 rm(full_mapping)
 
 # Log10 transform the data
-cef_metatranscriptome$cefoperazone_630[cef_metatranscriptome$cefoperazone_630 < 1.0] <- 1.0
-cef_metatranscriptome$cefoperazone_mock[cef_metatranscriptome$cefoperazone_mock < 1.0] <- 1.0
 cef_metatranscriptome[,c(1,2)] <- log10(cef_metatranscriptome[,c(1,2)])
-clinda_metatranscriptome$clindamycin_630[clinda_metatranscriptome$clindamycin_630 < 1.0] <- 1.0
-clinda_metatranscriptome$clindamycin_mock[clinda_metatranscriptome$clindamycin_mock < 1.0] <- 1.0
 clinda_metatranscriptome[,c(1,2)] <- log10(clinda_metatranscriptome[,c(1,2)])
-strep_metatranscriptome$streptomycin_630[strep_metatranscriptome$streptomycin_630 < 1.0] <- 1.0
-strep_metatranscriptome$streptomycin_mock[strep_metatranscriptome$streptomycin_mock < 1.0] <- 1.0
 strep_metatranscriptome[,c(1,2)] <- log10(strep_metatranscriptome[,c(1,2)])
 
 # Remove groups with no transcription
@@ -198,37 +197,27 @@ strep_metatranscriptome <- subset(strep_metatranscriptome, strep_metatranscripto
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Subset data to color specific groups 
-# Known C. difficile 630 carbon sources
-cef_glycolysis <- subset(cef_metatranscriptome, grepl('*Glycolysis_/_Gluconeogenesis*', cef_metatranscriptome$pathway))
-cef_amino_sugar <- subset(cef_metatranscriptome, grepl('*Amino_sugar*', cef_metatranscriptome$pathway))
-cef_galactose <- subset(cef_metatranscriptome, grepl('*Galactose*', cef_metatranscriptome$pathway))
-cef_fructose_mannose <- subset(cef_metatranscriptome, grepl('*Fructose_and_mannose*', cef_metatranscriptome$pathway))
-cef_starch_sucrose <- subset(cef_metatranscriptome, grepl('*Starch_and_sucrose*', cef_metatranscriptome$pathway))
-cef_glycan_degradation <- subset(cef_metatranscriptome, grepl('*glycan_degradation*', cef_metatranscriptome$pathway))
-cef_pentose <- subset(cef_metatranscriptome, grepl('*Pentose*', cef_metatranscriptome$pathway))
-cef_proline <- subset(cef_metatranscriptome, grepl('*roline*', cef_metatranscriptome$pathway))
-cef_glycine_serine_threonine <- subset(cef_metatranscriptome, grepl('*Glycine,_serine_and_threonine*', cef_metatranscriptome$pathway))
+# Calculate the distance of all points from x=y
+# Will reveal which genes were most effected by c. diff colonization
 
-clinda_glycolysis <- subset(clinda_metatranscriptome, grepl('*Glycolysis_/_Gluconeogenesis*', clinda_metatranscriptome$pathway))
-clinda_amino_sugar <- subset(clinda_metatranscriptome, grepl('*Amino_sugar*', clinda_metatranscriptome$pathway))
-clinda_galactose <- subset(clinda_metatranscriptome, grepl('*Galactose*', clinda_metatranscriptome$pathway))
-clinda_fructose_mannose <- subset(clinda_metatranscriptome, grepl('*Fructose_and_mannose*', clinda_metatranscriptome$pathway))
-clinda_starch_sucrose <- subset(clinda_metatranscriptome, grepl('*Starch_and_sucrose*', clinda_metatranscriptome$pathway))
-clinda_glycan_degradation <- subset(clinda_metatranscriptome, grepl('*glycan_degradation*', clinda_metatranscriptome$pathway))
-clinda_pentose <- subset(clinda_metatranscriptome, grepl('*Pentose*', clinda_metatranscriptome$pathway))
-clinda_proline <- subset(clinda_metatranscriptome, grepl('*roline*', clinda_metatranscriptome$pathway))
-clinda_glycine_serine_threonine <- subset(clinda_metatranscriptome, grepl('*Glycine,_serine_and_threonine*', clinda_metatranscriptome$pathway))
 
-strep_glycolysis <- subset(strep_metatranscriptome, grepl('*Glycolysis_/_Gluconeogenesis*', strep_metatranscriptome$pathway))
-strep_amino_sugar <- subset(strep_metatranscriptome, grepl('*Amino_sugar*', strep_metatranscriptome$pathway))
-strep_galactose <- subset(strep_metatranscriptome, grepl('*Galactose*', strep_metatranscriptome$pathway))
-strep_fructose_mannose <- subset(strep_metatranscriptome, grepl('*Fructose_and_mannose*', strep_metatranscriptome$pathway))
-strep_starch_sucrose <- subset(strep_metatranscriptome, grepl('*Starch_and_sucrose*', strep_metatranscriptome$pathway))
-strep_glycan_degradation <- subset(strep_metatranscriptome, grepl('*glycan_degradation*', strep_metatranscriptome$pathway))
-strep_pentose <- subset(strep_metatranscriptome, grepl('*Pentose*', strep_metatranscriptome$pathway))
-strep_proline <- subset(strep_metatranscriptome, grepl('*roline*', strep_metatranscriptome$pathway))
-strep_glycine_serine_threonine <- subset(strep_metatranscriptome, grepl('*Glycine,_serine_and_threonine*', strep_metatranscriptome$pathway))
+dist2d <- function(a,b,c) {
+  v1 <- b - c
+  v2 <- a - b
+  m <- cbind(v1,v2)
+  d <- abs(det(m))/sqrt(sum(v1*v1))
+} 
+
+
+
+
+
+good.dist <- sqrt((good.ord - typ.ord)^2 / 2)
+
+
+
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
