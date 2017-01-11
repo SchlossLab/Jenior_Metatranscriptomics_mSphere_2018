@@ -47,9 +47,15 @@ mock_axes <- subset(mock_axes, type != 'germfree')
 infected_axes <- subset(metadata_axes, infection == '630')
 infected_axes <- subset(infected_axes, type != 'germfree')
 
+
+
+
 # Format membership
 filtered_shared$abx <- NULL
 filtered_shared <- (filtered_shared/ rowSums(filtered_shared)) * 100
+taxa <- gsub('_', ', ', rownames(t(rel_abund)))
+
+
 
 # Format LEfSe results
 cef_lefse <- cef_lefse[order(cef_lefse$Class, cef_lefse$LDA),]
@@ -111,7 +117,6 @@ axis(side=2, at=seq(0,100,20), tick=TRUE)
 segments(x0=rep(0,4), y0=seq(20,80,20), x1=rep(5,4), y1=seq(20,80,20), lty=2)
 
 # Create a figure legend in the margin
-taxa <- gsub('_', ', ', rownames(t(rel_abund)))
 legend(5.025, 75, legend=taxa, pt.bg=final_colors, pch=22, pt.cex=1.3, cex=0.7)
 
 mtext('B', side=2, line=2, las=2, adj=1.7, padj=-10.5, cex=1.3)
