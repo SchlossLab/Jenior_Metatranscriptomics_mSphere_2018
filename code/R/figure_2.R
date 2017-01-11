@@ -55,6 +55,11 @@ filtered_shared$abx <- NULL
 filtered_shared <- (filtered_shared/ rowSums(filtered_shared)) * 100
 taxa <- gsub('_', ', ', rownames(t(rel_abund)))
 
+# plot all mice together, no median bars
+
+
+
+
 
 
 # Format LEfSe results
