@@ -25,13 +25,11 @@ classify_RF <- function(training_data, feature){
   data_randomForest <- randomForest(training_data[,feature]~., data=training_data, importance=TRUE, replace=FALSE, do.trace=500, err.rate=TRUE, ntree=n_tree, mtry=m_try)
   detach(training_data)
   
-  # Parse features
-  features_RF <- 
+  # Parse features for significance
+  features_RF <- importance(data_randomForest, type=1)
+  final_features_RF <- subset(features_RF, features_RF>abs(min(features_RF))) # Segal et al. (2004)
   
-  
-  
-  
-  return(features_RF)
+  return(final_features_RF)
   
 }
 
@@ -164,28 +162,20 @@ mtext('B', side=2, line=2, las=2, adj=1.7, padj=-10.5, cex=1.3)
 
 #-----------------------#
 
-# LEfSe results
+# Random Forest results
 
 # Cefoperazone plot
-par(mar=c(5,12,3,1))
-barplot(cef_lefse$LDA, horiz=TRUE, xlim=c(0,3.5), xlab='LDA', main='Cefoperazone', 
-        col='firebrick', names.arg=cef_lefse$Tax, las=1, cex.main=2, cex.lab=1.5)
-box()
-mtext('C', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
+dotchart()
+
 
 # Clindamycin plot
-par(mar=c(5,12,3,1))
-barplot(clinda_lefse$LDA, horiz=TRUE, xlim=c(0,5), xlab='LDA', main='Clindamycin', 
-        col=c('firebrick','firebrick','firebrick','firebrick','firebrick','firebrick','firebrick','firebrick','darkblue','darkblue','darkblue'), 
-        names.arg=clinda_lefse$Tax, las=1, cex.main=2, cex.lab=1.5)
-box()
+dotchart()
+
 
 # Streptomycin plot
-par(mar=c(5,12,3,1), xpd=TRUE)
-barplot(strep_lefse$LDA, horiz=TRUE, xlim=c(0,5.5), xlab='LDA', main='Streptomycin', 
-        col=c('firebrick','firebrick','firebrick','darkblue','darkblue','darkblue'), 
-        names.arg=strep_lefse$Tax, las=1, cex.main=2, cex.lab=1.5)
-box()
+dotchart()
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
