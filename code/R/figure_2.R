@@ -96,12 +96,10 @@ clinda_shared$abx <- NULL
 clinda_shared$type <- NULL
 rm(shared, metadata, metadata_shared, taxonomy)
 
-#-------------------------------------------------------------------------------------------------------------------------------------#
-
 # Run random forest
-cef_features <- classify_RF(cef_shared, infection)
-strep_features <- classify_RF(strep_shared, infection)
-clinda_features <- classify_RF(clinda_shared, infection)
+cef_features <- classify_RF(cef_shared, 'infection')
+strep_features <- classify_RF(strep_shared, 'infection')
+clinda_features <- classify_RF(clinda_shared, 'infection')
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
