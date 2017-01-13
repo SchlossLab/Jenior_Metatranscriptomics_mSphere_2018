@@ -1,0 +1,215 @@
+Linux version
+
+Using ReadLine
+
+Running 64Bit Version
+
+mothur v.1.38.1
+Last updated: 8/9/2016
+
+by
+Patrick D. Schloss
+
+Department of Microbiology & Immunology
+University of Michigan
+pschloss@umich.edu
+http://www.mothur.org
+
+When using, please cite:
+Schloss, P.D., et al., Introducing mothur: Open-source, platform-independent, community-supported software for describing and comparing microbial communities. Appl Environ Microbiol, 2009. 75(23):7537-41.
+
+Distributed under the GNU General Public License
+
+Type 'help()' for information on the commands that are available
+
+Type 'quit()' to exit program
+Interactive Mode
+
+
+mothur > count.groups(shared=all_treatments.0.03.unique_list.conventional.shared)
+CefC1M1 contains 9931.
+CefC1M2 contains 7829.
+CefC1M3 contains 13127.
+CefC2M1 contains 9473.
+CefC2M2 contains 8322.
+CefC2M3 contains 9194.
+CefC3M1 contains 13486.
+CefC3M2 contains 21995.
+CefC3M3 contains 10432.
+CefC4M1 contains 12232.
+CefC4M2 contains 8732.
+CefC4M3 contains 17834.
+CefC5M1 contains 11140.
+CefC5M2 contains 25389.
+CefC5M3 contains 14933.
+CefC6M1 contains 6792.
+CefC6M2 contains 6133.
+CefC6M3 contains 10065.
+ClindaC1M1 contains 18647.
+ClindaC1M2 contains 19939.
+ClindaC1M3 contains 8802.
+ClindaC2M1 contains 8414.
+ClindaC2M2 contains 11576.
+ClindaC2M3 contains 12630.
+ClindaC3M1 contains 10635.
+ClindaC3M2 contains 12774.
+ClindaC3M3 contains 14970.
+ClindaC4M1 contains 5848.
+ClindaC4M2 contains 6167.
+ClindaC4M3 contains 11352.
+ClindaC5M1 contains 15786.
+ClindaC5M2 contains 3031.
+ClindaC5M3 contains 4804.
+ClindaC6M1 contains 4989.
+ClindaC6M2 contains 6671.
+ClindaC6M3 contains 2788.
+ConvC1M1 contains 6102.
+ConvC1M2 contains 14676.
+ConvC1M3 contains 17961.
+ConvC1M4 contains 5854.
+ConvC2M1 contains 5918.
+ConvC2M2 contains 6901.
+ConvC2M3 contains 7434.
+ConvC2M4 contains 6455.
+StrepC1M1 contains 14618.
+StrepC1M2 contains 9576.
+StrepC1M3 contains 3811.
+StrepC2M1 contains 13107.
+StrepC2M2 contains 12554.
+StrepC2M3 contains 8675.
+StrepC3M1 contains 7997.
+StrepC3M2 contains 16682.
+StrepC3M3 contains 25050.
+StrepC4M1 contains 10572.
+StrepC4M2 contains 10335.
+StrepC4M3 contains 9452.
+StrepC5M1 contains 2941.
+StrepC5M2 contains 18056.
+StrepC5M3 contains 7260.
+StrepC6M1 contains 3941.
+StrepC6M2 contains 8809.
+StrepC6M3 contains 4383.
+
+Total seqs: 655982.
+
+Output File Names: 
+all_treatments.0.03.unique_list.conventional.count.summary
+
+
+mothur > dist.shared(shared=all_treatments.0.03.unique_list.conventional.shared, calc=thetayc-jclass, subsample=2500)
+
+Using 1 processors.
+0.03
+
+Output File Names: 
+all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.dist
+all_treatments.0.03.unique_list.conventional.jclass.0.03.lt.dist
+all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.dist
+all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.std.dist
+all_treatments.0.03.unique_list.conventional.jclass.0.03.lt.ave.dist
+all_treatments.0.03.unique_list.conventional.jclass.0.03.lt.std.dist
+
+
+mothur > nmds(phylip=all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.dist)
+Processing Dimension: 2
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+
+Number of dimensions:	2
+Lowest stress :	0.205417
+R-squared for configuration:	0.824023
+
+Output File Names: 
+all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.nmds.iters
+all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.nmds.stress
+all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.nmds.axes
+
+
+mothur > amova(phylip=all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.dist, design=conventional.design)
+cefoperazone-clindamycin-none-streptomycin	Among	Within	Total
+SS	16.0779	6.21678	22.2947
+df	3	58	61
+MS	5.35929	0.107186
+
+Fs:	50
+p-value: <0.001*
+
+cefoperazone-clindamycin	Among	Within	Total
+SS	7.61826	1.01086	8.62911
+df	1	34	35
+MS	7.61826	0.029731
+
+Fs:	256.239
+p-value: <0.001*
+
+cefoperazone-none	Among	Within	Total
+SS	5.04749	1.08892	6.1364
+df	1	24	25
+MS	5.04749	0.0453715
+
+Fs:	111.248
+p-value: <0.001*
+
+cefoperazone-streptomycin	Among	Within	Total
+SS	5.20109	6.11899	11.3201
+df	1	34	35
+MS	5.20109	0.17997
+
+Fs:	28.8997
+p-value: <0.001*
+
+clindamycin-none	Among	Within	Total
+SS	5.45061	0.0977948	5.54841
+df	1	24	25
+MS	5.45061	0.00407478
+
+Fs:	1337.64
+p-value: <0.001*
+
+clindamycin-streptomycin	Among	Within	Total
+SS	5.54803	5.12787	10.6759
+df	1	34	35
+MS	5.54803	0.15082
+
+Fs:	36.7859
+p-value: <0.001*
+
+none-streptomycin	Among	Within	Total
+SS	2.40969	5.20593	7.61562
+df	1	24	25
+MS	2.40969	0.216914
+
+Fs:	11.109
+p-value: <0.001*
+
+Experiment-wise error rate: 0.05
+Pair-wise error rate (Bonferroni): 0.00833333
+If you have borderline P-values, you should try increasing the number of iterations
+
+Output File Names: 
+all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.amova
+
+
+mothur > dist.shared(shared=all_treatments.0.03.unique_list.conventional.shared, calc=thetayc-jclass, subsample=2500, iters=1000)
+
+Using 1 processors.
+0.03
+
+Output File Names: 
+all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.dist
+all_treatments.0.03.unique_list.conventional.jclass.0.03.lt.dist
+all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.dist
+all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.std.dist
+all_treatments.0.03.unique_list.conventional.jclass.0.03.lt.ave.dist
+all_treatments.0.03.unique_list.conventional.jclass.0.03.lt.std.dist
+
+
+mothur > quit()
