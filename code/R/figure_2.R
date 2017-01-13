@@ -9,15 +9,15 @@ for (dep in deps){
 }
 set.seed(6189)
 
-
-classify_RF <- function(training_data, feature){
+featureselect_RF <- function(training_data, feature){
   
+  # Random Forest procedure based on Segal et al. (2004)
   # Set parameters
   attach(training_data)
   levels <- as.vector(unique(training_data[,feature]))
   factor_1 <- round(length(rownames(data[which(data[,feature]==levels[1]),])) * 0.623)
   factor_2 <- round(length(rownames(data[which(data[,feature]==levels[2]),])) * 0.623)
-  factor <- max(c(round(factor_1 / factor_2), round(factor_2 / factor_1))) * 3 # Segal et al. (2004)
+  factor <- max(c(round(factor_1 / factor_2), round(factor_2 / factor_1))) * 3
   n_tree <- round(length(colnames(training_data)) - 1) * factor
   m_try <- round(sqrt(length(colnames(training_data)) - 1))
   
@@ -27,10 +27,9 @@ classify_RF <- function(training_data, feature){
   
   # Parse features for significance
   features_RF <- importance(data_randomForest, type=1)
-  final_features_RF <- subset(features_RF, features_RF>abs(min(features_RF))) # Segal et al. (2004)
+  final_features_RF <- subset(features_RF, features_RF > abs(min(features_RF)))
   
   return(final_features_RF)
-  
 }
 
 clean_merge <- function(data_1, data_2){
@@ -40,68 +39,110 @@ clean_merge <- function(data_1, data_2){
   clean_merged$Row.names <- NULL
   
   return(clean_merged)
-  
 }
 
+#-------------------------------------------------------------------------------------------------------------------------------------#
 
 # Define variables
-nmds_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.thetayc.0.03.lt.ave.nmds.axes'
-shared_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
-taxonomy_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.cons.taxonomy' # wrong taxonomy
+shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
+taxonomy_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.cons.taxonomy'
+shared_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.subsample.shared'
+taxonomy_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.cons.taxonomy'
 metadata_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metadata.tsv'
 
 # Load in data
-nmds <- read.delim(nmds_file, sep='\t', header=T, row.names=1)
-nmds <- nmds[!rownames(nmds) %in% c('CefC5M2'), ] # Remove contaminated sample
 metadata <- read.delim(metadata_file, sep='\t', header=T, row.names=1)
 metadata <- metadata[!rownames(metadata) %in% c('CefC5M2'), ] # Remove contaminated sample
 metadata$cage <- NULL
 metadata$mouse <- NULL
 metadata$gender <- NULL
-taxonomy <- read.delim(taxonomy_file, sep='\t', header=T, row.names=1)
-taxonomy$Size <- NULL
-shared <- read.delim(shared_file, sep='\t', header=T, row.names=2)
-shared <- shared[!rownames(shared) %in% c('CefC5M2'), ]  # Remove contaminated sample
-shared$numOtus <- NULL
-shared$label <- NULL
+taxonomy_otu <- read.delim(taxonomy_otu_file, sep='\t', header=T, row.names=1)
+taxonomy_otu$Size <- NULL
+shared_otu <- read.delim(shared_otu_file, sep='\t', header=T, row.names=2)
+shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]  # Remove contaminated sample
+shared_otu$numOtus <- NULL
+shared_otu$label <- NULL
+taxonomy_family <- read.delim(taxonomy_family_file, sep='\t', header=T, row.names=1)
+taxonomy_family$Size <- NULL
+shared_family <- read.delim(shared_family_file, sep='\t', header=T, row.names=2)
+shared_family <- shared_family[!rownames(shared_family) %in% c('CefC5M2'), ]  # Remove contaminated sample
+shared_family$numOtus <- NULL
+shared_family$label <- NULL
 
-rm(nmds_file, taxonomy_file, metadata_file, shared_file)
+rm(shared_otu_file, taxonomy_otu_file, shared_family_file, taxonomy_family_file, metadata_file)
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
-# Format data
+# Format data (previously subsampled in mothur)
+
+# OTU shared file
+metadata_shared_otu <- clean_merge(metadata, shared_otu)
+conv_shared_otu <- subset(metadata_shared_otu, type == 'conventional')
+conv_shared_otu$type <- NULL
+conv_shared_otu$infection <- NULL
+
+conv_tax_otu <- t(clean_merge(t(conv_shared_otu), taxonomy_otu))
+
+cef_shared_otu <- subset(metadata_shared_otu, abx == 'cefoperazone')
+cef_shared_otu$abx <- NULL
+cef_shared_otu$type <- NULL
+strep_shared_otu <- subset(metadata_shared_otu, abx == 'streptomycin')
+strep_shared_otu$abx <- NULL
+strep_shared_otu$type <- NULL
+clinda_shared_otu <- subset(metadata_shared_otu, abx == 'clindamycin')
+clinda_shared_otu$abx <- NULL
+clinda_shared_otu$type <- NULL
+rm(shared_otu, metadata_shared_otu)
+
+# Phylotype family-level shared file
+metadata_shared_family <- clean_merge(metadata, shared_family)
+conv_shared_family <- subset(metadata_shared_family, type == 'conventional')
+conv_shared_family$type <- NULL
+conv_shared_family$infection <- NULL
+conv_shared_tax_family <- t(clean_merge(t(conventional_shared_family), taxonomy_family))
+rm(shared_family, taxonomy_family, metadata_shared_family, conventional_shared_family)
+
+#----------------------------------------------------------------------------------------------------------------------#
+
+# Analysis and stats
 
 # NMDS axes
-metadata_axes <- clean_merge(metadata, nmds)
-mock_axes <- subset(metadata_axes, infection == 'mock')
-mock_axes <- subset(mock_axes, type != 'germfree')
-infected_axes <- subset(metadata_axes, infection == '630')
-infected_axes <- subset(infected_axes, type != 'germfree')
-rm(nmds, metadata_axes)
+nmds_shared <- conv_shared_otu
+nmds_shared$abx <- NULL
 
-# Shared file
-metadata_shared <- clean_merge(metadata, shared)
-conventional_shared <- subset(metadata_shared, type == 'conventional')
-conventional_shared$type <- NULL
-conventional_shared$infection <- NULL
-conventional_tax <- t(clean_merge(taxonomy, t(conventional_shared)))
-cef_shared <- subset(metadata_shared, abx == 'cefoperazone')
-cef_shared$abx <- NULL
-cef_shared$type <- NULL
-strep_shared <- subset(metadata_shared, abx == 'streptomycin')
-strep_shared$abx <- NULL
-strep_shared$type <- NULL
-clinda_shared <- subset(metadata_shared, abx == 'clindamycin')
-clinda_shared$abx <- NULL
-clinda_shared$type <- NULL
-rm(shared, metadata, metadata_shared, taxonomy)
+
+nmds <- metaMDS(nmds_shared, k=2, trymax=1000)
+rm(nmds_shared)
+
+# Subset nmds groups
+nmds_points <- nmds$points
+metadata_nmds_points <- clean_merge(metadata, nmds_points)
+metadata_nmds_points$type <- NULL
+cef_points <- subset(metadata_nmds_points, abx == 'cefoperazone')
+cef_points$abx <- NULL
+clinda_points <- subset(metadata_nmds_points, abx == 'clindamycin')
+clinda_points$abx <- NULL
+strep_points <- subset(metadata_nmds_points, abx == 'streptomycin')
+strep_points$abx <- NULL
+metadata_nmds_points$infection <- NULL
+
+# AMOVA
+adonis(metadata_nmds_points[,2:3]~abx, data=metadata_nmds_points, permutations=1000, method='bray')
+
+adonis([,2:3]~infection, data=cef_points, permutations=1000, method='bray')
+adonis([,2:3]~infection, data=clinda_points, permutations=1000, method='bray')
+adonis([,2:3]~infection, data=strep_points, permutations=1000, method='bray')
+
 
 # Run random forest
-cef_features <- classify_RF(cef_shared, 'infection')
-strep_features <- classify_RF(strep_shared, 'infection')
-clinda_features <- classify_RF(clinda_shared, 'infection')
+cef_features <- featureselect_RF(cef_shared, 'infection')
+strep_features <- featureselect_RF(strep_shared, 'infection')
+clinda_features <- featureselect_RF(clinda_shared, 'infection')
+cef_features_tax <- clean_merge(cef_features, taxonomy_otu)
+strep_features_tax <- clean_merge(strep_features, taxonomy_otu)
+clinda_features_tax <- clean_merge(clinda_features, taxonomy_otu)
 
-#-------------------------------------------------------------------------------------------------------------------------------------#
+#----------------------------------------------------------------------------------------------------------------------#
 
 # Set up multi-panel figure
 plot_file <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/results/supplement/figures/figure_2.pdf'
@@ -120,7 +161,10 @@ plot(metadata_axes$axis1, metadata_axes$axis2, pch=21, cex=0,
 
 # add mock points
 points(x=mock_axes$axis1, y=mock_axes$axis2, 
-       col=c(wes_palette("FantasticFox")[3], wes_palette("FantasticFox")[5], 'forestgreen', 'black', wes_palette("FantasticFox")[1])[mock_axes$abx], 
+       col=c(wes_palette("FantasticFox")[3], 
+             wes_palette("FantasticFox")[5], 
+             'forestgreen', 'black', 
+             wes_palette("FantasticFox")[1])[mock_axes$abx], 
        pch=1, lwd=4, cex=2.5)
 # add infected points
 points(x=infected_axes$axis1, y=infected_axes$axis2, 
