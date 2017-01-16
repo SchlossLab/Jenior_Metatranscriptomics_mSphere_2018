@@ -1,12 +1,12 @@
 
 # Load dependencies
-for (dep in c('wesanderson', 'randomForest', 'vegan')){
+deps <- c('wesanderson', 'randomForest', 'vegan')
+for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
   } 
   library(dep, verbose=FALSE, character.only=TRUE)
 }
-rm(dep, deps)
 set.seed(6189)
 
 featureselect_RF <- function(training_data, feature){
@@ -103,10 +103,13 @@ strep_features <- featureselect_RF(strep_shared_otu, 'infection')
 clinda_features <- featureselect_RF(clinda_shared_otu, 'infection')
 cef_features_tax <- clean_merge(cef_features, taxonomy_otu)
 cef_features_tax <- cef_features_tax[order(cef_features_tax[,1]),] 
+cef_features_tax$Taxonomy <- gsub('_', ' ', cef_features_tax$Taxonomy)
 strep_features_tax <- clean_merge(strep_features, taxonomy_otu)
 strep_features_tax <- strep_features_tax[order(strep_features_tax[,1]),] 
+strep_features_tax$Taxonomy <- gsub('_', ' ', strep_features_tax$Taxonomy)
 clinda_features_tax <- clean_merge(clinda_features, taxonomy_otu)
 clinda_features_tax <- clinda_features_tax[order(clinda_features_tax[,1]),] 
+clinda_features_tax$Taxonomy <- gsub('_', ' ', clinda_features_tax$Taxonomy)
 rm(taxonomy_otu, cef_features, strep_features, clinda_features)
 
 # Phylotype family-level shared file
@@ -216,18 +219,42 @@ mtext('B', side=2, line=2, las=2, adj=1.7, padj=-10.5, cex=1.3)
 
 # Random Forest results
 
+
+pdf(file='~/Desktop/random_forest.pdf', width=20, height=8)
+layout(matrix(c(1,2,3), nrow=1, ncol=3, byrow = TRUE))
 # Cefoperazone plot
-dotchart(cef_features_tax$final_features_RF, labels=cef_features_tax$Taxonomy, pch=19, cex=0.8, 
-         xlab='Mean Decrease Accuracy', main='Cefoperazone-treated', xlim=c(3,7))
-mtext('C', side=2, line=2, las=2, adj=1.7, padj=-10.5, cex=1.3)
+
+
+
+pdf(file='~/Desktop/cef_rf.pdf', width=8, height=8)
+par(mar=c(5,3,1,1))
+dotchart(cef_features_tax$final_features_RF, labels=cef_features_tax$Taxonomy, pch=19, cex=1.2,
+         xlab='Mean Decrease Accuracy', xlim=c(3,7))
+dev.off()
+
+
+#mtext('C', side=2, line=2, las=2, adj=1.7, padj=-10.5, cex=1.3)
 
 # Clindamycin plot
-dotchart(clinda_features_tax$final_features_RF, labels=clinda_features_tax$Taxonomy, pch=19, cex=0.8, 
-         xlab='Mean Decrease Accuracy', main='Clindamycin-treated', xlim=c(2,12))
+pdf(file='~/Desktop/clinda_rf.pdf', width=7.5, height=8)
+par(mar=c(4,3,1,1))
+dotchart(clinda_features_tax$final_features_RF, labels=clinda_features_tax$Taxonomy, pch=19, cex=1.2,
+         xlab='Mean Decrease Accuracy', xlim=c(2,12))
+dev.off()
+
+
 
 # Streptomycin plot
-dotchart(strep_features_tax$final_features_RF, labels=strep_features_tax$Taxonomy, pch=19, cex=0.8, 
-         xlab='Mean Decrease Accuracy', main='Streptomycin-treated', xlim=c(2,10))
+pdf(file='~/Desktop/strep_rf.pdf', width=8, height=8)
+par(mar=c(5,3,1,1))
+dotchart(strep_features_tax$final_features_RF, labels=strep_features_tax$Taxonomy, pch=19, cex=1.2,
+         xlab='Mean Decrease Accuracy', xlim=c(2,10))
+dev.off()
+
+
+
+
+
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
