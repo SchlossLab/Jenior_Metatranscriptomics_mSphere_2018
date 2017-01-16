@@ -1,7 +1,6 @@
 
 # Load dependencies
-deps <- c('wesanderson', 'randomForest', 'vegan');
-for (dep in deps){
+for (dep in c('wesanderson', 'randomForest', 'vegan')){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
   } 
@@ -13,6 +12,7 @@ set.seed(6189)
 featureselect_RF <- function(training_data, feature){
   
   # Random Forest procedure based on Segal et al. (2004)
+  
   # Set parameters
   attach(training_data)
   levels <- as.vector(unique(training_data[,feature]))
@@ -30,9 +30,8 @@ featureselect_RF <- function(training_data, feature){
   features_RF <- importance(data_randomForest, type=1)
   final_features_RF <- subset(features_RF, features_RF > abs(min(features_RF)))
   final_features_RF <- final_features_RF[!(rownames(final_features_RF) == feature),]
-  
   final_features_RF <- as.data.frame(final_features_RF)
-  
+
   return(final_features_RF)
 }
 
@@ -51,7 +50,7 @@ clean_merge <- function(data_1, data_2){
 
 nmds_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.nmds.axes'
 shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
-taxonomy_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.cons.taxonomy'
+taxonomy_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.cons.genus.format.taxonomy'
 shared_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.subsample.shared'
 taxonomy_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.cons.family.format.taxonomy'
 metadata_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metadata.tsv'
@@ -103,11 +102,11 @@ cef_features <- featureselect_RF(cef_shared_otu, 'infection')
 strep_features <- featureselect_RF(strep_shared_otu, 'infection')
 clinda_features <- featureselect_RF(clinda_shared_otu, 'infection')
 cef_features_tax <- clean_merge(cef_features, taxonomy_otu)
-cef_features_tax <- cef_features_tax[order(-cef_features_tax[,1]),] 
+cef_features_tax <- cef_features_tax[order(cef_features_tax[,1]),] 
 strep_features_tax <- clean_merge(strep_features, taxonomy_otu)
-strep_features_tax <- strep_features_tax[order(-strep_features_tax[,1]),] 
+strep_features_tax <- strep_features_tax[order(strep_features_tax[,1]),] 
 clinda_features_tax <- clean_merge(clinda_features, taxonomy_otu)
-clinda_features_tax <- clinda_features_tax[order(-clinda_features_tax[,1]),] 
+clinda_features_tax <- clinda_features_tax[order(clinda_features_tax[,1]),] 
 rm(taxonomy_otu, cef_features, strep_features, clinda_features)
 
 # Phylotype family-level shared file
@@ -115,7 +114,18 @@ metadata_shared_family <- clean_merge(metadata, shared_family)
 conv_shared_family <- subset(metadata_shared_family, type == 'conventional')
 conv_shared_family$type <- NULL
 conv_shared_family$infection <- NULL
+conv_shared_family$abx <- NULL
 rm(shared_family, metadata_shared_family)
+
+# Convert to relative abundance
+relabund_shared <- conv_shared_family + 1
+relabund_shared <- (relabund_shared / rowSums(relabund_shared)) * 100
+rm(conv_shared_family)
+
+# Bin lowly abundant OTUs into an 'Other' category
+relabund_shared[relabund_shared < 1] <- 0
+relabund_shared <- relabund_shared[, colSums(relabund_shared != 0) > 0]
+relabund_shared$Other <- 100 - rowSums(relabund_shared)
 
 # NMDS axes
 metadata_nmds <- clean_merge(metadata, nmds)
@@ -182,15 +192,17 @@ mtext('A', side=2, line=2, las=2, adj=1.7, padj=-18.1, cex=1.3)
 
 # Family-level phylotype bar chart
 
-par(las=1, mar=c(4,4.5,1,12), xpd=TRUE)
+par(mar=c(4,5,1,1))
 
 # When needed, use this pallete   
-final_colors <- c("gold1", "orangered1", "aquamarine3", "firebrick", "forestgreen", "blue3", 
-                  "mediumorchid2", "violetred4", "mediumpurple4", "dodgerblue3", "goldenrod3", "chartreuse3")
+final_colors <- c("gold1", "orangered1", "aquamarine3", "firebrick", 
+                  "forestgreen", "blue3", "mediumorchid2", "violetred4", 
+                  "mediumpurple4", "dodgerblue3", "goldenrod3", "chartreuse3")
 
 
 # Plot the final formatted table
-barplot(t(filtered_shared), col=final_colors, yaxt='n', ylim=c(0,100), ylab='% Relative Abundance', font=2)
+barplot(t(relabund_shared), col=final_colors, yaxt='n', 
+        ylim=c(0,100), ylab='% Relative Abundance', font=2)
 box()
 axis(side=2, at=seq(0,100,20), tick=TRUE)
 segments(x0=rep(0,4), y0=seq(20,80,20), x1=rep(5,4), y1=seq(20,80,20), lty=2)
@@ -205,16 +217,17 @@ mtext('B', side=2, line=2, las=2, adj=1.7, padj=-10.5, cex=1.3)
 # Random Forest results
 
 # Cefoperazone plot
-dotchart()
-
+dotchart(cef_features_tax$final_features_RF, labels=cef_features_tax$Taxonomy, pch=19, cex=0.8, 
+         xlab='Mean Decrease Accuracy', main='Cefoperazone-treated', xlim=c(3,7))
+mtext('C', side=2, line=2, las=2, adj=1.7, padj=-10.5, cex=1.3)
 
 # Clindamycin plot
-dotchart()
-
+dotchart(clinda_features_tax$final_features_RF, labels=clinda_features_tax$Taxonomy, pch=19, cex=0.8, 
+         xlab='Mean Decrease Accuracy', main='Clindamycin-treated', xlim=c(2,12))
 
 # Streptomycin plot
-dotchart()
-
+dotchart(strep_features_tax$final_features_RF, labels=strep_features_tax$Taxonomy, pch=19, cex=0.8, 
+         xlab='Mean Decrease Accuracy', main='Streptomycin-treated', xlim=c(2,10))
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
