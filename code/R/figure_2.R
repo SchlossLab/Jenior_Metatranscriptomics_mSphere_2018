@@ -46,7 +46,7 @@ clean_merge <- function(data_1, data_2){
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
-# Define variables
+# Define variabless
 
 nmds_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.nmds.axes'
 shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
@@ -178,26 +178,31 @@ layout(matrix(c(1,2,2,
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
 # NMDS of treatment groups
+
+jpeg(filename='~/Desktop/nmds.jpeg', height = 900, width = 900)
 par(las=1, mar=c(5,5,1,1))
 plot(0,type='n', pch=16, cex=0,
      xlim=c(-0.7,0.7), ylim=c(-0.7,0.7), cex.lab=2, cex.axis=1.7,
      xlab='NMDS Axis 1', ylab='NMDS Axis 2')
 
 # Add points
-points(x=control_axes$axis1, y=control_axes$axis2, col='black', pch=1, lwd=4, cex=2.5)
-points(x=cef_infected_axes$axis1, y=cef_infected_axes$axis2, col=wes_palette("FantasticFox")[3], pch=1, lwd=3, cex=2.5)
-points(x=cef_mock_axes$axis1, y=cef_mock_axes$axis2, col=wes_palette("FantasticFox")[3], pch=6, lwd=3, cex=2)
-points(x=clinda_infected_axes$axis1, y=clinda_infected_axes$axis2, col=wes_palette("FantasticFox")[5], pch=1, lwd=3, cex=2.5)
-points(x=clinda_mock_axes$axis1, y=clinda_mock_axes$axis2, col=wes_palette("FantasticFox")[5], pch=6, lwd=3, cex=2)
-points(x=strep_infected_axes$axis1, y=strep_infected_axes$axis2, col=wes_palette("FantasticFox")[1], pch=1, lwd=3, cex=2.5)
-points(x=strep_mock_axes$axis1, y=strep_mock_axes$axis2, col=wes_palette("FantasticFox")[1], pch=6, lwd=3, cex=2)
+points(x=control_axes$axis1, y=control_axes$axis2, col='black', pch=1, lwd=4, cex=3.5)
+points(x=cef_infected_axes$axis1, y=cef_infected_axes$axis2, col=wes_palette("FantasticFox")[3], pch=1, lwd=4, cex=3.5)
+points(x=cef_mock_axes$axis1, y=cef_mock_axes$axis2, col=wes_palette("FantasticFox")[3], pch=6, lwd=4, cex=3)
+points(x=clinda_infected_axes$axis1, y=clinda_infected_axes$axis2, col=wes_palette("FantasticFox")[5], pch=1, lwd=4, cex=3.5)
+points(x=clinda_mock_axes$axis1, y=clinda_mock_axes$axis2, col=wes_palette("FantasticFox")[5], pch=6, lwd=4, cex=3)
+points(x=strep_infected_axes$axis1, y=strep_infected_axes$axis2, col=wes_palette("FantasticFox")[1], pch=1, lwd=4, cex=3.5)
+points(x=strep_mock_axes$axis1, y=strep_mock_axes$axis2, col=wes_palette("FantasticFox")[1], pch=6, lwd=4, cex=3)
 
 # Add legends
 legend('topleft', legend=c('Streptomycin-treated', 'Cefoperzone-treated', 'Clindamycin-treated', 'No Antibiotics'), 
        col=c(wes_palette("FantasticFox")[1], wes_palette("FantasticFox")[3], wes_palette("FantasticFox")[5], 'black'), 
-       pch=15, cex=1.9, pt.cex=3, bty='n')
+       pch=15, cex=1.9, pt.cex=3.5, bty='n')
 legend('bottomleft', legend=c('Mock Infected', '630 Infected'), 
-       col='black', pch=c(16,17), cex=c(2.5,2), pt.cex=2.5, bty='n')
+       col='black', pch=c(16,17), cex=2.5, pt.cex=c(3.5,3), bty='n')
+
+
+dev.off()
 
 mtext('A', side=2, line=2, las=2, adj=1.7, padj=-18.1, cex=1.3)
 
