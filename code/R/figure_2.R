@@ -104,13 +104,23 @@ clinda_features <- featureselect_RF(clinda_shared_otu, 'infection')
 cef_features_tax <- clean_merge(cef_features, taxonomy_otu)
 cef_features_tax <- cef_features_tax[order(cef_features_tax[,1]),] 
 cef_features_tax$Taxonomy <- gsub('_', ' ', cef_features_tax$Taxonomy)
+cef_features_tax$Taxonomy <- gsub(',', ', ', cef_features_tax$Taxonomy)
 strep_features_tax <- clean_merge(strep_features, taxonomy_otu)
 strep_features_tax <- strep_features_tax[order(strep_features_tax[,1]),] 
 strep_features_tax$Taxonomy <- gsub('_', ' ', strep_features_tax$Taxonomy)
+strep_features_tax$Taxonomy <- gsub(',', ', ', strep_features_tax$Taxonomy)
 clinda_features_tax <- clean_merge(clinda_features, taxonomy_otu)
 clinda_features_tax <- clinda_features_tax[order(clinda_features_tax[,1]),] 
 clinda_features_tax$Taxonomy <- gsub('_', ' ', clinda_features_tax$Taxonomy)
+clinda_features_tax$Taxonomy <- gsub(',', ', ', clinda_features_tax$Taxonomy)
 rm(taxonomy_otu, cef_features, strep_features, clinda_features)
+
+# Get significant taxa from shared file
+cef_shared_sig_otu <- subset(cef_shared_otu, rownames(cef_shared_otu) == )
+
+
+
+
 
 # Phylotype family-level shared file
 metadata_shared_family <- clean_merge(metadata, shared_family)
@@ -237,7 +247,7 @@ dev.off()
 
 # Clindamycin plot
 pdf(file='~/Desktop/clinda_rf.pdf', width=7.5, height=8)
-par(mar=c(4,3,1,1))
+par(mar=c(5,3,1,1))
 dotchart(clinda_features_tax$final_features_RF, labels=clinda_features_tax$Taxonomy, pch=19, cex=1.2,
          xlab='Mean Decrease Accuracy', xlim=c(2,12))
 dev.off()

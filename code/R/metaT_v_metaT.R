@@ -1,12 +1,4 @@
 
-deps <- c('vegan', 'wesanderson');
-for (dep in deps){
-  if (dep %in% installed.packages()[,"Package"] == FALSE){
-    install.packages(as.character(dep), quiet=TRUE);
-  }
-  library(dep, verbose=FALSE, character.only=TRUE)
-}
-
 dist2d <- function(a, b, c) {
   v1 <- b - c
   v2 <- a - b
@@ -14,6 +6,71 @@ dist2d <- function(a, b, c) {
   d <- abs(det(m))/sqrt(sum(v1*v1))
 } 
 
+rarefybig <- function(x, subdepth) {
+  print("Creating empty matrix")
+  
+  randnorep <- function(count, min, max) {
+    if((max - min + 1) < count) {
+      write("ERROR: Sample is out of range!", stderr())
+      break
+    }
+    uct <- 0
+    rounded <- NULL
+    while(uct < count) {
+      itrr <- round(runif((count - uct), min = min, max = max))
+      rounded <- c(rounded, itrr)
+      rounded <- unique(rounded)
+      uct <- length(rounded)
+      rounded
+    }
+    rounded
+  }
+  
+  m <- as.matrix(x)
+  m[] <- 0
+  m <- as.data.frame(m)
+  
+  df <- data.frame(value = c(0, 0))
+  xcount <- 0
+  finalcount <- 0
+  # Create reference table
+  print("Creating reference table")
+  for (i in 1:length(x)) {
+    cval <- x[,i]
+    name <- colnames(x)[i]
+    finalcount <- xcount + cval
+    df[,name] <- c(xcount, finalcount)
+    xcount <- finalcount
+  }
+  df <- as.data.frame(t(df[,-1]))
+  df$names <- rownames(df)
+  
+  randdist <- randnorep(subdepth, 1, sum(x))
+  
+  print("Annotating random distribution")
+  getValue <- function(x, data) {
+    tmp <- data %>%
+      filter(x <= V2, x > V1)
+    return(tmp$names)
+  }
+  
+  row <- sapply(randdist, getValue, data=df)
+  row <- table(row)
+  ind <- names(row)
+  x[] <- 0
+  x[,ind] <- row
+  
+  return(x)
+}
+
+clean_merge <- function(data_1, data_2){
+  
+  clean_merged <- merge(data_1, data_2, by = 'row.names')
+  rownames(clean_merged) <- clean_merged$Row.names
+  clean_merged$Row.names <- NULL
+  
+  return(clean_merged)
+}
 
 # Define input file names
 # metagenomes
@@ -30,36 +87,35 @@ strep_630_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscrip
 strep_mock_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 conv_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 
-
 # Load in data
 # Metagenomes
 cef_metagenome <- read.delim(cef_metagenome_file, sep='\t', header=FALSE, row.names=1)
-colnames(cef_metagenome) <- c('cefoperazone_metaG', 'ko', 'gene', 'pathway')
+colnames(cef_metagenome) <- c('cef_metaG_reads', 'ko', 'gene', 'pathway')
 clinda_metagenome <- read.delim(clinda_metagenome_file, sep='\t', header=FALSE, row.names=1)
-colnames(clinda_metagenome) <- c('clindamycin_metaG', 'ko', 'gene', 'pathway')
+colnames(clinda_metagenome) <- c('clinda_metaG_reads', 'ko', 'gene', 'pathway')
 strep_metagenome <- read.delim(strep_metagenome_file, sep='\t', header=FALSE, row.names=1)
-colnames(strep_metagenome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(strep_metagenome) <- c('strep_metaG_reads', 'ko', 'gene', 'pathway')
 conv_metagenome <- read.delim(conv_metagenome_file, sep='\t', header=FALSE, row.names=1)
-colnames(conv_metagenome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(conv_metagenome) <- c('conv_metaG_reads', 'ko', 'gene', 'pathway')
 rm(cef_metagenome_file, clinda_metagenome_file, strep_metagenome_file, conv_metagenome_file)
 # Metatranscriptomes
 cef_630_metatranscriptome <- read.delim(cef_630_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
-colnames(cef_630_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(cef_630_metatranscriptome) <- c('cef_630_metaT_reads', 'ko', 'gene', 'pathway')
 cef_mock_metatranscriptome <- read.delim(cef_mock_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
-colnames(cef_mock_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(cef_mock_metatranscriptome) <- c('cef_mock_metaT_reads', 'ko', 'gene', 'pathway')
 rm(cef_630_metatranscriptome_file, cef_mock_metatranscriptome_file)
 clinda_630_metatranscriptome <- read.delim(clinda_630_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
-colnames(clinda_630_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(clinda_630_metatranscriptome) <- c('clinda_630_metaT_reads', 'ko', 'gene', 'pathway')
 clinda_mock_metatranscriptome <- read.delim(clinda_mock_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
-colnames(clinda_mock_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(clinda_mock_metatranscriptome) <- c('clinda_mock_metaT_reads', 'ko', 'gene', 'pathway')
 rm(clinda_630_metatranscriptome_file, clinda_mock_metatranscriptome_file)
 strep_630_metatranscriptome <- read.delim(strep_630_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
-colnames(strep_630_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(strep_630_metatranscriptome) <- c('strep_630_metaT_reads', 'ko', 'gene', 'pathway')
 strep_mock_metatranscriptome <- read.delim(strep_mock_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
-colnames(strep_mock_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(strep_mock_metatranscriptome) <- c('strep_mock_metaT_reads', 'ko', 'gene', 'pathway')
 rm(strep_630_metatranscriptome_file, strep_mock_metatranscriptome_file)
 conv_metatranscriptome <- read.delim(conv_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
-colnames(conv_metatranscriptome) <- c('reads', 'ko', 'gene', 'pathway')
+colnames(conv_metatranscriptome) <- c('conv_metaT_reads', 'ko', 'gene', 'pathway')
 rm(conv_metatranscriptome_file)
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -129,7 +185,8 @@ all_metatranscriptome$Row.names <- NULL
 all_metatranscriptome <- merge(all_metatranscriptome, conv_metatranscriptome, by='row.names')
 rownames(all_metatranscriptome) <- all_metatranscriptome$Row.names
 all_metatranscriptome$Row.names <- NULL
-colnames(all_metatranscriptome) <- c('cefoperazone_630', 'cefoperazone_mock', 'clindamycin_630', 'clindamycin_mock', 'streptomycin_630', 'streptomycin_mock','conventional_metaT','ko', 'gene', 'pathway')
+colnames(all_metatranscriptome) <- c('cefoperazone_630_metaT', 'cefoperazone_mock_metaT', 'clindamycin_630_metaT', 'clindamycin_mock_metaT', 
+                                     'streptomycin_630_metaT', 'streptomycin_mock_metaT', 'conventional_metaT', 'ko', 'gene', 'pathway')
 rm(cef_630_metatranscriptome, cef_mock_metatranscriptome, clinda_630_metatranscriptome, 
    clinda_mock_metatranscriptome, strep_630_metatranscriptome, strep_mock_metatranscriptome, conv_metatranscriptome)
 
@@ -150,12 +207,12 @@ all_metagenome$streptomycin <- t(rrarefy(all_metagenome$streptomycin, sample=opt
 all_metagenome$conventional <- t(rrarefy(all_metagenome$conventional, sample=optimal_size)) + 1
 
 # Rarefy metatranscriptomic data
-all_metatranscriptome$cefoperazone_630 <- t(rrarefy(all_metatranscriptome$cefoperazone_630, sample=optimal_size)) + 1
-all_metatranscriptome$cefoperazone_mock <- t(rrarefy(all_metatranscriptome$cefoperazone_mock, sample=optimal_size)) + 1
-all_metatranscriptome$clindamycin_630 <- t(rrarefy(all_metatranscriptome$clindamycin_630, sample=optimal_size)) + 1
-all_metatranscriptome$clindamycin_mock <- t(rrarefy(all_metatranscriptome$clindamycin_mock, sample=optimal_size)) + 1
-all_metatranscriptome$streptomycin_630 <- t(rrarefy(all_metatranscriptome$streptomycin_630, sample=optimal_size)) + 1
-all_metatranscriptome$streptomycin_mock <- t(rrarefy(all_metatranscriptome$streptomycin_mock, sample=optimal_size)) + 1
+all_metatranscriptome$cefoperazone_630_metaT <- t(rrarefy(all_metatranscriptome$cefoperazone_630_metaT, sample=optimal_size)) + 1
+all_metatranscriptome$cefoperazone_mock_metaT <- t(rrarefy(all_metatranscriptome$cefoperazone_mock_metaT, sample=optimal_size)) + 1
+all_metatranscriptome$clindamycin_630_metaT <- t(rrarefy(all_metatranscriptome$clindamycin_630_metaT, sample=optimal_size)) + 1
+all_metatranscriptome$clindamycin_mock_metaT <- t(rrarefy(all_metatranscriptome$clindamycin_mock_metaT, sample=optimal_size)) + 1
+all_metatranscriptome$streptomycin_630_metaT <- t(rrarefy(all_metatranscriptome$streptomycin_630_metaT, sample=optimal_size)) + 1
+all_metatranscriptome$streptomycin_mock_metaT <- t(rrarefy(all_metatranscriptome$streptomycin_mock_metaT, sample=optimal_size)) + 1
 all_metatranscriptome$conventional_metaT <- t(rrarefy(all_metatranscriptome$conventional_metaT, sample=optimal_size)) + 1
 rm(optimal_size)
 
@@ -166,16 +223,16 @@ all_metagenome$pathway <- NULL
 full_mapping <- merge(all_metagenome, all_metatranscriptome, by='row.names')
 rownames(full_mapping) <- full_mapping$Row.names
 full_mapping$Row.names <- NULL
-colnames(full_mapping) <- c('cefoperazone_metaG', 'clindamycin_metaG', 'streptomycin_metaG', 'conventional_metaG', 'cefoperazone_630', 'cefoperazone_mock', 'clindamycin_630', 'clindamycin_mock', 'streptomycin_630', 'streptomycin_mock','conventional_metaT','ko', 'gene', 'pathway')
+colnames(full_mapping) <- c('cefoperazone_metaG', 'clindamycin_metaG', 'streptomycin_metaG', 'conventional_metaG', 'cefoperazone_630_metaT', 'cefoperazone_mock_metaT', 'clindamycin_630_metaT', 'clindamycin_mock_metaT', 'streptomycin_630_metaT', 'streptomycin_mock_metaT','conventional_metaT_metaT','ko', 'gene', 'pathway')
 rm(all_metagenome, all_metatranscriptome)
 
 # Normalize to metagenomic coverage
-full_mapping$cefoperazone_630 <- full_mapping$cefoperazone_630 / full_mapping$cefoperazone_metaG
-full_mapping$cefoperazone_mock <- full_mapping$cefoperazone_mock / full_mapping$cefoperazone_metaG
-full_mapping$clindamycin_630 <- full_mapping$clindamycin_630 / full_mapping$clindamycin_metaG
-full_mapping$clindamycin_mock <- full_mapping$clindamycin_mock / full_mapping$clindamycin_metaG
-full_mapping$streptomycin_630 <- full_mapping$streptomycin_630 / full_mapping$streptomycin_metaG
-full_mapping$streptomycin_mock <- full_mapping$streptomycin_mock / full_mapping$streptomycin_metaG
+full_mapping$cefoperazone_630_metaT <- full_mapping$cefoperazone_630_metaT / full_mapping$cefoperazone_metaG
+full_mapping$cefoperazone_mock_metaT <- full_mapping$cefoperazone_mock_metaT / full_mapping$cefoperazone_metaG
+full_mapping$clindamycin_630_metaT <- full_mapping$clindamycin_630_metaT / full_mapping$clindamycin_metaG
+full_mapping$clindamycin_mock_metaT <- full_mapping$clindamycin_mock_metaT / full_mapping$clindamycin_metaG
+full_mapping$streptomycin_630_metaT <- full_mapping$streptomycin_630_metaT / full_mapping$streptomycin_metaG
+full_mapping$streptomycin_mock_metaT <- full_mapping$streptomycin_mock_metaT / full_mapping$streptomycin_metaG
 full_mapping$conventional_metaT <- full_mapping$conventional_metaT / full_mapping$conventional_metaG
 
 # Separate treatment groups
@@ -184,15 +241,46 @@ clinda_metatranscriptome <- full_mapping[,c(7,8,12:14)]
 strep_metatranscriptome <- full_mapping[,c(9,10,12:14)]
 rm(full_mapping)
 
+# Screen for active transcription in either condition
+cef_metatranscriptome <- subset(cef_metatranscriptome, cef_metatranscriptome$cefoperazone_630 >= 1.0 | cef_metatranscriptome$cefoperazone_mock >= 1.0)
+clinda_metatranscriptome <- subset(clinda_metatranscriptome, clinda_metatranscriptome$clindamycin_630 >= 1.0 | clinda_metatranscriptome$clindamycin_mock >= 1.0)
+strep_metatranscriptome <- subset(strep_metatranscriptome, strep_metatranscriptome$streptomycin_630 >= 1.0 | strep_metatranscriptome$streptomycin_mock >= 1.0)
+
 # Log10 transform the data
 cef_metatranscriptome[,c(1,2)] <- log10(cef_metatranscriptome[,c(1,2)])
+cef_metatranscriptome[cef_metatranscriptome < 0.0] <- 0.0
 clinda_metatranscriptome[,c(1,2)] <- log10(clinda_metatranscriptome[,c(1,2)])
+clinda_metatranscriptome[clinda_metatranscriptome < 0.0] <- 0.0
 strep_metatranscriptome[,c(1,2)] <- log10(strep_metatranscriptome[,c(1,2)])
+strep_metatranscriptome[strep_metatranscriptome < 0.0] <- 0.0
 
-# Remove groups with no transcription
-cef_metatranscriptome <- subset(cef_metatranscriptome, cef_metatranscriptome$cefoperazone_630 != 0.0 & cef_metatranscriptome$cefoperazone_mock != 0.0)
-clinda_metatranscriptome <- subset(clinda_metatranscriptome, clinda_metatranscriptome$clindamycin_630 != 0.0 & clinda_metatranscriptome$clindamycin_mock != 0.0)
-strep_metatranscriptome <- subset(strep_metatranscriptome, strep_metatranscriptome$streptomycin_630 != 0.0 & strep_metatranscriptome$streptomycin_mock != 0.0)
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Determine pathway annotations
+cef_amino_sugar <- cef_metatranscriptome[grep('Amino_sugar', cef_metatranscriptome$pathway), ][,c(1,2)]
+cef_fructose_mannose <- cef_metatranscriptome[grep('Fructose', cef_metatranscriptome$pathway), ][,c(1,2)]
+cef_proline <- cef_metatranscriptome[grep('proline', cef_metatranscriptome$pathway), ][,c(1,2)]
+cef_glycine <- cef_metatranscriptome[grep('Glycine', cef_metatranscriptome$pathway), ][,c(1,2)]
+cef_galactose <- cef_metatranscriptome[grep('Galactose', cef_metatranscriptome$pathway), ][,c(1,2)]
+cef_sucrose <- cef_metatranscriptome[grep('sucrose', cef_metatranscriptome$pathway), ][,c(1,2)]
+cef_glycolysis <- cef_metatranscriptome[grep('Glycolysis', cef_metatranscriptome$pathway), ][,c(1,2)]
+
+clinda_amino_sugar <- clinda_metatranscriptome[grep('Amino_sugar', clinda_metatranscriptome$pathway), ][,c(1,2)]
+clinda_fructose_mannose <- clinda_metatranscriptome[grep('Fructose', clinda_metatranscriptome$pathway), ][,c(1,2)]
+clinda_proline <- clinda_metatranscriptome[grep('proline', clinda_metatranscriptome$pathway), ][,c(1,2)]
+clinda_glycine <- clinda_metatranscriptome[grep('Glycine', clinda_metatranscriptome$pathway), ][,c(1,2)]
+clinda_galactose <- clinda_metatranscriptome[grep('Galactose', clinda_metatranscriptome$pathway), ][,c(1,2)]
+clinda_sucrose <- clinda_metatranscriptome[grep('sucrose', clinda_metatranscriptome$pathway), ][,c(1,2)]
+clinda_glycolysis <- clinda_metatranscriptome[grep('Glycolysis', clinda_metatranscriptome$pathway), ][,c(1,2)]
+
+strep_amino_sugar <- strep_metatranscriptome[grep('Amino_sugar', strep_metatranscriptome$pathway), ][,c(1,2)]
+strep_fructose_mannose <- strep_metatranscriptome[grep('Fructose', strep_metatranscriptome$pathway), ][,c(1,2)]
+strep_proline <- strep_metatranscriptome[grep('proline', strep_metatranscriptome$pathway), ][,c(1,2)]
+strep_glycine <- strep_metatranscriptome[grep('Glycine', strep_metatranscriptome$pathway), ][,c(1,2)]
+strep_galactose <- strep_metatranscriptome[grep('Galactose', strep_metatranscriptome$pathway), ][,c(1,2)]
+strep_sucrose <- strep_metatranscriptome[grep('sucrose', strep_metatranscriptome$pathway), ][,c(1,2)]
+strep_glycolysis <- strep_metatranscriptome[grep('Glycolysis', strep_metatranscriptome$pathway), ][,c(1,2)]
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -200,21 +288,9 @@ strep_metatranscriptome <- subset(strep_metatranscriptome, strep_metatranscripto
 # Will reveal which genes were most effected by c. diff colonization
 
 
-dist2d <- function(a,b,c) {
-  v1 <- b - c
-  v2 <- a - b
-  m <- cbind(v1,v2)
-  d <- abs(det(m))/sqrt(sum(v1*v1))
-} 
 
 
-
-
-
-good.dist <- sqrt((good.ord - typ.ord)^2 / 2)
-
-
-
+#good.dist <- sqrt((good.ord - typ.ord)^2 / 2)
 
 
 
@@ -229,65 +305,115 @@ layout(matrix(c(1,2,
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
+
+
+
+
+
+
 # Cefoperazone
-par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0), xaxs='i', yaxs='i')
-plot(x=cef_metatranscriptome$cefoperazone_630, y=cef_metatranscriptome$cefoperazone_mock, 
-     xlim=c(0,4), ylim=c(0,4), pch=20, col='black', xaxt='n', yaxt='n', 
+
+
+
+jpeg(file='~/Desktop/cef_metaT.jpeg', width=1000, height=1000)
+
+par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0), xaxs='r', yaxs='r')
+plot(x=cef_metatranscriptome$cefoperazone_630_metaT, y=cef_metatranscriptome$cefoperazone_mock_metaT, 
+     xlim=c(0,4), ylim=c(0,4), pch=20, cex=1.5, col='gray35', xaxt='n', yaxt='n', 
      xlab='Normalized cDNA Read Abundance (Infected)', ylab='Normalized cDNA Read Abundance (Mock)')
 segments(-2, -2, 8, 8, lwd=2, lty=2)
 axis_labels <- parse(text=paste(rep(10,4), '^', seq(0,4,1), sep=''))
 axis(side=1, at=c(0:4), axis_labels, tick=TRUE)
 axis(side=2, at=c(0:4), axis_labels, tick=TRUE, las=1)
-points(cef_glycolysis[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[5], col='black')
-points(cef_amino_sugar[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[3], col='black')
-points(cef_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[4], col='black')
-points(cef_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[3], col='black')
-points(cef_proline[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[4], col='black')
-points(cef_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Zissou')[3], col='black')
-legend('topleft', 'Cefoperazone', bty='n', cex=1.4)
+legend('topleft', 'Cefoperazone-treated', bty='n', cex=3)
+
+
+
+points(cef_glycolysis, cex=3.5, pch=21, bg='chartreuse3', col='black')
+points(cef_amino_sugar, cex=3.5, pch=21, bg='darkcyan', col='black')
+points(cef_fructose_mannose, cex=3.5, pch=21, bg='firebrick3', col='black')
+points(cef_proline, cex=3.5, pch=21, bg='darkgoldenrod1', col='black')
+points(cef_glycine, cex=3.5, pch=21, bg='darkgoldenrod1', col='black')
+points(cef_galactose, cex=3.5, pch=21, bg='darkorchid3', col='black')
+
+
+
+dev.off()
+
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clindamycin
-par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0), xaxs='i', yaxs='i')
-plot(x=clinda_metatranscriptome$clindamycin_630, y=clinda_metatranscriptome$clindamycin_mock, 
-     xlim=c(0,4), ylim=c(0,4), pch=20, col='black', xaxt='n', yaxt='n', 
+
+jpeg(file='~/Desktop/clinda_metaT.jpeg', width=1000, height=1000)
+
+par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0), xaxs='r', yaxs='r')
+plot(x=clinda_metatranscriptome$clindamycin_630_metaT, y=clinda_metatranscriptome$clindamycin_mock_metaT, 
+     xlim=c(0,4), ylim=c(0,4), pch=20, col='gray35', xaxt='n', yaxt='n', 
      xlab='Normalized cDNA Read Abundance (Infected)', ylab='Normalized cDNA Read Abundance (Mock)')
+legend('topleft', 'Clindamycin-treated', bty='n', cex=3)
 segments(-2, -2, 8, 8, lwd=2, lty=2)
 axis(side=1, at=c(0:4), axis_labels, tick=TRUE)
 axis(side=2, at=c(0:4), axis_labels, tick=TRUE, las=1)
-points(clinda_glycolysis[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[5], col='black')
-points(clinda_amino_sugar[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[3], col='black')
-points(clinda_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[4], col='black')
-points(clinda_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[3], col='black')
-points(clinda_proline[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[4], col='black')
-points(clinda_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Zissou')[3], col='black')
-legend('topleft', 'Clindamycin', bty='n', cex=1.4)
+
+
+points(clinda_glycolysis, cex=3.5, pch=21, bg='chartreuse3', col='black')
+points(clinda_amino_sugar, cex=3.5, pch=21, bg='darkcyan', col='black')
+points(clinda_fructose_mannose, cex=3.5, pch=21, bg='firebrick3', col='black')
+points(clinda_proline, cex=3.5, pch=21, bg='darkgoldenrod1', col='black')
+points(clinda_glycine, cex=3.5, pch=21, bg='darkgoldenrod1', col='black')
+points(clinda_galactose, cex=3.5, pch=21, bg='darkorchid3', col='black')
+
+
+
+dev.off()
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Streptomycin
-par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0), xaxs='i', yaxs='i')
-plot(x=strep_metatranscriptome$streptomycin_630, y=strep_metatranscriptome$streptomycin_mock, 
-     xlim=c(0,4), ylim=c(0,4), pch=20, col='black', xaxt='n', yaxt='n', 
+
+
+
+jpeg(file='~/Desktop/strep_metaT.jpeg', width=1000, height=1000)
+
+par(mar=c(4, 4, 1, 1), mgp=c(2.4,0.7,0))
+plot(x=strep_metatranscriptome$streptomycin_630_metaT, y=strep_metatranscriptome$streptomycin_mock_metaT, 
+     xlim=c(0,4), ylim=c(0,4), pch=20, col='gray35', xaxt='n', yaxt='n', 
      xlab='Normalized cDNA Read Abundance (Infected)', ylab='Normalized cDNA Read Abundance (Mock)')
+legend('topleft', 'Streptomycin-treated', bty='n', cex=3)
 segments(-2, -2, 8, 8, lwd=2, lty=2)
 axis(side=1, at=c(0:4), axis_labels, tick=TRUE)
 axis(side=2, at=c(0:4), axis_labels, tick=TRUE, las=1)
-points(strep_glycolysis[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[5], col='black')
-points(strep_amino_sugar[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[3], col='black')
-points(strep_fructose_mannose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[4], col='black')
-points(strep_pentose[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Rushmore')[3], col='black')
-points(strep_proline[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('FantasticFox')[4], col='black')
-points(strep_glycine_serine_threonine[,c(1,2)], cex=1.5, pch=21, bg=wes_palette('Zissou')[3], col='black')
-legend('topleft', 'Streptomycin', bty='n', cex=1.4)
+
+
+
+points(strep_glycolysis, cex=3.5, pch=21, bg='chartreuse3', col='black')
+points(strep_amino_sugar, cex=3.5, pch=21, bg='darkcyan', col='black')
+points(strep_fructose_mannose, cex=3.5, pch=21, bg='firebrick3', col='black')
+points(strep_proline, cex=3.5, pch=21, bg='darkgoldenrod1', col='black')
+points(strep_glycine, cex=3.5, pch=21, bg='darkgoldenrod1', col='black')
+points(strep_galactose, cex=3.5, pch=21, bg='darkorchid3', col='black')
+
+
+dev.off()
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
+
+
+jpeg(file='~/Desktop/legend_metaT.jpeg', width=2000, height=300)
 plot(1, type="n", axes=F, xlab="", ylab="")
-legend('center', legend=c('Glycolysis', 'Amino sugars', 'Fructose/Mannose','Pentose', 'Proline', 'Glycine/Serine/Threonine'), 
-       pt.bg=c(wes_palette('Rushmore')[5], wes_palette('FantasticFox')[3], wes_palette('Rushmore')[4], wes_palette('Rushmore')[3], wes_palette('FantasticFox')[4], wes_palette('Zissou')[3]), 
-       pch=21, cex=1.6, pt.cex=2.5)
+legend('center', legend=c('Glycolysis', 'Amino sugar metabolism', 'Fructose/Mannose metabolism', 'Proline/Glycine metabolism', 'Galactose metabolism'), 
+       pt.bg=c('chartreuse3', 'darkcyan', 'firebrick3', 'darkgoldenrod1', 'darkorchid3'), 
+       pch=21, cex=1.6, pt.cex=3, ncol=5)
+dev.off()
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
