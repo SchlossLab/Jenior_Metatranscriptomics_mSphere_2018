@@ -16,9 +16,9 @@ featureselect_RF <- function(training_data, feature){
   # Set parameters
   attach(training_data)
   levels <- as.vector(unique(training_data[,feature]))
-  factor_1 <- round(length(rownames(training_data[which(training_data[,feature]==levels[1]),])) * 0.623)
-  factor_2 <- round(length(rownames(training_data[which(training_data[,feature]==levels[2]),])) * 0.623)
-  factor <- max(c(round(factor_1 / factor_2), round(factor_2 / factor_1))) * 3
+  subfactor_1 <- round(length(rownames(training_data[which(training_data[,feature]==levels[1]),])) * 0.623)
+  subfactor_2 <- round(length(rownames(training_data[which(training_data[,feature]==levels[2]),])) * 0.623)
+  factor <- max(c(round(subfactor_1 / subfactor_2), round(subfactor_2 / subfactor_1))) * 3
   n_tree <- round(length(colnames(training_data)) - 1) * factor
   m_try <- round(sqrt(length(colnames(training_data)) - 1))
   
@@ -31,6 +31,7 @@ featureselect_RF <- function(training_data, feature){
   final_features_RF <- subset(features_RF, features_RF > abs(min(features_RF)))
   final_features_RF <- final_features_RF[!(rownames(final_features_RF) == feature),]
   final_features_RF <- as.data.frame(final_features_RF)
+  final_features_RF <- final_features_RF[order(-final_features_RF[,1]),] 
 
   return(final_features_RF)
 }

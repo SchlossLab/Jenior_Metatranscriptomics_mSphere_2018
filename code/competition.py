@@ -169,7 +169,7 @@ def competition(score_dict_1, score_dict_2):
 		score_2 = score_dict_2[index][1]
 
 		competition_score = (score_1 / score_2) + (score_2 / score_1)
-		competition_score = 100 - competition_score
+		competition_score = 102 - competition_score
 
 		competition_dictionary[index] = competition_score
 
@@ -252,6 +252,7 @@ for index in species_list:
 
 
 current = 0
+included = []
 for x in range(0, len(species)):
 
 	y = x + 1
@@ -286,16 +287,20 @@ for x in range(0, len(species)):
 		file_name = name_1 + '.vs.' + name_2 + '.competition.tsv'
 		write_output(head, crosstalk, file_name)
 
-		# Add interaction to community summary
-
-
-		###### need and if statement deciding if an organism has already been added
-
-		if current == 1:
-			community_scores = crosstalk
+		# Check if comparison has already been included
+		if name_1 in included and name_2 in included:
+			continue
 		else:
-			community_scores = community_competition(community_scores, norm_scores_1)
-			community_scores = community_competition(community_scores, norm_scores_2)
+			included.append(name_1)
+			included.append(name_2)
+			included = list(set(included))
+
+			# Add interaction to community summary
+			if current == 1:
+				community_scores = crosstalk
+			else:
+				community_scores = community_competition(community_scores, norm_scores_1)
+				community_scores = community_competition(community_scores, norm_scores_2)
 
 
 # Write cumulative scores to a file
