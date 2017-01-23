@@ -1,82 +1,82 @@
-name	cage	mouse	gender	type	abx	infection
-CefC1M1	1	1	F	conventional	cefoperazone	630
-CefC1M2	1	2	F	conventional	cefoperazone	630
-CefC1M3	1	3	F	conventional	cefoperazone	630
-CefC2M1	2	1	M	conventional	cefoperazone	630
-CefC2M2	2	2	M	conventional	cefoperazone	630
-CefC2M3	2	3	M	conventional	cefoperazone	630
-CefC3M1	3	1	M	conventional	cefoperazone	630
-CefC3M2	3	2	M	conventional	cefoperazone	630
-CefC3M3	3	3	M	conventional	cefoperazone	630
-CefC4M1	4	1	F	conventional	cefoperazone	mock
-CefC4M2	4	2	F	conventional	cefoperazone	mock
-CefC4M3	4	3	F	conventional	cefoperazone	mock
-CefC5M1	5	1	F	conventional	cefoperazone	mock
-CefC5M2	5	2	F	conventional	cefoperazone	mock
-CefC5M3	5	3	F	conventional	cefoperazone	mock
-CefC6M1	6	1	M	conventional	cefoperazone	mock
-CefC6M2	6	2	M	conventional	cefoperazone	mock
-CefC6M3	6	3	M	conventional	cefoperazone	mock
-ClindaC1M1	1	1	F	conventional	clindamycin	630
-ClindaC1M2	1	2	F	conventional	clindamycin	630
-ClindaC1M3	1	3	F	conventional	clindamycin	630
-ClindaC2M1	2	1	M	conventional	clindamycin	630
-ClindaC2M2	2	2	M	conventional	clindamycin	630
-ClindaC2M3	2	3	M	conventional	clindamycin	630
-ClindaC3M1	3	1	M	conventional	clindamycin	630
-ClindaC3M2	3	2	M	conventional	clindamycin	630
-ClindaC3M3	3	3	M	conventional	clindamycin	630
-ClindaC4M1	4	1	F	conventional	clindamycin	mock
-ClindaC4M2	4	2	F	conventional	clindamycin	mock
-ClindaC4M3	4	3	F	conventional	clindamycin	mock
-ClindaC5M1	5	1	F	conventional	clindamycin	mock
-ClindaC5M2	5	2	F	conventional	clindamycin	mock
-ClindaC5M3	5	3	F	conventional	clindamycin	mock
-ClindaC6M1	6	1	M	conventional	clindamycin	mock
-ClindaC6M2	6	2	M	conventional	clindamycin	mock
-ClindaC6M3	6	3	M	conventional	clindamycin	mock
-StrepC1M1	1	1	F	conventional	streptomycin	630
-StrepC1M2	1	2	F	conventional	streptomycin	630
-StrepC1M3	1	3	F	conventional	streptomycin	630
-StrepC2M1	2	1	M	conventional	streptomycin	630
-StrepC2M2	2	2	M	conventional	streptomycin	630
-StrepC2M3	2	3	M	conventional	streptomycin	630
-StrepC3M1	3	1	M	conventional	streptomycin	630
-StrepC3M2	3	2	M	conventional	streptomycin	630
-StrepC3M3	3	3	M	conventional	streptomycin	630
-StrepC4M1	4	1	F	conventional	streptomycin	mock
-StrepC4M2	4	2	F	conventional	streptomycin	mock
-StrepC4M3	4	3	F	conventional	streptomycin	mock
-StrepC5M1	5	1	F	conventional	streptomycin	mock
-StrepC5M2	5	2	F	conventional	streptomycin	mock
-StrepC5M3	5	3	F	conventional	streptomycin	mock
-StrepC6M1	6	1	M	conventional	streptomycin	mock
-StrepC6M2	6	2	M	conventional	streptomycin	mock
-StrepC6M3	6	3	M	conventional	streptomycin	mock
-ConvC1M1	1	1	F	conventional	none	mock
-ConvC1M2	1	2	F	conventional	none	mock
-ConvC1M3	1	3	F	conventional	none	mock
-ConvC2M1	2	1	M	conventional	none	mock
-ConvC2M2	2	2	M	conventional	none	mock
-ConvC2M3	2	3	M	conventional	none	mock
-ConvC3M1	3	1	M	conventional	none	mock
-ConvC3M2	3	2	M	conventional	none	mock
-ConvC3M3	3	3	M	conventional	none	mock
-GfC1M1	1	1	F	germfree	germfree	630
-GfC1M2	1	2	F	germfree	germfree	630
-GfC1M3	1	3	F	germfree	germfree	630
-GfC2M1	2	1	M	germfree	germfree	630
-GfC2M2	2	2	M	germfree	germfree	630
-GfC2M3	2	3	M	germfree	germfree	630
-GfC3M1	3	1	M	germfree	germfree	630
-GfC3M2	3	2	M	germfree	germfree	630
-GfC3M3	3	3	M	germfree	germfree	630
-GfC4M1	1	1	F	germfree	germfree	mock
-GfC4M2	1	2	F	germfree	germfree	mock
-GfC4M3	1	3	F	germfree	germfree	mock
-GfC5M1	2	1	M	germfree	germfree	mock
-GfC5M2	2	2	M	germfree	germfree	mock
-GfC5M3	2	3	M	germfree	germfree	mock
-GfC6M1	3	1	M	germfree	germfree	mock
-GfC6M2	3	2	M	germfree	germfree	mock
-GfC6M3	3	3	M	germfree	germfree	mock
+name	cage	mouse	gender	type	abx	infection	susceptibility
+CefC1M1	1	1	F	conventional	cefoperazone	630	susceptible
+CefC1M2	1	2	F	conventional	cefoperazone	630	susceptible
+CefC1M3	1	3	F	conventional	cefoperazone	630	susceptible
+CefC2M1	2	1	M	conventional	cefoperazone	630	susceptible
+CefC2M2	2	2	M	conventional	cefoperazone	630	susceptible
+CefC2M3	2	3	M	conventional	cefoperazone	630	susceptible
+CefC3M1	3	1	M	conventional	cefoperazone	630	susceptible
+CefC3M2	3	2	M	conventional	cefoperazone	630	susceptible
+CefC3M3	3	3	M	conventional	cefoperazone	630	susceptible
+CefC4M1	4	1	F	conventional	cefoperazone	mock	susceptible
+CefC4M2	4	2	F	conventional	cefoperazone	mock	susceptible
+CefC4M3	4	3	F	conventional	cefoperazone	mock	susceptible
+CefC5M1	5	1	F	conventional	cefoperazone	mock	susceptible
+CefC5M2	5	2	F	conventional	cefoperazone	mock	susceptible
+CefC5M3	5	3	F	conventional	cefoperazone	mock	susceptible
+CefC6M1	6	1	M	conventional	cefoperazone	mock	susceptible
+CefC6M2	6	2	M	conventional	cefoperazone	mock	susceptible
+CefC6M3	6	3	M	conventional	cefoperazone	mock	susceptible
+ClindaC1M1	1	1	F	conventional	clindamycin	630	susceptible
+ClindaC1M2	1	2	F	conventional	clindamycin	630	susceptible
+ClindaC1M3	1	3	F	conventional	clindamycin	630	susceptible
+ClindaC2M1	2	1	M	conventional	clindamycin	630	susceptible
+ClindaC2M2	2	2	M	conventional	clindamycin	630	susceptible
+ClindaC2M3	2	3	M	conventional	clindamycin	630	susceptible
+ClindaC3M1	3	1	M	conventional	clindamycin	630	susceptible
+ClindaC3M2	3	2	M	conventional	clindamycin	630	susceptible
+ClindaC3M3	3	3	M	conventional	clindamycin	630	susceptible
+ClindaC4M1	4	1	F	conventional	clindamycin	mock	susceptible
+ClindaC4M2	4	2	F	conventional	clindamycin	mock	susceptible
+ClindaC4M3	4	3	F	conventional	clindamycin	mock	susceptible
+ClindaC5M1	5	1	F	conventional	clindamycin	mock	susceptible
+ClindaC5M2	5	2	F	conventional	clindamycin	mock	susceptible
+ClindaC5M3	5	3	F	conventional	clindamycin	mock	susceptible
+ClindaC6M1	6	1	M	conventional	clindamycin	mock	susceptible
+ClindaC6M2	6	2	M	conventional	clindamycin	mock	susceptible
+ClindaC6M3	6	3	M	conventional	clindamycin	mock	susceptible
+StrepC1M1	1	1	F	conventional	streptomycin	630	susceptible
+StrepC1M2	1	2	F	conventional	streptomycin	630	susceptible
+StrepC1M3	1	3	F	conventional	streptomycin	630	susceptible
+StrepC2M1	2	1	M	conventional	streptomycin	630	susceptible
+StrepC2M2	2	2	M	conventional	streptomycin	630	susceptible
+StrepC2M3	2	3	M	conventional	streptomycin	630	susceptible
+StrepC3M1	3	1	M	conventional	streptomycin	630	susceptible
+StrepC3M2	3	2	M	conventional	streptomycin	630	susceptible
+StrepC3M3	3	3	M	conventional	streptomycin	630	susceptible
+StrepC4M1	4	1	F	conventional	streptomycin	mock	susceptible
+StrepC4M2	4	2	F	conventional	streptomycin	mock	susceptible
+StrepC4M3	4	3	F	conventional	streptomycin	mock	susceptible
+StrepC5M1	5	1	F	conventional	streptomycin	mock	susceptible
+StrepC5M2	5	2	F	conventional	streptomycin	mock	susceptible
+StrepC5M3	5	3	F	conventional	streptomycin	mock	susceptible
+StrepC6M1	6	1	M	conventional	streptomycin	mock	susceptible
+StrepC6M2	6	2	M	conventional	streptomycin	mock	susceptible
+StrepC6M3	6	3	M	conventional	streptomycin	mock	susceptible
+ConvC1M1	1	1	F	conventional	none	mock	resistant
+ConvC1M2	1	2	F	conventional	none	mock	resistant
+ConvC1M3	1	3	F	conventional	none	mock	resistant
+ConvC2M1	2	1	M	conventional	none	mock	resistant
+ConvC2M2	2	2	M	conventional	none	mock	resistant
+ConvC2M3	2	3	M	conventional	none	mock	resistant
+ConvC3M1	3	1	M	conventional	none	mock	resistant
+ConvC3M2	3	2	M	conventional	none	mock	resistant
+ConvC3M3	3	3	M	conventional	none	mock	resistant
+GfC1M1	1	1	F	germfree	germfree	630	susceptible
+GfC1M2	1	2	F	germfree	germfree	630	susceptible
+GfC1M3	1	3	F	germfree	germfree	630	susceptible
+GfC2M1	2	1	M	germfree	germfree	630	susceptible
+GfC2M2	2	2	M	germfree	germfree	630	susceptible
+GfC2M3	2	3	M	germfree	germfree	630	susceptible
+GfC3M1	3	1	M	germfree	germfree	630	susceptible
+GfC3M2	3	2	M	germfree	germfree	630	susceptible
+GfC3M3	3	3	M	germfree	germfree	630	susceptible
+GfC4M1	1	1	F	germfree	germfree	mock	susceptible
+GfC4M2	1	2	F	germfree	germfree	mock	susceptible
+GfC4M3	1	3	F	germfree	germfree	mock	susceptible
+GfC5M1	2	1	M	germfree	germfree	mock	susceptible
+GfC5M2	2	2	M	germfree	germfree	mock	susceptible
+GfC5M3	2	3	M	germfree	germfree	mock	susceptible
+GfC6M1	3	1	M	germfree	germfree	mock	susceptible
+GfC6M2	3	2	M	germfree	germfree	mock	susceptible
+GfC6M3	3	3	M	germfree	germfree	mock	susceptible
