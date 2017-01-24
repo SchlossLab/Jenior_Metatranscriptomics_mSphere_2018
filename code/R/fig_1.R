@@ -176,13 +176,15 @@ relabund_shared <- (conv_shared_family / rowSums(conv_shared_family)) * 100
 rm(conv_shared_family)
 
 # Bin lowly abundant OTUs into an 'Other' category
-relabund_shared[relabund_shared < 1] <- 0
+relabund_shared[relabund_shared < 2.5] <- 0
 relabund_shared <- relabund_shared[, colSums(relabund_shared != 0) > 0]
 top_otus <- colnames(relabund_shared)
 relabund_shared$Other <- 100 - rowSums(relabund_shared)
 
 # Subset family-level taxonomy
 taxonomy_family <- as.vector(droplevels(subset(taxonomy_family, rownames(taxonomy_family) %in% top_otus)[,1]))
+taxonomy_family <- gsub('_', ' ', taxonomy_family)
+taxonomy_family <- gsub(',', ', ', taxonomy_family)
 taxonomy_family <- append(taxonomy_family, 'Other')
 rm(top_otus)
 
@@ -221,27 +223,28 @@ plot(0, type='n', axes=F, xlab='', ylab='', xlim=c(-4.75,4), ylim=c(-2,5))
 # Abx in drinking water timeline
 rect(xleft=-4, ybottom=2.8, xright=0, ytop=3.2, col='red', border='black')
 Arrows(x0=-4, y0=3, x1=3.5, y1=3, lwd=4, arr.type='triangle', arr.length=0.6, arr.width=0.2)
-segments(x0=c(-4,0,2,2.75), y0=c(3.4,3.4,3.4,3.4), x1=c(-4,0,2,2.75), y1=c(2.4,2.4,2.4,2.4), lwd=4)
+segments(x0=c(-4,0,2,2.75), y0=c(3.4,3.4,3.4,3.4), x1=c(-4,0,2,2.75), y1=c(2.6,2.6,2.6,2.6), lwd=4, col=c('black','black','black','gray40'))
 segments(x0=c(-4,-3,-2,-1,1), y0=c(3.25,3.25,3.25,3.25,3.25), x1=c(-4,-3,-2,-1,1), y1=c(2.75,2.75,2.75,2.75,2.75), lwd=2)
-points(x=c(2,2.75), y=c(4,4), pch=25, bg=c('white','black'), col='black', cex=2.5)
-text(x=c(-4,0,2,2.75), y=c(2.2,2.2,2.2,2.2), c('Day -7', 'Day -2', 'Day 0', '18 hrs'), cex=0.9)
-text(x=-4.5, y=3.2, 'Cefoperazone', cex=0.8)
-text(x=-4.5, y=2.95, 'or', font=2)
-text(x=-4.5, y=2.7, 'Streptomycin', cex=0.8)
+points(x=c(2,2.75), y=c(3.8,3.8), pch=25, bg=c('white','black'), col='black', cex=2.5)
+text(x=c(-4,0,2), y=c(2.1,2.1,2.1), c('Day -7', 'Day -2', 'Day 0'), cex=1.1)
+text(x=-3.3, y=3.7, 'Cefoperazone', cex=1.1)
+text(x=-2, y=3.72, 'or', cex=1.2, font=2)
+text(x=-0.8, y=3.7, 'Streptomycin', cex=1.1)
+text(-4.4, 3, '1', font=2, cex=1.5)
 
 # IP injection abx timeline
 Arrows(x0=-4, y0=0, x1=-1.5, y1=0, lwd=4, arr.type='triangle', arr.length=0.6, arr.width=0.2)
-segments(x0=c(-4,-3,-2.25), y0=c(-0.5,-0.5,-0.5), x1=c(-4,-3,-2.25), y1=c(0.5,0.5,0.5), lwd=4)
-points(x=c(-4,-3,-2.25), y=c(1,1,1), pch=c(25,25,25), bg=c('blue','white','black'), col='black', cex=2.5)
-text(x=c(-4,-3,-2.25), y=c(-0.8,-0.8,-0.8), c('Day -1', 'Day 0', '18 hrs'), cex=0.9)
-text(x=-4.5, y=0, 'Clindamycin', cex=0.8)
+segments(x0=c(-4,-3,-2.25), y0=c(-0.4,-0.4,-0.4), x1=c(-4,-3,-2.25), y1=c(0.4,0.4,0.4), lwd=4, col=c('black','black','gray40'))
+points(x=c(-4,-3,-2.25), y=c(0.8,0.8,0.8), pch=c(25,25,25), bg=c('blue','white','black'), col='black', cex=2.5)
+text(x=c(-4,-3), y=c(-0.8,-0.8), c('Day -1', 'Day 0'), cex=1.1)
+text(-4.4, 0, '2', font=2, cex=1.5)
 
 # Legend
-legend(x=0, y=0.7, legend=expression('Antibiotic in Drinking Water', 'IP Injection of Clindamycin',paste(italic('C. difficile'), ' Spore Gavage'), 'Sacrifice & Necropsy'), 
-       pt.bg=c('red','blue','white','black'), pch=c(22,25,25,25), cex=1.2, pt.cex=c(3.2,2.2,2.2,2.2), bty='n')
+legend(x=-0.6, y=1, legend=expression('Antibiotic in Drinking Water', 'Clindamycin IP Injection',paste(italic('C. difficile'), ' Spore Gavage'), 'Necropsy (18 hours)'), 
+       pt.bg=c('red','blue','white','black'), pch=c(22,25,25,25), cex=1.2, pt.cex=c(3,2,2,2), bty='n')
 
 # Plot label
-mtext('A', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
+text(-4.7, 4.88, 'A', cex=2)
 
 #-------------------------------------------------------------------#
 
@@ -250,7 +253,7 @@ mtext('A', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
 # Vegetative cells
 par(mar=c(3,4,1,4), mgp=c(2.5, 1, 0))
 stripchart(cfu_vegetative~treatment, data=wetlab, col='black', bg='firebrick2', xlim=c(0,22), ylim=c(0,9), pch=21,
-           vertical=TRUE, at=c(0.5, 6.5, 12.5, 18.5), xaxt='n', yaxt='n', ylab='CFU/g Cecal Content', cex=1.6, method='jitter', jitter=0.2)
+           vertical=TRUE, at=c(0.5, 6.5, 12.5, 18.5), xaxt='n', yaxt='n', ylab='CFU/g Cecal Content', cex=1.7, method='jitter', jitter=0.2)
 abline(h=2, lwd=1.5, col='gray25') # LOD
 abline(v=c(5,11,17), lty=2, lwd=1.5) # dividers
 axis(side=2, at=seq(0,9,1), labels=c(0, parse(text=paste(rep(10,9), '^', seq(1,9,1), sep=''))), las=1)
@@ -271,7 +274,7 @@ x1=c(0.5, 6.5, 12.5, 18.5)+0.6, y1=c(
 
 # Spores
 stripchart(cfu_spore~treatment, data=wetlab, col='black', bg='blue2', xlim=c(0,22), ylim=c(0,9), pch=21,
-           vertical=TRUE, at=c(2, 8, 14, 20), xaxt='n', yaxt='n', ylab='', cex=1.6, method='jitter', jitter=0.2, add=TRUE)
+           vertical=TRUE, at=c(2, 8, 14, 20), xaxt='n', yaxt='n', ylab='', cex=1.7, method='jitter', jitter=0.2, add=TRUE)
 # Median lines
 segments(x0=c(2, 8, 14, 20)-0.6, y0=c(
   as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 3])),
@@ -287,7 +290,7 @@ segments(x0=c(2, 8, 14, 20)-0.6, y0=c(
 # Toxin
 par(mar=c(3,4,1,4), new=TRUE, xpd=TRUE)
 stripchart(toxin_titer~treatment, data=wetlab, col='black', bg='green2', xlim=c(0,22), ylim=c(1.6,3.4), pch=21,
-           vertical=TRUE, at=c(3.5, 9.5, 15.5, 21.5), xaxt='n', yaxt='n', ylab='', cex=1.6, method='jitter', jitter=0.2)
+           vertical=TRUE, at=c(3.5, 9.5, 15.5, 21.5), xaxt='n', yaxt='n', ylab='', cex=1.7, method='jitter', jitter=0.2)
 # Median lines
 segments(x0=c(3.5, 9.5, 15.5, 21.5)-0.6, y0=c(
   as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 4])),
@@ -304,44 +307,71 @@ axis(side=4, at=seq(1.6,3.4,0.2), las=1,
 mtext(expression(paste('Toxin Titer/g Content (',log[10],')')), side=4, line=3, cex=0.7)
 
 legend('topright', legend=c('Vegetative cells','Spores','Toxin titer'), bty='n',
-       pch=21, col='black', pt.bg=c('firebrick2','blue2','green2'), cex=1.2, pt.cex=2)
+       pch=21, col='black', pt.bg=c('firebrick2','blue2','green2'), cex=1.4, pt.cex=2.3)
 mtext('B', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
 
 #-------------------------------------------------------------------#
 
 # Family-level phylotype bar chart
 
-par(mar=c(4,5,1,1))
+par(mar=c(4,5,1,1), new=FALSE, xpd=FALSE)
 
 # When needed, use this pallete   
 final_colors <- c("gold1", "orangered1", "aquamarine3", "firebrick", 
                   "forestgreen", "blue3", "mediumorchid2", "violetred4", 
                   "mediumpurple4", "dodgerblue3", "goldenrod3", "chartreuse3")
+# need more colors
+
 
 
 # Plot the final formatted table
-barplot(t(relabund_shared), col=final_colors, yaxt='n', 
-        ylim=c(0,100), ylab='% Relative Abundance', font=2)
+barplot(t(relabund_shared), col=final_colors, yaxt='n', xaxt='n', 
+        ylim=c(0,100), ylab='% Relative Abundance', cex.names=1.2)
 box()
 axis(side=2, at=seq(0,100,20), tick=TRUE, las=1)
-segments(x0=rep(0,4), y0=seq(20,80,20), x1=rep(5,4), y1=seq(20,80,20), lty=2)
+abline(h=c(20,40,60,80), lty=2)
 
-mtext('C', side=2, line=2, las=2, adj=1.7, padj=-9, cex=1.3)
+# ned to label x axis
+
+
+mtext('C', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
 
 # Create a figure legend in empty plot
-par(mar=c(1,1,1,1))
+par(mar=c(0,0,0.5,0))
 plot(0, type='n', ylim=c(-5,5), xlim=c(5,5), ylab='', xlab='', xaxt='n', yaxt='n', axes=FALSE)
-legend('center', legend=taxonomy_family, pt.bg=final_colors, pch=22, pt.cex=2.2, cex=1.4)
+legend('top', legend=taxonomy_family, pt.bg=final_colors, pch=22, pt.cex=2.5, cex=1.4, bty='n')
 
 #-------------------------------------------------------------------#
 
 # Random Forest results - Significant OTUs and relative abundance changes
 
-# Cefoperazone plot
-par(mar=c(5, 15, 1, 1))
+# Streptomycin plot
+par(mar=c(5, 15, 1, 1), mgp=c(3, 1, 0))
+plot(1, type="n", ylim=c(0,length(strep_otus)*2), xlim=c(0,4), 
+     ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n", main='Streptomycin-treated') # make blank plot
+index <- 1
+for(i in strep_otus){
+  stripchart(at=index-0.35, jitter(strep_mock_otu[,i], amount=1e-5), 
+             pch=21, bg="royalblue1", method="jitter", jitter=0.2, add=T, cex=1, lwd=0.5)
+  stripchart(at=index+0.35, jitter(strep_infected_otu[,i], amount=1e-5), 
+             pch=21, bg="red", method="jitter", jitter=0.2, add=T, cex=1, lwd=0.5)
+  segments(median(strep_mock_otu[,i]), index-0.7, median(strep_mock_otu[,i]), index, lwd=3) #adds line for median
+  segments(median(strep_infected_otu[,i]), index+0.7, median(strep_infected_otu[,i]), index, lwd=3)
+  index <- index + 2
+}
+axis(2, at=seq(1,index-2,2), labels=strep_otus, las=1, line=-0.5, tick=F, cex.axis=0.8) 
+axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", "10000"))
+legend('topright', legend=c("630 Infected", "Mock Infected"), 
+       pch=c(21, 21), pt.bg=c("red","royalblue1"), pt.cex=2, cex=1.2)
 
-plot(1, type="n", ylim=c(0,length(cef_otus)*2), xlim=c(0,4), 
-     ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
+mtext('D', side=2, line=2, las=2, adj=9.8, padj=-8, cex=1.3)
+
+#-----------------#
+
+# Cefoperazone plot
+par(mar=c(5, 13, 1, 1), mgp=c(3, 1, 0))
+plot(1, type='n', ylim=c(0,length(cef_otus)*2), xlim=c(0,4), 
+     ylab='', xlab='Normalized Abundance', xaxt='n', yaxt='n', main='Cefoperazone-treated') # make blank plot
 index <- 1
 for(i in cef_otus){
   stripchart(at=index-0.35, jitter(cef_mock_otu[,i], amount=1e-5), 
@@ -357,14 +387,12 @@ axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", '10000'))
 legend('topright', legend=c("630 Infected", "Mock Infected"), 
        pch=c(21, 21), pt.bg=c("red","royalblue1"), pt.cex=2, cex=1.2)
 
-mtext('D', side=2, line=2, las=2, adj=1.7, padj=-7, cex=1.3)
-
 #-----------------#
 
 # Clindamycin plot
-par(mar=c(5, 14, 1, 1))
+par(mar=c(5, 12, 1, 1), mgp=c(3, 1, 0))
 plot(1, type="n", ylim=c(0,length(clinda_otus)*2), xlim=c(0,3), 
-     ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
+     ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n", main='Clindamycin-treated') # make blank plot
 index <- 1
 for(i in clinda_otus){
   stripchart(at=index-0.35, jitter(clinda_mock_otu[,i], amount=1e-5), 
@@ -377,27 +405,6 @@ for(i in clinda_otus){
 }
 axis(2, at=seq(1,index-2,2), labels=clinda_otus, las=1, line=-0.5, tick=F, cex.axis=0.8) 
 axis(1, at=c(0, 1, 2, 3), label=c('0','10', '100', "1000"))
-legend('topright', legend=c("630 Infected", "Mock Infected"), 
-       pch=c(21, 21), pt.bg=c("red","royalblue1"), pt.cex=2, cex=1.2)
-
-#-----------------#
-
-# Streptomycin plot
-par(mar=c(5, 15, 1, 1))
-plot(1, type="n", ylim=c(0,length(strep_otus)*2), xlim=c(0,4), 
-     ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
-index <- 1
-for(i in strep_otus){
-  stripchart(at=index-0.35, jitter(strep_mock_otu[,i], amount=1e-5), 
-             pch=21, bg="royalblue1", method="jitter", jitter=0.2, add=T, cex=1, lwd=0.5)
-  stripchart(at=index+0.35, jitter(strep_infected_otu[,i], amount=1e-5), 
-             pch=21, bg="red", method="jitter", jitter=0.2, add=T, cex=1, lwd=0.5)
-  segments(median(strep_mock_otu[,i]), index-0.7, median(strep_mock_otu[,i]), index, lwd=3) #adds line for median
-  segments(median(strep_infected_otu[,i]), index+0.7, median(strep_infected_otu[,i]), index, lwd=3)
-  index <- index + 2
-}
-axis(2, at=seq(1,index-2,2), labels=strep_otus, las=1, line=-0.5, tick=F, cex.axis=0.8) 
-axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", "10000"))
 legend('topright', legend=c("630 Infected", "Mock Infected"), 
        pch=c(21, 21), pt.bg=c("red","royalblue1"), pt.cex=2, cex=1.2)
 
