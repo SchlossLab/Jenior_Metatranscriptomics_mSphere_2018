@@ -46,13 +46,11 @@ clean_merge <- function(data_1, data_2){
 }
 
 # Select files
-nmds_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.conventional.thetayc.0.03.lt.ave.nmds.axes'
 shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
 taxonomy_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.cons.genus.format.taxonomy'
 shared_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.subsample.shared'
 taxonomy_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.cons.family.format.taxonomy'
-cfu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/cfu.dat'
-toxin_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/toxin_titer.dat'
+wetlab_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/wetlab_assays.tsv'
 metadata_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metadata.tsv'
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
@@ -77,10 +75,9 @@ shared_family <- read.delim(shared_family_file, sep='\t', header=T, row.names=2)
 shared_family <- shared_family[!rownames(shared_family) %in% c('CefC5M2'), ]  # Remove contaminated sample
 shared_family$numOtus <- NULL
 shared_family$label <- NULL
-cfu <- read.delim(cfu_file, sep='\t', header=T)
-toxin <- read.delim(toxin_file, sep='\t', header=T)
+wetlab <- read.delim(wetlab_file, sep='\t', header=T, row.names=1)
 
-rm(shared_otu_file, taxonomy_otu_file, shared_family_file, taxonomy_family_file, metadata_file, cfu_file, toxin_file)
+rm(shared_otu_file, taxonomy_otu_file, shared_family_file, taxonomy_family_file, metadata_file, wetlab_file)
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
@@ -140,7 +137,11 @@ strep_feat_tax <- log10(strep_feat_tax + 1)
 strep_feat_tax$infection <- strep_shared_otu$infection
 rm(cef_features, strep_features, clinda_features, 
    cef_feat_shared, clinda_feat_shared, strep_feat_shared,
-   cef_shared_otu, clinda_shared_otu, strep_shared_otu)
+   cef_shared_otu, clinda_shared_otu, strep_shared_otu, taxonomy_otu)
+
+# Filter for OTUs with the largest changes
+
+
 
 # Subset to experimental groups
 cef_infected_otu <- subset(cef_feat_tax, infection == '630')
@@ -177,61 +178,39 @@ rm(conv_shared_family)
 # Bin lowly abundant OTUs into an 'Other' category
 relabund_shared[relabund_shared < 1] <- 0
 relabund_shared <- relabund_shared[, colSums(relabund_shared != 0) > 0]
+top_otus <- colnames(relabund_shared)
 relabund_shared$Other <- 100 - rowSums(relabund_shared)
 
-# Format CFU data and collect summary statistics
-cfu[cfu == 0] <- 100
-cfu$cfu_vegetative <- log10(cfu$cfu_vegetative)
-cfu$cfu_spore <- log10(cfu$cfu_spore)
-cfu$mouse <- NULL
-cfu <- subset(cfu, cage < 4 ) # Remove uninfected controls
-cfu$cage <- NULL
-cfu$treatment <- factor(cfu$treatment, levels=c('streptomycin', 'cefoperazone', 'clindamycin', 'germfree', 'conventional'))
-vegetative_cfu <- cfu
-vegetative_cfu$cfu_spore <- NULL
-spore_cfu <- cfu
-spore_cfu$cfu_vegetative <- NULL
-cef <- as.numeric(median(vegetative_cfu[vegetative_cfu$treatment == 'cefoperazone', 2]))
-strep <- as.numeric(median(vegetative_cfu[vegetative_cfu$treatment == 'streptomycin', 2]))
-clinda <- as.numeric(median(vegetative_cfu[vegetative_cfu$treatment == 'clindamycin', 2]))
-gf <- as.numeric(median(vegetative_cfu[vegetative_cfu$treatment == 'germfree', 2]))
-conv <- as.numeric(median(vegetative_cfu[vegetative_cfu$treatment == 'conventional', 2]))
-vege_medians <- c(strep, cef, clinda, gf, conv)
-vege_medians[vege_medians == 2.0] <- 1.6
-cef <- as.numeric(median(spore_cfu[spore_cfu$treatment == 'cefoperazone', 2]))
-strep <- as.numeric(median(spore_cfu[spore_cfu$treatment == 'streptomycin', 2]))
-clinda <- as.numeric(median(spore_cfu[spore_cfu$treatment == 'clindamycin', 2]))
-gf <- as.numeric(median(spore_cfu[spore_cfu$treatment == 'germfree', 2]))
-conv <- as.numeric(median(spore_cfu[spore_cfu$treatment == 'conventional', 2]))
-spore_medians <- c(strep, cef, clinda, gf, conv)
-spore_medians[spore_medians == 2.0] <- 1.6
-rm(cfu, cef, strep, clinda, gf, conv)
-vegetative_cfu$color <- ifelse(vegetative_cfu$cfu_vegetative == 2.0, 'gray50', 'black')
-vegetative_cfu$cfu_vegetative[vegetative_cfu$cfu_vegetative == 2.0] <- 1.6
-spore_cfu$cfu_spore[spore_cfu$cfu_spore == 2.0] <- 1.6
+# Subset family-level taxonomy
+taxonomy_family <- as.vector(droplevels(subset(taxonomy_family, rownames(taxonomy_family) %in% top_otus)[,1]))
+taxonomy_family <- append(taxonomy_family, 'Other')
+rm(top_otus)
 
-# Format toxin data and find summary statistics
-toxin$mouse <- NULL
-toxin$cage <- NULL
-toxin$treatment <- factor(toxin$treatment, levels=c('Streptomycin', 'Cefoperazone', 'Clindamycin', 'Germfree', 'Conventional'))
-cef <- as.numeric(median(toxin[toxin$treatment == 'Cefoperazone', 2]))
-strep <- as.numeric(median(toxin[toxin$treatment == 'Streptomycin', 2]))
-clinda <- as.numeric(median(toxin[toxin$treatment == 'Clindamycin', 2]))
-gf <- as.numeric(median(toxin[toxin$treatment == 'Germfree', 2]))
-conv <- as.numeric(median(toxin[toxin$treatment == 'Conventional', 2]))
-toxin_medians <- c(strep, cef, clinda, gf, conv)
-toxin_medians[toxin_medians <= 2.0] <- 1.9
-toxin$titer[toxin$titer <= 2.0] <- 1.9
-rm(cef, strep, clinda, gf, conv)
+# Format wetlab assay data
+wetlab <- subset(wetlab, infection == '630') # Remove uninfected controls
+wetlab$infection <- NULL
+wetlab <- subset(wetlab, treatment != 'germfree')
+wetlab$cfu_vegetative <- as.numeric(wetlab$cfu_vegetative)
+wetlab$cfu_vegetative[wetlab$cfu_vegetative == 0] <- 100
+wetlab$cfu_vegetative <- log10(wetlab$cfu_vegetative)
+wetlab$cfu_spore <- as.numeric(wetlab$cfu_spore)
+wetlab$cfu_spore[wetlab$cfu_spore == 0] <- 100
+wetlab$cfu_spore <- log10(wetlab$cfu_spore)
+wetlab$treatment <- factor(wetlab$treatment, levels=c('streptomycin', 'cefoperazone', 'clindamycin', 'conventional'))
+
+wetlab$cfu_vegetative[wetlab$cfu_vegetative <= 2.0] <- 1.7 # Undetectable points below LOD
+wetlab$cfu_spore[wetlab$cfu_spore <= 2.0] <- 1.7 # Undetectable points below LOD
+wetlab$toxin_titer[wetlab$toxin_titer <= 2.0] <- 1.94 # Undetectable points below LOD
 
 #----------------------------------------------------------------------------------------------------------------------#
 
 # Set up multi-panel figure
 plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/figures/figure_1.pdf'
-pdf(file=plot_file, width=12, height=7)
+pdf(file=plot_file, width=12, height=10)
 layout(matrix(c(1,2,2,
-                3,4,5),
-              nrow=2, ncol=3, byrow = TRUE))
+                3,3,4,
+                5,6,7),
+              nrow=3, ncol=3, byrow = TRUE))
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
@@ -241,8 +220,8 @@ plot(0, type='n', axes=F, xlab='', ylab='', xlim=c(-4.75,4), ylim=c(-2,5))
 
 # Abx in drinking water timeline
 rect(xleft=-4, ybottom=2.8, xright=0, ytop=3.2, col='red', border='black')
-Arrows(x0=-4, y0=3, x1=3.5, y1=3, lwd=4, arr.type='triangle', arr.length=0.75, arr.width=0.4)
-segments(x0=c(-4,0,2,2.75), y0=c(3.5,3.5,3.5,3.5), x1=c(-4,0,2,2.75), y1=c(2.5,2.5,2.5,2.5), lwd=4)
+Arrows(x0=-4, y0=3, x1=3.5, y1=3, lwd=4, arr.type='triangle', arr.length=0.6, arr.width=0.2)
+segments(x0=c(-4,0,2,2.75), y0=c(3.4,3.4,3.4,3.4), x1=c(-4,0,2,2.75), y1=c(2.4,2.4,2.4,2.4), lwd=4)
 segments(x0=c(-4,-3,-2,-1,1), y0=c(3.25,3.25,3.25,3.25,3.25), x1=c(-4,-3,-2,-1,1), y1=c(2.75,2.75,2.75,2.75,2.75), lwd=2)
 points(x=c(2,2.75), y=c(4,4), pch=25, bg=c('white','black'), col='black', cex=2.5)
 text(x=c(-4,0,2,2.75), y=c(2.2,2.2,2.2,2.2), c('Day -7', 'Day -2', 'Day 0', '18 hrs'), cex=0.9)
@@ -251,19 +230,82 @@ text(x=-4.5, y=2.95, 'or', font=2)
 text(x=-4.5, y=2.7, 'Streptomycin', cex=0.8)
 
 # IP injection abx timeline
-Arrows(x0=-4, y0=0, x1=-1.5, y1=0, lwd=4, arr.type='triangle', arr.length=0.75, arr.width=0.4)
+Arrows(x0=-4, y0=0, x1=-1.5, y1=0, lwd=4, arr.type='triangle', arr.length=0.6, arr.width=0.2)
 segments(x0=c(-4,-3,-2.25), y0=c(-0.5,-0.5,-0.5), x1=c(-4,-3,-2.25), y1=c(0.5,0.5,0.5), lwd=4)
 points(x=c(-4,-3,-2.25), y=c(1,1,1), pch=c(25,25,25), bg=c('blue','white','black'), col='black', cex=2.5)
 text(x=c(-4,-3,-2.25), y=c(-0.8,-0.8,-0.8), c('Day -1', 'Day 0', '18 hrs'), cex=0.9)
 text(x=-4.5, y=0, 'Clindamycin', cex=0.8)
 
 # Legend
-legend(x=0, y=0.7, legend=expression('Antibiotic in Drinking Water', 'IP Injection of Antibiotic',paste(italic('C. difficile'), ' Spore Gavage'), 'Sacrifice & Necropsy'), 
+legend(x=0, y=0.7, legend=expression('Antibiotic in Drinking Water', 'IP Injection of Clindamycin',paste(italic('C. difficile'), ' Spore Gavage'), 'Sacrifice & Necropsy'), 
        pt.bg=c('red','blue','white','black'), pch=c(22,25,25,25), cex=1.2, pt.cex=c(3.2,2.2,2.2,2.2), bty='n')
 
 # Plot label
-legend('topleft', legend='A', cex=2, bty='n')
+mtext('A', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
 
+#-------------------------------------------------------------------#
+
+# CFU and toxin data
+
+# Vegetative cells
+par(mar=c(3,4,1,4), mgp=c(2.5, 1, 0))
+stripchart(cfu_vegetative~treatment, data=wetlab, col='black', bg='firebrick2', xlim=c(0,22), ylim=c(0,9), pch=21,
+           vertical=TRUE, at=c(0.5, 6.5, 12.5, 18.5), xaxt='n', yaxt='n', ylab='CFU/g Cecal Content', cex=1.6, method='jitter', jitter=0.2)
+abline(h=2, lwd=1.5, col='gray25') # LOD
+abline(v=c(5,11,17), lty=2, lwd=1.5) # dividers
+axis(side=2, at=seq(0,9,1), labels=c(0, parse(text=paste(rep(10,9), '^', seq(1,9,1), sep=''))), las=1)
+axis(side=1, at=c(2,8,14,20), cex.axis=1.2, tick=FALSE,
+     labels=c('Streptomycin-treated','Cefoperazone-treated','Clindamycin-treated','No Antibiotics'))
+
+# Median lines
+segments(x0=c(0.5, 6.5, 12.5, 18.5)-0.6, y0=c(
+  as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 2])),
+  as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 2])),
+  as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 2])),
+  as.numeric(median(wetlab[wetlab$treatment == 'conventional', 2]))),
+x1=c(0.5, 6.5, 12.5, 18.5)+0.6, y1=c(
+  as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 2])),
+  as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 2])),
+  as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 2])),
+  as.numeric(median(wetlab[wetlab$treatment == 'conventional', 2]))), lwd=3)
+
+# Spores
+stripchart(cfu_spore~treatment, data=wetlab, col='black', bg='blue2', xlim=c(0,22), ylim=c(0,9), pch=21,
+           vertical=TRUE, at=c(2, 8, 14, 20), xaxt='n', yaxt='n', ylab='', cex=1.6, method='jitter', jitter=0.2, add=TRUE)
+# Median lines
+segments(x0=c(2, 8, 14, 20)-0.6, y0=c(
+  as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 3])),
+  as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 3])),
+  as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 3])),
+  as.numeric(median(wetlab[wetlab$treatment == 'conventional', 3]))),
+  x1=c(2, 8, 14, 20)+0.6, y1=c(
+    as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 3])),
+    as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 3])),
+    as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 3])),
+    as.numeric(median(wetlab[wetlab$treatment == 'conventional', 3]))), lwd=3)
+
+# Toxin
+par(mar=c(3,4,1,4), new=TRUE, xpd=TRUE)
+stripchart(toxin_titer~treatment, data=wetlab, col='black', bg='green2', xlim=c(0,22), ylim=c(1.6,3.4), pch=21,
+           vertical=TRUE, at=c(3.5, 9.5, 15.5, 21.5), xaxt='n', yaxt='n', ylab='', cex=1.6, method='jitter', jitter=0.2)
+# Median lines
+segments(x0=c(3.5, 9.5, 15.5, 21.5)-0.6, y0=c(
+  as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 4])),
+  as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 4])),
+  as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 4])),
+  as.numeric(median(wetlab[wetlab$treatment == 'conventional', 4]))),
+  x1=c(3.5, 9.5, 15.5, 21.5)+0.6, y1=c(
+    as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 4])),
+    as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 4])),
+    as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 4])),
+    as.numeric(median(wetlab[wetlab$treatment == 'conventional', 4]))), lwd=3)
+axis(side=4, at=seq(1.6,3.4,0.2), las=1,
+     labels=c('1.6','1.8','2.0','2.2','2.4','2.6','2.8','3.0','3.2','3.4'))
+mtext(expression(paste('Toxin Titer/g Content (',log[10],')')), side=4, line=3, cex=0.7)
+
+legend('topright', legend=c('Vegetative cells','Spores','Toxin titer'), bty='n',
+       pch=21, col='black', pt.bg=c('firebrick2','blue2','green2'), cex=1.2, pt.cex=2)
+mtext('B', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
 
 #-------------------------------------------------------------------#
 
@@ -281,13 +323,15 @@ final_colors <- c("gold1", "orangered1", "aquamarine3", "firebrick",
 barplot(t(relabund_shared), col=final_colors, yaxt='n', 
         ylim=c(0,100), ylab='% Relative Abundance', font=2)
 box()
-axis(side=2, at=seq(0,100,20), tick=TRUE)
+axis(side=2, at=seq(0,100,20), tick=TRUE, las=1)
 segments(x0=rep(0,4), y0=seq(20,80,20), x1=rep(5,4), y1=seq(20,80,20), lty=2)
 
-# Create a figure legend in the margin
-legend(5.025, 75, legend=taxonomy_family, pt.bg=final_colors, pch=22, pt.cex=1.3, cex=0.7)
+mtext('C', side=2, line=2, las=2, adj=1.7, padj=-9, cex=1.3)
 
-mtext('B', side=2, line=2, las=2, adj=1.7, padj=-10.5, cex=1.3)
+# Create a figure legend in empty plot
+par(mar=c(1,1,1,1))
+plot(0, type='n', ylim=c(-5,5), xlim=c(5,5), ylab='', xlab='', xaxt='n', yaxt='n', axes=FALSE)
+legend('center', legend=taxonomy_family, pt.bg=final_colors, pch=22, pt.cex=2.2, cex=1.4)
 
 #-------------------------------------------------------------------#
 
@@ -313,7 +357,7 @@ axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", '10000'))
 legend('topright', legend=c("630 Infected", "Mock Infected"), 
        pch=c(21, 21), pt.bg=c("red","royalblue1"), pt.cex=2, cex=1.2)
 
-mtext('C', side=2, line=2, las=2, adj=1.7, padj=-10.5, cex=1.3)
+mtext('D', side=2, line=2, las=2, adj=1.7, padj=-7, cex=1.3)
 
 #-----------------#
 
