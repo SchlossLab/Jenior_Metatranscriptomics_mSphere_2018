@@ -37,6 +37,7 @@ system(mv all_treatments.trim.contigs.good.unique.good.filter.unique.precluster.
 summary.single(shared=all_treatments.0.03.unique_list.shared, calc=sobs-shannon-invsimpson)
 count.groups(shared=all_treatments.0.03.unique_list.shared)
 dist.shared(shared=current, calc=thetayc-jclass, subsample=2500)
+get.oturep(phylip=all_treatments.0.03.unique_list.thetayc.0.03.lt.ave.dist, list=current, fasta=current)
 nmds(phylip=all_treatments.0.03.unique_list.thetayc.0.03.lt.ave.dist)
 amova(phylip=all_treatments.0.03.unique_list.thetayc.0.03.lt.ave.dist, design=all_treatments.design)
 filter.shared(shared=all_treatments.0.03.unique_list.shared, minnumsamples=3)
