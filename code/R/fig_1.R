@@ -47,12 +47,11 @@ clean_merge <- function(data_1, data_2){
 
 # Select files
 shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
-taxonomy_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.cons.genus.format.taxonomy'
 shared_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.subsample.shared'
 taxonomy_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.cons.family.format.taxonomy'
 wetlab_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/wetlab_assays.tsv'
 metadata_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metadata.tsv'
-otu_blast_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/'
+otu_blast_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/otu_blast.tsv'
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
@@ -64,8 +63,6 @@ metadata$type <- NULL
 metadata$cage <- NULL
 metadata$mouse <- NULL
 metadata$gender <- NULL
-taxonomy_otu <- read.delim(taxonomy_otu_file, sep='\t', header=T, row.names=1)
-taxonomy_otu$Size <- NULL
 shared_otu <- read.delim(shared_otu_file, sep='\t', header=T, row.names=2)
 shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]  # Remove contaminated sample
 shared_otu$numOtus <- NULL
@@ -77,14 +74,16 @@ shared_family <- shared_family[!rownames(shared_family) %in% c('CefC5M2'), ]  # 
 shared_family$numOtus <- NULL
 shared_family$label <- NULL
 wetlab <- read.delim(wetlab_file, sep='\t', header=T, row.names=1)
+otu_blast <- read.delim(otu_blast_file, sep='\t', header=T, row.names=1)
 
-rm(shared_otu_file, taxonomy_otu_file, shared_family_file, taxonomy_family_file, metadata_file, wetlab_file)
+rm(shared_otu_file, shared_family_file, taxonomy_family_file, metadata_file, wetlab_file, otu_blast_file)
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
 # Format data (previously subsampled and filtered in mothur)
 
 # OTU shared file
+shared_otu <- shared_otu[ , !(names(shared_otu) == 'Otu0004')] # Remove residual C. difficile OTU
 metadata_shared_otu <- clean_merge(metadata, shared_otu)
 #res_shared_otu <- metadata_shared_otu
 #res_shared_otu$infection <- NULL
@@ -110,35 +109,32 @@ clinda_features <- featureselect_RF(clinda_shared_otu, 'infection')
 
 # Filter for significant OTUs with random forest from shared
 cef_feat_shared <- cef_shared_otu[,rownames(cef_features)]
-cef_feat_tax <- clean_merge(t(cef_feat_shared), taxonomy_otu)
-cef_feat_tax$Taxonomy <- gsub('_', ' ', cef_feat_tax$Taxonomy)
-cef_feat_tax$Taxonomy <- gsub(',', ', ', cef_feat_tax$Taxonomy)
-rownames(cef_feat_tax) <- cef_feat_tax$Taxonomy
-cef_feat_tax$Taxonomy <- NULL
+cef_feat_tax <- clean_merge(t(cef_feat_shared), otu_blast)
+cef_feat_tax$species <- gsub('_', ' ', cef_feat_tax$species)
+rownames(cef_feat_tax) <- cef_feat_tax$species
+cef_feat_tax$species <- NULL
 cef_feat_tax <- as.data.frame(t(cef_feat_tax))
 cef_feat_tax <- log10(cef_feat_tax + 1)
 cef_feat_tax$infection <- cef_shared_otu$infection
 clinda_feat_shared <- clinda_shared_otu[,rownames(clinda_features)]
-clinda_feat_tax <- clean_merge(t(clinda_feat_shared), taxonomy_otu)
-clinda_feat_tax$Taxonomy <- gsub('_', ' ', clinda_feat_tax$Taxonomy)
-clinda_feat_tax$Taxonomy <- gsub(',', ', ', clinda_feat_tax$Taxonomy)
-rownames(clinda_feat_tax) <- clinda_feat_tax$Taxonomy
-clinda_feat_tax$Taxonomy <- NULL
+clinda_feat_tax <- clean_merge(t(clinda_feat_shared), otu_blast)
+clinda_feat_tax$species <- gsub('_', ' ', clinda_feat_tax$species)
+rownames(clinda_feat_tax) <- clinda_feat_tax$species
+clinda_feat_tax$species <- NULL
 clinda_feat_tax <- as.data.frame(t(clinda_feat_tax))
 clinda_feat_tax <- log10(clinda_feat_tax + 1)
 clinda_feat_tax$infection <- clinda_shared_otu$infection
 strep_feat_shared <- strep_shared_otu[,rownames(strep_features)]
-strep_feat_tax <- clean_merge(t(strep_feat_shared), taxonomy_otu)
-strep_feat_tax$Taxonomy <- gsub('_', ' ', strep_feat_tax$Taxonomy)
-strep_feat_tax$Taxonomy <- gsub(',', ', ', strep_feat_tax$Taxonomy)
-rownames(strep_feat_tax) <- strep_feat_tax$Taxonomy
-strep_feat_tax$Taxonomy <- NULL
+strep_feat_tax <- clean_merge(t(strep_feat_shared), otu_blast)
+strep_feat_tax$species <- gsub('_', ' ', strep_feat_tax$species)
+rownames(strep_feat_tax) <- strep_feat_tax$species
+strep_feat_tax$species <- NULL
 strep_feat_tax <- as.data.frame(t(strep_feat_tax))
 strep_feat_tax <- log10(strep_feat_tax + 1)
 strep_feat_tax$infection <- strep_shared_otu$infection
 rm(cef_features, strep_features, clinda_features, 
    cef_feat_shared, clinda_feat_shared, strep_feat_shared,
-   cef_shared_otu, clinda_shared_otu, strep_shared_otu, taxonomy_otu)
+   cef_shared_otu, clinda_shared_otu, strep_shared_otu, otu_blast)
 
 # Subset to experimental groups
 cef_infected_otu <- subset(cef_feat_tax, infection == '630')
@@ -156,9 +152,49 @@ strep_infected_otu$infection <- NULL
 strep_mock_otu <- subset(strep_feat_tax, infection == 'mock')
 strep_mock_otu$infection <- NULL
 rm(strep_feat_tax)
+
+# Remove groups where both medians are 0
+for (index in colnames(cef_infected_otu)){
+  if (median(cef_infected_otu[,index]) == 0 && median(cef_mock_otu[,index]) == 0){
+    cef_infected_otu <- cef_infected_otu[ , !(names(cef_infected_otu) == index)]
+    cef_mock_otu <- cef_mock_otu[ , !(names(cef_mock_otu) == index)]
+  }
+}
+for (index in colnames(clinda_infected_otu)){
+  if (median(clinda_infected_otu[,index]) == 0 && median(clinda_mock_otu[,index]) == 0){
+    clinda_infected_otu <- clinda_infected_otu[ , !(names(clinda_infected_otu) == index)]
+    clinda_mock_otu <- clinda_mock_otu[ , !(names(clinda_mock_otu) == index)]
+  }
+}
+for (index in colnames(strep_infected_otu)){
+  if (median(strep_infected_otu[,index]) == 0 && median(strep_mock_otu[,index]) == 0){
+    strep_infected_otu <- strep_infected_otu[ , !(names(strep_infected_otu) == index)]
+    strep_mock_otu <- strep_mock_otu[ , !(names(strep_mock_otu) == index)]
+  }
+}
+
+# Format OTU labels
 cef_otus <- colnames(cef_infected_otu)
+#i <- 1
+#for (index in cef_otus){
+#  temp <- strsplit(index, '-')
+#  cef_otus[i] <- expression(paste(temp[1], italic(temp[2])))
+#  i <- i + 1
+#}
 clinda_otus <- colnames(clinda_infected_otu)
+#i <- 1
+#for (index in clinda_otus){
+#  temp <- strsplit(index, '-')
+#  clinda_otus[i] <- expression(paste(temp[1], italic(temp[2])))
+#  i <- i + 1
+#}
 strep_otus <- colnames(strep_infected_otu)
+#i <- 1
+#for (index in strep_otus){
+#  temp <- strsplit(index, '-')
+#  strep_otus[i] <- expression(paste(temp[1], italic(temp[2])))
+#  i <- i + 1
+#}
 
 #--------------------------#
 
@@ -389,86 +425,164 @@ plot(1, type="n", ylim=c(0,length(strep_otus)*2), xlim=c(0,4),
      ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
 title('Streptomycin-treated', line=0.5, cex.main=1.1, font.main=1)
 index <- 1
+p_values <- c()
+maxes <- c()
 for(i in strep_otus){
   stripchart(at=index-0.35, jitter(strep_mock_otu[,i], amount=1e-5), 
-             pch=21, bg="skyblue1", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
+             pch=21, bg="mediumseagreen", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
   stripchart(at=index+0.35, jitter(strep_infected_otu[,i], amount=1e-5), 
-             pch=21, bg="tomato", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
+             pch=21, bg="mediumorchid3", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
   if (i != strep_otus[length(strep_otus)]){
     abline(h=index+1, lty=2)
   }
-  segments(median(strep_mock_otu[,i]), index-0.7, median(strep_mock_otu[,i]), index, lwd=2) #adds line for median
-  segments(median(strep_infected_otu[,i]), index+0.7, median(strep_infected_otu[,i]), index, lwd=2)
-  index_p <- wilcox.test(strep_mock_otu[,i], strep_infected_otu[,i], exact=FALSE)$p.value
-  if (index_p <= 0.05){
-    text(ceiling(max(c(as.vector(strep_mock_otu[,i]), as.vector(strep_infected_otu[,i])))), index, labels='*', cex=2)
-  }
+  segments(median(strep_mock_otu[,i]), index-0.6, median(strep_mock_otu[,i]), index, lwd=2) #adds line for median
+  segments(median(strep_infected_otu[,i]), index+0.6, median(strep_infected_otu[,i]), index, lwd=2)
+  p_values <- append(p_values, wilcox.test(strep_mock_otu[,i], strep_infected_otu[,i], exact=FALSE)$p.value)
+  maxes <- append(maxes, ceiling(max(c(as.vector(strep_mock_otu[,i]), as.vector(strep_infected_otu[,i])))))
   index <- index + 2
 }
-axis(2, at=seq(1,index-2,2), labels=strep_otus, las=1, line=-0.5, tick=F, cex.axis=0.8) 
+p_values <- p.adjust(p_values, method='BH')
+index1 <- 1
+index2 <- 1
+for (j in p_values){
+  if (maxes[index2] > 3){
+    x_coord <- 4
+  }
+  else if (maxes[index2] > 2){
+    x_coord <- 3.3
+  }
+  else if (maxes[index2] > 1){
+    x_coord <- 2.3
+  }
+  else {
+    x_coord <- 1.3
+  }
+  #-------------#
+  if (j <= 0.01){
+    text(x_coord, index1-0.3, labels='*', cex=1.8)
+    text(x_coord, index1+0.3, labels='*', cex=1.8)
+  }
+  else if  (j <= 0.05){
+    text(x_coord, index1, labels='*', cex=1.8)
+  }
+  index1 <- index1 + 2
+  index2 <- index2 + 1
+}
+axis(2, at=seq(1,index-2,2), labels=strep_otus, las=1, line=-0.5, tick=F, cex.axis=1) 
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", "10000"))
-legend('topright', legend=c("630 infected", "Mock infected"), 
-       pch=c(21, 21), pt.bg=c("tomato","skyblue1"), bg='white', pt.cex=1.7)
+legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
+       pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
 
 mtext('D', side=2, line=2, las=2, adj=9.8, padj=-8, cex=1.3)
 
 #-----------------#
 
 # Cefoperazone plot
-par(mar=c(4, 13, 2, 1), mgp=c(2.3, 1, 0))
+par(mar=c(4, 14, 2, 1), mgp=c(2.3, 1, 0))
 plot(1, type='n', ylim=c(0,length(cef_otus)*2), xlim=c(0,4), 
      ylab='', xlab='Normalized Abundance', xaxt='n', yaxt='n') # make blank plot
 title('Cefoperazone-treated', line=0.5, cex.main=1.1, font.main=1)
 index <- 1
+p_values <- c()
+maxes <- c()
 for(i in cef_otus){
   stripchart(at=index-0.35, jitter(cef_mock_otu[,i], amount=1e-5), 
-             pch=21, bg="skyblue1", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
+             pch=21, bg="mediumseagreen", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
   stripchart(at=index+0.35, jitter(cef_infected_otu[,i], amount=1e-5), 
-             pch=21, bg="tomato", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
+             pch=21, bg="mediumorchid3", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
   if (i != cef_otus[length(cef_otus)]){
   abline(h=index+1, lty=2)
   }
-  segments(median(cef_mock_otu[,i]), index-0.7, median(cef_mock_otu[,i]), index, lwd=2) #adds line for median
-  segments(median(cef_infected_otu[,i]), index+0.7, median(cef_infected_otu[,i]), index, lwd=2)
-  index_p <- wilcox.test(cef_mock_otu[,i], cef_infected_otu[,i], exact=FALSE)$p.value
-  if (index_p <= 0.05){
-    text(ceiling(max(c(as.vector(cef_mock_otu[,i]), as.vector(cef_infected_otu[,i])))), index, labels='*', cex=2)
-  }
+  segments(median(cef_mock_otu[,i]), index-0.6, median(cef_mock_otu[,i]), index, lwd=2) #adds line for median
+  segments(median(cef_infected_otu[,i]), index+0.6, median(cef_infected_otu[,i]), index, lwd=2)
+  p_values <- append(p_values, wilcox.test(cef_mock_otu[,i], cef_infected_otu[,i], exact=FALSE)$p.value)
+  maxes <- append(maxes, ceiling(max(c(as.vector(cef_mock_otu[,i]), as.vector(cef_infected_otu[,i])))))
   index <- index + 2
 }
-axis(2, at=seq(1,index-2,2), labels=cef_otus, las=1, line=-0.5, tick=F, cex.axis=0.8) 
+p_values <- p.adjust(p_values, method='BH')
+index1 <- 1
+index2 <- 1
+for (j in p_values){
+  if (maxes[index2] > 3){
+    x_coord <- 4
+  }
+  else if (maxes[index2] > 2){
+    x_coord <- 3.3
+  }
+  else if (maxes[index2] > 1){
+    x_coord <- 2.3
+  }
+  else {
+    x_coord <- 1.3
+  }
+  #-------------#
+  if (j <= 0.01){
+    text(x_coord, index1-0.2, labels='*', cex=1.8)
+    text(x_coord, index1+0.2, labels='*', cex=1.8)
+  }
+  else if  (j <= 0.05){
+    text(x_coord, index1, labels='*', cex=1.8)
+  }
+  index1 <- index1 + 2
+  index2 <- index2 + 1
+}
+axis(2, at=seq(1,index-2,2), labels=cef_otus, las=1, line=-0.5, tick=F, cex.axis=1) 
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", '10000'))
-legend('topright', legend=c("630 infected", "Mock infected"), 
-       pch=c(21, 21), pt.bg=c("tomato","skyblue1"), bg='white', pt.cex=1.7)
+legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
+       pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
 
 #-----------------#
 
 # Clindamycin plot
-par(mar=c(4, 12, 2, 1), mgp=c(2.3, 1, 0))
+par(mar=c(4, 13, 2, 1), mgp=c(2.3, 1, 0))
 plot(1, type="n", ylim=c(0,length(clinda_otus)*2), xlim=c(0,3), 
      ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
 title('Clindamycin-treated', line=0.5, cex.main=1.1, font.main=1)
 index <- 1
+p_values <- c()
+maxes <- c()
 for(i in clinda_otus){
   stripchart(at=index-0.35, jitter(clinda_mock_otu[,i], amount=1e-5), 
-             pch=21, bg="skyblue1", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
+             pch=21, bg="mediumseagreen", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
   stripchart(at=index+0.35, jitter(clinda_infected_otu[,i], amount=1e-5), 
-             pch=21, bg="tomato", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
+             pch=21, bg="mediumorchid3", method="jitter", jitter=0.12, add=T, cex=1, lwd=0.5)
   if (i != clinda_otus[length(clinda_otus)]){
     abline(h=index+1, lty=2)
   }
-  segments(median(clinda_mock_otu[,i]), index-0.7, median(clinda_mock_otu[,i]), index, lwd=2) #adds line for median
-  segments(median(clinda_infected_otu[,i]), index+0.7, median(clinda_infected_otu[,i]), index, lwd=2)
-  index_p <- wilcox.test(clinda_mock_otu[,i], clinda_infected_otu[,i], exact=FALSE)$p.value
-  if (index_p <= 0.05){
-    text(ceiling(max(c(as.vector(clinda_mock_otu[,i]), as.vector(clinda_infected_otu[,i])))), index, labels='*', cex=2)
-  }
+  segments(median(clinda_mock_otu[,i]), index-0.6, median(clinda_mock_otu[,i]), index, lwd=2) #adds line for median
+  segments(median(clinda_infected_otu[,i]), index+0.6, median(clinda_infected_otu[,i]), index, lwd=2)
+  p_values <- append(p_values, wilcox.test(clinda_mock_otu[,i], clinda_infected_otu[,i], exact=FALSE)$p.value)
+  maxes <- append(maxes, ceiling(max(c(as.vector(clinda_mock_otu[,i]), as.vector(clinda_infected_otu[,i])))))
   index <- index + 2
 }
-axis(2, at=seq(1,index-2,2), labels=clinda_otus, las=1, line=-0.5, tick=F, cex.axis=0.8) 
+p_values <- p.adjust(p_values, method='BH')
+index1 <- 1
+index2 <- 1
+for (j in p_values){
+  if (maxes[index2] > 2){
+    x_coord <- 3
+  }
+  else if (maxes[index2] > 1){
+    x_coord <- 2.3
+  }
+  else {
+    x_coord <- 1.3
+  }
+  #-------------#
+  if (j <= 0.01){
+    text(x_coord, index1-0.1, labels='*', cex=1.8)
+    text(x_coord, index1+0.1, labels='*', cex=1.8)
+  }
+  else if  (j <= 0.05){
+    text(x_coord, index1, labels='*', cex=1.8)
+  }
+  index1 <- index1 + 2
+  index2 <- index2 + 1
+}
+axis(2, at=seq(1,index-2,2), labels=clinda_otus, las=1, line=-0.5, tick=F, cex.axis=1) 
 axis(1, at=c(0, 1, 2, 3), label=c('0','10', '100', "1000"))
-legend('topright', legend=c("630 infected", "Mock infected"), 
-       pch=c(21, 21), pt.bg=c("tomato","skyblue1"), bg='white', pt.cex=1.7)
+legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
+       pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
 
 dev.off()
 
