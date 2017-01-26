@@ -408,7 +408,7 @@ for(i in strep_otus){
 axis(2, at=seq(1,index-2,2), labels=strep_otus, las=1, line=-0.5, tick=F, cex.axis=0.8) 
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", "10000"))
 legend('topright', legend=c("630 infected", "Mock infected"), 
-       pch=c(21, 21), pt.bg=c("tomato","skyblue1"), bg='white', pt.cex=1.5, cex=0.9)
+       pch=c(21, 21), pt.bg=c("tomato","skyblue1"), bg='white', pt.cex=1.7)
 
 mtext('D', side=2, line=2, las=2, adj=9.8, padj=-8, cex=1.3)
 
@@ -439,7 +439,7 @@ for(i in cef_otus){
 axis(2, at=seq(1,index-2,2), labels=cef_otus, las=1, line=-0.5, tick=F, cex.axis=0.8) 
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", '10000'))
 legend('topright', legend=c("630 infected", "Mock infected"), 
-       pch=c(21, 21), pt.bg=c("tomato","skyblue1"), bg='white', pt.cex=1.5, cex=0.9)
+       pch=c(21, 21), pt.bg=c("tomato","skyblue1"), bg='white', pt.cex=1.7)
 
 #-----------------#
 
@@ -468,7 +468,7 @@ for(i in clinda_otus){
 axis(2, at=seq(1,index-2,2), labels=clinda_otus, las=1, line=-0.5, tick=F, cex.axis=0.8) 
 axis(1, at=c(0, 1, 2, 3), label=c('0','10', '100', "1000"))
 legend('topright', legend=c("630 infected", "Mock infected"), 
-       pch=c(21, 21), pt.bg=c("tomato","skyblue1"), bg='white', pt.cex=1.5, cex=0.9)
+       pch=c(21, 21), pt.bg=c("tomato","skyblue1"), bg='white', pt.cex=1.7)
 
 dev.off()
 
