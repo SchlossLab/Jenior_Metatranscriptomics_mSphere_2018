@@ -69,3 +69,6 @@ system(mv all_treatments.trim.contigs.good.unique.good.filter.unique.precluster.
 system(mv all_treatments.trim.contigs.good.unique.good.filter.unique.precluster.pick.rdp.wang.pick.pick.tx.3.subsample.shared all_treatments.order.subsample.shared)
 system(mv all_treatments.trim.contigs.good.unique.good.filter.unique.precluster.pick.rdp.wang.pick.pick.tx.4.subsample.shared all_treatments.class.subsample.shared)
 system(mv all_treatments.trim.contigs.good.unique.good.filter.unique.precluster.pick.rdp.wang.pick.pick.tx.5.subsample.shared all_treatments.phylum.subsample.shared)
+dist.shared(shared=all_treatments.family.subsample.shared, calc=thetayc)
+get.oturep(phylip=all_treatments.family.subsample.thetayc.2.lt.dist, list=all_treatments.trim.contigs.good.unique.good.filter.unique.precluster.pick.rdp.wang.pick.pick.tx.list, fasta=all_treatments.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.fasta)
+

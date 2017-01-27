@@ -1,6 +1,6 @@
 
 # Load dependencies
-deps <- c('wesanderson', 'randomForest', 'vegan', 'shape')
+deps <- c('randomForest', 'vegan', 'shape')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
