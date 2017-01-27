@@ -65,12 +65,14 @@ metadata$mouse <- NULL
 metadata$gender <- NULL
 shared_otu <- read.delim(shared_otu_file, sep='\t', header=T, row.names=2)
 shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]  # Remove contaminated sample
+shared_otu <- shared_otu[ , !(names(shared_otu) == 'Otu0004')] # Remove residual C. difficile OTU
 shared_otu$numOtus <- NULL
 shared_otu$label <- NULL
 taxonomy_family <- read.delim(taxonomy_family_file, sep='\t', header=T)
 taxonomy_family$Size <- NULL
 shared_family <- read.delim(shared_family_file, sep='\t', header=T, row.names=2)
 shared_family <- shared_family[!rownames(shared_family) %in% c('CefC5M2'), ]  # Remove contaminated sample
+shared_family <- shared_family[ , !(names(shared_family) == 'Otu008')] # Remove residual C. difficile OTU
 shared_family$numOtus <- NULL
 shared_family$label <- NULL
 wetlab <- read.delim(wetlab_file, sep='\t', header=T, row.names=1)
@@ -83,14 +85,7 @@ rm(shared_otu_file, shared_family_file, taxonomy_family_file, metadata_file, wet
 # Format data (previously subsampled and filtered in mothur)
 
 # OTU shared file
-shared_otu <- shared_otu[ , !(names(shared_otu) == 'Otu0004')] # Remove residual C. difficile OTU
 metadata_shared_otu <- clean_merge(metadata, shared_otu)
-#res_shared_otu <- metadata_shared_otu
-#res_shared_otu$infection <- NULL
-#res_shared_otu$abx <- NULL
-#abx_shared_otu <- subset(metadata_shared_otu, abx != 'none')
-#abx_shared_otu$infection <- NULL
-#abx_shared_otu$susceptibility <- NULL
 cef_shared_otu <- subset(metadata_shared_otu, abx == 'cefoperazone')
 cef_shared_otu$abx <- NULL
 cef_shared_otu$susceptibility <- NULL
@@ -172,29 +167,9 @@ for (index in colnames(strep_infected_otu)){
     strep_mock_otu <- strep_mock_otu[ , !(names(strep_mock_otu) == index)]
   }
 }
-
-# Format OTU labels
 cef_otus <- colnames(cef_infected_otu)
-#i <- 1
-#for (index in cef_otus){
-#  temp <- strsplit(index, '-')
-#  cef_otus[i] <- expression(paste(temp[1], italic(temp[2])))
-#  i <- i + 1
-#}
 clinda_otus <- colnames(clinda_infected_otu)
-#i <- 1
-#for (index in clinda_otus){
-#  temp <- strsplit(index, '-')
-#  clinda_otus[i] <- expression(paste(temp[1], italic(temp[2])))
-#  i <- i + 1
-#}
 strep_otus <- colnames(strep_infected_otu)
-#i <- 1
-#for (index in strep_otus){
-#  temp <- strsplit(index, '-')
-#  strep_otus[i] <- expression(paste(temp[1], italic(temp[2])))
-#  i <- i + 1
-#}
 
 #--------------------------#
 
@@ -205,7 +180,7 @@ relabund_shared <- (shared_family / rowSums(shared_family)) * 100
 rm(shared_family)
 
 # Bin lowly abundant OTUs into an 'Other' category
-relabund_shared[relabund_shared < 2] <- 0
+relabund_shared[relabund_shared < 1] <- 0
 relabund_shared <- relabund_shared[, colSums(relabund_shared != 0) > 0]
 top_otus <- colnames(relabund_shared)
 
@@ -213,7 +188,6 @@ top_otus <- colnames(relabund_shared)
 rownames(taxonomy_family) <- taxonomy_family$OTU
 taxonomy_family <- subset(taxonomy_family, rownames(taxonomy_family) %in% top_otus)
 taxonomy_family$Taxonomy <- gsub('_', ' ', taxonomy_family$Taxonomy)
-taxonomy_family$Taxonomy <- gsub(',', ', ', taxonomy_family$Taxonomy)
 taxonomy_family$Taxonomy <- gsub('\\(OTU\\d+\\)', '', taxonomy_family$Taxonomy)
 taxonomy_family <- taxonomy_family[order(taxonomy_family$Taxonomy),]
 rm(top_otus)
@@ -226,7 +200,7 @@ relabund_shared$otu <- NULL
 relabund_shared <- as.data.frame(t(relabund_shared))
 relabund_shared$Other <- 100 - rowSums(relabund_shared)
 taxonomy_family <- as.vector(taxonomy_family$Taxonomy)
-taxonomy_family <- append(taxonomy_family, 'Other')
+taxonomy_family <- append(taxonomy_family, 'Other (<1%)')
 
 # Add empty columns for plotting and sort table
 relabund_shared <- clean_merge(metadata, relabund_shared)
@@ -241,21 +215,23 @@ relabund_shared <- rbind(relabund_shared, empty_columns)
 relabund_shared <- relabund_shared[order(match(relabund_shared$abx, c('none', 'col_1', 'streptomycin', 'col_2', 'cefoperazone', 'col_3', 'clindamycin'))),] # sort by treatment
 relabund_shared$abx <- NULL
 rm(empty_columns)
-
-
-# Format taxonomy legend
-family_colors <- c('forestgreen','chartreuse2',
-                   'darkred','firebrick3','red2','tomato2','salmon',
-                   'navy','mediumblue','royalblue3','dodgerblue2','lightslateblue','deepskyblue','powderblue',
-                   'gold1',
-                   'chocolate1',
-                   'gray40')
+family_colors <- c('chartreuse3',
+                   'mediumorchid3',
+                   'darkred','firebrick3','salmon','tomato2','red2',
+                   'navy','mediumblue','royalblue3','lightslateblue','dodgerblue2','deepskyblue','powderblue',
+                   'chocolate2','darkgoldenrod1',
+                   'magenta2',
+                   'gray50')
 taxonomy_color <- as.data.frame(cbind(taxonomy_family, family_colors))
 taxonomy_color <- taxonomy_color[order(taxonomy_color$taxonomy_family),]
-other <- taxonomy_color[which(taxonomy_color$taxonomy_family == 'Other'),]
-taxonomy_color <- subset(taxonomy_color, taxonomy_family != 'Other')
+bacteria <- taxonomy_color[which(taxonomy_color$taxonomy_family == 'Bacteria unclassified'),]
+taxonomy_color <- subset(taxonomy_color, taxonomy_family != 'Bacteria unclassified')
+other <- taxonomy_color[which(taxonomy_color$taxonomy_family == 'Other (<1%)'),]
+taxonomy_color <- subset(taxonomy_color, taxonomy_family != 'Other (<1%)')
+taxonomy_color <- rbind(bacteria, taxonomy_color)
 taxonomy_color <- rbind(other, taxonomy_color)
 colnames(taxonomy_color) <- c('taxonomy', 'color')
+taxonomy_color$taxonomy <- gsub('.*,', '', taxonomy_color$taxonomy)
 rm(other)
 
 #--------------------------#
@@ -295,7 +271,8 @@ plot(0, type='n', axes=F, xlab='', ylab='', xlim=c(-4.75,4), ylim=c(-2,5))
 # Abx in drinking water timeline
 rect(xleft=-4, ybottom=2.8, xright=0, ytop=3.2, col='cadetblue3', border='black')
 Arrows(x0=-4, y0=3, x1=3.5, y1=3, lwd=4, arr.type='triangle', arr.length=0.6, arr.width=0.2)
-segments(x0=c(-4,0,2,2.75), y0=c(3.4,3.4,3.4,3.4), x1=c(-4,0,2,2.75), y1=c(2.6,2.6,2.6,2.6), lwd=4, col=c('black','black','black','gray40'))
+segments(x0=c(-4,0,2,2.75), y0=c(3.4,3.4,3.4,3.4), x1=c(-4,0,2,2.75), y1=c(2.6,2.6,2.6,2.6), 
+         lwd=4, col=c('black','black','black','gray40'))
 segments(x0=c(-4,-3,-2,-1,1), y0=c(3.25,3.25,3.25,3.25,3.25), x1=c(-4,-3,-2,-1,1), y1=c(2.75,2.75,2.75,2.75,2.75), lwd=2)
 points(x=c(2,2.75), y=c(3.8,3.8), pch=25, bg=c('white','black'), col='black', cex=2.5)
 text(x=c(-4,0,2), y=c(2.1,2.1,2.1), c('Day -7', 'Day -2', 'Day 0'), cex=1.1)
@@ -361,7 +338,7 @@ segments(x0=c(2, 8, 14, 20)-0.6, y0=c(
 
 # Toxin
 par(mar=c(3,4,1,4), new=TRUE, xpd=TRUE)
-stripchart(toxin_titer~treatment, data=wetlab, col='black', bg='green3', xlim=c(0,22), ylim=c(1.6,3.4), pch=21,
+stripchart(toxin_titer~treatment, data=wetlab, col='black', bg='green3', xlim=c(0,22), ylim=c(1.6,3.4), pch=23,
            vertical=TRUE, at=c(3.5, 9.5, 15.5, 21.5), xaxt='n', yaxt='n', ylab='', cex=1.7, method='jitter', jitter=0.2)
 # Median lines
 segments(x0=c(3.5, 9.5, 15.5, 21.5)-0.6, y0=c(
@@ -381,7 +358,7 @@ mtext(expression(paste('Toxin Titer/g Cecal Content (',log[10],')')), side=4, li
 legend('topleft', legend=c('Vegetative cells (CFU)','Spores (CFU)'), bty='n',
        pch=21, col='black', pt.bg=c('firebrick2','blue2'), cex=1.1, pt.cex=2)
 legend('topright', legend='Toxin titer', bty='n',
-       pch=21, col='black', pt.bg='green3', cex=1.1, pt.cex=2)
+       pch=23, col='black', pt.bg='green3', cex=1.1, pt.cex=2)
 
 mtext('B', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
 
@@ -407,13 +384,28 @@ arrows(64.4, -2, 74, -2, angle=0, length=0, lwd=2, xpd=TRUE)
 
 mtext(rep('630 infected',4), side=1, at=c(3.7,14,36,58.3), adj=0.5, padj=1, cex=0.7)
 mtext(rep('Mock infected',3), side=1, at=c(24.7,46.5,69.1), adj=0.5, padj=1, cex=0.7)
-mtext(c('No Antibiotics','Streptomycin-treated','Cefoperazone-treated','Clindamycin-treated'), side=1, at=c(3.7,19.3,41.5,63.7), adj=0.5, padj=2.5, cex=0.75)
+mtext(c('No Antibiotics','Streptomycin-treated','Cefoperazone-treated','Clindamycin-treated'), 
+      side=1, at=c(3.7,19.3,41.5,63.7), adj=0.5, padj=2.5, cex=0.75)
 mtext('C', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
 
 # Create a figure legend in empty plot
-par(mar=c(4,0,0,1))
+par(mar=c(4,0,0.3,5))
 plot(0, type='n', ylim=c(-5,5), xlim=c(5,5), ylab='', xlab='', xaxt='n', yaxt='n', axes=FALSE)
-legend('center', legend=as.vector(taxonomy_color$taxonomy), pt.bg=as.vector(taxonomy_color$color), pch=22, pt.cex=2.5, cex=1.1)
+legend('right', legend=as.vector(taxonomy_color$taxonomy), pt.bg=as.vector(taxonomy_color$color), 
+       pch=22, pt.cex=2.5, cex=1.1, bty='n')
+
+# Add in phylum classifications
+segments(x0=c(4.8,4.8,4.8,4.8,4.8), x1=c(4.8,4.8,4.8,4.8,4.8), 
+         y0=c(3.88,3.1,0.3, -3.6,-4.64), 
+         y1=c(3.5, 0.9,-3.1,-4.3,-5), lwd=3)
+segments(x0=c(4.4,4.4,4.28,4.43,4.48), x1=c(4.8,4.8,4.8,4.8,4.8), 
+         y0=c(3.69,2,-1.4,-3.95,-4.82), 
+         y1=c(3.69,2,-1.4,-3.95,-4.82), lwd=2)
+
+text(x=c(3.8,3.8,3.8,3.8,3.8), y=c(3.69,2,-1.4,-3.95,-4.82), cex=1.2,
+     labels=c('Actinobacteria', 'Bacteroidetes', 'Firmicutes', 'Proteobacteria', 'Verrucomicrobia'))
+
+
 
 #-------------------------------------------------------------------#
 
@@ -459,8 +451,8 @@ for (j in p_values){
   }
   #-------------#
   if (j <= 0.01){
-    text(x_coord, index1-0.3, labels='*', cex=1.8)
-    text(x_coord, index1+0.3, labels='*', cex=1.8)
+    text(x_coord, index1-0.4, labels='*', cex=1.9)
+    text(x_coord, index1+0.4, labels='*', cex=1.9)
   }
   else if  (j <= 0.05){
     text(x_coord, index1, labels='*', cex=1.8)
@@ -468,7 +460,7 @@ for (j in p_values){
   index1 <- index1 + 2
   index2 <- index2 + 1
 }
-axis(2, at=seq(1,index-2,2), labels=strep_otus, las=1, line=-0.5, tick=F, cex.axis=1) 
+axis(2, at=seq(1,index-2,2), labels=strep_otus, las=1, line=-0.5, tick=F, cex.axis=1.2, font=3) 
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", "10000"))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
@@ -517,8 +509,8 @@ for (j in p_values){
   }
   #-------------#
   if (j <= 0.01){
-    text(x_coord, index1-0.2, labels='*', cex=1.8)
-    text(x_coord, index1+0.2, labels='*', cex=1.8)
+    text(x_coord, index1-0.3, labels='*', cex=1.9)
+    text(x_coord, index1+0.3, labels='*', cex=1.9)
   }
   else if  (j <= 0.05){
     text(x_coord, index1, labels='*', cex=1.8)
@@ -526,7 +518,7 @@ for (j in p_values){
   index1 <- index1 + 2
   index2 <- index2 + 1
 }
-axis(2, at=seq(1,index-2,2), labels=cef_otus, las=1, line=-0.5, tick=F, cex.axis=1) 
+axis(2, at=seq(1,index-2,2), labels=cef_otus, las=1, line=-0.5, tick=F, cex.axis=1.2, font=3) 
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", '10000'))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
@@ -570,16 +562,16 @@ for (j in p_values){
   }
   #-------------#
   if (j <= 0.01){
-    text(x_coord, index1-0.1, labels='*', cex=1.8)
-    text(x_coord, index1+0.1, labels='*', cex=1.8)
+    text(x_coord, index1-0.2, labels='*', cex=1.9)
+    text(x_coord, index1+0.2, labels='*', cex=1.9)
   }
   else if  (j <= 0.05){
-    text(x_coord, index1, labels='*', cex=1.8)
+    text(x_coord, index1, labels='*', cex=1.9)
   }
   index1 <- index1 + 2
   index2 <- index2 + 1
 }
-axis(2, at=seq(1,index-2,2), labels=clinda_otus, las=1, line=-0.5, tick=F, cex.axis=1) 
+axis(2, at=seq(1,index-2,2), labels=clinda_otus, las=1, line=-0.5, tick=F, cex.axis=1.2, font=3) 
 axis(1, at=c(0, 1, 2, 3), label=c('0','10', '100', "1000"))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
