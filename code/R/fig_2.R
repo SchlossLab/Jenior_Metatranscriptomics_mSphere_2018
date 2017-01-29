@@ -182,6 +182,10 @@ clinda_metatranscriptome[,c(1,2)] <- log10(clinda_metatranscriptome[,c(1,2)])
 strep_metatranscriptome[,c(1,2)] <- log10(strep_metatranscriptome[,c(1,2)])
 conv_metatranscriptome[,1] <- log10(conv_metatranscriptome[,1])
 
+# Set negative values equal to zero
+
+
+
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Determine pathway annotations
