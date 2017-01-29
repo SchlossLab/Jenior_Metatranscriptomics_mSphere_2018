@@ -200,7 +200,7 @@ relabund_shared$otu <- NULL
 relabund_shared <- as.data.frame(t(relabund_shared))
 relabund_shared$Other <- 100 - rowSums(relabund_shared)
 taxonomy_family <- as.vector(taxonomy_family$Taxonomy)
-taxonomy_family <- append(taxonomy_family, 'Other (<1%)')
+taxonomy_family <- append(taxonomy_family, 'Other (<1% each)')
 
 # Add empty columns for plotting and sort table
 relabund_shared <- clean_merge(metadata, relabund_shared)
@@ -226,8 +226,8 @@ taxonomy_color <- as.data.frame(cbind(taxonomy_family, family_colors))
 taxonomy_color <- taxonomy_color[order(taxonomy_color$taxonomy_family),]
 bacteria <- taxonomy_color[which(taxonomy_color$taxonomy_family == 'Bacteria unclassified'),]
 taxonomy_color <- subset(taxonomy_color, taxonomy_family != 'Bacteria unclassified')
-other <- taxonomy_color[which(taxonomy_color$taxonomy_family == 'Other (<1%)'),]
-taxonomy_color <- subset(taxonomy_color, taxonomy_family != 'Other (<1%)')
+other <- taxonomy_color[which(taxonomy_color$taxonomy_family == 'Other (<1% each)'),]
+taxonomy_color <- subset(taxonomy_color, taxonomy_family != 'Other (<1% each)')
 taxonomy_color <- rbind(bacteria, taxonomy_color)
 taxonomy_color <- rbind(other, taxonomy_color)
 colnames(taxonomy_color) <- c('taxonomy', 'color')
@@ -271,8 +271,8 @@ plot(0, type='n', axes=F, xlab='', ylab='', xlim=c(-4.75,4), ylim=c(-2,5))
 # Abx in drinking water timeline
 rect(xleft=-4, ybottom=2.8, xright=0, ytop=3.2, col='cadetblue3', border='black')
 Arrows(x0=-4, y0=3, x1=3.5, y1=3, lwd=4, arr.type='triangle', arr.length=0.6, arr.width=0.2)
-segments(x0=c(-4,0,2,2.75), y0=c(3.4,3.4,3.4,3.4), x1=c(-4,0,2,2.75), y1=c(2.6,2.6,2.6,2.6), 
-         lwd=4, col=c('black','black','black','gray40'))
+segments(x0=c(-4,0,2,2.75), y0=c(3.4,3.4,3.4,3.3), x1=c(-4,0,2,2.75), y1=c(2.6,2.6,2.6,2.7), 
+         lwd=4, col=c('black','black','black','black'))
 segments(x0=c(-4,-3,-2,-1,1), y0=c(3.25,3.25,3.25,3.25,3.25), x1=c(-4,-3,-2,-1,1), y1=c(2.75,2.75,2.75,2.75,2.75), lwd=2)
 points(x=c(2,2.75), y=c(3.8,3.8), pch=25, bg=c('white','black'), col='black', cex=2.5)
 text(x=c(-4,0,2), y=c(2.1,2.1,2.1), c('Day -7', 'Day -2', 'Day 0'), cex=1.1)
@@ -283,7 +283,7 @@ text(-4.4, 3, '1', font=2, cex=1.5)
 
 # IP injection abx timeline
 Arrows(x0=-4, y0=0, x1=-1.5, y1=0, lwd=4, arr.type='triangle', arr.length=0.6, arr.width=0.2)
-segments(x0=c(-4,-3,-2.25), y0=c(-0.4,-0.4,-0.4), x1=c(-4,-3,-2.25), y1=c(0.4,0.4,0.4), lwd=4, col=c('black','black','gray40'))
+segments(x0=c(-4,-3,-2.25), y0=c(-0.4,-0.4,-0.3), x1=c(-4,-3,-2.25), y1=c(0.4,0.4,0.3), lwd=4, col=c('black','black','black'))
 points(x=c(-4,-3,-2.25), y=c(0.8,0.8,0.8), pch=c(25,25,25), bg=c('coral1','white','black'), col='black', cex=2.5)
 text(x=c(-4,-3), y=c(-0.8,-0.8), c('Day -1', 'Day 0'), cex=1.1)
 text(-4.4, 0, '2', font=2, cex=1.5)
