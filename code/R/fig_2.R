@@ -177,10 +177,10 @@ strep_metatranscriptome <- subset(strep_metatranscriptome, strep_metatranscripto
 conv_metatranscriptome <- subset(conv_metatranscriptome, conv_metatranscriptome$conventional_metaT >= 1.0)
 
 # Log10 transform the data
-cef_metatranscriptome[,c(1,2)] <- log10(cef_metatranscriptome[,c(1,2)])
-clinda_metatranscriptome[,c(1,2)] <- log10(clinda_metatranscriptome[,c(1,2)])
-strep_metatranscriptome[,c(1,2)] <- log10(strep_metatranscriptome[,c(1,2)])
-conv_metatranscriptome[,1] <- log10(conv_metatranscriptome[,1])
+cef_metatranscriptome[,c(1,2)] <- log2(cef_metatranscriptome[,c(1,2)])
+clinda_metatranscriptome[,c(1,2)] <- log2(clinda_metatranscriptome[,c(1,2)])
+strep_metatranscriptome[,c(1,2)] <- log2(strep_metatranscriptome[,c(1,2)])
+conv_metatranscriptome[,1] <- log2(conv_metatranscriptome[,1])
 
 # Set negative values equal to zero
 

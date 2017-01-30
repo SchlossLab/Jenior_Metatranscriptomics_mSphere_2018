@@ -151,25 +151,26 @@ def convert_scores(scores, factor):
 def competition(score_dict_1, score_dict_2):
 	
 	all_compounds = list(set(score_dict_1.keys() + score_dict_2.keys()))
+
+	max_score = max(list(set(score_dict_1.values() + score_dict_2.values()))) + 1
 	
 	competition_dictionary = {}
 
 	for index in all_compounds:
 
 		try:
-			score_1 = float(score_dict_1[index])
+			score_1 = float(score_dict_1[index]) + 1
 		except keyError:
 			continue
 		try:
-			score_2 = float(score_dict_2[index])
+			score_2 = float(score_dict_2[index]) + 1
 		except keyError:
 			continue
 
 		score_1 = score_dict_1[index][1]
 		score_2 = score_dict_2[index][1]
 
-		competition_score = (score_1 / score_2) + (score_2 / score_1)
-		competition_score = 102 - competition_score
+		competition_score = max_score - (math.log(score_1, score_2) + math.log(score_1, score_2))
 
 		competition_dictionary[index] = competition_score
 
@@ -180,6 +181,11 @@ def competition(score_dict_1, score_dict_2):
 def community_competition(community, normalized):
 
 	all_compounds = list(set(community.keys() + normalized.keys()))
+
+
+	# special consideration for logs
+	logb(mn) = logb(m) + logb(n)
+
 
 	for compound in all_compounds:
 		try:
