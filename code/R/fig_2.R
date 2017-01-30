@@ -129,19 +129,19 @@ optimal_size <- min(c(metaG_size, metaT_size))
 rm(metagenome_totals, metatranscriptome_totals, metaG_size, metaT_size)
 
 # Rarefy metagenomic data
-all_metagenome$cefoperazone <- t(rrarefy(all_metagenome$cefoperazone, sample=optimal_size)) + 1
-all_metagenome$clindamycin <- t(rrarefy(all_metagenome$clindamycin, sample=optimal_size)) + 1
-all_metagenome$streptomycin <- t(rrarefy(all_metagenome$streptomycin, sample=optimal_size)) + 1
-all_metagenome$conventional <- t(rrarefy(all_metagenome$conventional, sample=optimal_size)) + 1
+all_metagenome$cefoperazone <- t(rrarefy(all_metagenome$cefoperazone, sample=optimal_size))
+all_metagenome$clindamycin <- t(rrarefy(all_metagenome$clindamycin, sample=optimal_size))
+all_metagenome$streptomycin <- t(rrarefy(all_metagenome$streptomycin, sample=optimal_size))
+all_metagenome$conventional <- t(rrarefy(all_metagenome$conventional, sample=optimal_size))
 
 # Rarefy metatranscriptomic data
-all_metatranscriptome$cefoperazone_630_metaT <- t(rrarefy(all_metatranscriptome$cefoperazone_630_metaT, sample=optimal_size)) + 1
-all_metatranscriptome$cefoperazone_mock_metaT <- t(rrarefy(all_metatranscriptome$cefoperazone_mock_metaT, sample=optimal_size)) + 1
-all_metatranscriptome$clindamycin_630_metaT <- t(rrarefy(all_metatranscriptome$clindamycin_630_metaT, sample=optimal_size)) + 1
-all_metatranscriptome$clindamycin_mock_metaT <- t(rrarefy(all_metatranscriptome$clindamycin_mock_metaT, sample=optimal_size)) + 1
-all_metatranscriptome$streptomycin_630_metaT <- t(rrarefy(all_metatranscriptome$streptomycin_630_metaT, sample=optimal_size)) + 1
-all_metatranscriptome$streptomycin_mock_metaT <- t(rrarefy(all_metatranscriptome$streptomycin_mock_metaT, sample=optimal_size)) + 1
-all_metatranscriptome$conventional_metaT <- t(rrarefy(all_metatranscriptome$conventional_metaT, sample=optimal_size)) + 1
+all_metatranscriptome$cefoperazone_630_metaT <- t(rrarefy(all_metatranscriptome$cefoperazone_630_metaT, sample=optimal_size))
+all_metatranscriptome$cefoperazone_mock_metaT <- t(rrarefy(all_metatranscriptome$cefoperazone_mock_metaT, sample=optimal_size))
+all_metatranscriptome$clindamycin_630_metaT <- t(rrarefy(all_metatranscriptome$clindamycin_630_metaT, sample=optimal_size))
+all_metatranscriptome$clindamycin_mock_metaT <- t(rrarefy(all_metatranscriptome$clindamycin_mock_metaT, sample=optimal_size))
+all_metatranscriptome$streptomycin_630_metaT <- t(rrarefy(all_metatranscriptome$streptomycin_630_metaT, sample=optimal_size))
+all_metatranscriptome$streptomycin_mock_metaT <- t(rrarefy(all_metatranscriptome$streptomycin_mock_metaT, sample=optimal_size))
+all_metatranscriptome$conventional_metaT <- t(rrarefy(all_metatranscriptome$conventional_metaT, sample=optimal_size))
 rm(optimal_size)
 
 # Merge metagenomes and metatranscriptomes
@@ -176,15 +176,11 @@ clinda_metatranscriptome <- subset(clinda_metatranscriptome, clinda_metatranscri
 strep_metatranscriptome <- subset(strep_metatranscriptome, strep_metatranscriptome$streptomycin_630 >= 1.0 | strep_metatranscriptome$streptomycin_mock >= 1.0)
 conv_metatranscriptome <- subset(conv_metatranscriptome, conv_metatranscriptome$conventional_metaT >= 1.0)
 
-# Log10 transform the data
-cef_metatranscriptome[,c(1,2)] <- log2(cef_metatranscriptome[,c(1,2)])
-clinda_metatranscriptome[,c(1,2)] <- log2(clinda_metatranscriptome[,c(1,2)])
-strep_metatranscriptome[,c(1,2)] <- log2(strep_metatranscriptome[,c(1,2)])
-conv_metatranscriptome[,1] <- log2(conv_metatranscriptome[,1])
-
-# Set negative values equal to zero
-
-
+# Log2 transform the data
+cef_metatranscriptome[,c(1,2)] <- log2(cef_metatranscriptome[,c(1,2)] + 1)
+clinda_metatranscriptome[,c(1,2)] <- log2(clinda_metatranscriptome[,c(1,2)] + 1)
+strep_metatranscriptome[,c(1,2)] <- log2(strep_metatranscriptome[,c(1,2)] + 1)
+conv_metatranscriptome[,1] <- log2(conv_metatranscriptome[,1] + 1)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 

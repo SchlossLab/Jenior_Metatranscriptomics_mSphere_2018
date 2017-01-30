@@ -1,23 +1,23 @@
-otu	species
-Otu0001	Lactobacillus_faecis
-Otu0003	Bacteroides_caecimuris
-Otu0005	Muribaculum_intestinale
-Otu0006	Turicibacter_sanguinis
-Otu0007	Porphyromonas_pasteri
-Otu0009	Barnesiella_viscericola 
-Otu0015	Akkermansia_muciniphila 
-Otu0017	Arthrobacter_soli
-Otu0019	Bacteroides_vulgatus
-Otu0020	Olsenella_profusa
-Otu0024	Prevotella_copri
-Otu0032	Barnesiella_intestinihominis
-Otu0037	Blautia_wexlerae
-Otu0038	Oscillibacter_ruminantium
-Otu0049	Faecalibacterium_prausnitzii
-Otu0050	Lactobacillus_hominis
-Otu0068	Enterococcus_pallens
-Otu0086	Citrobacter_sedlakii
-Otu0095	Bacteroides_cellulosilyticus
-Otu0107	Streptococcus_thermophilus
-Otu0108	Alistipes_putredinis
-Otu0192	Ruminococcus_obeum
+otu	otu_short	species
+Otu0001	OTU1	Lactobacillus_faecis
+Otu0003	OTU3	Bacteroides_caecimuris
+Otu0005	OTU5	Muribaculum_intestinale
+Otu0006	OTU6	Turicibacter_sanguinis
+Otu0007	OTU7	Porphyromonas_pasteri
+Otu0009	OTU9	Barnesiella_viscericola 
+Otu0015	OTU15	Akkermansia_muciniphila 
+Otu0017	OTU17	Arthrobacter_soli
+Otu0019	OTU19	Bacteroides_vulgatus
+Otu0020	OTU20	Olsenella_profusa
+Otu0024	OTU24	Prevotella_copri
+Otu0032	OTU32	Barnesiella_intestinihominis
+Otu0037	OTU37	Blautia_wexlerae
+Otu0038	OTU38	Oscillibacter_ruminantium
+Otu0049	OTU49	Faecalibacterium_prausnitzii
+Otu0050	OTU50	Lactobacillus_hominis
+Otu0068	OTU68	Enterococcus_pallens
+Otu0086	OTU86	Citrobacter_sedlakii
+Otu0095	OTU95	Bacteroides_cellulosilyticus
+Otu0107	OTU107	Streptococcus_thermophilus
+Otu0108	OTU108	Alistipes_putredinis
+Otu0192	OTU192	Ruminococcus_obeum

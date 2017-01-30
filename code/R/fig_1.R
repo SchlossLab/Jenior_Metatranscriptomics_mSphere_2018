@@ -102,74 +102,94 @@ cef_features <- featureselect_RF(cef_shared_otu, 'infection')
 strep_features <- featureselect_RF(strep_shared_otu, 'infection')
 clinda_features <- featureselect_RF(clinda_shared_otu, 'infection')
 
-# Filter for significant OTUs with random forest from shared
+# Filter for significant OTUs with random forest from shared and those with a median > 0
 cef_feat_shared <- cef_shared_otu[,rownames(cef_features)]
-cef_feat_tax <- clean_merge(t(cef_feat_shared), otu_blast)
-cef_feat_tax$species <- gsub('_', ' ', cef_feat_tax$species)
-rownames(cef_feat_tax) <- cef_feat_tax$species
-cef_feat_tax$species <- NULL
-cef_feat_tax <- as.data.frame(t(cef_feat_tax))
-cef_feat_tax <- log10(cef_feat_tax + 1)
-cef_feat_tax$infection <- cef_shared_otu$infection
-clinda_feat_shared <- clinda_shared_otu[,rownames(clinda_features)]
-clinda_feat_tax <- clean_merge(t(clinda_feat_shared), otu_blast)
-clinda_feat_tax$species <- gsub('_', ' ', clinda_feat_tax$species)
-rownames(clinda_feat_tax) <- clinda_feat_tax$species
-clinda_feat_tax$species <- NULL
-clinda_feat_tax <- as.data.frame(t(clinda_feat_tax))
-clinda_feat_tax <- log10(clinda_feat_tax + 1)
-clinda_feat_tax$infection <- clinda_shared_otu$infection
-strep_feat_shared <- strep_shared_otu[,rownames(strep_features)]
-strep_feat_tax <- clean_merge(t(strep_feat_shared), otu_blast)
-strep_feat_tax$species <- gsub('_', ' ', strep_feat_tax$species)
-rownames(strep_feat_tax) <- strep_feat_tax$species
-strep_feat_tax$species <- NULL
-strep_feat_tax <- as.data.frame(t(strep_feat_tax))
-strep_feat_tax <- log10(strep_feat_tax + 1)
-strep_feat_tax$infection <- strep_shared_otu$infection
-rm(cef_features, strep_features, clinda_features, 
-   cef_feat_shared, clinda_feat_shared, strep_feat_shared,
-   cef_shared_otu, clinda_shared_otu, strep_shared_otu, otu_blast)
-
-# Subset to experimental groups
-cef_infected_otu <- subset(cef_feat_tax, infection == '630')
+cef_feat_shared <- log10(cef_feat_shared + 1)
+cef_feat_shared$infection <- cef_shared_otu$infection
+cef_infected_otu <- subset(cef_feat_shared, infection == '630')
 cef_infected_otu$infection <- NULL
-cef_mock_otu <- subset(cef_feat_tax, infection == 'mock')
+cef_mock_otu <- subset(cef_feat_shared, infection == 'mock')
 cef_mock_otu$infection <- NULL
-rm(cef_feat_tax)
-clinda_infected_otu <- subset(clinda_feat_tax, infection == '630')
-clinda_infected_otu$infection <- NULL
-clinda_mock_otu <- subset(clinda_feat_tax, infection == 'mock')
-clinda_mock_otu$infection <- NULL
-rm(clinda_feat_tax)
-strep_infected_otu <- subset(strep_feat_tax, infection == '630')
-strep_infected_otu$infection <- NULL
-strep_mock_otu <- subset(strep_feat_tax, infection == 'mock')
-strep_mock_otu$infection <- NULL
-rm(strep_feat_tax)
-
-# Remove groups where both medians are 0
 for (index in colnames(cef_infected_otu)){
   if (median(cef_infected_otu[,index]) == 0 && median(cef_mock_otu[,index]) == 0){
-    cef_infected_otu <- cef_infected_otu[ , !(names(cef_infected_otu) == index)]
-    cef_mock_otu <- cef_mock_otu[ , !(names(cef_mock_otu) == index)]
+    cef_infected_otu <- cef_infected_otu[, !(names(cef_infected_otu) == index)]
+    cef_mock_otu <- cef_mock_otu[, !(names(cef_mock_otu) == index)]
   }
 }
+rm(cef_feat_shared, cef_features)
+clinda_feat_shared <- clinda_shared_otu[,rownames(clinda_features)]
+clinda_feat_shared <- log10(clinda_feat_shared + 1)
+clinda_feat_shared$infection <- clinda_shared_otu$infection
+clinda_infected_otu <- subset(clinda_feat_shared, infection == '630')
+clinda_infected_otu$infection <- NULL
+clinda_mock_otu <- subset(clinda_feat_shared, infection == 'mock')
+clinda_mock_otu$infection <- NULL
 for (index in colnames(clinda_infected_otu)){
   if (median(clinda_infected_otu[,index]) == 0 && median(clinda_mock_otu[,index]) == 0){
-    clinda_infected_otu <- clinda_infected_otu[ , !(names(clinda_infected_otu) == index)]
-    clinda_mock_otu <- clinda_mock_otu[ , !(names(clinda_mock_otu) == index)]
+    clinda_infected_otu <- clinda_infected_otu[, !(names(clinda_infected_otu) == index)]
+    clinda_mock_otu <- clinda_mock_otu[, !(names(clinda_mock_otu) == index)]
   }
 }
+rm(clinda_feat_shared, clinda_features)
+strep_feat_shared <- strep_shared_otu[,rownames(strep_features)]
+strep_feat_shared <- log10(strep_feat_shared + 1)
+strep_feat_shared$infection <- strep_shared_otu$infection
+strep_infected_otu <- subset(strep_feat_shared, infection == '630')
+strep_infected_otu$infection <- NULL
+strep_mock_otu <- subset(strep_feat_shared, infection == 'mock')
+strep_mock_otu$infection <- NULL
 for (index in colnames(strep_infected_otu)){
   if (median(strep_infected_otu[,index]) == 0 && median(strep_mock_otu[,index]) == 0){
-    strep_infected_otu <- strep_infected_otu[ , !(names(strep_infected_otu) == index)]
-    strep_mock_otu <- strep_mock_otu[ , !(names(strep_mock_otu) == index)]
+    strep_infected_otu <- strep_infected_otu[, !(names(strep_infected_otu) == index)]
+    strep_mock_otu <- strep_mock_otu[, !(names(strep_mock_otu) == index)]
   }
 }
-cef_otus <- colnames(cef_infected_otu)
-clinda_otus <- colnames(clinda_infected_otu)
-strep_otus <- colnames(strep_infected_otu)
+rm(strep_feat_shared, strep_features)
+
+# Rename OTUs with species-level identifier
+cef_infected_otu <- clean_merge(t(cef_infected_otu), otu_blast)
+cef_infected_otu$species <- gsub('_', ' ', cef_infected_otu$species)
+rownames(cef_infected_otu) <- cef_infected_otu$species
+cef_otus <- as.vector(cef_infected_otu$species)
+cef_otu_numbers <- as.vector(cef_infected_otu$otu_short)
+cef_infected_otu$species <- NULL
+cef_infected_otu$otu_short <- NULL
+cef_infected_otu <- as.data.frame(t(cef_infected_otu))
+cef_mock_otu <- clean_merge(t(cef_mock_otu), otu_blast)
+cef_mock_otu$species <- gsub('_', ' ', cef_mock_otu$species)
+rownames(cef_mock_otu) <- cef_mock_otu$species
+cef_mock_otu$species <- NULL
+cef_mock_otu$otu_short <- NULL
+cef_mock_otu <- as.data.frame(t(cef_mock_otu))
+clinda_infected_otu <- clean_merge(t(clinda_infected_otu), otu_blast)
+clinda_infected_otu$species <- gsub('_', ' ', clinda_infected_otu$species)
+rownames(clinda_infected_otu) <- clinda_infected_otu$species
+clinda_otus <- as.vector(clinda_infected_otu$species)
+clinda_otu_numbers <- as.vector(clinda_infected_otu$otu_short)
+clinda_infected_otu$species <- NULL
+clinda_infected_otu$otu_short <- NULL
+clinda_infected_otu <- as.data.frame(t(clinda_infected_otu))
+clinda_mock_otu <- clean_merge(t(clinda_mock_otu), otu_blast)
+clinda_mock_otu$species <- gsub('_', ' ', clinda_mock_otu$species)
+rownames(clinda_mock_otu) <- clinda_mock_otu$species
+clinda_mock_otu$species <- NULL
+clinda_mock_otu$otu_short <- NULL
+clinda_mock_otu <- as.data.frame(t(clinda_mock_otu))
+strep_infected_otu <- clean_merge(t(strep_infected_otu), otu_blast)
+strep_infected_otu$species <- gsub('_', ' ', strep_infected_otu$species)
+rownames(strep_infected_otu) <- strep_infected_otu$species
+strep_otus <- as.vector(strep_infected_otu$species)
+strep_otu_numbers <- as.vector(strep_infected_otu$otu_short)
+strep_infected_otu$species <- NULL
+strep_infected_otu$otu_short <- NULL
+strep_infected_otu <- as.data.frame(t(strep_infected_otu))
+strep_mock_otu <- clean_merge(t(strep_mock_otu), otu_blast)
+strep_mock_otu$species <- gsub('_', ' ', strep_mock_otu$species)
+rownames(strep_mock_otu) <- strep_mock_otu$species
+strep_mock_otu$species <- NULL
+strep_mock_otu$otu_short <- NULL
+strep_mock_otu <- as.data.frame(t(strep_mock_otu))
+rm(otu_blast)
 
 #--------------------------#
 
@@ -451,19 +471,20 @@ for (j in p_values){
   }
   #-------------#
   if (j <= 0.01){
-    text(x_coord, index1-0.4, labels='*', cex=1.9)
-    text(x_coord, index1+0.4, labels='*', cex=1.9)
+    text(x_coord, index1-0.4, labels='*', cex=3)
+    text(x_coord, index1+0.4, labels='*', cex=3)
   }
   else if  (j <= 0.05){
-    text(x_coord, index1, labels='*', cex=1.8)
+    text(x_coord, index1, labels='*', cex=3)
   }
   index1 <- index1 + 2
   index2 <- index2 + 1
 }
-axis(2, at=seq(1,index-2,2), labels=strep_otus, las=1, line=-0.5, tick=F, cex.axis=1.2, font=3) 
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", "10000"))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
+formatted <- lapply(1:length(strep_otus), function(i) bquote(paste('(',.(strep_otu_numbers[i]), ')', italic(.(strep_otus[i])), sep='')))
+axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1, font=3) 
 
 mtext('D', side=2, line=2, las=2, adj=9.8, padj=-8, cex=1.3)
 
@@ -509,19 +530,20 @@ for (j in p_values){
   }
   #-------------#
   if (j <= 0.01){
-    text(x_coord, index1-0.3, labels='*', cex=1.9)
-    text(x_coord, index1+0.3, labels='*', cex=1.9)
+    text(x_coord, index1-0.3, labels='*', cex=3)
+    text(x_coord, index1+0.3, labels='*', cex=3)
   }
   else if  (j <= 0.05){
-    text(x_coord, index1, labels='*', cex=1.8)
+    text(x_coord, index1, labels='*', cex=3)
   }
   index1 <- index1 + 2
   index2 <- index2 + 1
 }
-axis(2, at=seq(1,index-2,2), labels=cef_otus, las=1, line=-0.5, tick=F, cex.axis=1.2, font=3) 
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", '10000'))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
+formatted <- lapply(1:length(cef_otus), function(i) bquote(paste('(', .(cef_otu_numbers[i]), ')', italic(.(cef_otus[i])), sep=' ')))
+axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1, font=3) 
 
 #-----------------#
 
@@ -562,19 +584,20 @@ for (j in p_values){
   }
   #-------------#
   if (j <= 0.01){
-    text(x_coord, index1-0.2, labels='*', cex=1.9)
-    text(x_coord, index1+0.2, labels='*', cex=1.9)
+    text(x_coord, index1-0.2, labels='*', cex=3)
+    text(x_coord, index1+0.2, labels='*', cex=3)
   }
   else if  (j <= 0.05){
-    text(x_coord, index1, labels='*', cex=1.9)
+    text(x_coord, index1, labels='*', cex=3)
   }
   index1 <- index1 + 2
   index2 <- index2 + 1
 }
-axis(2, at=seq(1,index-2,2), labels=clinda_otus, las=1, line=-0.5, tick=F, cex.axis=1.2, font=3) 
 axis(1, at=c(0, 1, 2, 3), label=c('0','10', '100', "1000"))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
+formatted <- lapply(1:length(clinda_otus), function(i) bquote(paste('(',.(clinda_otu_numbers[i]), ')', italic(.(clinda_otus[i])), sep=' ')))
+axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1, font=3) 
 
 dev.off()
 
