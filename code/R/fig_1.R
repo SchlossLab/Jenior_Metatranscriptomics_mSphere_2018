@@ -483,7 +483,7 @@ for (j in p_values){
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", "10000"))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
-formatted <- lapply(1:length(strep_otus), function(i) bquote(paste('(',.(strep_otu_numbers[i]), ')', italic(.(strep_otus[i])), sep='')))
+formatted <- lapply(1:length(strep_otus), function(i) bquote(paste(italic(.(strep_otus[i])), '(',.(strep_otu_numbers[i]), ')', sep='')))
 axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1, font=3) 
 
 mtext('D', side=2, line=2, las=2, adj=9.8, padj=-8, cex=1.3)
@@ -542,7 +542,7 @@ for (j in p_values){
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", '10000'))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
-formatted <- lapply(1:length(cef_otus), function(i) bquote(paste('(', .(cef_otu_numbers[i]), ')', italic(.(cef_otus[i])), sep=' ')))
+formatted <- lapply(1:length(cef_otus), function(i) bquote(paste(italic(.(cef_otus[i])), '(', .(cef_otu_numbers[i]), ')', sep=' ')))
 axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1, font=3) 
 
 #-----------------#
@@ -596,7 +596,7 @@ for (j in p_values){
 axis(1, at=c(0, 1, 2, 3), label=c('0','10', '100', "1000"))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
-formatted <- lapply(1:length(clinda_otus), function(i) bquote(paste('(',.(clinda_otu_numbers[i]), ')', italic(.(clinda_otus[i])), sep=' ')))
+formatted <- lapply(1:length(clinda_otus), function(i) bquote(paste(italic(.(clinda_otus[i])), '(',.(clinda_otu_numbers[i]), ')', sep=' ')))
 axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1, font=3) 
 
 dev.off()
