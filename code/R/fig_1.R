@@ -1,29 +1,34 @@
 
 # Load dependencies
-deps <- c('randomForest', 'vegan', 'shape')
+deps <- c('vegan', 'shape')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
   } 
   library(dep, verbose=FALSE, character.only=TRUE)
 }
-set.seed(6189)
 
 featureselect_RF <- function(training_data, feature){
   
-  # Random Forest procedure based on Segal et al. (2004)
+  # Load package
+  if ('randomForest' %in% installed.packages()[,'Package'] == FALSE){
+    install.packages('randomForest', quiet=TRUE)}
+  library('randomForest', verbose=FALSE, character.only=TRUE)
   
   # Set parameters
+  set.seed(6189)
   attach(training_data)
   levels <- as.vector(unique(training_data[,feature]))
   subfactor_1 <- round(length(rownames(training_data[which(training_data[,feature]==levels[1]),])) * 0.623)
   subfactor_2 <- round(length(rownames(training_data[which(training_data[,feature]==levels[2]),])) * 0.623)
   factor <- max(c(round(subfactor_1 / subfactor_2), round(subfactor_2 / subfactor_1))) * 3
+  
+  # Breiman (2001). Random Forests. Machine Learning.
   n_tree <- round(length(colnames(training_data)) - 1) * factor
   m_try <- round(sqrt(length(colnames(training_data)) - 1))
-  
-  # Run random forest
-  data_randomForest <- randomForest(training_data[,feature]~., data=training_data, importance=TRUE, replace=FALSE, do.trace=500, err.rate=TRUE, ntree=n_tree, mtry=m_try)
+  data_randomForest <- randomForest(training_data[,feature]~., 
+                                    data=training_data, importance=TRUE, replace=FALSE, 
+                                    do.trace=100, err.rate=TRUE, ntree=n_tree, mtry=m_try)
   detach(training_data)
   
   # Parse features for significance and sort
@@ -252,7 +257,7 @@ taxonomy_color <- rbind(bacteria, taxonomy_color)
 taxonomy_color <- rbind(other, taxonomy_color)
 colnames(taxonomy_color) <- c('taxonomy', 'color')
 taxonomy_color$taxonomy <- gsub('.*,', '', taxonomy_color$taxonomy)
-rm(other)
+rm(metadata, bacteria, other)
 
 #--------------------------#
 
@@ -309,7 +314,7 @@ text(x=c(-4,-3), y=c(-0.8,-0.8), c('Day -1', 'Day 0'), cex=1.1)
 text(-4.4, 0, '2', font=2, cex=1.5)
 
 # Legend
-legend(x=-0.6, y=1, legend=expression('Antibiotic in Drinking Water', 'Clindamycin IP Injection',paste(italic('C. difficile'), ' Spore Gavage'), 'Necropsy (18 hours)'), 
+legend(x=-0.6, y=1, legend=expression('Antibiotic in Drinking Water', 'Clindamycin IP Injection',paste(italic('C. difficile'), ' Spore Gavage'), 'Necropsy (18 hours-post)'), 
        pt.bg=c('cadetblue3','coral1','white','black'), pch=c(22,25,25,25), cex=1.2, pt.cex=c(3,2,2,2), bty='n')
 
 # Plot label
@@ -327,7 +332,7 @@ abline(h=2, lwd=1.5, col='gray25') # LOD
 abline(v=c(5,11,17), lty=2, lwd=1.5) # dividers
 axis(side=2, at=seq(0,9,1), labels=c(0, parse(text=paste(rep(10,9), '^', seq(1,9,1), sep=''))), las=1)
 axis(side=1, at=c(2,8,14,20), cex.axis=1.1, tick=FALSE,
-     labels=c('No Antibiotics','Streptomycin-treated','Cefoperazone-treated','Clindamycin-treated'))
+     labels=c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'))
 
 # Median lines
 segments(x0=c(0.5, 6.5, 12.5, 18.5)-0.6, y0=c(
@@ -404,7 +409,7 @@ arrows(64.4, -2, 74, -2, angle=0, length=0, lwd=2, xpd=TRUE)
 
 mtext(rep('630 infected',4), side=1, at=c(3.7,14,36,58.3), adj=0.5, padj=1, cex=0.7)
 mtext(rep('Mock infected',3), side=1, at=c(24.7,46.5,69.1), adj=0.5, padj=1, cex=0.7)
-mtext(c('No Antibiotics','Streptomycin-treated','Cefoperazone-treated','Clindamycin-treated'), 
+mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
       side=1, at=c(3.7,19.3,41.5,63.7), adj=0.5, padj=2.5, cex=0.75)
 mtext('C', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
 
@@ -435,7 +440,7 @@ text(x=c(3.8,3.8,3.8,3.8,3.8), y=c(3.69,2,-1.4,-3.95,-4.82), cex=1.2,
 par(mar=c(4, 15, 2, 1), mgp=c(2.3, 1, 0), xpd=FALSE)
 plot(1, type="n", ylim=c(0,length(strep_otus)*2), xlim=c(0,4), 
      ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
-title('Streptomycin-treated', line=0.5, cex.main=1.1, font.main=1)
+title('Streptomycin-pretreated', line=0.5, cex.main=1.1, font.main=1)
 index <- 1
 p_values <- c()
 maxes <- c()
@@ -470,11 +475,7 @@ for (j in p_values){
     x_coord <- 1.3
   }
   #-------------#
-  if (j <= 0.01){
-    text(x_coord, index1-0.4, labels='*', cex=3)
-    text(x_coord, index1+0.4, labels='*', cex=3)
-  }
-  else if  (j <= 0.05){
+  if  (j <= 0.05){
     text(x_coord, index1, labels='*', cex=3)
   }
   index1 <- index1 + 2
@@ -494,7 +495,7 @@ mtext('D', side=2, line=2, las=2, adj=9.8, padj=-8, cex=1.3)
 par(mar=c(4, 14, 2, 1), mgp=c(2.3, 1, 0))
 plot(1, type='n', ylim=c(0,length(cef_otus)*2), xlim=c(0,4), 
      ylab='', xlab='Normalized Abundance', xaxt='n', yaxt='n') # make blank plot
-title('Cefoperazone-treated', line=0.5, cex.main=1.1, font.main=1)
+title('Cefoperazone-pretreated', line=0.5, cex.main=1.1, font.main=1)
 index <- 1
 p_values <- c()
 maxes <- c()
@@ -529,11 +530,7 @@ for (j in p_values){
     x_coord <- 1.3
   }
   #-------------#
-  if (j <= 0.01){
-    text(x_coord, index1-0.3, labels='*', cex=3)
-    text(x_coord, index1+0.3, labels='*', cex=3)
-  }
-  else if  (j <= 0.05){
+  if  (j <= 0.05){
     text(x_coord, index1, labels='*', cex=3)
   }
   index1 <- index1 + 2
@@ -551,7 +548,7 @@ axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=
 par(mar=c(4, 13, 2, 1), mgp=c(2.3, 1, 0))
 plot(1, type="n", ylim=c(0,length(clinda_otus)*2), xlim=c(0,3), 
      ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
-title('Clindamycin-treated', line=0.5, cex.main=1.1, font.main=1)
+title('Clindamycin-pretreated', line=0.5, cex.main=1.1, font.main=1)
 index <- 1
 p_values <- c()
 maxes <- c()
@@ -583,11 +580,7 @@ for (j in p_values){
     x_coord <- 1.3
   }
   #-------------#
-  if (j <= 0.01){
-    text(x_coord, index1-0.2, labels='*', cex=3)
-    text(x_coord, index1+0.2, labels='*', cex=3)
-  }
-  else if  (j <= 0.05){
+  if  (j <= 0.05){
     text(x_coord, index1, labels='*', cex=3)
   }
   index1 <- index1 + 2
@@ -604,14 +597,12 @@ dev.off()
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
 #Clean up
-#rm(plot_file, metadata_axes, mock_axes, infected_axes, metadata_summary, 
-#   strep_div, cef_div, clinda_div, conv_div)
-#for (dep in deps){
-#  pkg <- paste('package:', dep, sep='')
-#  detach(pkg, character.only = TRUE)
-#}
-#rm(dep, deps, pkg)
-#gc()
 
+for (dep in deps){
+  pkg <- paste('package:', dep, sep='')
+  detach(pkg, character.only = TRUE)
+}
+rm(list=ls())
+gc()
 
 
