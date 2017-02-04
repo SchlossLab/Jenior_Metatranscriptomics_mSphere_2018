@@ -8,49 +8,10 @@ for (dep in deps){
   library(dep, verbose=FALSE, character.only=TRUE)
 }
 
-featureselect_RF <- function(training_data, feature){
-  
-  # Load package
-  if ('randomForest' %in% installed.packages()[,'Package'] == FALSE){
-    install.packages('randomForest', quiet=TRUE)}
-  library('randomForest', verbose=FALSE, character.only=TRUE)
-  
-  # Set parameters
-  set.seed(6189)
-  attach(training_data)
-  levels <- as.vector(unique(training_data[,feature]))
-  subfactor_1 <- round(length(rownames(training_data[which(training_data[,feature]==levels[1]),])) * 0.623)
-  subfactor_2 <- round(length(rownames(training_data[which(training_data[,feature]==levels[2]),])) * 0.623)
-  factor <- max(c(round(subfactor_1 / subfactor_2), round(subfactor_2 / subfactor_1))) * 3
-  
-  # Breiman (2001). Random Forests. Machine Learning.
-  n_tree <- round(length(colnames(training_data)) - 1) * factor
-  m_try <- round(sqrt(length(colnames(training_data)) - 1))
-  data_randomForest <- randomForest(training_data[,feature]~., 
-                                    data=training_data, importance=TRUE, replace=FALSE, 
-                                    do.trace=100, err.rate=TRUE, ntree=n_tree, mtry=m_try)
-  detach(training_data)
-  
-  # Parse features for significance and sort
-  features_RF <- importance(data_randomForest, type=1)
-  final_features_RF <- subset(features_RF, features_RF > abs(min(features_RF)))
-  final_features_RF <- final_features_RF[!(rownames(final_features_RF) == feature),]
-  final_features_RF <- as.data.frame(final_features_RF)
+# Load in functions
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
-  return(final_features_RF)
-}
-
-# Merge data frames with shared row names
-clean_merge <- function(data_1, data_2){
-  
-  clean_merged <- merge(data_1, data_2, by = 'row.names')
-  rownames(clean_merged) <- clean_merged$Row.names
-  clean_merged$Row.names <- NULL
-  
-  return(clean_merged)
-}
-
-# Select files
+# Define files
 shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
 shared_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.subsample.shared'
 taxonomy_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.cons.family.format.taxonomy'

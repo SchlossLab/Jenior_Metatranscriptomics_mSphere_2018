@@ -2,7 +2,7 @@
 # Set up environment
 
 # Load dependencies
-deps <- c('vegan')
+deps <- c('vegan', 'biglm')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -13,46 +13,16 @@ for (dep in deps){
 # Set seed for RNG
 set.seed(6189)
 
-# Define functions
+# Load in functions
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
-# Neatly merge 2 matices with shared row names
-clean_merge <- function(data_1, data_2){
-  
-  clean_merged <- merge(data_1, data_2, by = 'row.names')
-  rownames(clean_merged) <- clean_merged$Row.names
-  clean_merged$Row.names <- NULL
-  
-  return(clean_merged)
-}
+# Define files
 
-# Plot logarithmic tick marks on axes
-minor.ticks.axis <- function(ax,n,t.ratio=0.5,mn,mx,...){
-  
-  lims <- par("usr")
-  if(ax %in%c(1,3)) lims <- lims[1:2] else lims[3:4]
-  
-  major.ticks <- pretty(lims,n=5)
-  if(missing(mn)) mn <- min(major.ticks)
-  if(missing(mx)) mx <- max(major.ticks)
-  
-  major.ticks <- major.ticks[major.ticks >= mn & major.ticks <= mx]
-  
-  axis(ax,at=major.ticks, las=1)
-  
-  n <- n+2
-  minors <- log10(pretty(10^major.ticks[1:2],n))-major.ticks[1]
-  minors <- minors[-c(1,n)]
-  
-  minor.ticks = c(outer(minors,major.ticks,`+`))
-  minor.ticks <- minor.ticks[minor.ticks > mn & minor.ticks < mx]
-  
-  
-  axis(ax,at=minor.ticks,tcl=par("tcl")*t.ratio,labels=FALSE)
-}
-
-# Define mapping file names
-
+# Output plot
 plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/figures/figure_2.pdf'
+
+# KEGG organism IDs
+kegg_org_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/kegg_organisms.tsv'
 
 # Metagenomes
 cef_metagenome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
@@ -67,7 +37,7 @@ clinda_630_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscri
 clinda_mock_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/clindamycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 strep_630_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 strep_mock_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_final_reads_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+conv_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -100,9 +70,13 @@ colnames(strep_630_metatranscriptome) <- c('strep_630_metaT_reads', 'ko', 'gene'
 strep_mock_metatranscriptome <- read.delim(strep_mock_metatranscriptome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(strep_mock_metatranscriptome) <- c('strep_mock_metaT_reads', 'ko', 'gene', 'pathway')
 rm(strep_630_metatranscriptome_file, strep_mock_metatranscriptome_file)
-conv_final_reads <- read.delim(conv_final_reads_file, sep='\t', header=FALSE, row.names=1)
-colnames(conv_final_reads) <- c('conv_metaT_reads', 'ko', 'gene', 'pathway')
+conv_metatranscriptome <- read.delim(conv_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
+colnames(conv_metatranscriptome) <- c('conv_metaT_reads', 'ko', 'gene', 'pathway')
 rm(conv_final_reads_file)
+
+# KEGG organism file
+kegg_org <- read.delim(kegg_org_file, sep='\t', header=TRUE)
+rm(kegg_org_file)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -138,12 +112,12 @@ clinda_raw_reads <- clean_merge(clinda_metagenome, clinda_630_metatranscriptome)
 clinda_raw_reads <- clean_merge(clinda_raw_reads, clinda_mock_metatranscriptome)
 strep_raw_reads <- clean_merge(strep_metagenome, strep_630_metatranscriptome)
 strep_raw_reads <- clean_merge(strep_raw_reads, strep_mock_metatranscriptome)
-conv_raw_reads <- clean_merge(conv_metagenome, conv_final_reads)
+conv_raw_reads <- clean_merge(conv_metagenome, conv_metatranscriptome)
 
 rm(cef_metagenome, clinda_metagenome, strep_metagenome, conv_metagenome,
    cef_630_metatranscriptome, cef_mock_metatranscriptome, clinda_630_metatranscriptome, 
    clinda_mock_metatranscriptome, strep_630_metatranscriptome, strep_mock_metatranscriptome, 
-   conv_final_reads)
+   conv_metatranscriptome)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -162,6 +136,13 @@ cef_raw_reads <- subset(cef_raw_reads, cef_metaG_reads != 0)
 clinda_raw_reads <- subset(clinda_raw_reads, clinda_metaG_reads != 0)
 strep_raw_reads <- subset(strep_raw_reads, strep_metaG_reads != 0)
 conv_raw_reads <- subset(conv_raw_reads, conv_metaG_reads != 0)
+
+
+round(median(c(nrow(subset(cef_raw_reads, cef_metaG_reads == 0 & (cef_mock_metaT_reads + cef_630_metaT_reads ) != 0)),
+nrow(subset(clinda_raw_reads, clinda_metaG_reads == 0 & (clinda_mock_metaT_reads  + clinda_630_metaT_reads ) != 0)),
+nrow(subset(strep_raw_reads, strep_metaG_reads == 0 & (strep_mock_metaT_reads  + strep_630_metaT_reads ) != 0)),
+nrow(subset(conv_raw_reads, conv_metaG_reads == 0 & conv_metaT_reads  != 0)))))
+
 
 # Rarefy read abundances
 size <- round(min(colSums(cef_raw_reads[,c(1:3)]))*0.9)
@@ -201,140 +182,67 @@ strep_raw_reads[,c(1,2)] <- log2(strep_raw_reads[,c(1,2)] + 1)
 conv_raw_reads[,1] <- log2(conv_raw_reads[,1] + 1)
 
 # Screen for active transcription in either condition
-cef_final_reads <- subset(cef_raw_reads, cef_raw_reads$cef_630_metaT_reads > 0 | cef_raw_reads$cef_mock_metaT_reads > 0)
-clinda_final_reads <- subset(clinda_raw_reads, clinda_raw_reads$clinda_630_metaT_reads > 0 | clinda_raw_reads$clinda_mock_metaT_reads > 0)
-strep_final_reads <- subset(strep_raw_reads, strep_raw_reads$strep_630_metaT_reads > 0 | strep_raw_reads$strep_mock_metaT_reads > 0)
-conv_final_reads <- conv_raw_reads
+cef_raw_reads <- subset(cef_raw_reads, cef_raw_reads$cef_630_metaT_reads > 0 | cef_raw_reads$cef_mock_metaT_reads > 0)
+clinda_raw_reads <- subset(clinda_raw_reads, clinda_raw_reads$clinda_630_metaT_reads > 0 | clinda_raw_reads$clinda_mock_metaT_reads > 0)
+strep_raw_reads <- subset(strep_raw_reads, strep_raw_reads$strep_630_metaT_reads > 0 | strep_raw_reads$strep_mock_metaT_reads > 0)
+
+# Screen for those genes that were able to be annotated
+cef_annotated <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('unknown_\\d', cef_raw_reads$gene),]), ]
+clinda_annotated <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('unknown_\\d', clinda_raw_reads$gene),]), ]
+strep_annotated <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('unknown_\\d', strep_raw_reads$gene),]), ]
+conv_annotated <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('unknown_\\d', strep_raw_reads$gene),]), ]
+
+# Also save those that remain unknown
+cef_unknown <- cef_raw_reads[rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('unknown_\\d', cef_raw_reads$gene),]), ]
+clinda_unknown <- clinda_raw_reads[rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('unknown_\\d', clinda_raw_reads$gene),]), ]
+strep_unknown <- strep_raw_reads[rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('unknown_\\d', strep_raw_reads$gene),]), ]
+conv_unknown <- strep_raw_reads[rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('unknown_\\d', strep_raw_reads$gene),]), ]
+
 rm(cef_raw_reads, clinda_raw_reads, strep_raw_reads, conv_raw_reads)
-
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Extract specific pathway annotations
-
-
-# Find more specific pathways or genes...
-
-
-
-cef1 <- cbind(cef_final_reads[grep('Amino_sugar', cef_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Amino_sugar', cef_final_reads$pathway))), rep('chartreuse3',length(grep('Amino_sugar', cef_final_reads$pathway))))
-colnames(cef1) <- c('cef_mock_metaT_reads', 'cef_630_metaT_reads', 'pathways', 'colors')
-cef2 <- cbind(cef_final_reads[grep('Fructose', cef_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Fructose', cef_final_reads$pathway))), rep('firebrick3',length(grep('Fructose', cef_final_reads$pathway))))
-colnames(cef2) <- c('cef_mock_metaT_reads', 'cef_630_metaT_reads', 'pathways', 'colors')
-cef3 <- cbind(cef_final_reads[grep('proline', cef_final_reads$pathway), ][,c(1,2)], rep('proline',length(grep('proline', cef_final_reads$pathway))), rep('darkgoldenrod1',length(grep('proline', cef_final_reads$pathway))))
-colnames(cef3) <- c('cef_mock_metaT_reads', 'cef_630_metaT_reads', 'pathways', 'colors')
-cef4 <- cbind(cef_final_reads[grep('Glycine', cef_final_reads$pathway), ][,c(1,2)], rep('glycine',length(grep('Glycine', cef_final_reads$pathway))), rep('darkgoldenrod1',length(grep('Glycine', cef_final_reads$pathway))))
-colnames(cef4) <- c('cef_mock_metaT_reads', 'cef_630_metaT_reads', 'pathways', 'colors')
-cef5 <- cbind(cef_final_reads[grep('Galactose', cef_final_reads$pathway), ][,c(1,2)], rep('galactose',length(grep('Galactose', cef_final_reads$pathway))), rep('darkorchid3',length(grep('Galactose', cef_final_reads$pathway))))
-colnames(cef5) <- c('cef_mock_metaT_reads', 'cef_630_metaT_reads', 'pathways', 'colors')
-cef_pathways <- rbind(cef1, cef2, cef3, cef4, cef5)
-rm(cef1, cef2, cef3, cef4, cef5)
-
-clinda1 <- cbind(clinda_final_reads[grep('Amino_sugar', clinda_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Amino_sugar', clinda_final_reads$pathway))), rep('chartreuse3',length(grep('Amino_sugar', clinda_final_reads$pathway))))
-colnames(clinda1) <- c('clinda_mock_metaT_reads', 'clinda_630_metaT_reads', 'pathways', 'colors')
-clinda2 <- cbind(clinda_final_reads[grep('Fructose', clinda_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Fructose', clinda_final_reads$pathway))), rep('firebrick3',length(grep('Fructose', clinda_final_reads$pathway))))
-colnames(clinda2) <- c('clinda_mock_metaT_reads', 'clinda_630_metaT_reads', 'pathways', 'colors')
-clinda3 <- cbind(clinda_final_reads[grep('proline', clinda_final_reads$pathway), ][,c(1,2)], rep('proline',length(grep('proline', clinda_final_reads$pathway))), rep('darkgoldenrod1',length(grep('proline', clinda_final_reads$pathway))))
-colnames(clinda3) <- c('clinda_mock_metaT_reads', 'clinda_630_metaT_reads', 'pathways', 'colors')
-clinda4 <- cbind(clinda_final_reads[grep('Glycine', clinda_final_reads$pathway), ][,c(1,2)], rep('glycine',length(grep('Glycine', clinda_final_reads$pathway))), rep('darkgoldenrod1',length(grep('Glycine', clinda_final_reads$pathway))))
-colnames(clinda4) <- c('clinda_mock_metaT_reads', 'clinda_630_metaT_reads', 'pathways', 'colors')
-clinda5 <- cbind(clinda_final_reads[grep('Galactose', clinda_final_reads$pathway), ][,c(1,2)], rep('galactose',length(grep('Galactose', clinda_final_reads$pathway))), rep('darkorchid3',length(grep('Galactose', clinda_final_reads$pathway))))
-colnames(clinda5) <- c('clinda_mock_metaT_reads', 'clinda_630_metaT_reads', 'pathways', 'colors')
-clinda_pathways <- rbind(clinda1, clinda2, clinda3, clinda4, clinda5)
-rm(clinda1, clinda2, clinda3, clinda4, clinda5)
-
-strep1 <- cbind(strep_final_reads[grep('Amino_sugar', strep_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Amino_sugar', strep_final_reads$pathway))), rep('chartreuse3',length(grep('Amino_sugar', strep_final_reads$pathway))))
-colnames(strep1) <- c('strep_mock_metaT_reads', 'strep_630_metaT_reads', 'pathways', 'colors')
-strep2 <- cbind(strep_final_reads[grep('Fructose', strep_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Fructose', strep_final_reads$pathway))), rep('firebrick3',length(grep('Fructose', strep_final_reads$pathway))))
-colnames(strep2) <- c('strep_mock_metaT_reads', 'strep_630_metaT_reads', 'pathways', 'colors')
-strep3 <- cbind(strep_final_reads[grep('proline', strep_final_reads$pathway), ][,c(1,2)], rep('proline',length(grep('proline', strep_final_reads$pathway))), rep('darkgoldenrod1',length(grep('proline', strep_final_reads$pathway))))
-colnames(strep3) <- c('strep_mock_metaT_reads', 'strep_630_metaT_reads', 'pathways', 'colors')
-strep4 <- cbind(strep_final_reads[grep('Glycine', strep_final_reads$pathway), ][,c(1,2)], rep('glycine',length(grep('Glycine', strep_final_reads$pathway))), rep('darkgoldenrod1',length(grep('Glycine', strep_final_reads$pathway))))
-colnames(strep4) <- c('strep_mock_metaT_reads', 'strep_630_metaT_reads', 'pathways', 'colors')
-strep5 <- cbind(strep_final_reads[grep('Galactose', strep_final_reads$pathway), ][,c(1,2)], rep('galactose',length(grep('Galactose', strep_final_reads$pathway))), rep('darkorchid3',length(grep('Galactose', strep_final_reads$pathway))))
-colnames(strep5) <- c('strep_mock_metaT_reads', 'strep_630_metaT_reads', 'pathways', 'colors')
-strep_pathways <- rbind(strep1, strep2, strep3, strep4, strep5)
-rm(strep1, strep2, strep3, strep4, strep5)
-
-conv1 <- cbind(conv_final_reads[grep('Amino_sugar', conv_final_reads$pathway), ][,1], rep('amino sugars',length(grep('Amino_sugar', conv_final_reads$pathway))), rep('chartreuse3',length(grep('Amino_sugar', conv_final_reads$pathway))))
-colnames(conv1) <- c('conv_metaT_reads', 'pathways', 'colors')
-conv2 <- cbind(conv_final_reads[grep('Fructose', conv_final_reads$pathway), ][,1], rep('amino sugars',length(grep('Fructose', conv_final_reads$pathway))), rep('firebrick3',length(grep('Fructose', conv_final_reads$pathway))))
-colnames(conv2) <- c('conv_metaT_reads', 'pathways', 'colors')
-conv3 <- cbind(conv_final_reads[grep('proline', conv_final_reads$pathway), ][,1], rep('proline',length(grep('proline', conv_final_reads$pathway))), rep('darkgoldenrod1',length(grep('proline', conv_final_reads$pathway))))
-colnames(conv3) <- c('conv_metaT_reads', 'pathways', 'colors')
-conv4 <- cbind(conv_final_reads[grep('Glycine', conv_final_reads$pathway), ][,1], rep('glycine',length(grep('Glycine', conv_final_reads$pathway))), rep('darkgoldenrod1',length(grep('Glycine', conv_final_reads$pathway))))
-colnames(conv4) <- c('conv_metaT_reads', 'pathways', 'colors')
-conv5 <- cbind(conv_final_reads[grep('Galactose', conv_final_reads$pathway), ][,1], rep('galactose',length(grep('Galactose', conv_final_reads$pathway))), rep('darkorchid3',length(grep('Galactose', conv_final_reads$pathway))))
-colnames(conv5) <- c('conv_metaT_reads', 'pathways', 'colors')
-conv_pathways <- as.data.frame(rbind(conv1, conv2, conv3, conv4, conv5))
-rm(conv1, conv2, conv3, conv4, conv5)
-
-# Remove annotated points from general points
-#cef_final_reads <- cef_final_reads[!rownames(cef_final_reads) %in% rownames(cef_pathways), ]
-#clinda_final_reads <- clinda_final_reads[!rownames(clinda_final_reads) %in% rownames(clinda_pathways), ]
-#strep_final_reads <- strep_final_reads[!rownames(strep_final_reads) %in% rownames(strep_pathways), ]
-#conv_final_reads <- conv_final_reads[!rownames(conv_final_reads) %in% rownames(conv_pathways), ]
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Order data to find distinct patterns of expression
-cef_630_top <- cef_final_reads[order(cef_final_reads$cef_mock_metaT_reads, -cef_final_reads$cef_630_metaT_reads),]
-cef_mock_top <- cef_final_reads[order(cef_final_reads$cef_630_metaT_reads, -cef_final_reads$cef_mock_metaT_reads),]
-clinda_630_top <- clinda_final_reads[order(clinda_final_reads$clinda_mock_metaT_reads, -clinda_final_reads$clinda_630_metaT_reads),]
-clinda_mock_top <- clinda_final_reads[order(clinda_final_reads$clinda_630_metaT_reads, -clinda_final_reads$clinda_mock_metaT_reads),]
-strep_630_top <- strep_final_reads[order(strep_final_reads$strep_mock_metaT_reads, -strep_final_reads$strep_630_metaT_reads),]
-strep_mock_top <- strep_final_reads[order(strep_final_reads$strep_630_metaT_reads, -strep_final_reads$strep_mock_metaT_reads),]
+cef_630_top <- cef_annotated[order(cef_annotated$cef_mock_metaT_reads, -cef_annotated$cef_630_metaT_reads),]
+cef_mock_top <- cef_annotated[order(cef_annotated$cef_630_metaT_reads, -cef_annotated$cef_mock_metaT_reads),]
+clinda_630_top <- clinda_annotated[order(clinda_annotated$clinda_mock_metaT_reads, -clinda_annotated$clinda_630_metaT_reads),]
+clinda_mock_top <- clinda_annotated[order(clinda_annotated$clinda_630_metaT_reads, -clinda_annotated$clinda_mock_metaT_reads),]
+strep_630_top <- strep_annotated[order(strep_annotated$strep_mock_metaT_reads, -strep_annotated$strep_630_metaT_reads),]
+strep_mock_top <- strep_annotated[order(strep_annotated$strep_630_metaT_reads, -strep_annotated$strep_mock_metaT_reads),]
 
 # Screen for largest distinctions between conditions
-cef_630_diff <- (cef_630_top$cef_630_metaT_reads[1] - cef_630_top$cef_mock_metaT_reads[1]) * 0.6
-cef_630_top <- subset(cef_630_top, (cef_630_top$cef_630_metaT_reads - cef_630_top$cef_mock_metaT_reads) >= cef_630_diff)
-rm(cef_630_diff)
-cef_mock_diff <- (cef_mock_top$cef_mock_metaT_reads[1] - cef_mock_top$cef_630_metaT_reads[1]) * 0.6
-cef_mock_top <- subset(cef_mock_top, (cef_mock_top$cef_mock_metaT_reads - cef_mock_top$cef_630_metaT_reads) >= cef_mock_diff)
-rm(cef_mock_diff)
-clinda_630_diff <- (clinda_630_top$clinda_630_metaT_reads[1] - clinda_630_top$clinda_mock_metaT_reads[1]) * 0.6
-clinda_630_top <- subset(clinda_630_top, (clinda_630_top$clinda_630_metaT_reads - clinda_630_top$clinda_mock_metaT_reads) >= clinda_630_diff)
-rm(clinda_630_diff)
-clinda_mock_diff <- (clinda_mock_top$clinda_mock_metaT_reads[1] - clinda_mock_top$clinda_630_metaT_reads[1]) * 0.6
-clinda_mock_top <- subset(clinda_mock_top, (clinda_mock_top$clinda_mock_metaT_reads - clinda_mock_top$clinda_630_metaT_reads) >= clinda_mock_diff)
-rm(clinda_mock_diff)
-strep_630_diff <- (strep_630_top$strep_630_metaT_reads[1] - strep_630_top$strep_mock_metaT_reads[1]) * 0.6
-strep_630_top <- subset(strep_630_top, (strep_630_top$strep_630_metaT_reads - strep_630_top$strep_mock_metaT_reads) >= strep_630_diff)
-rm(strep_630_diff)
-strep_mock_diff <- (strep_mock_top$strep_mock_metaT_reads[1] - strep_mock_top$strep_630_metaT_reads[1]) * 0.6
-strep_mock_top <- subset(strep_mock_top, (strep_mock_top$strep_mock_metaT_reads - strep_mock_top$strep_630_metaT_reads) >= strep_mock_diff)
-rm(strep_mock_diff)
-
-# Screen for those genes that were able to be annotated
-cef_630_top_annotated <- cef_630_top[!rownames(cef_630_top) %in% rownames(cef_630_top[grep('unknown_', cef_630_top$gene),]), ]
-cef_mock_top_annotated <- cef_mock_top[!rownames(cef_mock_top) %in% rownames(cef_mock_top[grep('unknown_', cef_mock_top$gene),]), ]
-clinda_630_top_annotated <- clinda_630_top[!rownames(clinda_630_top) %in% rownames(clinda_630_top[grep('unknown_', clinda_630_top$gene),]), ]
-clinda_mock_top_annotated <- clinda_mock_top[!rownames(clinda_mock_top) %in% rownames(clinda_mock_top[grep('unknown_', clinda_mock_top$gene),]), ]
-strep_630_top_annotated <- strep_630_top[!rownames(strep_630_top) %in% rownames(strep_630_top[grep('unknown_', strep_630_top$gene),]), ]
-strep_mock_top_annotated <- strep_mock_top[!rownames(strep_mock_top) %in% rownames(strep_mock_top[grep('unknown_', strep_mock_top$gene),]), ]
-
-# Also save those that remain unknown
-cef_630_top_unknown <- cef_630_top[rownames(cef_630_top) %in% rownames(cef_630_top[grep('unknown_', cef_630_top$gene),]), ]
-cef_mock_top_unknown <- cef_mock_top[rownames(cef_mock_top) %in% rownames(cef_mock_top[grep('unknown_', cef_mock_top$gene),]), ]
-clinda_630_top_unknown <- clinda_630_top[rownames(clinda_630_top) %in% rownames(clinda_630_top[grep('unknown_', clinda_630_top$gene),]), ]
-clinda_mock_top_unknown <- clinda_mock_top[rownames(clinda_mock_top) %in% rownames(clinda_mock_top[grep('unknown_', clinda_mock_top$gene),]), ]
-strep_630_top_unknown <- strep_630_top[rownames(strep_630_top) %in% rownames(strep_630_top[grep('unknown_', strep_630_top$gene),]), ]
-strep_mock_top_unknown <- strep_mock_top[rownames(strep_mock_top) %in% rownames(strep_mock_top[grep('unknown_', strep_mock_top$gene),]), ]
-
-rm(cef_630_top, cef_mock_top, clinda_630_top, clinda_mock_top, strep_630_top, strep_mock_top)
+size <- max(cef_630_top$cef_630_metaT_reads - cef_630_top$cef_mock_metaT_reads) * 0.75
+cef_630_top <- subset(cef_630_top, (cef_630_top$cef_630_metaT_reads - cef_630_top$cef_mock_metaT_reads) > size)
+size <- max(cef_mock_top$cef_mock_metaT_reads - cef_mock_top$cef_630_metaT_reads) * 0.75
+cef_mock_top <- subset(cef_mock_top, (cef_mock_top$cef_mock_metaT_reads - cef_mock_top$cef_630_metaT_reads) > size)
+size <- max(clinda_630_top$clinda_630_metaT_reads - clinda_630_top$clinda_mock_metaT_reads) * 0.75
+clinda_630_top <- subset(clinda_630_top, (clinda_630_top$clinda_630_metaT_reads - clinda_630_top$clinda_mock_metaT_reads) > size)
+size <- max(clinda_mock_top$clinda_mock_metaT_reads - clinda_mock_top$clinda_630_metaT_reads) * 0.75
+clinda_mock_top <- subset(clinda_mock_top, (clinda_mock_top$clinda_mock_metaT_reads - clinda_mock_top$clinda_630_metaT_reads) > size)
+size <- max(strep_630_top$strep_630_metaT_reads - strep_630_top$strep_mock_metaT_reads) * 0.75
+strep_630_top <- subset(strep_630_top, (strep_630_top$strep_630_metaT_reads - strep_630_top$strep_mock_metaT_reads) > size)
+size <- max(strep_mock_top$strep_mock_metaT_reads - strep_mock_top$strep_630_metaT_reads) * 0.75
+strep_mock_top <- subset(strep_mock_top, (strep_mock_top$strep_mock_metaT_reads - strep_mock_top$strep_630_metaT_reads) > size)
+rm(size)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 
 
+
+
+# Check for linear correlation
+biglm(strep_annotated$strep_630_metaT_reads ~ strep_annotated$strep_mock_metaT_reads)
+biglm(cef_annotated$cef_630_metaT_reads ~ cef_annotated$cef_mock_metaT_reads)
+biglm(clinda_annotated$clinda_630_metaT_reads ~ clinda_annotated$clinda_mock_metaT_reads)
+biglm(strep_unknown$strep_630_metaT_reads ~ strep_annotated$strep_mock_metaT_reads)
+biglm(cef_unknown$cef_630_metaT_reads ~ cef_annotated$cef_mock_metaT_reads)
+biglm(clinda_unknown$clinda_630_metaT_reads ~ clinda_annotated$clinda_mock_metaT_reads)
+
+
+
+
 # Calculate the distance of all points from x=y
-
-
-
-
 
 
 # Will reveal which genes were most effected by c. diff colonization
@@ -359,14 +267,14 @@ layout(matrix(c(1,2,
 
 # Streptomycin
 par(mar=c(4.5, 5, 1, 1), mgp=c(3,0.7,0))
-plot(x=strep_final_reads$strep_mock_metaT_reads, y=strep_final_reads$strep_630_metaT_reads, 
+plot(x=strep_annotated$strep_mock_metaT_reads, y=strep_annotated$strep_630_metaT_reads, 
      xlim=c(0,12), ylim=c(0,12), pch=20, cex=1.3, col='gray40', xaxt='n', yaxt='n', xlab='', ylab='')
 segments(-2, -2, 14, 14, lty=2)
 minor.ticks.axis(1, 12, mn=0, mx=12)
 minor.ticks.axis(2, 12, mn=0, mx=12)
-mtext(expression('Fold Normalized Transcript Abundance (Log'[2]*')'), side=1, padj=2.2, cex=0.7)
+mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
-mtext(expression('Fold Normalized Transcript Abundance (Log'[2]*')'), side=2, padj=-2.2, cex=0.7)
+mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', 'Streptomycin-pretreated', bty='n', cex=1.2) 
 
@@ -380,14 +288,14 @@ mtext('A', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
 
 # Cefoperazone
 par(mar=c(4.5, 5, 1, 1), mgp=c(3,0.7,0))
-plot(x=cef_final_reads$cef_mock_metaT_reads, y=cef_final_reads$cef_630_metaT_reads, 
+plot(x=cef_annotated$cef_mock_metaT_reads, y=cef_annotated$cef_630_metaT_reads, 
      xlim=c(0,12), ylim=c(0,12), pch=20, cex=1.3, col='gray40', xaxt='n', yaxt='n', xlab='', ylab='')
 segments(-2, -2, 14, 14, lty=2)
 minor.ticks.axis(1, 12, mn=0, mx=12)
 minor.ticks.axis(2, 12, mn=0, mx=12)
-mtext(expression('Fold Normalized Transcript Abundance (Log'[2]*')'), side=1, padj=2.2, cex=0.7)
+mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
-mtext(expression('Fold Normalized Transcript Abundance (Log'[2]*')'), side=2, padj=-2.2, cex=0.7)
+mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', 'Cefoperazone-pretreated', bty='n', cex=1.2) 
 
@@ -399,14 +307,14 @@ points(x=cef_pathways$cef_mock_metaT_reads, y=cef_pathways$cef_630_metaT_reads,
 
 # Clindamycin
 par(mar=c(4.5, 5, 1, 1), mgp=c(3,0.7,0))
-plot(x=clinda_final_reads$clinda_mock_metaT_reads, y=clinda_final_reads$clinda_630_metaT_reads, 
+plot(x=clinda_annotated$clinda_mock_metaT_reads, y=clinda_annotated$clinda_630_metaT_reads, 
      xlim=c(0,12), ylim=c(0,12), pch=20, cex=1.3, col='gray40', xaxt='n', yaxt='n', xlab='', ylab='')
 segments(-2, -2, 14, 14, lty=2)
 minor.ticks.axis(1, 12, mn=0, mx=12)
 minor.ticks.axis(2, 12, mn=0, mx=12)
-mtext(expression('Fold Normalized Transcript Abundance (Log'[2]*')'), side=1, padj=2.2, cex=0.7)
+mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
-mtext(expression('Fold Normalized Transcript Abundance (Log'[2]*')'), side=2, padj=-2.2, cex=0.7)
+mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', 'Clindamycin-pretreated', bty='n', cex=1.2) 
 
