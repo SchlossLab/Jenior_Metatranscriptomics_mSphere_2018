@@ -1,7 +1,7 @@
 # Set up environment
 
 # Load dependencies
-deps <- c('vegan', 'shape')
+deps <- c('vegan', 'plotrix')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -14,17 +14,8 @@ set.seed(6189)
 
 #----------------#
 
-# Define functions
-
-# Neatly merge 2 matices with shared row names
-clean_merge <- function(data_1, data_2){
-  
-  clean_merged <- merge(data_1, data_2, by = 'row.names')
-  rownames(clean_merged) <- clean_merged$Row.names
-  clean_merged$Row.names <- NULL
-  
-  return(clean_merged)
-}
+# Load in functions
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
 #----------------#
 
@@ -49,6 +40,9 @@ conv_final_reads_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016
 
 # Metabolomes
 metabolome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metabolome/metabolomics.tsv'
+
+# Experimental design metadata
+metadata_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metadata.tsv'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -88,6 +82,50 @@ rm(conv_final_reads_file)
 # Metabolomes
 metabolome <- read.delim(metabolome_file, sep='\t', header=TRUE)
 rm(metabolome_file)
+
+# Metadata
+metadata <- read.delim(metadata_file, sep='\t', header=T, row.names=1)
+rm(metadata_file)
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Format metabolomics
+
+
+metadata <- metadata[!rownames(metadata) %in% c('CefC5M2'), ] # Remove contaminated sample
+metadata$type <- NULL
+metadata$cage <- NULL
+metadata$mouse <- NULL
+metadata$gender <- NULL
+
+rownames(metabolome) <- metabolome$BIOCHEMICAL
+metabolome$BIOCHEMICAL <- NULL
+metabolome$SUPER_PATHWAY <- NULL
+metabolome$SUB_PATHWAY <- NULL
+metabolome$PUBCHEM <- NULL
+metabolome$KEGG <- NULL
+metabolome <- t(metabolome)
+metabolome <- metabolome[!rownames(metabolome) %in% c('CefC5M2'), ]
+
+metabolome_nmds <- metaMDS(metabolome, k=2, trymax=100)$points
+metabolome_nmds[,1] <- metabolome_nmds[,1] + 0.15
+metabolome_nmds <- clean_merge(metadata, metabolome_nmds)
+
+
+susceptible <- subset(metabolome_nmds, susceptibility == 'susceptible')
+resistant <- subset(metabolome_nmds, susceptibility == 'resistant')
+cefoperazone <- subset(metabolome_nmds, abx == 'cefoperazone')
+clindamycin <- subset(metabolome_nmds, abx == 'clindamycin')
+streptomycin <- subset(metabolome_nmds, abx == 'streptomycin')
+germfree <- subset(metabolome_nmds, abx == 'germfree')
+untreated <- subset(metabolome_nmds, abx == 'none')
+
+
+pdf(file='~/Desktop/metabolome_nmds.pdf', width=6, height=6)
+
+dev.off()
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -190,73 +228,6 @@ rm(cef_raw_reads, clinda_raw_reads, strep_raw_reads, conv_raw_reads)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Extract specific pathway annotations
-
-
-# Find more specific pathways or genes...
-
-
-
-cef1 <- cbind(cef_final_reads[grep('Amino_sugar', cef_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Amino_sugar', cef_final_reads$pathway))), rep('chartreuse3',length(grep('Amino_sugar', cef_final_reads$pathway))))
-colnames(cef1) <- c('cef_mock_metaT_reads', 'cef_630_metaT_reads', 'pathways', 'colors')
-cef2 <- cbind(cef_final_reads[grep('Fructose', cef_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Fructose', cef_final_reads$pathway))), rep('firebrick3',length(grep('Fructose', cef_final_reads$pathway))))
-colnames(cef2) <- c('cef_mock_metaT_reads', 'cef_630_metaT_reads', 'pathways', 'colors')
-cef3 <- cbind(cef_final_reads[grep('proline', cef_final_reads$pathway), ][,c(1,2)], rep('proline',length(grep('proline', cef_final_reads$pathway))), rep('darkgoldenrod1',length(grep('proline', cef_final_reads$pathway))))
-colnames(cef3) <- c('cef_mock_metaT_reads', 'cef_630_metaT_reads', 'pathways', 'colors')
-cef4 <- cbind(cef_final_reads[grep('Glycine', cef_final_reads$pathway), ][,c(1,2)], rep('glycine',length(grep('Glycine', cef_final_reads$pathway))), rep('darkgoldenrod1',length(grep('Glycine', cef_final_reads$pathway))))
-colnames(cef4) <- c('cef_mock_metaT_reads', 'cef_630_metaT_reads', 'pathways', 'colors')
-cef5 <- cbind(cef_final_reads[grep('Galactose', cef_final_reads$pathway), ][,c(1,2)], rep('galactose',length(grep('Galactose', cef_final_reads$pathway))), rep('chartreuse3',length(grep('Galactose', cef_final_reads$pathway))))
-colnames(cef5) <- c('cef_mock_metaT_reads', 'cef_630_metaT_reads', 'pathways', 'colors')
-cef_pathways <- rbind(cef1, cef2, cef3, cef4, cef5)
-rm(cef1, cef2, cef3, cef4, cef5)
-
-clinda1 <- cbind(clinda_final_reads[grep('Amino_sugar', clinda_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Amino_sugar', clinda_final_reads$pathway))), rep('chartreuse3',length(grep('Amino_sugar', clinda_final_reads$pathway))))
-colnames(clinda1) <- c('clinda_mock_metaT_reads', 'clinda_630_metaT_reads', 'pathways', 'colors')
-clinda2 <- cbind(clinda_final_reads[grep('Fructose', clinda_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Fructose', clinda_final_reads$pathway))), rep('firebrick3',length(grep('Fructose', clinda_final_reads$pathway))))
-colnames(clinda2) <- c('clinda_mock_metaT_reads', 'clinda_630_metaT_reads', 'pathways', 'colors')
-clinda3 <- cbind(clinda_final_reads[grep('proline', clinda_final_reads$pathway), ][,c(1,2)], rep('proline',length(grep('proline', clinda_final_reads$pathway))), rep('darkgoldenrod1',length(grep('proline', clinda_final_reads$pathway))))
-colnames(clinda3) <- c('clinda_mock_metaT_reads', 'clinda_630_metaT_reads', 'pathways', 'colors')
-clinda4 <- cbind(clinda_final_reads[grep('Glycine', clinda_final_reads$pathway), ][,c(1,2)], rep('glycine',length(grep('Glycine', clinda_final_reads$pathway))), rep('darkgoldenrod1',length(grep('Glycine', clinda_final_reads$pathway))))
-colnames(clinda4) <- c('clinda_mock_metaT_reads', 'clinda_630_metaT_reads', 'pathways', 'colors')
-clinda5 <- cbind(clinda_final_reads[grep('Galactose', clinda_final_reads$pathway), ][,c(1,2)], rep('galactose',length(grep('Galactose', clinda_final_reads$pathway))), rep('chartreuse3',length(grep('Galactose', clinda_final_reads$pathway))))
-colnames(clinda5) <- c('clinda_mock_metaT_reads', 'clinda_630_metaT_reads', 'pathways', 'colors')
-clinda_pathways <- rbind(clinda1, clinda2, clinda3, clinda4, clinda5)
-rm(clinda1, clinda2, clinda3, clinda4, clinda5)
-
-strep1 <- cbind(strep_final_reads[grep('Amino_sugar', strep_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Amino_sugar', strep_final_reads$pathway))), rep('chartreuse3',length(grep('Amino_sugar', strep_final_reads$pathway))))
-colnames(strep1) <- c('strep_mock_metaT_reads', 'strep_630_metaT_reads', 'pathways', 'colors')
-strep2 <- cbind(strep_final_reads[grep('Fructose', strep_final_reads$pathway), ][,c(1,2)], rep('amino sugars',length(grep('Fructose', strep_final_reads$pathway))), rep('firebrick3',length(grep('Fructose', strep_final_reads$pathway))))
-colnames(strep2) <- c('strep_mock_metaT_reads', 'strep_630_metaT_reads', 'pathways', 'colors')
-strep3 <- cbind(strep_final_reads[grep('proline', strep_final_reads$pathway), ][,c(1,2)], rep('proline',length(grep('proline', strep_final_reads$pathway))), rep('darkgoldenrod1',length(grep('proline', strep_final_reads$pathway))))
-colnames(strep3) <- c('strep_mock_metaT_reads', 'strep_630_metaT_reads', 'pathways', 'colors')
-strep4 <- cbind(strep_final_reads[grep('Glycine', strep_final_reads$pathway), ][,c(1,2)], rep('glycine',length(grep('Glycine', strep_final_reads$pathway))), rep('darkgoldenrod1',length(grep('Glycine', strep_final_reads$pathway))))
-colnames(strep4) <- c('strep_mock_metaT_reads', 'strep_630_metaT_reads', 'pathways', 'colors')
-strep5 <- cbind(strep_final_reads[grep('Galactose', strep_final_reads$pathway), ][,c(1,2)], rep('galactose',length(grep('Galactose', strep_final_reads$pathway))), rep('chartreuse3',length(grep('Galactose', strep_final_reads$pathway))))
-colnames(strep5) <- c('strep_mock_metaT_reads', 'strep_630_metaT_reads', 'pathways', 'colors')
-strep_pathways <- rbind(strep1, strep2, strep3, strep4, strep5)
-rm(strep1, strep2, strep3, strep4, strep5)
-
-conv1 <- cbind(conv_final_reads[grep('Amino_sugar', conv_final_reads$pathway), ][,1], rep('amino sugars',length(grep('Amino_sugar', conv_final_reads$pathway))), rep('chartreuse3',length(grep('Amino_sugar', conv_final_reads$pathway))))
-colnames(conv1) <- c('conv_metaT_reads', 'pathways', 'colors')
-conv2 <- cbind(conv_final_reads[grep('Fructose', conv_final_reads$pathway), ][,1], rep('amino sugars',length(grep('Fructose', conv_final_reads$pathway))), rep('firebrick3',length(grep('Fructose', conv_final_reads$pathway))))
-colnames(conv2) <- c('conv_metaT_reads', 'pathways', 'colors')
-conv3 <- cbind(conv_final_reads[grep('proline', conv_final_reads$pathway), ][,1], rep('proline',length(grep('proline', conv_final_reads$pathway))), rep('darkgoldenrod1',length(grep('proline', conv_final_reads$pathway))))
-colnames(conv3) <- c('conv_metaT_reads', 'pathways', 'colors')
-conv4 <- cbind(conv_final_reads[grep('Glycine', conv_final_reads$pathway), ][,1], rep('glycine',length(grep('Glycine', conv_final_reads$pathway))), rep('darkgoldenrod1',length(grep('Glycine', conv_final_reads$pathway))))
-colnames(conv4) <- c('conv_metaT_reads', 'pathways', 'colors')
-conv5 <- cbind(conv_final_reads[grep('Galactose', conv_final_reads$pathway), ][,1], rep('galactose',length(grep('Galactose', conv_final_reads$pathway))), rep('chartreuse3',length(grep('Galactose', conv_final_reads$pathway))))
-colnames(conv5) <- c('conv_metaT_reads', 'pathways', 'colors')
-conv_pathways <- as.data.frame(rbind(conv1, conv2, conv3, conv4, conv5))
-rm(conv1, conv2, conv3, conv4, conv5)
-
-# Remove annotated points from general points
-cef_final_reads <- cef_final_reads[!rownames(cef_final_reads) %in% rownames(cef_pathways), ]
-clinda_final_reads <- clinda_final_reads[!rownames(clinda_final_reads) %in% rownames(clinda_pathways), ]
-strep_final_reads <- strep_final_reads[!rownames(strep_final_reads) %in% rownames(strep_pathways), ]
-conv_final_reads <- conv_final_reads[!rownames(conv_final_reads) %in% rownames(conv_pathways), ]
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
 # Calculate the distance of all points from x=y
 # Will reveal which genes were most effected by c. diff colonization
 
@@ -270,15 +241,46 @@ conv_final_reads <- conv_final_reads[!rownames(conv_final_reads) %in% rownames(c
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
-pdf(file=plot_file, width=5, height=12)
-layout(matrix(c(1,
-                2,
-                3),
-              nrow=3, ncol=1, byrow = TRUE))
+pdf(file=plot_file, width=8.5, height=11)
+layout(matrix(c(1,2,
+                3,3,
+                3,3),
+              nrow=3, ncol=2, byrow=TRUE))
 
 #-------------------#
 
+# Metabolomics alone
+
+par(mar=c(3,4,1,1), las=1, mgp=c(2,0.75,0), xaxs='i', yaxs='i')
+plot(x=metabolome_nmds$MDS1, y=metabolome_nmds$MDS2, xlim=c(-0.4,0.4), ylim=c(-0.3,0.3),
+     xlab='NMDS axis 1', ylab='NMDS axis 2', xaxt='n', yaxt='n', pch=19, cex=0.2)
+axis(side=1, at=seq(-0.4,0.4,0.1), labels=seq(-0.4,0.4,0.1))
+axis(side=2, at=seq(-0.3,0.3,0.1), labels=c(-0.3,-0.2,-0.1,0,0.1,0.2,0.3))
+points(x=cefoperazone$MDS1, y=cefoperazone$MDS2, bg='chartreuse3', pch=21, cex=1.7, lwd=1.2)
+points(x=clindamycin$MDS1, y=clindamycin$MDS2, bg='blue2', pch=21, cex=1.7, lwd=1.2)
+points(x=streptomycin$MDS1, y=streptomycin$MDS2, bg='firebrick1', pch=21, cex=1.7, lwd=1.2)
+points(x=germfree$MDS1, y=germfree$MDS2, bg='gold1', pch=21, cex=1.7, lwd=1.2)
+points(x=untreated$MDS1, y=untreated$MDS2, bg='azure2', pch=21, cex=1.7, lwd=1.2)
+draw.ellipse(x=0.19, y=-0.01, a=0.28, b=0.17, angle=-60, lty=2, lwd=2) # susceptible
+text(x=0.25, y=0.25, labels='Susceptible', font=2)
+draw.ellipse(x=-0.27, y=-0.13, a=0.15, b=0.1, angle=-100, lty=2, lwd=2) # resistant
+text(x=-0.27, y=0.04, labels='Resistant', font=2)
+legend('topleft', legend=c('Untreated (SPF)','Streptomycin-treated (SPF)','Cefoperzone-treated (SPF)','Clindamycin-treated (SPF)','Germfree'), 
+       pt.bg=c('azure2','firebrick1','chartreuse3','blue2','gold1'), 
+       pch=21, pt.cex=1.7, bty='n')
+
+mtext('A', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.3)
+
+#-------------------#
+
+plot(0, type='n', axes=FALSE, xlab='', ylab='')
+mtext('B', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.3)
+
+#-------------------#
+
+plot(0, type='n', axes=FALSE, xlab='', ylab='')
 # Heatmap or correlation somehow...
+mtext('C', side=2, line=2, las=2, adj=1.5, padj=-10, cex=1.3)
 
 
 dev.off()

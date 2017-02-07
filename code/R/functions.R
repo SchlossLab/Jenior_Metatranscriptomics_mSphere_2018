@@ -57,8 +57,11 @@ featureselect_RF <- function(training_data, feature){
   m_try <- round(sqrt(length(colnames(training_data)) - 1))
   data_randomForest <- randomForest(training_data[,feature]~., 
                                     data=training_data, importance=TRUE, replace=FALSE, 
-                                    do.trace=100, err.rate=TRUE, ntree=n_tree, mtry=m_try)
+                                    err.rate=TRUE, ntree=n_tree, mtry=m_try)
   detach(training_data)
+  
+  # Examine OOB error
+  print(data_randomForest)
   
   # Parse features for significance and sort
   features_RF <- importance(data_randomForest, type=1)
