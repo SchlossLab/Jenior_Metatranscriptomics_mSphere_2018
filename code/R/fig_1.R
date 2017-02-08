@@ -1,6 +1,6 @@
 
 # Load dependencies
-deps <- c('vegan', 'shape')
+deps <- c('vegan', 'shape', 'Matrix')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -62,18 +62,21 @@ clinda_shared_otu$abx <- NULL
 clinda_shared_otu$susceptibility <- NULL
 rm(metadata_shared_otu, shared_otu)
 
-# Run random forest
-cef_features <- featureselect_RF(cef_shared_otu, 'infection')
-strep_features <- featureselect_RF(strep_shared_otu, 'infection')
-clinda_features <- featureselect_RF(clinda_shared_otu, 'infection')
+# Filter OTUs and transform
+cef_shared_otu <- filter_table(cef_shared_otu)
+cef_shared_otu[,2:ncol(cef_shared_otu)] <- log10(cef_shared_otu[,2:ncol(cef_shared_otu)] + 1)
+strep_shared_otu <- filter_table(strep_shared_otu)
+strep_shared_otu[,2:ncol(strep_shared_otu)] <- log10(strep_shared_otu[,2:ncol(strep_shared_otu)] + 1)
+clinda_shared_otu <- filter_table(clinda_shared_otu)
+clinda_shared_otu[,2:ncol(clinda_shared_otu)] <- log10(clinda_shared_otu[,2:ncol(clinda_shared_otu)] + 1)
+
+
+
 
 # Filter for significant OTUs by Wilcoxon
-cef_feat_shared <- cef_shared_otu[,rownames(cef_features)]
-cef_feat_shared <- log10(cef_feat_shared + 1)
-cef_feat_shared$infection <- cef_shared_otu$infection
-cef_infected_otu <- subset(cef_feat_shared, infection == '630')
+cef_infected_otu <- subset(cef_shared_otu, infection == '630')
 cef_infected_otu$infection <- NULL
-cef_mock_otu <- subset(cef_feat_shared, infection == 'mock')
+cef_mock_otu <- subset(cef_shared_otu, infection == 'mock')
 cef_mock_otu$infection <- NULL
 cef_pvalues <- c()
 index2 <- 1
@@ -101,12 +104,10 @@ for (index in 1:length(cef_pvalues)){
   }
 }
 rm(cef_feat_shared, cef_features)
-clinda_feat_shared <- clinda_shared_otu[,rownames(clinda_features)]
-clinda_feat_shared <- log10(clinda_feat_shared + 1)
-clinda_feat_shared$infection <- clinda_shared_otu$infection
-clinda_infected_otu <- subset(clinda_feat_shared, infection == '630')
+
+clinda_infected_otu <- subset(clinda_shared_otu, infection == '630')
 clinda_infected_otu$infection <- NULL
-clinda_mock_otu <- subset(clinda_feat_shared, infection == 'mock')
+clinda_mock_otu <- subset(clinda_shared_otu, infection == 'mock')
 clinda_mock_otu$infection <- NULL
 clinda_pvalues <- c()
 index2 <- 1
@@ -134,12 +135,10 @@ for (index in 1:length(clinda_pvalues)){
   }
 }
 rm(clinda_feat_shared, clinda_features)
-strep_feat_shared <- strep_shared_otu[,rownames(strep_features)]
-strep_feat_shared <- log10(strep_feat_shared + 1)
-strep_feat_shared$infection <- strep_shared_otu$infection
-strep_infected_otu <- subset(strep_feat_shared, infection == '630')
+
+strep_infected_otu <- subset(strep_shared_otu, infection == '630')
 strep_infected_otu$infection <- NULL
-strep_mock_otu <- subset(strep_feat_shared, infection == 'mock')
+strep_mock_otu <- subset(strep_shared_otu, infection == 'mock')
 strep_mock_otu$infection <- NULL
 strep_pvalues <- c()
 index2 <- 1

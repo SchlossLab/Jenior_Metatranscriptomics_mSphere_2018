@@ -1,4 +1,25 @@
 
+# Filter out columns that have values in at least 3 samples (ignores first column)
+filter_table <- function(data) {
+
+  drop <- c()
+  if (class(data[,1]) != 'character') {
+    if (nnzero(data[,1]) < 3) {
+      drop <- c(drop, names(data)[1])
+    }
+  }
+  
+  for (index in 2:ncol(data)) {
+    if (nnzero(data[,index]) < 3) {
+      drop <- c(drop, names(data)[index])
+    }
+  }
+  
+  filtered_data <- data[,!(colnames(data) %in% drop)]
+  return(filtered_data)
+}
+
+
 # Neatly merge 2 matices with shared row names
 clean_merge <- function(data_1, data_2){
   
@@ -36,16 +57,9 @@ minor.ticks.axis <- function(ax,n,t.ratio=0.5,mn,mx,...){
 }
 
 
-# Feature selection with Random Forest
+# Feature selection with Random Forest (requires 'randomForest' package)
 featureselect_RF <- function(training_data, feature){
   
-  # Load package
-  if ('randomForest' %in% installed.packages()[,'Package'] == FALSE){
-    install.packages('randomForest', quiet=TRUE)}
-  library('randomForest', verbose=FALSE, character.only=TRUE)
-  
-  # Set parameters
-  set.seed(6189)
   attach(training_data)
   levels <- as.vector(unique(training_data[,feature]))
   subfactor_1 <- round(length(rownames(training_data[which(training_data[,feature]==levels[1]),])) * 0.623)
@@ -53,11 +67,11 @@ featureselect_RF <- function(training_data, feature){
   factor <- max(c(round(subfactor_1 / subfactor_2), round(subfactor_2 / subfactor_1))) * 3
   
   # Breiman (2001). Random Forests. Machine Learning.
-  n_tree <- round(length(colnames(training_data)) - 1) * factor
-  m_try <- round(sqrt(length(colnames(training_data)) - 1))
+  n_trees <- round(length(colnames(training_data)) - 1) * factor
+  m_tries <- round(sqrt(length(colnames(training_data)) - 1))
   data_randomForest <- randomForest(training_data[,feature]~., 
                                     data=training_data, importance=TRUE, replace=FALSE, 
-                                    err.rate=TRUE, ntree=n_tree, mtry=m_try)
+                                    err.rate=TRUE, ntree=n_trees, mtry=m_tries)
   detach(training_data)
   
   # Examine OOB error
@@ -71,3 +85,4 @@ featureselect_RF <- function(training_data, feature){
   
   return(final_features_RF)
 }
+
