@@ -97,12 +97,17 @@ for (index in colnames(cef_infected_otu)){
   }
 }
 cef_pvalues <- p.adjust(cef_pvalues, method='BH')
+cef_final_p <- c()
 for (index in 1:length(cef_pvalues)){
   if (cef_pvalues[index] > 0.05){
     cef_infected_otu[,index] <- NULL
     cef_mock_otu[,index] <- NULL
   }
+  else {
+    cef_final_p <- c(cef_final_p, cef_pvalues[index])
+  }
 }
+cef_final_p <- as.character(round(cef_final_p, 3))
 rm(cef_feat_shared, cef_features)
 
 clinda_infected_otu <- subset(clinda_shared_otu, infection == '630')
@@ -128,12 +133,17 @@ for (index in colnames(clinda_infected_otu)){
   }
 }
 clinda_pvalues <- p.adjust(clinda_pvalues, method='BH')
+clinda_final_p <- c()
 for (index in 1:length(clinda_pvalues)){
   if (cef_pvalues[index] > 0.05){
     clinda_infected_otu[,index] <- NULL
     clinda_mock_otu[,index] <- NULL
   }
+  else {
+    clinda_final_p <- c(clinda_final_p, clinda_pvalues[index])
+  }
 }
+clinda_final_p <- as.character(round(clinda_final_p, 3))
 rm(clinda_feat_shared, clinda_features)
 
 strep_infected_otu <- subset(strep_shared_otu, infection == '630')
@@ -159,12 +169,17 @@ for (index in colnames(strep_infected_otu)){
   }
 }
 strep_pvalues <- p.adjust(strep_pvalues, method='BH')
+strep_final_p <- c()
 for (index in 1:length(strep_pvalues)){
   if (strep_pvalues[index] > 0.05){
     strep_infected_otu[,index] <- NULL
     strep_mock_otu[,index] <- NULL
   }
+  else {
+    strep_final_p <- c(strep_final_p, strep_pvalues[index])
+  }
 }
+strep_final_p <- as.character(round(strep_final_p, 3))
 rm(strep_feat_shared, strep_features)
 
 # Rename OTUs with species-level identifier
@@ -449,8 +464,6 @@ segments(x0=c(4.4,4.4,4.28,4.43,4.48), x1=c(4.8,4.8,4.8,4.8,4.8),
 text(x=c(3.8,3.8,3.8,3.8,3.8), y=c(3.69,2,-1.4,-3.95,-4.82), cex=1.2,
      labels=c('Actinobacteria', 'Bacteroidetes', 'Firmicutes', 'Proteobacteria', 'Verrucomicrobia'))
 
-
-
 #-------------------------------------------------------------------#
 
 # Feature selection results - Significant OTUs and relative abundance changes
@@ -479,7 +492,8 @@ for(i in colnames(strep_mock_otu)){
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", "10000"))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
-formatted <- lapply(1:length(strep_otus), function(i) bquote(paste(.(strep_phyla[i]),'; ',italic(.(strep_genera[i])),.(strep_otus[i]), sep='')))
+formatted <- lapply(1:length(strep_otus), function(i) bquote(atop(paste(.(strep_phyla[i]), '; ', italic(.(strep_genera[i])), sep=''),
+                                                                paste(.(strep_otus[i]), italic(' p'),' = ',.(strep_final_p[i]), sep=''))))
 axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
 
 mtext('D', side=2, line=2, las=2, adj=9.8, padj=-8, cex=1.3)
@@ -510,7 +524,8 @@ for(i in colnames(cef_mock_otu)){
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", '10000'))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
-formatted <- lapply(1:length(cef_otus), function(i) bquote(paste(.(cef_phyla[i]),'; ',italic(.(cef_genera[i])),.(cef_otus[i]), sep='')))
+formatted <- lapply(1:length(cef_otus), function(i) bquote(atop(paste(.(cef_phyla[i]), '; ', italic(.(cef_genera[i])), sep=''),
+                                                                   paste(.(cef_otus[i]), italic(' p'),' = ',.(cef_final_p[i]), sep=''))))
 axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
 
 #-----------------#
@@ -539,7 +554,8 @@ for(i in colnames(clinda_mock_otu)){
 axis(1, at=c(0, 1, 2, 3), label=c('0','10', '100', "1000"))
 legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
-formatted <- lapply(1:length(clinda_otus), function(i) bquote(paste(.(clinda_phyla[i]),'; ',italic(.(clinda_genera[i])),.(clinda_otus[i]), sep='')))
+formatted <- lapply(1:length(clinda_otus), function(i) bquote(atop(paste(.(clinda_phyla[i]), '; ', italic(.(clinda_genera[i])), sep=''),
+                                                              paste(.(clinda_otus[i]), italic(' p'),' = ',.(clinda_final_p[i]), sep=''))))
 axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
 
 dev.off()
@@ -552,7 +568,7 @@ for (dep in deps){
   pkg <- paste('package:', dep, sep='')
   detach(pkg, character.only = TRUE)
 }
-rm(list=ls())
+#rm(list=ls())
 gc()
 
 
