@@ -19,6 +19,23 @@ filter_table <- function(data) {
   return(filtered_data)
 }
 
+# Calculate median and 95% confidence for non-normal, large datasets
+# Based on: Conover, W.J. (1980) Practical Nonparametric Statistics John Wiley and Sons, New York.
+conf_interval <- function(data) {
+  
+  data_median <- median(data)
+  data <- sort(unique(data))
+  n <- length(data)
+  q <- 0.5
+  nq <- n * q
+  conf_range <- 1.96 * sqrt(n * q * (1 - q))
+  j <- ceiling(nq - conf_range)
+  k <- ceiling(nq + conf_range)
+  lower_95 <- data[j]
+  upper_95 <- data[k]
+  
+  return(c(lower_95, data_median, upper_95))
+}
 
 # Neatly merge 2 matices with shared row names
 clean_merge <- function(data_1, data_2){
