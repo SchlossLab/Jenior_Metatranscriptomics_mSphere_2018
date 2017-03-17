@@ -1,5 +1,7 @@
 
 # Set up environment
+#rm(list=ls())
+#gc()
 
 # Load dependencies
 deps <- c('vegan', 'biglm')
@@ -227,32 +229,28 @@ rm(size)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
+# Fit to general linear models and identify outliers (L1 regression)
+strep_fit <- glm(strep_630_metaT_reads ~ strep_mock_metaT_reads, data=strep_annotated)
+strep_annotated$residuals <- residuals(strep_fit)
+strep_annotated$residuals <- (strep_annotated$residuals / sd(strep_annotated$residuals))^2
+strep_outliers <- strep_annotated[strep_annotated$residuals > 1.5, ]
+cef_fit <- glm(cef_630_metaT_reads ~ cef_mock_metaT_reads, data=cef_annotated)
+cef_annotated$residuals <- residuals(cef_fit)
+cef_annotated$residuals <- (cef_annotated$residuals / sd(cef_annotated$residuals))^2
+cef_outliers <- cef_annotated[cef_annotated$residuals > 1.5, ]
+clinda_fit <- glm(clinda_630_metaT_reads ~ clinda_mock_metaT_reads, data=clinda_annotated)
+clinda_annotated$residuals <- residuals(clinda_fit)
+clinda_annotated$residuals <- (clinda_annotated$residuals / sd(clinda_annotated$residuals))^2
+clinda_outliers <- clinda_annotated[clinda_annotated$residuals > 1.5, ]
 
-
-
-
-# Check for linear correlation
-biglm(strep_annotated$strep_630_metaT_reads ~ strep_annotated$strep_mock_metaT_reads)
-biglm(cef_annotated$cef_630_metaT_reads ~ cef_annotated$cef_mock_metaT_reads)
-biglm(clinda_annotated$clinda_630_metaT_reads ~ clinda_annotated$clinda_mock_metaT_reads)
-biglm(strep_unknown$strep_630_metaT_reads ~ strep_annotated$strep_mock_metaT_reads)
-biglm(cef_unknown$cef_630_metaT_reads ~ cef_annotated$cef_mock_metaT_reads)
-biglm(clinda_unknown$clinda_630_metaT_reads ~ clinda_annotated$clinda_mock_metaT_reads)
-
-
-
-
-# Calculate the distance of all points from x=y
-
-
-# Will reveal which genes were most effected by c. diff colonization
-
-
-
-
-#good.dist <- sqrt((good.ord - typ.ord)^2 / 2)
-
-
+# Calculate stats
+corr_m <- round(c(strep_fit$coefficients[[2]],cef_fit$coefficients[[2]],clinda_fit$coefficients[[2]]), digits=3)
+corr_r <- round(c(cor.test(strep[,1], strep[,2], method='spearman', exact=FALSE)$estimate,
+                  cor.test(cef[,1], cef[,2], method='spearman', exact=FALSE)$estimate,
+                  cor.test(clinda[,1], clinda[,2], method='spearman', exact=FALSE)$estimate), digits=3)
+corr_p <- round(c(cor.test(strep[,1], strep[,2], method='spearman', exact=FALSE)$p.value,
+                  cor.test(cef[,1], cef[,2], method='spearman', exact=FALSE)$p.value,
+                  cor.test(clinda[,1], clinda[,2], method='spearman', exact=FALSE)$p.value), digits=3)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -303,6 +301,8 @@ legend('topleft', 'Cefoperazone-pretreated', bty='n', cex=1.2)
 points(x=cef_pathways$cef_mock_metaT_reads, y=cef_pathways$cef_630_metaT_reads, 
        cex=1.9, pch=21, bg=adjustcolor(strep_pathways$colors, alpha=0.6), col='black')
 
+mtext('B', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
+
 #-------------------#
 
 # Clindamycin
@@ -321,6 +321,8 @@ legend('topleft', 'Clindamycin-pretreated', bty='n', cex=1.2)
 # Points for pathways of interest
 points(x=clinda_pathways$clinda_mock_metaT_reads, y=clinda_pathways$clinda_630_metaT_reads, 
        cex=1.9, pch=21, bg=adjustcolor(strep_pathways$colors, alpha=0.6), col='black')
+
+mtext('C', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
 
 #-------------------#
 
@@ -361,7 +363,6 @@ dev.off()
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clean up
-
 #for (dep in deps){
 #  pkg <- paste('package:', dep, sep='')
 #  detach(pkg, character.only = TRUE)}
