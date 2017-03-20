@@ -4,7 +4,7 @@
 #gc()
 
 # Load dependencies
-deps <- c('vegan', 'biglm')
+deps <- c('vegan')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -54,7 +54,7 @@ strep_metagenome <- read.delim(strep_metagenome_file, sep='\t', header=FALSE, ro
 colnames(strep_metagenome) <- c('strep_metaG_reads', 'ko', 'gene', 'pathway')
 conv_metagenome <- read.delim(conv_metagenome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(conv_metagenome) <- c('conv_metaG_reads', 'ko', 'gene', 'pathway')
-rm(cef_metagenome_file, clinda_metagenome_file, strep_metagenome_file, conv_metagenome_file, na.strings=c('','NA'))
+rm(cef_metagenome_file, clinda_metagenome_file, strep_metagenome_file, conv_metagenome_file)
 
 # Metatranscriptomes
 cef_630_metatranscriptome <- read.delim(cef_630_metatranscriptome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
@@ -139,124 +139,105 @@ clinda_raw_reads <- subset(clinda_raw_reads, clinda_metaG_reads != 0)
 strep_raw_reads <- subset(strep_raw_reads, strep_metaG_reads != 0)
 conv_raw_reads <- subset(conv_raw_reads, conv_metaG_reads != 0)
 
-
-round(median(c(nrow(subset(cef_raw_reads, cef_metaG_reads == 0 & (cef_mock_metaT_reads + cef_630_metaT_reads ) != 0)),
-nrow(subset(clinda_raw_reads, clinda_metaG_reads == 0 & (clinda_mock_metaT_reads  + clinda_630_metaT_reads ) != 0)),
-nrow(subset(strep_raw_reads, strep_metaG_reads == 0 & (strep_mock_metaT_reads  + strep_630_metaT_reads ) != 0)),
-nrow(subset(conv_raw_reads, conv_metaG_reads == 0 & conv_metaT_reads  != 0)))))
-
-
 # Rarefy read abundances
-size <- round(min(colSums(cef_raw_reads[,c(1:3)]))*0.9)
+size <- round(min(colSums(cef_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
 cef_raw_reads$cef_metaG_reads <- t(rrarefy(cef_raw_reads$cef_metaG_reads, sample=size)) + 1
 cef_raw_reads$cef_630_metaT_reads <- t(rrarefy(cef_raw_reads$cef_630_metaT_reads, sample=size))
 cef_raw_reads$cef_mock_metaT_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaT_reads, sample=size))
-size <- round(min(colSums(clinda_raw_reads[,c(1:3)]))*0.9)
+cef_normalized_reads <- cef_raw_reads
+rm(cef_raw_reads)
+size <- round(min(colSums(clinda_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
 clinda_raw_reads$clinda_metaG_reads <- t(rrarefy(clinda_raw_reads$clinda_metaG_reads, sample=size)) + 1
 clinda_raw_reads$clinda_630_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_630_metaT_reads, sample=size))
 clinda_raw_reads$clinda_mock_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_mock_metaT_reads, sample=size))
-size <- round(min(colSums(strep_raw_reads[,c(1:3)]))*0.9)
+clinda_normalized_reads <- clinda_raw_reads
+rm(clinda_raw_reads)
+size <- round(min(colSums(strep_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
 strep_raw_reads$strep_metaG_reads <- t(rrarefy(strep_raw_reads$strep_metaG_reads, sample=size)) + 1
 strep_raw_reads$strep_630_metaT_reads <- t(rrarefy(strep_raw_reads$strep_630_metaT_reads, sample=size))
 strep_raw_reads$strep_mock_metaT_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaT_reads, sample=size))
-size <- round(min(colSums(conv_raw_reads[,c(1:2)]))*0.9)
+strep_normalized_reads <- strep_raw_reads
+rm(strep_raw_reads)
+size <- round(min(colSums(conv_raw_reads[,c(1:2)]))*0.9) # Determine subsample level
 conv_raw_reads$conv_metaG_reads <- t(rrarefy(conv_raw_reads$conv_metaG_reads, sample=size)) + 1
 conv_raw_reads$conv_metaT_reads <- t(rrarefy(conv_raw_reads$conv_metaT_reads, sample=size))
+conv_normalized_reads <- conv_raw_reads
+rm(conv_raw_reads)
 rm(size)
 
 # Normalize metatranscriptomes to metagenomic coverage
-cef_raw_reads$cef_630_metaT_reads <- cef_raw_reads$cef_630_metaT_reads / cef_raw_reads$cef_metaG_reads
-cef_raw_reads$cef_mock_metaT_reads <- cef_raw_reads$cef_mock_metaT_reads / cef_raw_reads$cef_metaG_reads
-cef_raw_reads$cef_metaG_reads <- NULL
-clinda_raw_reads$clinda_630_metaT_reads <- clinda_raw_reads$clinda_630_metaT_reads / clinda_raw_reads$clinda_metaG_reads
-clinda_raw_reads$clinda_mock_metaT_reads <- clinda_raw_reads$clinda_mock_metaT_reads / clinda_raw_reads$clinda_metaG_reads
-clinda_raw_reads$clinda_metaG_reads <- NULL
-strep_raw_reads$strep_630_metaT_reads <- strep_raw_reads$strep_630_metaT_reads / strep_raw_reads$strep_metaG_reads
-strep_raw_reads$strep_mock_metaT_reads <- strep_raw_reads$strep_mock_metaT_reads / strep_raw_reads$strep_metaG_reads
-strep_raw_reads$strep_metaG_reads <- NULL
-conv_raw_reads$conv_metaT_reads <- conv_raw_reads$conv_metaT_reads / conv_raw_reads$conv_metaG_reads
-conv_raw_reads$conv_metaG_reads <- NULL
+cef_normalized_reads$cef_630_metaT_reads <- cef_normalized_reads$cef_630_metaT_reads / cef_normalized_reads$cef_metaG_reads
+cef_normalized_reads$cef_mock_metaT_reads <- cef_normalized_reads$cef_mock_metaT_reads / cef_normalized_reads$cef_metaG_reads
+cef_normalized_reads$cef_metaG_reads <- NULL
+clinda_normalized_reads$clinda_630_metaT_reads <- clinda_normalized_reads$clinda_630_metaT_reads / clinda_normalized_reads$clinda_metaG_reads
+clinda_normalized_reads$clinda_mock_metaT_reads <- clinda_normalized_reads$clinda_mock_metaT_reads / clinda_normalized_reads$clinda_metaG_reads
+clinda_normalized_reads$clinda_metaG_reads <- NULL
+strep_normalized_reads$strep_630_metaT_reads <- strep_normalized_reads$strep_630_metaT_reads / strep_normalized_reads$strep_metaG_reads
+strep_normalized_reads$strep_mock_metaT_reads <- strep_normalized_reads$strep_mock_metaT_reads / strep_normalized_reads$strep_metaG_reads
+strep_normalized_reads$strep_metaG_reads <- NULL
+conv_normalized_reads$conv_metaT_reads <- conv_normalized_reads$conv_metaT_reads / conv_normalized_reads$conv_metaG_reads
+conv_normalized_reads$conv_metaG_reads <- NULL
 
 # Log2 transform the data
-cef_raw_reads[,c(1,2)] <- log2(cef_raw_reads[,c(1,2)] + 1)
-clinda_raw_reads[,c(1,2)] <- log2(clinda_raw_reads[,c(1,2)] + 1)
-strep_raw_reads[,c(1,2)] <- log2(strep_raw_reads[,c(1,2)] + 1)
-conv_raw_reads[,1] <- log2(conv_raw_reads[,1] + 1)
+cef_normalized_reads[,c(1,2)] <- log2(cef_normalized_reads[,c(1,2)] + 1)
+clinda_normalized_reads[,c(1,2)] <- log2(clinda_normalized_reads[,c(1,2)] + 1)
+strep_normalized_reads[,c(1,2)] <- log2(strep_normalized_reads[,c(1,2)] + 1)
+conv_normalized_reads[,1] <- log2(conv_normalized_reads[,1] + 1)
 
 # Screen for active transcription in either condition
-cef_raw_reads <- subset(cef_raw_reads, cef_raw_reads$cef_630_metaT_reads > 0 | cef_raw_reads$cef_mock_metaT_reads > 0)
-clinda_raw_reads <- subset(clinda_raw_reads, clinda_raw_reads$clinda_630_metaT_reads > 0 | clinda_raw_reads$clinda_mock_metaT_reads > 0)
-strep_raw_reads <- subset(strep_raw_reads, strep_raw_reads$strep_630_metaT_reads > 0 | strep_raw_reads$strep_mock_metaT_reads > 0)
+cef_normalized_reads <- subset(cef_normalized_reads, cef_normalized_reads$cef_630_metaT_reads > 0 | cef_normalized_reads$cef_mock_metaT_reads > 0)
+clinda_normalized_reads <- subset(clinda_normalized_reads, clinda_normalized_reads$clinda_630_metaT_reads > 0 | clinda_normalized_reads$clinda_mock_metaT_reads > 0)
+strep_normalized_reads <- subset(strep_normalized_reads, strep_normalized_reads$strep_630_metaT_reads > 0 | strep_normalized_reads$strep_mock_metaT_reads > 0)
 
 # Screen for those genes that were able to be annotated
-cef_annotated <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('unknown_\\d', cef_raw_reads$gene),]), ]
-clinda_annotated <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('unknown_\\d', clinda_raw_reads$gene),]), ]
-strep_annotated <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('unknown_\\d', strep_raw_reads$gene),]), ]
-conv_annotated <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('unknown_\\d', strep_raw_reads$gene),]), ]
+cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', cef_normalized_reads$gene),]), ]
+clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', clinda_normalized_reads$gene),]), ]
+strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
+conv_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
 
 # Also save those that remain unknown
-cef_unknown <- cef_raw_reads[rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('unknown_\\d', cef_raw_reads$gene),]), ]
-clinda_unknown <- clinda_raw_reads[rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('unknown_\\d', clinda_raw_reads$gene),]), ]
-strep_unknown <- strep_raw_reads[rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('unknown_\\d', strep_raw_reads$gene),]), ]
-conv_unknown <- strep_raw_reads[rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('unknown_\\d', strep_raw_reads$gene),]), ]
+cef_unknown <- cef_normalized_reads[rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', cef_normalized_reads$gene),]), ]
+clinda_unknown <- clinda_normalized_reads[rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', clinda_normalized_reads$gene),]), ]
+strep_unknown <- strep_normalized_reads[rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
+conv_unknown <- strep_normalized_reads[rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
 
-rm(cef_raw_reads, clinda_raw_reads, strep_raw_reads, conv_raw_reads)
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Order data to find distinct patterns of expression
-cef_630_top <- cef_annotated[order(cef_annotated$cef_mock_metaT_reads, -cef_annotated$cef_630_metaT_reads),]
-cef_mock_top <- cef_annotated[order(cef_annotated$cef_630_metaT_reads, -cef_annotated$cef_mock_metaT_reads),]
-clinda_630_top <- clinda_annotated[order(clinda_annotated$clinda_mock_metaT_reads, -clinda_annotated$clinda_630_metaT_reads),]
-clinda_mock_top <- clinda_annotated[order(clinda_annotated$clinda_630_metaT_reads, -clinda_annotated$clinda_mock_metaT_reads),]
-strep_630_top <- strep_annotated[order(strep_annotated$strep_mock_metaT_reads, -strep_annotated$strep_630_metaT_reads),]
-strep_mock_top <- strep_annotated[order(strep_annotated$strep_630_metaT_reads, -strep_annotated$strep_mock_metaT_reads),]
-
-# Screen for largest distinctions between conditions
-size <- max(cef_630_top$cef_630_metaT_reads - cef_630_top$cef_mock_metaT_reads) * 0.75
-cef_630_top <- subset(cef_630_top, (cef_630_top$cef_630_metaT_reads - cef_630_top$cef_mock_metaT_reads) > size)
-size <- max(cef_mock_top$cef_mock_metaT_reads - cef_mock_top$cef_630_metaT_reads) * 0.75
-cef_mock_top <- subset(cef_mock_top, (cef_mock_top$cef_mock_metaT_reads - cef_mock_top$cef_630_metaT_reads) > size)
-size <- max(clinda_630_top$clinda_630_metaT_reads - clinda_630_top$clinda_mock_metaT_reads) * 0.75
-clinda_630_top <- subset(clinda_630_top, (clinda_630_top$clinda_630_metaT_reads - clinda_630_top$clinda_mock_metaT_reads) > size)
-size <- max(clinda_mock_top$clinda_mock_metaT_reads - clinda_mock_top$clinda_630_metaT_reads) * 0.75
-clinda_mock_top <- subset(clinda_mock_top, (clinda_mock_top$clinda_mock_metaT_reads - clinda_mock_top$clinda_630_metaT_reads) > size)
-size <- max(strep_630_top$strep_630_metaT_reads - strep_630_top$strep_mock_metaT_reads) * 0.75
-strep_630_top <- subset(strep_630_top, (strep_630_top$strep_630_metaT_reads - strep_630_top$strep_mock_metaT_reads) > size)
-size <- max(strep_mock_top$strep_mock_metaT_reads - strep_mock_top$strep_630_metaT_reads) * 0.75
-strep_mock_top <- subset(strep_mock_top, (strep_mock_top$strep_mock_metaT_reads - strep_mock_top$strep_630_metaT_reads) > size)
-rm(size)
+rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads, conv_normalized_reads)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Fit to general linear models and identify outliers (L1 regression)
+# Fit to general linear models and identify outliers
 strep_fit <- glm(strep_630_metaT_reads ~ strep_mock_metaT_reads, data=strep_annotated)
 strep_annotated$residuals <- residuals(strep_fit)
-strep_annotated$residuals <- (strep_annotated$residuals / sd(strep_annotated$residuals))^2
-strep_outliers <- strep_annotated[strep_annotated$residuals > 7, ]
+strep_annotated$residuals <- (strep_annotated$residuals / sd(strep_annotated$residuals))^2 # Studentize outliers
+strep_outliers <- strep_annotated[strep_annotated$residuals > 2, ]
 cef_fit <- glm(cef_630_metaT_reads ~ cef_mock_metaT_reads, data=cef_annotated)
 cef_annotated$residuals <- residuals(cef_fit)
-cef_annotated$residuals <- (cef_annotated$residuals / sd(cef_annotated$residuals))^2
-cef_outliers <- cef_annotated[cef_annotated$residuals > 7, ]
+cef_annotated$residuals <- (cef_annotated$residuals / sd(cef_annotated$residuals))^2 # Studentize outliers
+cef_outliers <- cef_annotated[cef_annotated$residuals > 2, ]
 clinda_fit <- glm(clinda_630_metaT_reads ~ clinda_mock_metaT_reads, data=clinda_annotated)
 clinda_annotated$residuals <- residuals(clinda_fit)
-clinda_annotated$residuals <- (clinda_annotated$residuals / sd(clinda_annotated$residuals))^2
-clinda_outliers <- clinda_annotated[clinda_annotated$residuals > 7, ]
+clinda_annotated$residuals <- (clinda_annotated$residuals / sd(clinda_annotated$residuals))^2 # Studentize outliers
+clinda_outliers <- clinda_annotated[clinda_annotated$residuals > 2, ]
 
-# Calculate stats
-corr_m <- round(c(strep_fit$coefficients[[2]],cef_fit$coefficients[[2]],clinda_fit$coefficients[[2]]), digits=3)
-corr_r <- round(c(cor.test(strep[,1], strep[,2], method='spearman', exact=FALSE)$estimate,
-                  cor.test(cef[,1], cef[,2], method='spearman', exact=FALSE)$estimate,
-                  cor.test(clinda[,1], clinda[,2], method='spearman', exact=FALSE)$estimate), digits=3)
-corr_p <- round(c(cor.test(strep[,1], strep[,2], method='spearman', exact=FALSE)$p.value,
-                  cor.test(cef[,1], cef[,2], method='spearman', exact=FALSE)$p.value,
-                  cor.test(clinda[,1], clinda[,2], method='spearman', exact=FALSE)$p.value), digits=3)
+# Calculate correlation coefficients
+strep_corr <- as.character(round(cor.test(strep_annotated[,1], strep_annotated[,2], method='spearman', exact=FALSE)$estimate, digits=3))
+cef_corr <- as.character(round(cor.test(cef_annotated[,1], cef_annotated[,2], method='spearman', exact=FALSE)$estimate, digits=3))
+clinda_corr <- as.character(round(cor.test(clinda_annotated[,1], clinda_annotated[,2], method='spearman', exact=FALSE)$estimate, digits=3))
 
+#-------------------------------------------------------------------------------------------------------------------------#
 
+# Find outliers to y = x line
 
 
 
 
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Break down outliers into metabolic pathways and taxonomic groups
 
 
 
@@ -282,11 +263,12 @@ mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
-legend('topleft', 'Streptomycin-pretreated', bty='n', cex=1.2) 
+legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2)
 
 # Points for pathways of interest
-points(x=strep_pathways$strep_mock_metaT_reads, y=strep_pathways$strep_630_metaT_reads, 
-       cex=1.9, pch=21, bg=adjustcolor(strep_pathways$colors, alpha=0.6), col='black')
+points(x=strep_outliers$strep_mock_metaT_reads, y=strep_outliers$strep_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
+
+
 
 mtext('A', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
 
@@ -303,9 +285,13 @@ mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
-legend('topleft', 'Cefoperazone-pretreated', bty='n', cex=1.2) 
+legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2)
 
 # Points for pathways of interest
+points(x=cef_outliers$cef_mock_metaT_reads, y=cef_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
+
+
+
 points(x=cef_pathways$cef_mock_metaT_reads, y=cef_pathways$cef_630_metaT_reads, 
        cex=1.9, pch=21, bg=adjustcolor(strep_pathways$colors, alpha=0.6), col='black')
 
@@ -324,9 +310,15 @@ mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
-legend('topleft', 'Clindamycin-pretreated', bty='n', cex=1.2) 
+legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2)
+
+
+
 
 # Points for pathways of interest
+points(x=clinda_outliers$clinda_mock_metaT_reads, y=clinda_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
+
+
 points(x=clinda_pathways$clinda_mock_metaT_reads, y=clinda_pathways$clinda_630_metaT_reads, 
        cex=1.9, pch=21, bg=adjustcolor(strep_pathways$colors, alpha=0.6), col='black')
 
