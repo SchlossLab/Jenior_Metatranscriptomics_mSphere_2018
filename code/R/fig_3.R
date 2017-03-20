@@ -4,7 +4,7 @@
 #gc()
 
 # Load dependencies
-deps <- c('vegan')
+deps <- c('wesanderson', 'vegan', 'shape')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -205,39 +205,30 @@ rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads, conv_n
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Fit to general linear models and identify outliers
-strep_fit <- glm(strep_630_metaT_reads ~ strep_mock_metaT_reads, data=strep_annotated)
-strep_annotated$residuals <- residuals(strep_fit)
-strep_annotated$residuals <- (strep_annotated$residuals / sd(strep_annotated$residuals))^2 # Studentize outliers
-strep_outliers <- strep_annotated[strep_annotated$residuals > 2, ]
-cef_fit <- glm(cef_630_metaT_reads ~ cef_mock_metaT_reads, data=cef_annotated)
-cef_annotated$residuals <- residuals(cef_fit)
-cef_annotated$residuals <- (cef_annotated$residuals / sd(cef_annotated$residuals))^2 # Studentize outliers
-cef_outliers <- cef_annotated[cef_annotated$residuals > 2, ]
-clinda_fit <- glm(clinda_630_metaT_reads ~ clinda_mock_metaT_reads, data=clinda_annotated)
-clinda_annotated$residuals <- residuals(clinda_fit)
-clinda_annotated$residuals <- (clinda_annotated$residuals / sd(clinda_annotated$residuals))^2 # Studentize outliers
-clinda_outliers <- clinda_annotated[clinda_annotated$residuals > 2, ]
-
 # Calculate correlation coefficients
 strep_corr <- as.character(round(cor.test(strep_annotated[,1], strep_annotated[,2], method='spearman', exact=FALSE)$estimate, digits=3))
 cef_corr <- as.character(round(cor.test(cef_annotated[,1], cef_annotated[,2], method='spearman', exact=FALSE)$estimate, digits=3))
 clinda_corr <- as.character(round(cor.test(clinda_annotated[,1], clinda_annotated[,2], method='spearman', exact=FALSE)$estimate, digits=3))
 
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Find outliers to y = x line
-
-
-
-
-
-
-
+# Using previously defined lines, find outliers to y = x
+strep_630_outliers <- subset(strep_annotated, strep_annotated$strep_mock_metaT_reads > strep_annotated$strep_630_metaT_reads + 2)
+strep_mock_outliers <- subset(strep_annotated, strep_annotated$strep_mock_metaT_reads < strep_annotated$strep_630_metaT_reads - 2)
+cef_630_outliers <- subset(cef_annotated, cef_annotated$cef_mock_metaT_reads > cef_annotated$cef_630_metaT_reads + 2)
+cef_mock_outliers <- subset(cef_annotated, cef_annotated$cef_mock_metaT_reads < cef_annotated$cef_630_metaT_reads - 2)
+clinda_630_outliers <- subset(clinda_annotated, clinda_annotated$clinda_mock_metaT_reads > clinda_annotated$clinda_630_metaT_reads + 2)
+clinda_mock_outliers <- subset(clinda_annotated, clinda_annotated$clinda_mock_metaT_reads < clinda_annotated$clinda_630_metaT_reads - 2)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Break down outliers into metabolic pathways and taxonomic groups
+# Break down outliers into taxonomic groups
+
+
+
+
+
+
+
+
 
 
 
@@ -254,8 +245,10 @@ layout(matrix(c(1,2,
 
 # Streptomycin
 par(mar=c(4.5, 5, 1, 1), mgp=c(3,0.7,0))
-plot(x=strep_annotated$strep_mock_metaT_reads, y=strep_annotated$strep_630_metaT_reads, 
-     xlim=c(0,12), ylim=c(0,12), pch=20, cex=1.3, col='gray40', xaxt='n', yaxt='n', xlab='', ylab='')
+plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
+filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
+box()
+points(x=strep_annotated$strep_mock_metaT_reads, y=strep_annotated$strep_630_metaT_reads, pch=20, cex=1.3, col='gray40')
 segments(-2, -2, 14, 14, lty=2)
 minor.ticks.axis(1, 12, mn=0, mx=12)
 minor.ticks.axis(2, 12, mn=0, mx=12)
@@ -263,10 +256,11 @@ mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
-legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2)
+legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(wes_palette("FantasticFox")[1],'black'))
 
-# Points for pathways of interest
-points(x=strep_outliers$strep_mock_metaT_reads, y=strep_outliers$strep_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
+
+points(x=strep_630_outliers$strep_mock_metaT_reads, y=strep_630_outliers$strep_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
+points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
 
 
 
@@ -276,8 +270,10 @@ mtext('A', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
 
 # Cefoperazone
 par(mar=c(4.5, 5, 1, 1), mgp=c(3,0.7,0))
-plot(x=cef_annotated$cef_mock_metaT_reads, y=cef_annotated$cef_630_metaT_reads, 
-     xlim=c(0,12), ylim=c(0,12), pch=20, cex=1.3, col='gray40', xaxt='n', yaxt='n', xlab='', ylab='')
+plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
+filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
+box()
+points(x=cef_annotated$cef_mock_metaT_reads, y=cef_annotated$cef_630_metaT_reads, pch=20, cex=1.3, col='gray40')
 segments(-2, -2, 14, 14, lty=2)
 minor.ticks.axis(1, 12, mn=0, mx=12)
 minor.ticks.axis(2, 12, mn=0, mx=12)
@@ -285,24 +281,22 @@ mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
-legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2)
-
-# Points for pathways of interest
-points(x=cef_outliers$cef_mock_metaT_reads, y=cef_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
+legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(wes_palette("FantasticFox")[3],'black'))
 
 
+points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
+points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
 
-points(x=cef_pathways$cef_mock_metaT_reads, y=cef_pathways$cef_630_metaT_reads, 
-       cex=1.9, pch=21, bg=adjustcolor(strep_pathways$colors, alpha=0.6), col='black')
-
-mtext('B', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
+mtext('B', side=2, line=2, las=2, adj=1, padj=-10, cex=1.3)
 
 #-------------------#
 
 # Clindamycin
 par(mar=c(4.5, 5, 1, 1), mgp=c(3,0.7,0))
-plot(x=clinda_annotated$clinda_mock_metaT_reads, y=clinda_annotated$clinda_630_metaT_reads, 
-     xlim=c(0,12), ylim=c(0,12), pch=20, cex=1.3, col='gray40', xaxt='n', yaxt='n', xlab='', ylab='')
+plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
+filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
+box()
+points(x=clinda_annotated$clinda_mock_metaT_reads, y=clinda_annotated$clinda_630_metaT_reads, pch=20, cex=1.3, col='gray40')
 segments(-2, -2, 14, 14, lty=2)
 minor.ticks.axis(1, 12, mn=0, mx=12)
 minor.ticks.axis(2, 12, mn=0, mx=12)
@@ -310,17 +304,12 @@ mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
-legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2)
+legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(wes_palette("FantasticFox")[5],'black'))
 
 
+points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
+points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
 
-
-# Points for pathways of interest
-points(x=clinda_outliers$clinda_mock_metaT_reads, y=clinda_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
-
-
-points(x=clinda_pathways$clinda_mock_metaT_reads, y=clinda_pathways$clinda_630_metaT_reads, 
-       cex=1.9, pch=21, bg=adjustcolor(strep_pathways$colors, alpha=0.6), col='black')
 
 mtext('C', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
 
@@ -352,7 +341,7 @@ text(x=seq(2,14,2), y=par()$usr[3]-0.035*(par()$usr[4]-par()$usr[3]), srt=45, ad
 
 
 
-mtext('B', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
+mtext('D', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
 
 
 
