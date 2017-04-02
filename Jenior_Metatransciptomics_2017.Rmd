@@ -1,0 +1,142 @@
+---
+title: "*Clostridium difficile* changes murine gut communities"
+csl: nature.csl
+output:
+ word_document:
+  keep_md: true
+  reference_docx: manuscript_format.docx
+bibliography: references.bib
+---
+
+**Authors:** Matthew L. Jenior, Jhansi L. Leslie, Vincent B. Young, and Patrick D. Schloss^\*^
+
+
+```{r startup, echo=F, message=F, warning=F, cache=F}
+
+# Load dependencies
+deps <- c('shape', 'vegan', 'klaR', 'igraph', 'matrixStats', 'flux', 'knitr','plyr')
+for (dep in deps){
+ if (dep %in% installed.packages()[,"Package"] == FALSE){
+  install.packages(as.character(dep), quiet=TRUE);
+ }
+ library(dep, verbose=FALSE, character.only=TRUE)
+}
+
+# Define function for formatting growth curves for statistical analysis
+format_curve <- function(raw_exp_data, exp_group, raw_control_data){
+ formatted_data <- c()
+ control_data <- c()
+ for (time in 1:nrow(raw_exp_data)){
+  temp_exp <- cbind(exp_group, time, raw_exp_data[time,])
+  formatted_data <- rbind(formatted_data, temp_exp)
+  temp_control <- cbind('control', time, raw_control_data[time,])
+  control_data <- rbind(control_data, temp_control)
+ }
+ formatted_data <- as.data.frame(rbind(control_data, formatted_data))
+ colnames(formatted_data) <- c('substrate','time','od')
+ formatted_data$od <- as.numeric(as.character(formatted_data$od))
+
+ return(formatted_data)
+}
+
+# Mouse metadata
+metadata <- read.delim('data/metadata.tsv', sep='\t', header=T, row.names=1)
+# Figure 1 data
+cfu <- read.delim('data/wetlab_assays/cfu.dat', sep='\t', header=T)
+toxin <- read.delim('data/wetlab_assays/toxin_titer.dat', sep='\t', header=T)
+
+
+
+```
+
+
+###Abstract
+
+
+
+###Introduction
+
+
+
+###Results
+
+
+
+###Discussion
+
+
+
+###Materials and Methods
+
+**Animal care and antibiotic administration** Adapted from the previously described model [@Theriot2011], six-to-eight week-old SPF C57BL/6 mice were obtained from a single breeding colony maintained at the University of Michigan for all experiments. Six-to-eight week-old GF C57BL/6 mice were obtained from a single breeding colony maintained at the University of Michigan and fed Laboratory Rodent Diet 5001 from LabDiet for all experiments. All animal protocols were approved by the University Committee on Use and Care of Animals at the University of Michigan and carried out in accordance with the approved guidelines. Specified SPF animals were administered one of three antibiotics; cefoperazone, streptomycin, or clindamycin (Table 1). Cefoperazone (0.5 mg/ml) and streptomycin (5.0 mg/ml) were administered in distilled drinking water *ad libitum* for 5 days with 2 days recovery with untreated distilled drinking water prior to infection. Clindamycin (10 mg/kg) was given via intraperitoneal injection 24 hours before time of infection.
+
+***C. difficile* infection and necropsy.** All *C. difficile* strain 630 spores were prepared from a single large batch whose concentration was determined a week prior to challenge. On the day of challenge, 1×10^3^ *C. difficile* spores were administered to mice via oral gavage in phosphate-buffered saline (PBS) vehicle. Subsequent quantitative plating for cfu was performed to ensure correct dosage. Mock-infected animals were given an oral gavage of 100 μl PBS at the same time as those mice administered *C. difficile* spores. 18 hours following infection, mice were euthanized by carbon dioxide asphyxiation and necropsied to obtain the cecal contents. Two 100 μl aliquots were immediately flash frozen for later DNA extraction and toxin titer analysis respectively. A third 100 μl aliquot was quickly transferred to an anaerobic chamber for quantification of *C. difficile* abundance. The remaining content in the ceca (approximately 1 mL) was mixed with 1 mL of sterile PBS in a stainless steel mortar housed in a dry ice and ethanol bath. The cecal content of 9 mice from 3 cages was pooled into the mortar. Pooling cecal contents was necessary so that there would be a sufficient quantity of high quality rRNA-free RNA for deep sequencing. The pooled content was then finely ground and stored at -80° C for subsequent RNA extraction.
+
+***C. difficile* cultivation and quantification** Cecal samples were weighed and serially diluted under anaerobic conditions (6% H, 20% CO~2~, 74% N~2~) with anaerobic PBS. Differential plating was performed to quantify both *C. difficile* spores and vegetative cells by plating diluted samples on CCFAE plates (fructose agar plus cycloserine, cefoxitin, and erythromycin) at 37° C for 24 hours under anaerobic conditions [@Wilson1982]. It is important to note that the germination agent taurocholate was omitted from these plates to quantify only vegetative cells. In parallel, undiluted samples were heated at 60° C for 30 minutes to eliminate vegetative cells and leave only spores [@Sorg2010]. These samples were serially diluted under anaerobic conditions in anaerobic PBS and plated on CCFAE with taurocholate at 37° C for 24 hours. Plating was simultaneously done for heated samples on CCFAE to ensure all vegetative cells had been eliminated.
+
+***C. difficile* toxin titer assay** To quantify the titer of toxin in the cecum a Vero cell rounding assay was performed as in [@Leslie2015]. Briefly, filtered-sterilized cecal content was serially diluted in PBS and added to Vero cells in a 96-well plate. Plates were viewed after 24 hour incubation for cell rounding. A more detailed protocol with product information can be found at: https://github.com/SchlossLab/Jenior_Modeling_mBio_2017/blob/master/protocols/toxin_assay/Verocell_ToxinActivity_Assay.Rmd
+
+**16S rRNA gene sequencing and curation** DNA was extracted from approximately 50 mg of cecal content from each mouse using the PowerSoil-htp 96 Well Soil DNA isolation kit (MO BIO Laboratories) and an epMotion 5075 automated pipetting system (Eppendorf). The V4 region of the bacterial 16S rRNA gene was amplified using custom barcoded primers and sequenced as described previously using an Illumina MiSeq sequencer [@Kozich2013]. All 63 samples were sequenced on a single sequencing run. The 16S rRNA gene sequences were curated using the mothur software package (v1.36), as described previously [@Kozich2013]. In short, paired-end reads were merged into contigs, screened for quality, aligned to SILVA 16S rRNA sequence database, and screened for chimeras. Sequences were classified using a naive Bayesian classifier trained against a 16S rRNA gene training set provided by the Ribosomal Database Project (RDP) [@Wang2007]. Curated sequences were clustered into operational taxonomic units (OTUs) using a 97% similarity cutoff with the average neighbor clustering algorithm. The number of sequences in each sample was rarefied to 2,500 per sample to minimize the effects of uneven sampling.
+
+**DNA extraction, shotgun library preparation, and sequencing** 
+
+
+**Metagenomic assembly and annotation.**
+
+
+**RNA extraction, shotgun library preparation, and sequencing** To generate enough mRNA biomass contributed by *C. difficile*, we pooled cecal content from all mouse replicates into a single large isolation for each treatment group. Pooling was performed in a sterile stainless steel mortar resting in dry ice and a small amount of 100% ethanol. After all content for the given group was added, the sample was ground with a sterile pestle to a fine powder and scraped into a sterile 50 ml polypropylene conical tube. Samples were stored at -80° C until the time of extraction. Immediately before RNA extraction, 3 ml of lysis buffer (2% SDS, 16 mM EDTA and 200 mM NaCl) contained in a 50 ml polypropylene conical tube was first heated for 5 minutes in a boiling water bath [@Lopez-Medina2011]. The hot lysis buffer was added to the frozen and ground cecal content. The mixture was boiled with periodic vortexing for another 5 minutes. After boiling, an equal volume of 37° C acid phenol/chloroform was added to the cecal content lysate and incubated at 37° C for 10 minutes with periodic vortexing. The mixture was the centrifuged at 2,500 x g at 4° C for 15 minutes. The aqueous phase was then transferred to a sterile tube and an equal volume of acid phenol/chloroform was added. This mixture was vortexed and centrifuged at 2,500 x g at 4° for 5 minutes. The process was repeated until aqueous phase was clear. The last extraction was performed with chloroform/isoamyl alcohol to remove acid phenol. An equal volume of isopropanol was added and the extracted nucleic acid was incubated overnight at -20° C. The following day the sample was centrifuged at 12000 x g at 4° C for 45 minutes. The pellet was washed with 0° C 100% ethanol and resuspended in 200 μl of RNase-free water. Following the manufacturer's protocol, samples were then treated with 2 μl of Turbo DNase for 30 minutes at 37° C. RNA samples were retrieved using the Zymo Quick-RNA MiniPrep according the manufacturer's protocol. Completion of the reaction was assessed using PCR for the V4 region of the 16S rRNA gene for 30 cycles (Kozich, 2013). Quality and integrity of RNA was measured using the Agilent RNA 6000 Nano kit for total prokaryotic RNA. The Ribo-Zero Gold rRNA Removal Kit Epidemiology was then used to deplete prokaryotic and eukaryotic rRNA from the samples according the manufacturer's protocol. Prior to library construction, quality and integrity as measured again using the Agilent RNA 6000 Pico Kit. Stranded RNA-Seq libraries were made constructed with the TruSeq Total RNA Library Preparation Kit v2, both using the manufacturer's protocol. The Agilent DNA High Sensitivity Kit was used to measure concentration and fragment size distribution before sequencing. High-throughput sequencing was performed by the University of Michigan Sequencing Core in Ann Arbor, MI. For all groups, sequencing was repeated across 4 lanes of an Illumina HiSeq 2500 using the 2x50 bp chemistry.
+
+**Sequence curation, read mapping, and normalization.** Raw transcript sequencing read curation was performed in a two step process. Residual 5’ and 3’ Illumina adapter sequences were trimmed using CutAdapt [@Martin2013] on a per library basis. Reads were quality trimmed using Sickle (Joshi, 2011) on the default settings. An average of \~300,000,000 total reads (both paired and orphaned) remained after quality trimming. Mapping was accomplished using Bowtie2 [@Langmead2009] and the default stringent settings. \~1,600,000 reads in sample each mapped to the annotated nucleotide gene sequences of *PeptoClostridium difficile* str. 630 from the KEGG: Kyoto Encyclopedia of Genes and Genomes [@Ogata1999]. Optical and PCR duplicates were then removed using Picard MarkDuplicates (http://broadinstitute.github.io/picard/), leaving ~150,000 reads per sample for final analysis. The remaining mappings were converted to idxstats format using Samtools [@Li2009] and the read counts per gene were tabulated. Discordant pair mappings were discarded and counts were then normalized to read length and gene length to give a per base report of gene coverage. Unless indicated otherwise, each collection of reads was then 1000-fold iteratively subsampled to 90% of the lowest sequence total within each analysis, and a median expression value for each gene was calculated.
+
+**Quantification of *in vivo* metabolite relative concentrations.** Metabolomic analysis performed by Metabolon (Durham, NC), a brief description of their methods is as follows. All methods utilized a Waters ACQUITY ultra-performance liquid chromatography (UPLC) and a Thermo Scientific Q-Exactive high resolution/accurate mass spectrometer interfaced with a heated electrospray ionization (HESI-II) source and Orbitrap mass analyzer at 35,000 mass resolution. Samples were dried then reconstituted in solvents compatible to each of the four methods. The first, in acidic positive conditions using a C18 column (Waters UPLC BEH C18-2.1x100 mm, 1.7 µm) using water and methanol, containing 0.05% perfluoropentanoic acid (PFPA) and 0.1% formic acid (FA). The second method was identical to the first but was chromatographically optimized for more hydrophobic compounds. The third approach utilized a basic negative ion optimized conditions using a separate dedicated C18 column. Basic extracts were gradient eluted from the column using methanol and water, however with 6.5mM Ammonium Bicarbonate at pH 8. Samples were then analyzed via negative ionization following elution from a hydrophilic interaction chromatography column (Waters UPLC BEH Amide 2.1x150 mm, 1.7 µm) using a gradient consisting of water and acetonitrile with 10mM Ammonium Formate, pH 10.8. The MS analysis alternated between MS and data-dependent MS n scans using dynamic exclusion. The scan range varied slighted between methods but covered 70-1000 m/z. Library matches for each compound were checked for each sample and corrected if necessary. Peaks were quantified using area under the curve.
+
+**Statistical methods.** All statistical analyses were performed using R (v.3.2.0). Significant differences between community structure of treatment groups from 16S rRNA gene sequencing were determined with AMOVA in the mothur software package. Significant differences of Inv. Simpson diversity, cfu, toxin titer, and metabolite concentrations were determined by Wilcoxon signed-rank test with Benjamini-Hochberg correction. Undetectable points used half the limit of detection for all statistical calculations. Significant differences for growth curves compared to no carbohydrate control (+ amino acids) were calculated using 1-way ANOVA with Benjamini-Hochberg correction.
+
+
+###Funding Information
+
+This work was supported by funding from the National Institutes of Health to PDS (R01GM099514, P30DK034933, U19AI09087, and U01AI124255), VBY (P30DK034933, U19AI09087, and U01AI124255), a Translational Research Education Certificate grant to JLL (MICHR; UL1TR000433), and was partially supported by a predoctoral fellowship from the Cellular Biotechnology Training Program to MLJ (T32GM008353).
+
+
+###Acknowledgements
+
+The authors would like to acknowledge Charles Koumpouras for assistance with DNA extractions and metabolomic sample preparation. We would also like to acknowledge members of the University of Michigan Germfree Mouse Center, University of Michigan Sequencing Core, and Metabolon for their assistance in experimental design, execution, and data collection. Pooled and quality trimmed transcriptomic read data and experiment metadata are available through the NCBI Sequence Read Archive (SRA; PRJNA354635 and ). Data processing steps for beginning from raw sequence data to the final manuscript are hosted at 
+
+**Author Affiliations**
+**Department of Microbiology and Immunology, University of Michigan, Ann Arbor, Michigan.**
+Matthew L. Jenior, Jhansi L. Leslie, & Patrick D. Schloss Ph.D.
+
+**Department of Internal Medicine & Infectious Diseases, University of Michigan Medical Center, Ann Arbor, Michigan.**
+Vincent B. Young M.D. Ph.D.
+
+**Author Contributions**
+M.L.J. conceived, designed and performed experiments, analyzed data, and drafted the manuscript. J.L.L. performed experiments and analyzed data. V.B.Y. contributed to the manuscript. P.D.S. interpreted data and contributed the manuscript.
+The authors declare no conflicts of interest.
+
+**Corresponding author**
+Correspondence to [Patrick D. Schloss](pdschloss@umich.edu)
+
+
+###Figure Legends
+
+**Figure 1 | **
+
+**Figure 2 | **
+
+**Figure 3 | **
+
+**Figure 4 | **
+
+**Figure 5 | **
+
+
+**Supplementary Figure 1 | **
+
+**Supplementary Figure 2 | Rarefaction curves for reads?**
+
+**Supplementary Figure 3 | **
+
+**Supplementary Figure 4 | **
+
+
+### References
