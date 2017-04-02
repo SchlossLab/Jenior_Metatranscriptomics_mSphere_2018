@@ -119,15 +119,21 @@ Correspondence to [Patrick D. Schloss](pdschloss@umich.edu)
 
 ###Figure Legends
 
-**Figure 1 | **
+Abx table
 
-**Figure 2 | **
+**Figure 1 | ** Description of animal models and changes to community from abx
 
-**Figure 3 | **
+**Figure 2 | ** Correlation of 16S and metabolome (species level) A) 16s nmds B) metabolome nmds C) combined analysis
 
-**Figure 4 | **
+**Figure 3 | ** Comparisons of Metatransctipomes (taxonomic groups labeled)
 
-**Figure 5 | **
+**Figure 4 | ** Correlation of metabolome and metatranscriptome (changes to pathways)
+
+**Figure 5 | ** Community-level modeling schematic
+
+Algorithm
+
+**Figure 5 | ** Modeling results
 
 
 **Supplementary Figure 1 | **
