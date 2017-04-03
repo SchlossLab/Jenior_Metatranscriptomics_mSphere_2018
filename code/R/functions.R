@@ -103,3 +103,11 @@ featureselect_RF <- function(training_data, feature){
   return(final_features_RF)
 }
 
+# get KEGG organism codes from gene annotation row names
+get_kegg_org <- function(mappings){
+  genes <- strsplit(rownames(mappings), ':')
+  orgs <- lapply(genes, `[[`, 1)
+  mappings$org_code <- orgs
+  return(mappings)
+}
+

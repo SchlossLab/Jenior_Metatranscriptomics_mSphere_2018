@@ -13,72 +13,67 @@ for (dep in deps){
 }
 
 # Set seed for RNG
-set.seed(6189)
+set.seed(8619)
 
 # Load in functions
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
 # Define files
 
-# Output plot
-plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/figures/figure_3.pdf'
-
-# KEGG organism IDs
-kegg_org_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/kegg_organisms.tsv'
-
 # Metagenomes
-cef_metagenome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_metagenome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Clindamycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_metagenome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Streptomycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_metagenome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Conventional.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_metagenome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_metagenome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Clindamycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_metagenome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Streptomycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+conv_metagenome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Conventional.DNA_reads2pangenome.all.norm.remove.annotated.txt'
 
 # Metatranscriptomes
-cef_630_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-cef_mock_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/cefoperazone_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_630_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/clindamycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_mock_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/clindamycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_630_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_mock_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_metatranscriptome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_630_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_mock_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/cefoperazone_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_630_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/clindamycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_mock_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/clindamycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_630_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_mock_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+conv_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+
+# KEGG taxonomy IDs
+kegg_tax <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/kegg_taxonomy.tsv'
+
+# Output plot
+plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/figures/figure_3.pdf'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Read in data
 
 # Metagenomes
-cef_metagenome <- read.delim(cef_metagenome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
+cef_metagenome <- read.delim(cef_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(cef_metagenome) <- c('cef_metaG_reads', 'ko', 'gene', 'pathway')
-clinda_metagenome <- read.delim(clinda_metagenome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
+clinda_metagenome <- read.delim(clinda_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(clinda_metagenome) <- c('clinda_metaG_reads', 'ko', 'gene', 'pathway')
-strep_metagenome <- read.delim(strep_metagenome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
+strep_metagenome <- read.delim(strep_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(strep_metagenome) <- c('strep_metaG_reads', 'ko', 'gene', 'pathway')
-conv_metagenome <- read.delim(conv_metagenome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
+conv_metagenome <- read.delim(conv_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(conv_metagenome) <- c('conv_metaG_reads', 'ko', 'gene', 'pathway')
-rm(cef_metagenome_file, clinda_metagenome_file, strep_metagenome_file, conv_metagenome_file)
 
 # Metatranscriptomes
-cef_630_metatranscriptome <- read.delim(cef_630_metatranscriptome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
+cef_630_metatranscriptome <- read.delim(cef_630_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(cef_630_metatranscriptome) <- c('cef_630_metaT_reads', 'ko', 'gene', 'pathway')
-cef_mock_metatranscriptome <- read.delim(cef_mock_metatranscriptome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
+cef_mock_metatranscriptome <- read.delim(cef_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(cef_mock_metatranscriptome) <- c('cef_mock_metaT_reads', 'ko', 'gene', 'pathway')
-rm(cef_630_metatranscriptome_file, cef_mock_metatranscriptome_file)
-clinda_630_metatranscriptome <- read.delim(clinda_630_metatranscriptome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
+clinda_630_metatranscriptome <- read.delim(clinda_630_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(clinda_630_metatranscriptome) <- c('clinda_630_metaT_reads', 'ko', 'gene', 'pathway')
-clinda_mock_metatranscriptome <- read.delim(clinda_mock_metatranscriptome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
+clinda_mock_metatranscriptome <- read.delim(clinda_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(clinda_mock_metatranscriptome) <- c('clinda_mock_metaT_reads', 'ko', 'gene', 'pathway')
-rm(clinda_630_metatranscriptome_file, clinda_mock_metatranscriptome_file)
-strep_630_metatranscriptome <- read.delim(strep_630_metatranscriptome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
+strep_630_metatranscriptome <- read.delim(strep_630_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(strep_630_metatranscriptome) <- c('strep_630_metaT_reads', 'ko', 'gene', 'pathway')
-strep_mock_metatranscriptome <- read.delim(strep_mock_metatranscriptome_file, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
+strep_mock_metatranscriptome <- read.delim(strep_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(strep_mock_metatranscriptome) <- c('strep_mock_metaT_reads', 'ko', 'gene', 'pathway')
-rm(strep_630_metatranscriptome_file, strep_mock_metatranscriptome_file)
-conv_metatranscriptome <- read.delim(conv_metatranscriptome_file, sep='\t', header=FALSE, row.names=1)
+conv_metatranscriptome <- read.delim(conv_metatranscriptome, sep='\t', header=FALSE, row.names=1)
 colnames(conv_metatranscriptome) <- c('conv_metaT_reads', 'ko', 'gene', 'pathway')
-rm(conv_final_reads_file)
 
 # KEGG organism file
-kegg_org <- read.delim(kegg_org_file, sep='\t', header=TRUE)
-rm(kegg_org_file)
+kegg_tax <- read.delim(kegg_tax, sep='\t', header=TRUE)
+kegg_tax[] <- lapply(kegg_tax, as.character)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -123,15 +118,62 @@ rm(cef_metagenome, clinda_metagenome, strep_metagenome, conv_metagenome,
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Remove residual C. difficile mappings (str. 630 & 196)
+# Remove residual C. difficile mappings
 cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CD630', rownames(cef_raw_reads)),]), ]
 cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdc:CD196', rownames(cef_raw_reads)),]), ]
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP07', rownames(cef_raw_reads)),]), ]
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP02', rownames(cef_raw_reads)),]), ]
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP06', rownames(cef_raw_reads)),]), ]
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP03', rownames(cef_raw_reads)),]), ]
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_08660', rownames(cef_raw_reads)),]), ]
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_06165', rownames(cef_raw_reads)),]), ]
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_09680', rownames(cef_raw_reads)),]), ]
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_02800', rownames(cef_raw_reads)),]), ]
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_13505', rownames(cef_raw_reads)),]), ]
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdl:CDR20291_1755', rownames(cef_raw_reads)),]), ]
+
 clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CD630', rownames(clinda_raw_reads)),]), ]
 clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdc:CD196', rownames(clinda_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP07', rownames(clinda_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP02', rownames(clinda_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP06', rownames(clinda_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP03', rownames(clinda_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_08660', rownames(clinda_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_06165', rownames(clinda_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_09680', rownames(clinda_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_02800', rownames(clinda_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_13505', rownames(clinda_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdl:CDR20291_1755', rownames(clinda_raw_reads)),]), ]
+
 strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CD630', rownames(strep_raw_reads)),]), ]
 strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdc:CD196', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CD630', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdc:CD196', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP07', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP02', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP06', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP03', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_08660', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_06165', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_09680', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_02800', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_13505', rownames(strep_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdl:CDR20291_1755', rownames(strep_raw_reads)),]), ]
+
 conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CD630', rownames(conv_raw_reads)),]), ]
 conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdc:CD196', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CD630', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdc:CD196', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP07', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP02', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP06', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP03', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_08660', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_06165', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_09680', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_02800', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_13505', rownames(conv_raw_reads)),]), ]
+conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdl:CDR20291_1755', rownames(conv_raw_reads)),]), ]
 
 # Remove genes with no metagenomic coverage
 cef_raw_reads <- subset(cef_raw_reads, cef_metaG_reads != 0)
@@ -193,14 +235,13 @@ strep_normalized_reads <- subset(strep_normalized_reads, strep_normalized_reads$
 cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', cef_normalized_reads$gene),]), ]
 clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', clinda_normalized_reads$gene),]), ]
 strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
-conv_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
+#conv_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
 
 # Also save those that remain unknown
-cef_unknown <- cef_normalized_reads[rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', cef_normalized_reads$gene),]), ]
-clinda_unknown <- clinda_normalized_reads[rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', clinda_normalized_reads$gene),]), ]
-strep_unknown <- strep_normalized_reads[rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
-conv_unknown <- strep_normalized_reads[rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
-
+#cef_unknown <- cef_normalized_reads[rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', cef_normalized_reads$gene),]), ]
+#clinda_unknown <- clinda_normalized_reads[rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', clinda_normalized_reads$gene),]), ]
+#strep_unknown <- strep_normalized_reads[rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
+#conv_unknown <- strep_normalized_reads[rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
 rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads, conv_normalized_reads)
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -222,9 +263,58 @@ clinda_mock_outliers <- subset(clinda_annotated, clinda_annotated$clinda_mock_me
 
 # Break down outliers into taxonomic groups
 
+# Split out origin organism code
+strep_630_outliers <- get_kegg_org(strep_630_outliers)
+strep_mock_outliers <- get_kegg_org(strep_mock_outliers)
+cef_630_outliers <- get_kegg_org(cef_630_outliers)
+cef_mock_outliers <- get_kegg_org(cef_mock_outliers)
+clinda_630_outliers <- get_kegg_org(clinda_630_outliers)
+clinda_mock_outliers <- get_kegg_org(clinda_mock_outliers)
 
+# Drop levels
+strep_630_outliers[] <- lapply(strep_630_outliers, as.character)
+strep_mock_outliers[] <- lapply(strep_mock_outliers, as.character)
+cef_630_outliers[] <- lapply(cef_630_outliers, as.character)
+cef_mock_outliers[] <- lapply(cef_mock_outliers, as.character)
+clinda_630_outliers[] <- lapply(clinda_630_outliers, as.character)
+clinda_mock_outliers[] <- lapply(clinda_mock_outliers, as.character)
 
+# Save KEGG ID names
+strep_630_outliers$kegg_id <- rownames(strep_630_outliers)
+strep_mock_outliers$kegg_id <- rownames(strep_mock_outliers)
+cef_630_outliers$kegg_id <- rownames(cef_630_outliers)
+cef_mock_outliers$kegg_id <- rownames(cef_mock_outliers)
+clinda_630_outliers$kegg_id <- rownames(clinda_630_outliers)
+clinda_mock_outliers$kegg_id <- rownames(clinda_mock_outliers)
 
+# Merge with KEGG taxonomy
+strep_630_outliers <- merge(x=strep_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+strep_630_outliers$org_code <- NULL
+strep_630_outliers$strep_630_metaT_reads <- as.numeric(strep_630_outliers$strep_630_metaT_reads)
+strep_630_outliers$strep_mock_metaT_reads <- as.numeric(strep_630_outliers$strep_mock_metaT_reads)
+strep_mock_outliers <- merge(x=strep_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+strep_mock_outliers$org_code <- NULL
+strep_mock_outliers$strep_630_metaT_reads <- as.numeric(strep_mock_outliers$strep_630_metaT_reads)
+strep_mock_outliers$strep_mock_metaT_reads <- as.numeric(strep_mock_outliers$strep_mock_metaT_reads)
+cef_630_outliers <- merge(x=cef_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+cef_630_outliers$org_code <- NULL
+cef_630_outliers$cef_630_metaT_reads <- as.numeric(cef_630_outliers$cef_630_metaT_reads)
+cef_630_outliers$cef_mock_metaT_reads <- as.numeric(cef_630_outliers$cef_mock_metaT_reads)
+cef_mock_outliers <- merge(x=cef_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+cef_mock_outliers$org_code <- NULL
+cef_mock_outliers$cef_630_metaT_reads <- as.numeric(cef_mock_outliers$cef_630_metaT_reads)
+cef_mock_outliers$cef_mock_metaT_reads <- as.numeric(cef_mock_outliers$cef_mock_metaT_reads)
+clinda_630_outliers <- merge(x=clinda_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+clinda_630_outliers$org_code <- NULL
+clinda_630_outliers$clinda_630_metaT_reads <- as.numeric(clinda_630_outliers$clinda_630_metaT_reads)
+clinda_630_outliers$clinda_mock_metaT_reads <- as.numeric(clinda_630_outliers$clinda_mock_metaT_reads)
+clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+clinda_mock_outliers$org_code <- NULL
+clinda_mock_outliers$clinda_630_metaT_reads <- as.numeric(clinda_mock_outliers$clinda_630_metaT_reads)
+clinda_mock_outliers$clinda_mock_metaT_reads <- as.numeric(clinda_mock_outliers$clinda_mock_metaT_reads)
+rm(kegg_tax)
+
+# Define colors based on genus
 
 
 
@@ -235,16 +325,15 @@ clinda_mock_outliers <- subset(clinda_annotated, clinda_annotated$clinda_mock_me
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
-pdf(file=plot_file, width=8, height=12)
+pdf(file=plot_file, width=10, height=10)
 layout(matrix(c(1,2,
-                3,4,
-                5,5), 
-              nrow=3, ncol=2, byrow = TRUE))
+                3,4), 
+              nrow=2, ncol=2, byrow = TRUE))
+par(mar=c(3.5, 3.5, 1, 1), mgp=c(3,0.7,0))
 
 #-------------------#
 
 # Streptomycin
-par(mar=c(4.5, 5, 1, 1), mgp=c(3,0.7,0))
 plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
 filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
 box()
@@ -252,9 +341,9 @@ points(x=strep_annotated$strep_mock_metaT_reads, y=strep_annotated$strep_630_met
 segments(-2, -2, 14, 14, lty=2)
 minor.ticks.axis(1, 12, mn=0, mx=12)
 minor.ticks.axis(2, 12, mn=0, mx=12)
-mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
-mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
-mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
+mtext('Fold Normalized cDNA Abundance', side=1, padj=2.8, cex=0.7)
+mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
+mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(wes_palette("FantasticFox")[1],'black'))
 
@@ -264,12 +353,11 @@ points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep
 
 
 
-mtext('A', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
+mtext('A', side=2, line=2, las=2, adj=1, padj=-12, cex=1.4)
 
 #-------------------#
 
 # Cefoperazone
-par(mar=c(4.5, 5, 1, 1), mgp=c(3,0.7,0))
 plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
 filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
 box()
@@ -277,9 +365,9 @@ points(x=cef_annotated$cef_mock_metaT_reads, y=cef_annotated$cef_630_metaT_reads
 segments(-2, -2, 14, 14, lty=2)
 minor.ticks.axis(1, 12, mn=0, mx=12)
 minor.ticks.axis(2, 12, mn=0, mx=12)
-mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
-mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
-mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
+mtext('Fold Normalized cDNA Abundance', side=1, padj=2.8, cex=0.7)
+mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
+mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(wes_palette("FantasticFox")[3],'black'))
 
@@ -287,12 +375,11 @@ legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic
 points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
 points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
 
-mtext('B', side=2, line=2, las=2, adj=1, padj=-10, cex=1.3)
+mtext('B', side=2, line=2, las=2, adj=1, padj=-12, cex=1.4)
 
 #-------------------#
 
 # Clindamycin
-par(mar=c(4.5, 5, 1, 1), mgp=c(3,0.7,0))
 plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
 filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
 box()
@@ -300,9 +387,9 @@ points(x=clinda_annotated$clinda_mock_metaT_reads, y=clinda_annotated$clinda_630
 segments(-2, -2, 14, 14, lty=2)
 minor.ticks.axis(1, 12, mn=0, mx=12)
 minor.ticks.axis(2, 12, mn=0, mx=12)
-mtext('Fold Normalized cDNA Abundance', side=1, padj=2.2, cex=0.7)
-mtext('Mock-Infected', side=1, padj=3.5, font=2, cex=0.9)
-mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.2, cex=0.7)
+mtext('Fold Normalized cDNA Abundance', side=1, padj=2.8, cex=0.7)
+mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
+mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(wes_palette("FantasticFox")[5],'black'))
 
@@ -311,41 +398,35 @@ points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clin
 points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
 
 
-mtext('C', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
+mtext('C', side=2, line=2, las=2, adj=1, padj=-12, cex=1.4)
 
 #-------------------#
 
-par(mar=c(1,1,1,1))
-plot(0, type='n', axes=FALSE, xlab='', ylab='')
-legend('center', legend=c('Amino sugar metabolism', 'Fructose/Mannose metabolism', 'Proline/Glycine metabolism', 'Galactose metabolism'), 
-       pt.bg=c('chartreuse3', 'firebrick3', 'darkgoldenrod1', 'darkorchid3'), 
-       pch=21, cex=1.6, pt.cex=3, ncol=1)
+# Taxonomic group legend
+par(mar=c(0,0,0,0))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
 
-#-------------------#
-
-# Pathway plot like in Cody's paper - overrepresentation in infected vs mock
-
-par(las=1, mar=c(5,4,1,1), mgp=c(2.5,0.7,0), yaxs='i')
-plot(0, type='n', xlab='', ylab='Fold Transcript Abundance Difference', 
-     xlim=c(1,15), ylim=c(-5,5), xaxt='n', yaxt='n')
-box()
-axis(side=2, at=c(-5:5), labels=c(-5:5))
-abline(h=0, lty=2, lwd=2, col='gray35')
-abline(h=c(-2,2), lty=3, lwd=2, col='firebrick3')
-legend('topright', legend=c("630 infected", "Mock infected"), cex=1.2,
-       pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=2)
+rect(xleft=-4.5, ybottom=10, xright=3.5, ytop=-5.5, border='black')
 
 
-text(x=seq(2,14,2), y=par()$usr[3]-0.035*(par()$usr[4]-par()$usr[3]), srt=45, adj=1, xpd=TRUE, cex=1.2,
-     labels=c('Gene 1', 'Gene 2', 'Gene 3', 'Gene 4', 'Gene 5', 'Gene 6', 'Gene 7'))
+text(x=c(-3,-3,1,1,1,1), y=c(9,2.4,9,4.5,1.4,-1), labels=c('Bacteroidetes', 'Firmicutes','Actinobacteria','Proteobacteria','Verrucomicrobia','Other'), cex=1.2) # Phyla
+text(x=-2.5, y=c(8.3,7.6,6.9,6.2,5.5,4.8,4.1), labels=c('Allistipes','Bacteroides','Odoribacter','Parabacteroides','Prevotella','Porphymonas','Other'), cex=0.9) # Bacteroietes
+points(x=rep(-1.2,7), y=c(8.3,7.6,6.9,6.2,5.5,4.8,4.1), pch=22, cex=2.1, col='black', bg=c('#000066','#000099','#0000CC','#0000FF','#3333FF','#6666FF','#9999FF')) # blue
+
+text(x=-2.5, y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9,-4.6), labels=c('Clostridium','Enterococcus','Eubacterium','Lactobacillus','Lactococcus','Roseburia','Ruminococcus','Staphylococcus','Streptococcus','Other'), cex=0.9) # Firmicutes
+points(x=rep(-1.2,10), y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9,-4.6), pch=22, cex=2.1, col='black', bg=c('#330000','#660000','#990000','#CC0000','#FF0000','#FF3333','#FF6666','#FF9999','#FF99CC','#FFCCCC')) # red
+
+text(x=1.5, y=c(8.3,7.6,6.9,6.2), labels=c('Bifidobacterium','Corynebacterium','Olsenella','Other'), cex=0.9) # Actinobacteria
+points(x=rep(2.8,4), y=c(8.3,7.6,6.9,6.2), pch=22, cex=2.1, col='black', bg=c('#006600','#009900','#00CC00','#33FF33'))
+
+text(x=1.5, y=c(3.8,3.1), labels=c('Escherichia','Other'), cex=0.9) # Proteobacteria
+points(x=rep(2.8,2), y=c(3.8,3.1), pch=22, cex=2.1, col='black', bg=c('#CCCC00','#FFFF33'))
+
+text(x=1.5, y=0.7, labels=c('Akkermansia'), cex=0.9) # Verrucomicrobia
+points(x=2.8, y=0.7, pch=22, cex=2.1, col='black', bg='#990099')
 
 
-
-mtext('D', side=2, line=2, las=2, adj=6, padj=-2, cex=1.3)
-
-
-
-
+points(x=2.8, y=-1, pch=22, cex=2.1, col='black', bg='#FF8000') # Other
 
 dev.off()
 
