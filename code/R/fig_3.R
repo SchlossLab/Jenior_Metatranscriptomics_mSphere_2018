@@ -1,10 +1,10 @@
 
 # Set up environment
-#rm(list=ls())
-#gc()
+rm(list=ls())
+gc()
 
 # Load dependencies
-deps <- c('vegan', 'shape')
+deps <- c('shape')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -26,6 +26,8 @@ clinda_normalized_reads <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_20
 strep_normalized_reads <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_normalized.tsv'
 
 # KEGG pathway annotations for genes
+
+
 
 # KEGG taxonomy IDs
 kegg_tax <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/kegg_taxonomy.tsv'
@@ -52,7 +54,6 @@ kegg_tax[] <- lapply(kegg_tax, as.character)
 # Taxonomy colors
 tax_colors <- read.delim(tax_colors, sep='\t', header=TRUE)
 tax_colors[] <- lapply(tax_colors, as.character)
-
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -157,6 +158,13 @@ clinda_annotated$org_code <- NULL
 clinda_annotated$clinda_630_metaT_reads <- as.numeric(clinda_annotated$clinda_630_metaT_reads)
 clinda_annotated$clinda_mock_metaT_reads <- as.numeric(clinda_annotated$clinda_mock_metaT_reads)
 rm(kegg_tax)
+
+
+# get pathways and write to file
+
+
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
