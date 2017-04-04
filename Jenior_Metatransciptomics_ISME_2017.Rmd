@@ -1,6 +1,6 @@
 ---
 title: "*Clostridium difficile* changes murine gut communities"
-csl: nature.csl
+csl: isme.csl
 output:
  word_document:
   keep_md: true
@@ -125,7 +125,7 @@ Abx table
 
 **Figure 2 | ** Correlation of 16S and metabolome (species level) A) 16s nmds B) metabolome nmds C) combined analysis
 
-**Figure 3 | *C. difficile* colonization alters community-level gene expression differently between antibiotic pretreatements.** All points represent unique genes from metagenomic assembly and each metatranscriptome is normalized to their respective metganomic coverage. Point position is determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Points are colored based on the annotated genus of origin. **(A)** Streptomycin-pretreatment, **(B)** Cefoperazone-pretreatment, and **(C)** Clindamycon-pretreatment. Outliers were defined by least-squared residuals analysis. 
+**Figure 3 | *C. difficile* colonization alters community-level gene expression differently between antibiotic pretreatements.** All points represent unique genes from metagenomic assembly and each metatranscriptome is normalized to their respective metganomic coverage. Point position is determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Points are colored based on the annotated genus of origin. **(a)** Streptomycin-pretreatment, **(b)** Cefoperazone-pretreatment, and **(c)** Clindamycon-pretreatment. Outliers were defined by least-squared residuals analysis. 
 
 **Figure 4 | ** Correlation of metabolome and metatranscriptome (changes to pathways)
 

@@ -353,7 +353,7 @@ points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep
 
 
 
-mtext('A', side=2, line=2, las=2, adj=1, padj=-12, cex=1.4)
+mtext('a', side=2, line=2, las=2, adj=1, padj=-12, cex=1.4, font=2)
 
 #-------------------#
 
@@ -375,7 +375,7 @@ legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic
 points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
 points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
 
-mtext('B', side=2, line=2, las=2, adj=1, padj=-12, cex=1.4)
+mtext('b', side=2, line=2, las=2, adj=1, padj=-12, cex=1.4, font=2)
 
 #-------------------#
 
@@ -398,7 +398,7 @@ points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clin
 points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg='red', col='black')
 
 
-mtext('C', side=2, line=2, las=2, adj=1, padj=-12, cex=1.4)
+mtext('c', side=2, line=2, las=2, adj=1, padj=-12, cex=1.4, font=2)
 
 #-------------------#
 
