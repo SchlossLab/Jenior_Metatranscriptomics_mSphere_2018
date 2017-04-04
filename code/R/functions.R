@@ -1,4 +1,9 @@
 
+# Conserved colors across studies and figures
+strep_col <- '#D37A1F'
+cef_col <- '#3A9CBC'
+clinda_col <- '#A40019'
+
 # Filter out columns that have values in at least 3 samples (ignores first column)
 filter_table <- function(data) {
 
