@@ -26,8 +26,9 @@ clinda_normalized_reads <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_20
 strep_normalized_reads <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_normalized.tsv'
 
 # KEGG pathway annotations for genes
-
-
+cef_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_pathways.tsv'
+clinda_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_pathways.tsv'
+strep_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_pathways.tsv'
 
 # KEGG taxonomy IDs
 kegg_tax <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/kegg_taxonomy.tsv'
