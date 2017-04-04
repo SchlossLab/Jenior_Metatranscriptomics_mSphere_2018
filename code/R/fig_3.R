@@ -160,12 +160,21 @@ clinda_annotated$clinda_630_metaT_reads <- as.numeric(clinda_annotated$clinda_63
 clinda_annotated$clinda_mock_metaT_reads <- as.numeric(clinda_annotated$clinda_mock_metaT_reads)
 rm(kegg_tax)
 
+# Grab those genes with pathway annotations
+strep_630_pathways <- subset(strep_630_outliers, pathway != 'none')
+strep_mock_pathways <- subset(strep_mock_outliers, pathway != 'none')
+cef_630_pathways <- subset(cef_630_outliers, pathway != 'none')
+cef_mock_pathways <- subset(cef_mock_outliers, pathway != 'none')
+clinda_630_pathways <- subset(clinda_630_outliers, pathway != 'none')
+clinda_mock_pathways <- subset(clinda_mock_outliers, pathway != 'none')
 
-# get pathways and write to file
-
-
-
-
+# Write them to a file
+write.table(strep_630_pathways, file='~/Desktop/strep_630_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(strep_mock_pathways, file='~/Desktop/strep_mock_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(cef_630_pathways, file='~/Desktop/cef_630_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(cef_mock_pathways, file='~/Desktop/cef_mock_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(clinda_630_pathways, file='~/Desktop/clinda_630_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(clinda_mock_pathways, file='~/Desktop/clinda_mock_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
