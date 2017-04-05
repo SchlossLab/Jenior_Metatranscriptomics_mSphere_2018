@@ -25,11 +25,6 @@ cef_normalized_reads <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/
 clinda_normalized_reads <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_normalized.tsv'
 strep_normalized_reads <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_normalized.tsv'
 
-# KEGG pathway annotations for genes
-cef_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_pathways.tsv'
-clinda_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_pathways.tsv'
-strep_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_pathways.tsv'
-
 # KEGG taxonomy IDs
 kegg_tax <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/kegg_taxonomy.tsv'
 
@@ -47,11 +42,6 @@ plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/fig
 cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, row.names=6)
 clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, row.names=6)
 strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, row.names=6)
-
-# Pooled pathway mappings
-cef_pathways <- read.delim(cef_pathways, sep='\t', header=TRUE, row.names=3)
-clinda_pathways <- read.delim(clinda_pathways, sep='\t', header=TRUE, row.names=3)
-strep_pathways <- read.delim(strep_pathways, sep='\t', header=TRUE, row.names=3)
 
 # KEGG organism file
 kegg_tax <- read.delim(kegg_tax, sep='\t', header=TRUE)
@@ -88,6 +78,27 @@ cef_annotated <- cef_annotated[!row.names(cef_annotated) %in% row.names(cef_630_
 cef_annotated <- cef_annotated[!row.names(cef_annotated) %in% row.names(cef_mock_outliers), ]
 clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_630_outliers), ]
 clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_mock_outliers), ]
+
+# Combine groups of outliers for pathway analysis
+strep_pathways <- rbind(strep_630_outliers, strep_mock_outliers)
+cef_pathways <- rbind(cef_630_outliers, cef_mock_outliers)
+clinda_pathways <- rbind(clinda_630_outliers, clinda_mock_outliers)
+
+# Grab those genes with pathway annotations
+strep_pathways <- subset(strep_pathways, pathway != 'none')
+cef_pathways <- subset(cef_pathways, pathway != 'none')
+clinda_pathways <- subset(clinda_pathways, pathway != 'none')
+
+# Save KEGG ID names
+strep_pathways$kegg_id <- rownames(strep_pathways)
+cef_pathways$kegg_id <- rownames(cef_pathways)
+clinda_pathways$kegg_id <- rownames(clinda_pathways)
+
+# Write them to a file
+write.table(strep_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(cef_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(clinda_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+rm(strep_pathways, cef_pathways, clinda_pathways)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -224,21 +235,70 @@ clinda_mock_archeae <- subset(clinda_mock_outliers, color == '#FF8000')
 
 # Format pathway info
 
+# KEGG pathway annotations for genes
+cef_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_pathways.tsv'
+clinda_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_pathways.tsv'
+strep_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_pathways.tsv'
 
+# Pooled pathway mappings
+cef_pathways <- read.delim(cef_pathways, sep='\t', header=TRUE, row.names=3)
+clinda_pathways <- read.delim(clinda_pathways, sep='\t', header=TRUE, row.names=3)
+strep_pathways <- read.delim(strep_pathways, sep='\t', header=TRUE, row.names=3)
 
+# Renames columns
+colnames(cef_pathways) <- c('cef_630','cef_mock')
+colnames(clinda_pathways) <- c('clinda_630','clinda_mock')
+colnames(strep_pathways) <- c('strep_630','strep_mock')
 
+# Calculate differences
+cef_pathways$difference <- abs(cef_pathways$cef_630 - cef_pathways$cef_mock)
+clinda_pathways$difference <- abs(clinda_pathways$clinda_630 - clinda_pathways$clinda_mock)
+strep_pathways$difference <- abs(strep_pathways$strep_630 - strep_pathways$strep_mock)
 
+# Find the largest changes, take top 5
+cef_pathways <- cef_pathways[order(-cef_pathways$difference),][1:6,]
+clinda_pathways <- clinda_pathways[order(-clinda_pathways$difference),][1:6,]
+strep_pathways <- strep_pathways[order(-strep_pathways$difference),][1:6,]
 
+# Remove Global pathways (always top since its the largest)
+cef_pathways <- cef_pathways[-1, ]
+clinda_pathways <- clinda_pathways[-1, ]
+strep_pathways <- strep_pathways[-1, ]
 
+# Recalculate differences for plotting
+cef_pathways$difference <- cef_pathways$cef_630 - cef_pathways$cef_mock
+cef_pathways$cef_630 <- NULL
+cef_pathways$cef_mock <- NULL
+clinda_pathways$difference <- clinda_pathways$clinda_630 - clinda_pathways$clinda_mock
+clinda_pathways$clinda_630 <- NULL
+clinda_pathways$clinda_mock <- NULL
+strep_pathways$difference <- strep_pathways$strep_630 - strep_pathways$strep_mock
+strep_pathways$strep_630 <- NULL
+strep_pathways$strep_mock <- NULL
 
+# Transform data and format for plotting
+cef_pathways <- -log2(abs(cef_pathways))
+clinda_pathways <- log2(clinda_pathways)
+strep_pathways <- log2(strep_pathways)
+
+# Format pathway names
+pathway_names <- c(gsub('_', ' ', rownames(strep_pathways)), gsub('_', ' ', rownames(cef_pathways)), gsub('_', ' ', rownames(clinda_pathways)))
+cef_pathways <- cef_pathways$difference
+clinda_pathways <- clinda_pathways$difference
+strep_pathways <- strep_pathways$difference
+
+# Add blank rows for proper barplotting
+cef_pathways <- c(rep(0,6), cef_pathways)
+clinda_pathways <- c(rep(0,12), clinda_pathways)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
-pdf(file=plot_file, width=10, height=10)
+pdf(file=plot_file, width=9, height=12)
 layout(matrix(c(1,2,
-                3,4), 
-              nrow=2, ncol=2, byrow = TRUE))
+                3,4,
+                5,5), 
+              nrow=3, ncol=2, byrow = TRUE))
 par(mar=c(3.5, 3.5, 1, 1), mgp=c(3,0.7,0))
 
 #-------------------#
@@ -262,7 +322,6 @@ points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_o
 points(x=strep_mock_outliers_other$strep_mock_metaT_reads, y=strep_mock_outliers_other$strep_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=strep_630_outliers$strep_mock_metaT_reads, y=strep_630_outliers$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_630_outliers$color, col='black')
 points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_mock_outliers$color, col='black')
-
 points(x=strep_630_archeae$strep_mock_metaT_reads, y=strep_630_archeae$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_630_archeae$color, col='black')
 points(x=strep_mock_archeae$strep_mock_metaT_reads, y=strep_mock_archeae$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_mock_archeae$color, col='black')
 
@@ -287,7 +346,6 @@ points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$c
 points(x=cef_mock_outliers_other$cef_mock_metaT_reads, y=cef_mock_outliers_other$cef_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_630_outliers$color, col='black')
 points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_mock_outliers$color, col='black')
-
 points(x=cef_630_archeae$cef_mock_metaT_reads, y=cef_630_archeae$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_630_archeae$color, col='black')
 points(x=cef_mock_archeae$cef_mock_metaT_reads, y=cef_mock_archeae$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_mock_archeae$color, col='black')
 
@@ -312,7 +370,6 @@ points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outlier
 points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_outliers$color, col='black')
 points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_outliers$color, col='black')
-
 points(x=clinda_630_archeae$clinda_mock_metaT_reads, y=clinda_630_archeae$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_archeae$color, col='black')
 points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_archeae$color, col='black')
 
@@ -341,13 +398,33 @@ points(x=2.85, y=-1, pch=22, cex=2.1, col='black', bg='white') # Other Bacteria 
 text(x=1.35, y=-4.1, labels='Methanobrevibacter', cex=0.9) # Archeae
 points(x=2.85, y=-4.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
 
+#-------------------#
+
+# Overrepresented pathways
+par(mar=c(7,3,1,1), las=1)
+plot(0, type='n', xlab='', xaxt='n', yaxt='n', ylab='Fold Difference Transcript Abundance', xlim=c(0.5,20), ylim=c(-12,12))
+abline(h=0, lwd=2)
+#abline(h=c(-2,2), lwd=1.5, lty=5, col='gray30')
+axis(side=2, at=seq(-12,12,3), labels=c(12,9,6,3,0,3,6,9,12))
+text(x=c(2.6,2), y=c(12,-12), cex=0.9,
+     labels=c(as.expression(bquote(paste(italic('C. difficile'),'-infected metatranscriptome'))), 'Mock-infected metatranscriptome'))
+legend('topright', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
+       pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.7, col='black', bty='n')
+text(cex=1, x=c(seq(1.2,6,1.2),seq(8.4,13.2,1.2),seq(15.6,20.4,1.2)), y=-14, pathway_names, xpd=TRUE, srt=60, pos=2)
+mtext('d', side=2, line=2, las=2, adj=1, padj=-15, cex=1.2, font=2)
+
+# Add groups
+barplot(strep_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=strep_col, yaxt='n', add=TRUE) # Streptomycin
+barplot(cef_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=cef_col, yaxt='n', add=TRUE) # Cefoperazone
+barplot(clinda_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=clinda_col, yaxt='n', add=TRUE) # Clindamycin
+
 dev.off()
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clean up
-#for (dep in deps){
-#  pkg <- paste('package:', dep, sep='')
-#  detach(pkg, character.only = TRUE)}
-#rm(list=ls())
-#gc()
+for (dep in deps){
+  pkg <- paste('package:', dep, sep='')
+  detach(pkg, character.only = TRUE)}
+rm(list=ls())
+gc()

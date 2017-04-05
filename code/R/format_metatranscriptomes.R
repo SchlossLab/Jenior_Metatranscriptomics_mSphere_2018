@@ -206,24 +206,6 @@ strep_normalized_reads$strep_metaG_reads <- NULL
 conv_normalized_reads$conv_metaT_reads <- conv_normalized_reads$conv_metaT_reads / conv_normalized_reads$conv_metaG_reads
 conv_normalized_reads$conv_metaG_reads <- NULL
 
-# Grab those genes with pathway annotations
-strep_pathways <- subset(strep_normalized_reads, pathway != 'none')
-cef_pathways <- subset(cef_normalized_reads, pathway != 'none')
-clinda_pathways <- subset(clinda_normalized_reads, pathway != 'none')
-conv_pathways <- subset(conv_normalized_reads, pathway != 'none')
-
-# Save KEGG ID names
-strep_pathways$kegg_id <- rownames(strep_pathways)
-cef_pathways$kegg_id <- rownames(cef_pathways)
-clinda_pathways$kegg_id <- rownames(clinda_pathways)
-conv_pathways$kegg_id <- rownames(conv_pathways)
-
-# Write them to a file
-write.table(strep_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-write.table(cef_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-write.table(clinda_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-write.table(conv_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/conv_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-
 # Log2 transform the data
 cef_normalized_reads[,c(1,2)] <- log2(cef_normalized_reads[,c(1,2)] + 1)
 clinda_normalized_reads[,c(1,2)] <- log2(clinda_normalized_reads[,c(1,2)] + 1)
