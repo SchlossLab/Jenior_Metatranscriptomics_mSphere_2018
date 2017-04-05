@@ -95,9 +95,9 @@ cef_pathways$kegg_id <- rownames(cef_pathways)
 clinda_pathways$kegg_id <- rownames(clinda_pathways)
 
 # Write them to a file
-write.table(strep_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-write.table(cef_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-write.table(clinda_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+#write.table(strep_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+#write.table(cef_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+#write.table(clinda_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
 rm(strep_pathways, cef_pathways, clinda_pathways)
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -299,7 +299,7 @@ layout(matrix(c(1,2,
                 3,4,
                 5,5), 
               nrow=3, ncol=2, byrow = TRUE))
-par(mar=c(3.5, 3.5, 1, 1), mgp=c(3,0.7,0))
+par(mar=c(4, 5, 1, 1), mgp=c(3,0.7,0))
 
 #-------------------#
 
@@ -316,7 +316,7 @@ mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(strep_col,'black'))
-mtext('a', side=2, line=2, las=2, adj=1, padj=-15, cex=1.2, font=2)
+mtext('a', side=2, line=2, las=2, adj=2, padj=-11, cex=1.2, font=2)
 
 points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=strep_mock_outliers_other$strep_mock_metaT_reads, y=strep_mock_outliers_other$strep_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
@@ -340,7 +340,7 @@ mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(cef_col,'black'))
-mtext('b', side=2, line=2, las=2, adj=1, padj=-15, cex=1.2, font=2)
+mtext('b', side=2, line=2, las=2, adj=2, padj=-11, cex=1.2, font=2)
 
 points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$cef_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=cef_mock_outliers_other$cef_mock_metaT_reads, y=cef_mock_outliers_other$cef_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
@@ -364,7 +364,7 @@ mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(clinda_col,'black'))
-mtext('c', side=2, line=2, las=2, adj=1, padj=-15, cex=1.2, font=2)
+mtext('c', side=2, line=2, las=2, adj=2, padj=-11, cex=1.2, font=2)
 
 points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
@@ -401,18 +401,18 @@ points(x=2.85, y=-4.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
 #-------------------#
 
 # Overrepresented pathways
-par(mar=c(7,3,1,1), las=1)
+par(mar=c(15,4,1,2), las=1)
 plot(0, type='n', xlab='', xaxt='n', yaxt='n', ylab='', xlim=c(0.5,20), ylim=c(-12,12))
 abline(h=0, lwd=2)
-abline(h=c(-2,2), lwd=1.2, lty=5, col='gray30')
+#abline(h=c(-2,2), lwd=1.2, lty=5, col='gray30')
 axis(side=2, at=seq(-12,12,3), labels=c(12,9,6,3,0,3,6,9,12))
-mtext('Fold Difference Transcript Abundance', side=2, padj=-2.7, cex=0.9)
-text(x=c(2.6,2), y=c(12,-12), cex=0.8,
-     labels=c(as.expression(bquote(paste('Greater in',italic('C. difficile'),'-infected metatranscriptome'))), 'Greater in Mock-infected metatranscriptome'))
+mtext('Fold Difference Transcript Abundance', side=2, padj=-2.7, cex=0.7, xpd=TRUE)
+text(x=c(2.6,2.4), y=c(12,-12), cex=0.9,
+     labels=c(as.expression(bquote(paste('Greater in ',italic('C. difficile'),'-infected Metatranscriptome'))), 'Greater in Mock-infected Metatranscriptome'))
 legend('topright', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
        pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.7, col='black', bty='n')
 text(cex=1, x=c(seq(1.2,6,1.2),seq(8.4,13.2,1.2),seq(15.6,20.4,1.2)), y=-14, pathway_names, xpd=TRUE, srt=60, pos=2)
-mtext('d', side=2, line=2, las=2, adj=1, padj=-15, cex=1.2, font=2)
+mtext('d', side=2, line=2, las=2, adj=1, padj=-6, cex=1.2, font=2)
 
 # Add groups
 barplot(strep_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=strep_col, yaxt='n', add=TRUE) # Streptomycin
@@ -424,8 +424,8 @@ dev.off()
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clean up
-for (dep in deps){
-  pkg <- paste('package:', dep, sep='')
-  detach(pkg, character.only = TRUE)}
-rm(list=ls())
-gc()
+#for (dep in deps){
+#  pkg <- paste('package:', dep, sep='')
+#  detach(pkg, character.only = TRUE)}
+#rm(list=ls())
+#gc()
