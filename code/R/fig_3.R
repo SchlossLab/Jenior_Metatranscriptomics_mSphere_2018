@@ -402,12 +402,13 @@ points(x=2.85, y=-4.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
 
 # Overrepresented pathways
 par(mar=c(7,3,1,1), las=1)
-plot(0, type='n', xlab='', xaxt='n', yaxt='n', ylab='Fold Difference Transcript Abundance', xlim=c(0.5,20), ylim=c(-12,12))
+plot(0, type='n', xlab='', xaxt='n', yaxt='n', ylab='', xlim=c(0.5,20), ylim=c(-12,12))
 abline(h=0, lwd=2)
-#abline(h=c(-2,2), lwd=1.5, lty=5, col='gray30')
+abline(h=c(-2,2), lwd=1.2, lty=5, col='gray30')
 axis(side=2, at=seq(-12,12,3), labels=c(12,9,6,3,0,3,6,9,12))
-text(x=c(2.6,2), y=c(12,-12), cex=0.9,
-     labels=c(as.expression(bquote(paste(italic('C. difficile'),'-infected metatranscriptome'))), 'Mock-infected metatranscriptome'))
+mtext('Fold Difference Transcript Abundance', side=2, padj=-2.7, cex=0.9)
+text(x=c(2.6,2), y=c(12,-12), cex=0.8,
+     labels=c(as.expression(bquote(paste('Greater in',italic('C. difficile'),'-infected metatranscriptome'))), 'Greater in Mock-infected metatranscriptome'))
 legend('topright', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
        pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.7, col='black', bty='n')
 text(cex=1, x=c(seq(1.2,6,1.2),seq(8.4,13.2,1.2),seq(15.6,20.4,1.2)), y=-14, pathway_names, xpd=TRUE, srt=60, pos=2)
