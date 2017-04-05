@@ -48,6 +48,11 @@ cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, 
 clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, row.names=6)
 strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, row.names=6)
 
+# Pooled pathway mappings
+cef_pathways <- read.delim(cef_pathways, sep='\t', header=TRUE, row.names=3)
+clinda_pathways <- read.delim(clinda_pathways, sep='\t', header=TRUE, row.names=3)
+strep_pathways <- read.delim(strep_pathways, sep='\t', header=TRUE, row.names=3)
+
 # KEGG organism file
 kegg_tax <- read.delim(kegg_tax, sep='\t', header=TRUE)
 kegg_tax[] <- lapply(kegg_tax, as.character)
@@ -110,6 +115,20 @@ strep_annotated[] <- lapply(strep_annotated, as.character)
 cef_annotated[] <- lapply(cef_annotated, as.character)
 clinda_annotated[] <- lapply(clinda_annotated, as.character)
 
+# Remove all possible animal genes
+org_omit <- c('fab','cfa','ggo','hgl','hsa','mcc','mdo','pon','aml',
+              'ptr','rno','shr','ssc','aml','bta','cge','ecb',
+              'pps','fca','mmu','oaa','gga','ola','acs','aga')
+strep_630_outliers <- subset(strep_630_outliers, !(org_code %in% org_omit))
+strep_mock_outliers <- subset(strep_mock_outliers, !(org_code %in% org_omit))
+cef_630_outliers <- subset(cef_630_outliers, !(org_code %in% org_omit))
+cef_mock_outliers <- subset(cef_mock_outliers, !(org_code %in% org_omit))
+clinda_630_outliers <- subset(clinda_630_outliers, !(org_code %in% org_omit))
+clinda_mock_outliers <- subset(clinda_mock_outliers, !(org_code %in% org_omit))
+strep_annotated <- subset(strep_annotated, !(org_code %in% org_omit))
+cef_annotated <- subset(cef_annotated, !(org_code %in% org_omit))
+clinda_annotated <- subset(clinda_annotated, !(org_code %in% org_omit))
+
 # Save KEGG ID names
 strep_630_outliers$kegg_id <- rownames(strep_630_outliers)
 strep_mock_outliers$kegg_id <- rownames(strep_mock_outliers)
@@ -122,63 +141,47 @@ cef_annotated$kegg_id <- rownames(cef_annotated)
 clinda_annotated$kegg_id <- rownames(clinda_annotated)
 
 # Merge with KEGG taxonomy
-strep_630_outliers <- merge(x=strep_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+strep_630_outliers <- merge(x=strep_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
 strep_630_outliers$org_code <- NULL
 strep_630_outliers$strep_630_metaT_reads <- as.numeric(strep_630_outliers$strep_630_metaT_reads)
 strep_630_outliers$strep_mock_metaT_reads <- as.numeric(strep_630_outliers$strep_mock_metaT_reads)
-strep_mock_outliers <- merge(x=strep_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+strep_mock_outliers <- merge(x=strep_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
 strep_mock_outliers$org_code <- NULL
 strep_mock_outliers$strep_630_metaT_reads <- as.numeric(strep_mock_outliers$strep_630_metaT_reads)
 strep_mock_outliers$strep_mock_metaT_reads <- as.numeric(strep_mock_outliers$strep_mock_metaT_reads)
-cef_630_outliers <- merge(x=cef_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+cef_630_outliers <- merge(x=cef_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
 cef_630_outliers$org_code <- NULL
 cef_630_outliers$cef_630_metaT_reads <- as.numeric(cef_630_outliers$cef_630_metaT_reads)
 cef_630_outliers$cef_mock_metaT_reads <- as.numeric(cef_630_outliers$cef_mock_metaT_reads)
-cef_mock_outliers <- merge(x=cef_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+cef_mock_outliers <- merge(x=cef_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
 cef_mock_outliers$org_code <- NULL
 cef_mock_outliers$cef_630_metaT_reads <- as.numeric(cef_mock_outliers$cef_630_metaT_reads)
 cef_mock_outliers$cef_mock_metaT_reads <- as.numeric(cef_mock_outliers$cef_mock_metaT_reads)
-clinda_630_outliers <- merge(x=clinda_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+clinda_630_outliers <- merge(x=clinda_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
 clinda_630_outliers$org_code <- NULL
 clinda_630_outliers$clinda_630_metaT_reads <- as.numeric(clinda_630_outliers$clinda_630_metaT_reads)
 clinda_630_outliers$clinda_mock_metaT_reads <- as.numeric(clinda_630_outliers$clinda_mock_metaT_reads)
-clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code')
+clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
 clinda_mock_outliers$org_code <- NULL
 clinda_mock_outliers$clinda_630_metaT_reads <- as.numeric(clinda_mock_outliers$clinda_630_metaT_reads)
 clinda_mock_outliers$clinda_mock_metaT_reads <- as.numeric(clinda_mock_outliers$clinda_mock_metaT_reads)
-strep_annotated <- merge(x=strep_annotated, y=kegg_tax, by.x='org_code', by.y='org_code')
+strep_annotated <- merge(x=strep_annotated, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
 strep_annotated$org_code <- NULL
 strep_annotated$strep_630_metaT_reads <- as.numeric(strep_annotated$strep_630_metaT_reads)
 strep_annotated$strep_mock_metaT_reads <- as.numeric(strep_annotated$strep_mock_metaT_reads)
-cef_annotated <- merge(x=cef_annotated, y=kegg_tax, by.x='org_code', by.y='org_code')
+cef_annotated <- merge(x=cef_annotated, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
 cef_annotated$org_code <- NULL
 cef_annotated$cef_630_metaT_reads <- as.numeric(cef_annotated$cef_630_metaT_reads)
 cef_annotated$cef_mock_metaT_reads <- as.numeric(cef_annotated$cef_mock_metaT_reads)
-clinda_annotated <- merge(x=clinda_annotated, y=kegg_tax, by.x='org_code', by.y='org_code')
+clinda_annotated <- merge(x=clinda_annotated, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
 clinda_annotated$org_code <- NULL
 clinda_annotated$clinda_630_metaT_reads <- as.numeric(clinda_annotated$clinda_630_metaT_reads)
 clinda_annotated$clinda_mock_metaT_reads <- as.numeric(clinda_annotated$clinda_mock_metaT_reads)
 rm(kegg_tax)
 
-# Grab those genes with pathway annotations
-strep_630_pathways <- subset(strep_630_outliers, pathway != 'none')
-strep_mock_pathways <- subset(strep_mock_outliers, pathway != 'none')
-cef_630_pathways <- subset(cef_630_outliers, pathway != 'none')
-cef_mock_pathways <- subset(cef_mock_outliers, pathway != 'none')
-clinda_630_pathways <- subset(clinda_630_outliers, pathway != 'none')
-clinda_mock_pathways <- subset(clinda_mock_outliers, pathway != 'none')
-
-# Write them to a file
-write.table(strep_630_pathways, file='~/Desktop/strep_630_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-write.table(strep_mock_pathways, file='~/Desktop/strep_mock_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-write.table(cef_630_pathways, file='~/Desktop/cef_630_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-write.table(cef_mock_pathways, file='~/Desktop/cef_mock_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-write.table(clinda_630_pathways, file='~/Desktop/clinda_630_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-write.table(clinda_mock_pathways, file='~/Desktop/clinda_mock_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Get point ready for plotting
+# Get points ready for plotting
 
 # Define colors based on genus
 strep_630_outliers <- merge(x=strep_630_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
@@ -216,6 +219,18 @@ cef_630_archeae <- subset(cef_630_outliers, color == '#FF8000')
 cef_mock_archeae <- subset(cef_mock_outliers, color == '#FF8000')
 clinda_630_archeae <- subset(clinda_630_outliers, color == '#FF8000')
 clinda_mock_archeae <- subset(clinda_mock_outliers, color == '#FF8000')
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Format pathway info
+
+
+
+
+
+
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 

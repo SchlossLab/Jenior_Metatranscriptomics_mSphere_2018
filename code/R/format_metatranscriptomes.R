@@ -1,5 +1,4 @@
 
-
 # Set up environment
 rm(list=ls())
 gc()
@@ -171,25 +170,25 @@ conv_raw_reads <- subset(conv_raw_reads, conv_metaG_reads != 0)
 # Rarefy read abundances
 size <- round(min(colSums(cef_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
 cef_raw_reads$cef_metaG_reads <- t(rrarefy(cef_raw_reads$cef_metaG_reads, sample=size)) + 1
-cef_raw_reads$cef_630_metaT_reads <- t(rrarefy(cef_raw_reads$cef_630_metaT_reads, sample=size))
-cef_raw_reads$cef_mock_metaT_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaT_reads, sample=size))
+cef_raw_reads$cef_630_metaT_reads <- t(rrarefy(cef_raw_reads$cef_630_metaT_reads, sample=size)) + 1
+cef_raw_reads$cef_mock_metaT_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaT_reads, sample=size)) + 1
 cef_normalized_reads <- cef_raw_reads
 rm(cef_raw_reads)
 size <- round(min(colSums(clinda_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
 clinda_raw_reads$clinda_metaG_reads <- t(rrarefy(clinda_raw_reads$clinda_metaG_reads, sample=size)) + 1
-clinda_raw_reads$clinda_630_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_630_metaT_reads, sample=size))
-clinda_raw_reads$clinda_mock_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_mock_metaT_reads, sample=size))
+clinda_raw_reads$clinda_630_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_630_metaT_reads, sample=size)) + 1
+clinda_raw_reads$clinda_mock_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_mock_metaT_reads, sample=size)) + 1
 clinda_normalized_reads <- clinda_raw_reads
 rm(clinda_raw_reads)
 size <- round(min(colSums(strep_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
 strep_raw_reads$strep_metaG_reads <- t(rrarefy(strep_raw_reads$strep_metaG_reads, sample=size)) + 1
-strep_raw_reads$strep_630_metaT_reads <- t(rrarefy(strep_raw_reads$strep_630_metaT_reads, sample=size))
-strep_raw_reads$strep_mock_metaT_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaT_reads, sample=size))
+strep_raw_reads$strep_630_metaT_reads <- t(rrarefy(strep_raw_reads$strep_630_metaT_reads, sample=size)) + 1
+strep_raw_reads$strep_mock_metaT_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaT_reads, sample=size)) + 1
 strep_normalized_reads <- strep_raw_reads
 rm(strep_raw_reads)
 size <- round(min(colSums(conv_raw_reads[,c(1:2)]))*0.9) # Determine subsample level
 conv_raw_reads$conv_metaG_reads <- t(rrarefy(conv_raw_reads$conv_metaG_reads, sample=size)) + 1
-conv_raw_reads$conv_metaT_reads <- t(rrarefy(conv_raw_reads$conv_metaT_reads, sample=size))
+conv_raw_reads$conv_metaT_reads <- t(rrarefy(conv_raw_reads$conv_metaT_reads, sample=size)) + 1
 conv_normalized_reads <- conv_raw_reads
 rm(conv_raw_reads)
 rm(size)
@@ -206,6 +205,24 @@ strep_normalized_reads$strep_mock_metaT_reads <- strep_normalized_reads$strep_mo
 strep_normalized_reads$strep_metaG_reads <- NULL
 conv_normalized_reads$conv_metaT_reads <- conv_normalized_reads$conv_metaT_reads / conv_normalized_reads$conv_metaG_reads
 conv_normalized_reads$conv_metaG_reads <- NULL
+
+# Grab those genes with pathway annotations
+strep_pathways <- subset(strep_normalized_reads, pathway != 'none')
+cef_pathways <- subset(cef_normalized_reads, pathway != 'none')
+clinda_pathways <- subset(clinda_normalized_reads, pathway != 'none')
+conv_pathways <- subset(conv_normalized_reads, pathway != 'none')
+
+# Save KEGG ID names
+strep_pathways$kegg_id <- rownames(strep_pathways)
+cef_pathways$kegg_id <- rownames(cef_pathways)
+clinda_pathways$kegg_id <- rownames(clinda_pathways)
+conv_pathways$kegg_id <- rownames(conv_pathways)
+
+# Write them to a file
+write.table(strep_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(cef_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(clinda_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(conv_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/conv_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
 
 # Log2 transform the data
 cef_normalized_reads[,c(1,2)] <- log2(cef_normalized_reads[,c(1,2)] + 1)
@@ -229,7 +246,7 @@ conv_normalized_reads$kegg_id <- rownames(conv_normalized_reads)
 write.table(cef_normalized_reads, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
 write.table(clinda_normalized_reads, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
 write.table(strep_normalized_reads, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-write.table(conv_normalized_reads, file='~/DesktopRepositories/Jenior_Metatranscriptomics_2016/data/read_mapping/conv_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(conv_normalized_reads, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/conv_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
 
 # Clean up
 rm(list=ls())
