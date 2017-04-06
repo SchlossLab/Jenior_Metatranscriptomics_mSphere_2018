@@ -421,7 +421,7 @@ points(x=2.85, y=-3.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
 
 # Overrepresented pathways
 par(mar=c(15,4,1,2), las=1, mgp=c(1.6,0.7,0))
-plot(0, type='n', xlab='', xaxt='n', yaxt='n', ylab=as.expression(bquote(paste(Delta,' Fold Abundance'))), xlim=c(0.5,20), ylim=c(-12,12))
+plot(0, type='n', xlab='', xaxt='n', yaxt='n', ylab=as.expression(bquote(paste(Delta,' Fold Abundance (',log[2],')'))), xlim=c(0.5,20), ylim=c(-12,12))
 abline(h=0, lwd=1.5)
 abline(h=c(-confidence,confidence), lwd=1.2, lty=5, col='gray30')
 axis(side=2, at=seq(-12,12,3), labels=c(12,9,6,3,0,3,6,9,12))
@@ -442,8 +442,8 @@ dev.off()
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clean up
-#for (dep in deps){
-#  pkg <- paste('package:', dep, sep='')
-#  detach(pkg, character.only = TRUE)}
-#rm(list=ls())
-#gc()
+for (dep in deps){
+  pkg <- paste('package:', dep, sep='')
+  detach(pkg, character.only = TRUE)}
+rm(list=ls())
+gc()

@@ -1,4 +1,8 @@
 
+# Start with clear environment
+#rm(list=ls())
+#gc()
+
 # Load dependencies
 deps <- c('vegan', 'shape', 'Matrix')
 for (dep in deps){
@@ -254,36 +258,10 @@ rm(otu_tax)
 
 #--------------------------#
 
-# Ordination 
-shared_otu <- read.delim(shared_otu_file, sep='\t', header=T, row.names=2)
-shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]  # Remove contaminated sample
-shared_otu <- shared_otu[ , !(names(shared_otu) == 'Otu0004')] # Remove residual C. difficile OTU
-shared_otu$label <- NULL
-shared_otu$numOtus <- NULL
-shared_otu <- shared_otu[!rownames(shared_otu) %in% c('StrepC4M1','StrepC4M2','StrepC4M3'), ]
-
-
-otu_nmds <- metaMDS(shared_otu, k=2, trymax=100)$points
-otu_nmds[,1] <- otu_nmds[,1] - 0.2
-otu_nmds[,2] <- otu_nmds[,2] - 0.2
-otu_nmds <- clean_merge(metadata, otu_nmds)
-otu_nmds <- subset(otu_nmds, abx != 'germfree')
-otu_cefoperazone <- subset(otu_nmds, abx == 'cefoperazone')
-otu_clindamycin <- subset(otu_nmds, abx == 'clindamycin')
-otu_streptomycin <- subset(otu_nmds, abx == 'streptomycin')
-otu_untreated <- subset(otu_nmds, abx == 'none')
-
-
-#--------------------------#
-
 # Phylotype family-level shared file
 
 # Remove Young lab mice
 shared_family <- shared_family[!rownames(shared_family) %in% c('StrepC1M1','StrepC1M2','StrepC1M3','StrepC4M1','StrepC4M2','StrepC4M3'), ]
-
-# Find median abundances within each group
-
-
 
 # Convert to relative abundance
 relabund_shared <- (shared_family / rowSums(shared_family)) * 100
@@ -348,6 +326,7 @@ rm(metadata, bacteria, other)
 
 # Format wetlab assay data
 wetlab <- subset(wetlab, infection == '630') # Remove uninfected controls
+wetlab <- subset(wetlab, treatment != 'germfree') # Remove germfree
 wetlab$infection <- NULL
 wetlab$cfu_vegetative <- as.numeric(wetlab$cfu_vegetative)
 wetlab$cfu_vegetative[wetlab$cfu_vegetative == 0] <- 100
@@ -355,7 +334,7 @@ wetlab$cfu_vegetative <- log10(wetlab$cfu_vegetative)
 wetlab$cfu_spore <- as.numeric(wetlab$cfu_spore)
 wetlab$cfu_spore[wetlab$cfu_spore == 0] <- 100
 wetlab$cfu_spore <- log10(wetlab$cfu_spore)
-wetlab$treatment <- factor(wetlab$treatment, levels=c('germfree','conventional', 'streptomycin', 'cefoperazone', 'clindamycin'))
+wetlab$treatment <- factor(wetlab$treatment, levels=c('conventional', 'streptomycin', 'cefoperazone', 'clindamycin'))
 
 wetlab$cfu_vegetative[wetlab$cfu_vegetative <= 2.0] <- 1.7 # Undetectable points below LOD
 wetlab$cfu_spore[wetlab$cfu_spore <= 2.0] <- 1.7 # Undetectable points below LOD
@@ -367,8 +346,8 @@ wetlab$toxin_titer[wetlab$toxin_titer <= 2.0] <- 1.94 # Undetectable points belo
 plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/figures/figure_1.pdf'
 pdf(file=plot_file, width=12, height=10)
 layout(matrix(c(1,2,2,
-                3,4,5,
-                6,7,8),
+                3,3,4,
+                5,6,7),
               nrow=3, ncol=3, byrow = TRUE))
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
@@ -385,9 +364,9 @@ segments(x0=c(-4,0,2,2.75), y0=c(3.4,3.4,3.4,3.3), x1=c(-4,0,2,2.75), y1=c(2.6,2
 segments(x0=c(-4,-3,-2,-1,1), y0=c(3.25,3.25,3.25,3.25,3.25), x1=c(-4,-3,-2,-1,1), y1=c(2.75,2.75,2.75,2.75,2.75), lwd=2)
 points(x=c(2,2.75), y=c(3.8,3.8), pch=25, bg=c('white','black'), col='black', cex=2.5)
 text(x=c(-4,0,2), y=c(2.1,2.1,2.1), c('Day -7', 'Day -2', 'Day 0'), cex=1.1)
-text(x=-3.3, y=3.7, 'Streptomycin', cex=1.1)
-text(x=-2.1, y=3.72, 'or', cex=1.2, font=2)
-text(x=-0.8, y=3.7, 'Cefoperazone', cex=1.1)
+#text(x=-3.3, y=3.7, 'Streptomycin', cex=1.1)
+#text(x=-2.1, y=3.72, 'or', cex=1.2, font=2)
+#text(x=-0.8, y=3.7, 'Cefoperazone', cex=1.1)
 text(-4.4, 3, '1', font=2, cex=1.5)
 
 # IP injection abx timeline
@@ -398,53 +377,49 @@ text(x=c(-4,-3), y=c(-0.8,-0.8), c('Day -1', 'Day 0'), cex=1.1)
 text(-4.4, 0, '2', font=2, cex=1.5)
 
 # Legend
-legend(x=-0.6, y=1, legend=expression('Antibiotic in Drinking Water', 'Clindamycin IP Injection',paste(italic('C. difficile'), ' Spore Gavage'), 'Necropsy (18 hours-post)'), 
+legend(x=-0.6, y=1, legend=expression('Antibiotic in Drinking Water', 'Antibiotic IP Injection',paste(italic('C. difficile'), ' Spore Gavage'), 'Necropsy (18 hpi)'), 
        pt.bg=c('cadetblue3','coral1','white','black'), pch=c(22,25,25,25), cex=1.2, pt.cex=c(3,2,2,2), bty='n')
 
 # Plot label
-text(-4.7, 4.88, 'A', cex=2)
+text(-4.7, 4.88, 'a', cex=1.5, font=2)
 
 #-------------------------------------------------------------------#
 
 # CFU and toxin data
 
 # Vegetative cells
-par(mar=c(3,4,1,4), mgp=c(2.5, 1, 0))
-stripchart(cfu_vegetative~treatment, data=wetlab, col='black', bg='firebrick2', xlim=c(0,28), ylim=c(0,9), pch=21,
-           vertical=TRUE, at=c(0.5, 6.5, 12.5, 18.5, 24.5), xaxt='n', yaxt='n', ylab='CFU/g Cecal Content', 
+par(mar=c(3,4,1,4), mgp=c(2.5, 0.5, 0))
+stripchart(cfu_vegetative~treatment, data=wetlab, col='black', bg='firebrick2', xlim=c(0,22), ylim=c(0,9), pch=21,
+           vertical=TRUE, at=c(0.5, 6.5, 12.5, 18.5), xaxt='n', yaxt='n', ylab='CFU/g Cecal Content', 
            cex=1.7, method='jitter', jitter=0.2)
-abline(h=2, lwd=1.5, col='gray25') # LOD
-abline(v=c(5,11,17,23), lty=2, lwd=1.5) # dividers
+abline(h=2, lwd=1.5, col='gray30', lty=5) # LOD
+abline(v=c(5,11,17), lwd=1.5) # dividers
 axis(side=2, at=seq(0,9,1), labels=c(0, parse(text=paste(rep(10,9), '^', seq(1,9,1), sep=''))), las=1)
-axis(side=1, at=c(2,8,14,20,26), cex.axis=1.1, tick=FALSE,
-     labels=c('Gnotobiotic','No Antibiotics (SPF)','Streptomycin (SPF)','Cefoperazone (SPF)','Clindamycin (SPF)'))
+axis(side=1, at=c(2,8,14,20), cex.axis=1.1, tick=FALSE,
+     labels=c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'))
 
 # Median lines
-segments(x0=c(0.5, 6.5, 12.5, 18.5, 24.5)-0.6, y0=c(
-  as.numeric(median(wetlab[wetlab$treatment == 'germfree', 2])),
+segments(x0=c(0.5, 6.5, 12.5, 18.5)-0.6, y0=c(
   as.numeric(median(wetlab[wetlab$treatment == 'conventional', 2])),
   as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 2])),
   as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 2])),
   as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 2]))),
-x1=c(0.5, 6.5, 12.5, 18.5, 24.5)+0.6, y1=c(
-  as.numeric(median(wetlab[wetlab$treatment == 'germfree', 2])),
+x1=c(0.5, 6.5, 12.5, 18.5)+0.6, y1=c(
   as.numeric(median(wetlab[wetlab$treatment == 'conventional', 2])),
   as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 2])),
   as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 2])),
   as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 2]))), lwd=3)
 
 # Spores
-stripchart(cfu_spore~treatment, data=wetlab, col='black', bg='blue2', xlim=c(0,28), ylim=c(0,9), pch=21,
-           vertical=TRUE, at=c(2, 8, 14, 20, 26), xaxt='n', yaxt='n', ylab='', cex=1.7, method='jitter', jitter=0.2, add=TRUE)
+stripchart(cfu_spore~treatment, data=wetlab, col='black', bg='blue2', xlim=c(0,22), ylim=c(0,9), pch=21,
+           vertical=TRUE, at=c(2, 8, 14, 20), xaxt='n', yaxt='n', ylab='', cex=1.7, method='jitter', jitter=0.2, add=TRUE)
 # Median lines
-segments(x0=c(2, 8, 14, 20, 26)-0.6, y0=c(
-  as.numeric(median(wetlab[wetlab$treatment == 'germfree', 3])),
+segments(x0=c(2, 8, 14, 20)-0.6, y0=c(
   as.numeric(median(wetlab[wetlab$treatment == 'conventional', 3])),
   as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 3])),
   as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 3])),
   as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 3]))),
-  x1=c(2, 8, 14, 20, 26)+0.6, y1=c(
-    as.numeric(median(wetlab[wetlab$treatment == 'germfree', 3])),
+  x1=c(2, 8, 14, 20)+0.6, y1=c(
     as.numeric(median(wetlab[wetlab$treatment == 'conventional', 3])),
     as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 3])),
     as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 3])),
@@ -452,17 +427,15 @@ segments(x0=c(2, 8, 14, 20, 26)-0.6, y0=c(
 
 # Toxin
 par(mar=c(3,4,1,4), new=TRUE, xpd=TRUE)
-stripchart(toxin_titer~treatment, data=wetlab, col='black', bg='green3', xlim=c(0,28), ylim=c(1.6,3.4), pch=23,
-           vertical=TRUE, at=c(3.5, 9.5, 15.5, 21.5, 27.5), xaxt='n', yaxt='n', ylab='', cex=1.7, method='jitter', jitter=0.2)
+stripchart(toxin_titer~treatment, data=wetlab, col='black', bg='green3', xlim=c(0,22), ylim=c(1.6,3.4), pch=23,
+           vertical=TRUE, at=c(3.5, 9.5, 15.5, 21.5), xaxt='n', yaxt='n', ylab='', cex=1.7, method='jitter', jitter=0.2)
 # Median lines
-segments(x0=c(3.5, 9.5, 15.5, 21.5, 27.5)-0.6, y0=c(
-  as.numeric(median(wetlab[wetlab$treatment == 'germfree', 4])),
+segments(x0=c(3.5, 9.5, 15.5, 21.5)-0.6, y0=c(
   as.numeric(median(wetlab[wetlab$treatment == 'conventional', 4])),
   as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 4])),
   as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 4])),
   as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 4]))),
-  x1=c(3.5, 9.5, 15.5, 21.5, 27.5)+0.6, y1=c(
-    as.numeric(median(wetlab[wetlab$treatment == 'germfree', 4])),
+  x1=c(3.5, 9.5, 15.5, 21.5)+0.6, y1=c(
     as.numeric(median(wetlab[wetlab$treatment == 'conventional', 4])),
     as.numeric(median(wetlab[wetlab$treatment == 'streptomycin', 4])),
     as.numeric(median(wetlab[wetlab$treatment == 'cefoperazone', 4])),
@@ -471,33 +444,15 @@ axis(side=4, at=seq(1.6,3.4,0.2), las=1,
      labels=c('1.6','1.8','2.0','2.2','2.4','2.6','2.8','3.0','3.2','3.4'))
 mtext(expression(paste('Toxin Titer/g Cecal Content (',log[10],')')), side=4, line=3, cex=0.7)
 
-legend('topleft', legend=c('Vegetative cells (CFU)','Spores (CFU)'), ncol=2, box.lwd=0, box.col='white',
-       pch=21, col='black', pt.bg=c('firebrick2','blue2'), pt.cex=1.9, bg='white')
+legend('topleft', legend=c('Vegetative cells (CFU)','Spores (CFU)'), ncol=1, bty='n',
+       pch=21, col='black', pt.bg=c('firebrick2','blue2'), pt.cex=1.9)
 legend('topright', legend='Toxin titer', bty='n',
        pch=23, col='black', pt.bg='green3', pt.cex=1.9)
 box()
-mtext('B', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
+mtext('b', side=2, line=2, las=2, adj=3, padj=-11, cex=1.0, font=2)
 
 #-------------------------------------------------------------------#
 
-# NMDS Ordination
-
-par(mar=c(4,4,1,1), las=1, mgp=c(2,0.75,0), xaxs='i', yaxs='i')
-plot(x=otu_nmds$MDS1, y=otu_nmds$MDS2, xlim=c(-1.6,1.6), ylim=c(-1.5,1.5),
-     xlab='NMDS axis 1', ylab='NMDS axis 2', xaxt='n', yaxt='n', pch=19, cex=0.2)
-axis(side=1, at=seq(-1.6,1.6,0.4), labels=seq(-1.6,1.6,0.4))
-axis(side=2, at=seq(-1.5,1.5,0.3), labels=seq(-1.5,1.5,0.3))
-points(x=otu_cefoperazone$MDS1, y=otu_cefoperazone$MDS2, bg='chartreuse3', pch=21, cex=1.7, lwd=1.2)
-points(x=otu_clindamycin$MDS1, y=otu_clindamycin$MDS2, bg='blue2', pch=21, cex=1.7, lwd=1.2)
-points(x=otu_streptomycin$MDS1, y=otu_streptomycin$MDS2, bg='firebrick1', pch=21, cex=1.7, lwd=1.2)
-points(x=otu_untreated$MDS1, y=otu_untreated$MDS2, bg='azure2', pch=21, cex=1.7, lwd=1.2)
-legend('bottomright', legend=c('Untreated (SPF)','Streptomycin-treated (SPF)','Cefoperzone-treated (SPF)','Clindamycin-treated (SPF)'), 
-       pt.bg=c('azure2','firebrick1','chartreuse3','blue2'), 
-       pch=21, pt.cex=1.7)
-
-mtext('C', side=2, line=2, las=2, adj=1.5, padj=-8.5, cex=1.3)
-
-#-------------------------------------------------------------------#
 # Family-level phylotype bar chart
 
 par(mar=c(5,5,1,1), new=FALSE, xpd=FALSE)
@@ -509,18 +464,18 @@ abline(h=c(20,40,60,80), lty=2)
 
 # Lines under plot
 arrows(0.5, -2, 6.9, -2, angle=0, length=0, lwd=2, xpd=TRUE)
-arrows(9.1, -2, 18.9, -2, angle=0, length=0, lwd=2, xpd=TRUE)
-arrows(19.9, -2, 29.7, -2, angle=0, length=0, lwd=2, xpd=TRUE)
-arrows(32, -2, 40.3, -2, angle=0, length=0, lwd=2, xpd=TRUE)
-arrows(41.3, -2, 51.3, -2, angle=0, length=0, lwd=2, xpd=TRUE)
-arrows(53.4, -2, 63.1, -2, angle=0, length=0, lwd=2, xpd=TRUE)
-arrows(64.4, -2, 74, -2, angle=0, length=0, lwd=2, xpd=TRUE)
+arrows(9.1, -2, 15, -2, angle=0, length=0, lwd=2, xpd=TRUE)
+arrows(16.2, -2, 22.5, -2, angle=0, length=0, lwd=2, xpd=TRUE)
+arrows(24.5, -2, 33, -2, angle=0, length=0, lwd=2, xpd=TRUE)
+arrows(34, -2, 44, -2, angle=0, length=0, lwd=2, xpd=TRUE)
+arrows(46, -2, 56, -2, angle=0, length=0, lwd=2, xpd=TRUE)
+arrows(57, -2, 67, -2, angle=0, length=0, lwd=2, xpd=TRUE)
 
-mtext(rep('630 infected',4), side=1, at=c(3.7,14,36,58.3), adj=0.5, padj=1, cex=0.7)
-mtext(rep('Mock infected',3), side=1, at=c(24.7,46.5,69.1), adj=0.5, padj=1, cex=0.7)
+mtext(rep('CDI',3), side=1, at=c(12,28.2,51), adj=0.5, padj=1, cex=0.7)
+mtext(rep('Mock',4), side=1, at=c(3.7,19.5,39,62), adj=0.5, padj=1, cex=0.7)
 mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
-      side=1, at=c(3.7,19.3,41.5,63.7), adj=0.5, padj=2.5, cex=0.75)
-mtext('D', side=2, line=2, las=2, adj=1.7, padj=-8, cex=1.3)
+      side=1, at=c(3.7,15.5,34,56.5), adj=0.5, padj=2.5, cex=0.75)
+mtext('c', side=2, line=2, las=2, adj=3, padj=-11, cex=1.0, font=2)
 
 # Create a figure legend in empty plot
 par(mar=c(4,0,0.3,5))
@@ -536,7 +491,7 @@ segments(x0=c(4.4,4.4,4.28,4.43,4.48), x1=c(4.8,4.8,4.8,4.8,4.8),
          y0=c(3.69,2,-1.4,-3.95,-4.82), 
          y1=c(3.69,2,-1.4,-3.95,-4.82), lwd=2)
 
-text(x=c(3.8,3.8,3.8,3.8,3.8), y=c(3.69,2,-1.4,-3.95,-4.82), cex=1.2,
+text(x=c(3.8,3.8,3.8,3.8,3.8), y=c(3.69,2,-1.4,-4.2,-4.82), cex=1.2,
      labels=c('Actinobacteria', 'Bacteroidetes', 'Firmicutes', 'Proteobacteria', 'Verrucomicrobia'))
 
 #-------------------------------------------------------------------#
@@ -574,7 +529,7 @@ formatted <- lapply(1:length(strep_otus), function(i) bquote(paste(.(strep_phyla
 
 axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
 
-mtext('E', side=2, line=2, las=2, adj=9.8, padj=-8, cex=1.3)
+mtext('d', side=2, line=2, las=2, adj=17, padj=-11, cex=1.0, font=2)
 
 #-----------------#
 
@@ -646,11 +601,11 @@ dev.off()
 
 #Clean up
 
-for (dep in deps){
-  pkg <- paste('package:', dep, sep='')
-  detach(pkg, character.only = TRUE)
-}
+#for (dep in deps){
+#  pkg <- paste('package:', dep, sep='')
+#  detach(pkg, character.only = TRUE)
+#}
 #rm(list=ls())
-gc()
+#gc()
 
 
