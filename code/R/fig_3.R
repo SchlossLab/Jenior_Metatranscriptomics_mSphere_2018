@@ -231,6 +231,14 @@ cef_mock_archeae <- subset(cef_mock_outliers, color == '#FF8000')
 clinda_630_archeae <- subset(clinda_630_outliers, color == '#FF8000')
 clinda_mock_archeae <- subset(clinda_mock_outliers, color == '#FF8000')
 
+# Make sure Actinobacteria points are visible
+strep_630_actino <- rbind(subset(strep_630_outliers, color == '#009900'), subset(strep_630_outliers, color == '#006600'), subset(strep_630_outliers, color == '#33FF33'))
+strep_mock_actino <- rbind(subset(strep_mock_outliers, color == '#009900'), subset(strep_mock_outliers, color == '#006600'), subset(strep_mock_outliers, color == '#33FF33'))
+cef_630_actino <- rbind(subset(cef_630_outliers, color == '#009900'), subset(cef_630_outliers, color == '#006600'), subset(cef_630_outliers, color == '#33FF33'))
+cef_mock_actino <- rbind(subset(cef_mock_outliers, color == '#009900'), subset(cef_mock_outliers, color == '#006600'), subset(cef_mock_outliers, color == '#33FF33'))
+clinda_630_actino <- rbind(subset(clinda_630_outliers, color == '#009900'), subset(clinda_630_outliers, color == '#006600'), subset(clinda_630_outliers, color == '#33FF33'))
+clinda_mock_actino <- rbind(subset(clinda_mock_outliers, color == '#009900'), subset(clinda_mock_outliers, color == '#006600'), subset(clinda_mock_outliers, color == '#33FF33'))
+
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Format pathway info
@@ -254,6 +262,11 @@ colnames(strep_pathways) <- c('strep_630','strep_mock')
 cef_pathways$difference <- abs(cef_pathways$cef_630 - cef_pathways$cef_mock)
 clinda_pathways$difference <- abs(clinda_pathways$clinda_630 - clinda_pathways$clinda_mock)
 strep_pathways$difference <- abs(strep_pathways$strep_630 - strep_pathways$strep_mock)
+
+# Calculate confidence interval
+diffs <- c(cef_pathways$difference, clinda_pathways$difference, strep_pathways$difference)
+confidence <- as.numeric(quantile(diffs, probs=0.05))
+rm(diffs)
 
 # Find the largest changes, take top 5
 cef_pathways <- cef_pathways[order(-cef_pathways$difference),][1:6,]
@@ -316,12 +329,14 @@ mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(strep_col,'black'))
-mtext('a', side=2, line=2, las=2, adj=2, padj=-11, cex=1.2, font=2)
+mtext('a', side=2, line=2, las=2, adj=2.5, padj=-11, cex=1.2, font=2)
 
 points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=strep_mock_outliers_other$strep_mock_metaT_reads, y=strep_mock_outliers_other$strep_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=strep_630_outliers$strep_mock_metaT_reads, y=strep_630_outliers$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_630_outliers$color, col='black')
 points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_mock_outliers$color, col='black')
+points(x=strep_630_actino$strep_mock_metaT_reads, y=strep_630_actino$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_630_actino$color, col='black')
+points(x=strep_mock_actino$strep_mock_metaT_reads, y=strep_mock_actino$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_mock_actino$color, col='black')
 points(x=strep_630_archeae$strep_mock_metaT_reads, y=strep_630_archeae$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_630_archeae$color, col='black')
 points(x=strep_mock_archeae$strep_mock_metaT_reads, y=strep_mock_archeae$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_mock_archeae$color, col='black')
 
@@ -340,12 +355,14 @@ mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(cef_col,'black'))
-mtext('b', side=2, line=2, las=2, adj=2, padj=-11, cex=1.2, font=2)
+mtext('b', side=2, line=2, las=2, adj=2.5, padj=-11, cex=1.2, font=2)
 
 points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$cef_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=cef_mock_outliers_other$cef_mock_metaT_reads, y=cef_mock_outliers_other$cef_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_630_outliers$color, col='black')
 points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_mock_outliers$color, col='black')
+points(x=cef_630_actino$cef_mock_metaT_reads, y=cef_630_actino$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_630_actino$color, col='black')
+points(x=cef_mock_actino$cef_mock_metaT_reads, y=cef_mock_actino$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_mock_actino$color, col='black')
 points(x=cef_630_archeae$cef_mock_metaT_reads, y=cef_630_archeae$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_630_archeae$color, col='black')
 points(x=cef_mock_archeae$cef_mock_metaT_reads, y=cef_mock_archeae$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_mock_archeae$color, col='black')
 
@@ -364,12 +381,14 @@ mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(clinda_col,'black'))
-mtext('c', side=2, line=2, las=2, adj=2, padj=-11, cex=1.2, font=2)
+mtext('c', side=2, line=2, las=2, adj=2.5, padj=-11, cex=1.2, font=2)
 
 points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
 points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_outliers$color, col='black')
 points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_outliers$color, col='black')
+points(x=clinda_630_actino$clinda_mock_metaT_reads, y=clinda_630_actino$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_actino$color, col='black')
+points(x=clinda_mock_actino$clinda_mock_metaT_reads, y=clinda_mock_actino$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_actino$color, col='black')
 points(x=clinda_630_archeae$clinda_mock_metaT_reads, y=clinda_630_archeae$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_archeae$color, col='black')
 points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_archeae$color, col='black')
 
@@ -381,7 +400,7 @@ plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
 rect(xleft=-4.5, ybottom=10, xright=3.5, ytop=-5.5, border='black')
 
 # Left side
-text(x=c(-3,-3,1,1,1,1,0.5), y=c(9,2.4,9,4.5,1.4,-1,-3.4), labels=c('Bacteroidetes', 'Firmicutes','Actinobacteria','Proteobacteria','Verrucomicrobia','Other Bacteria', 'Archeae'), cex=1.2) # Phyla
+text(x=c(-3,-3,1,1,1,1,0.5), y=c(9,2.4,9,5.5,2.4,0,-2.4), labels=c('Bacteroidetes', 'Firmicutes','Actinobacteria','Proteobacteria','Verrucomicrobia','Other Bacteria', 'Archeae'), cex=1.2) # Phyla
 text(x=-2.5, y=c(8.3,7.6,6.9,6.2,5.5,4.8), labels=c('Allistipes','Bacteroides','Odoribacter','Parabacteroides','Prevotella','Porphymonas'), cex=0.9) # Bacteroietes
 points(x=rep(-1.2,6), y=c(8.3,7.6,6.9,6.2,5.5,4.8), pch=22, cex=2.1, col='black', bg=c('#000099','#0000CC','#0000FF','#3333FF','#6666FF','#9999FF')) # blues
 text(x=-2.5, y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), labels=c('Clostridium','Enterococcus','Eubacterium','Lactobacillus','Lactococcus','Roseburia','Ruminococcus','Staphylococcus','Streptococcus'), cex=0.9) # Firmicutes
@@ -390,34 +409,33 @@ points(x=rep(-1.2,9), y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), pch=22, cex=
 # Right side
 text(x=1.5, y=c(8.3,7.6,6.9), labels=c('Bifidobacterium','Corynebacterium','Olsenella'), cex=0.9) # Actinobacteria
 points(x=rep(2.85,3), y=c(8.3,7.6,6.9), pch=22, cex=2.1, col='black', bg=c('#006600','#009900','#33FF33')) # greens
-text(x=1.5, y=3.8, labels='Escherichia', cex=0.9) # Proteobacteria
-points(x=2.85, y=3.8, pch=22, cex=2.1, col='black', bg='#CCCC00') # yellow
-text(x=1.5, y=0.7, labels='Akkermansia', cex=0.9) # Verrucomicrobia
-points(x=2.85, y=0.7, pch=22, cex=2.1, col='black', bg='#990099') # purple
-points(x=2.85, y=-1, pch=22, cex=2.1, col='black', bg='white') # Other Bacteria - white
-text(x=1.35, y=-4.1, labels='Methanobrevibacter', cex=0.9) # Archeae
-points(x=2.85, y=-4.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
+text(x=1.5, y=4.8, labels='Escherichia', cex=0.9) # Proteobacteria
+points(x=2.85, y=4.8, pch=22, cex=2.1, col='black', bg='#CCCC00') # yellow
+text(x=1.5, y=1.7, labels='Akkermansia', cex=0.9) # Verrucomicrobia
+points(x=2.85, y=1.7, pch=22, cex=2.1, col='black', bg='#990099') # purple
+points(x=2.85, y=0, pch=22, cex=2.1, col='black', bg='white') # Other Bacteria - white
+text(x=1.35, y=-3.1, labels='Methanobrevibacter', cex=0.9) # Archeae
+points(x=2.85, y=-3.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
 
 #-------------------#
 
 # Overrepresented pathways
-par(mar=c(15,4,1,2), las=1)
-plot(0, type='n', xlab='', xaxt='n', yaxt='n', ylab='', xlim=c(0.5,20), ylim=c(-12,12))
+par(mar=c(15,4,1,2), las=1, mgp=c(1.6,0.7,0))
+plot(0, type='n', xlab='', xaxt='n', yaxt='n', ylab=as.expression(bquote(paste(Delta,' Fold Abundance'))), xlim=c(0.5,20), ylim=c(-12,12))
 abline(h=0, lwd=1.5)
-#abline(h=c(-2,2), lwd=1.2, lty=5, col='gray30')
+abline(h=c(-confidence,confidence), lwd=1.2, lty=5, col='gray30')
 axis(side=2, at=seq(-12,12,3), labels=c(12,9,6,3,0,3,6,9,12))
-mtext('Fold Difference Transcript Abundance', side=2, padj=-2.7, cex=0.7, xpd=TRUE)
-text(x=c(2.6,2.4), y=c(12,-12), cex=0.9,
+text(x=c(2.6,2.39), y=c(12,-12), cex=0.9,
      labels=c(as.expression(bquote(paste('Greater in ',italic('C. difficile'),'-infected Metatranscriptome'))), 'Greater in Mock-infected Metatranscriptome'))
 legend('topright', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
        pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.7, col='black', bty='n')
 text(cex=1, x=c(seq(1.2,6,1.2),seq(8.4,13.2,1.2),seq(15.6,20.4,1.2)), y=-14, pathway_names, xpd=TRUE, srt=60, pos=2)
-mtext('d', side=2, line=2, las=2, adj=1, padj=-6, cex=1.2, font=2)
+mtext('d', side=2, line=2, las=2, adj=1.5, padj=-6, cex=1.2, font=2)
 
 # Add groups
-barplot(strep_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=strep_col, yaxt='n', add=TRUE) # Streptomycin
-barplot(cef_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=cef_col, yaxt='n', add=TRUE) # Cefoperazone
-barplot(clinda_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=clinda_col, yaxt='n', add=TRUE) # Clindamycin
+barplot(strep_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=adjustcolor(strep_col, alpha.f=0.75), yaxt='n', add=TRUE) # Streptomycin
+barplot(cef_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=adjustcolor(cef_col, alpha.f=0.75), yaxt='n', add=TRUE) # Cefoperazone
+barplot(clinda_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=adjustcolor(clinda_col, alpha.f=0.75), yaxt='n', add=TRUE) # Clindamycin
 
 dev.off()
 
