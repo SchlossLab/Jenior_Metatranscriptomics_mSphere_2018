@@ -1,7 +1,9 @@
 # Set up environment
+rm(list=ls())
+gc()
 
 # Load dependencies
-deps <- c('vegan', 'plotrix', 'reshape2', 'randomForest')
+deps <- c('vegan', 'plotrix', 'reshape2')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -10,7 +12,7 @@ for (dep in deps){
 }
 
 # Set seed for RNG
-set.seed(6189)
+set.seed(9861)
 
 # Load in functions
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
@@ -63,6 +65,10 @@ metabolome <- metabolome[,!colnames(metabolome) %in% c('GfC1M1','GfC1M2','GfC1M3
                                                       'GfC4M1','GfC4M2','GfC4M3',
                                                       'GfC5M1','GfC5M2','GfC5M3',
                                                       'GfC6M1','GfC6M2','GfC6M3')] # Germfree samples
+conv_metabolome <- metabolome[,colnames(metabolome) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
+                                                       'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5')] # Untreated SPF samples
+metabolome <- metabolome[,!colnames(metabolome) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
+                                                       'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5')] # Untreated SPF samples
 rownames(metabolome) <- metabolome$BIOCHEMICAL
 metabolome$BIOCHEMICAL <- NULL
 metabolome$PUBCHEM <- NULL
@@ -92,7 +98,10 @@ shared_otu <- shared_otu[!rownames(shared_otu) %in% c('GfC1M1','GfC1M2','GfC1M3'
                                                       'GfC4M1','GfC4M2','GfC4M3',
                                                       'GfC5M1','GfC5M2','GfC5M3',
                                                       'GfC6M1','GfC6M2','GfC6M3'), ] # Germfree samples
-
+conv_otu <- shared_otu[rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
+                                                    'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ]
+shared_otu <- shared_otu[!rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
+                                                       'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ] # Untreated SPF samples
 metabolome_16s <- clean_merge(metabolome, shared_otu)
 metabolome_16s <- clean_merge(metadata, metabolome_16s)
 
@@ -102,66 +111,55 @@ metabolome_16s <- clean_merge(metadata, metabolome_16s)
 
 # Metabolome
 metabolome_nmds <- metaMDS(metabolome, k=2, trymax=100)$points
-metabolome_nmds[,1] <- metabolome_nmds[,1] + 0.15
+metabolome_nmds[,1] <- metabolome_nmds[,1] - 0.05
 metabolome_nmds[,2] <- metabolome_nmds[,2] * -1
 metabolome_nmds <- clean_merge(metadata, metabolome_nmds)
-metabolome_cefoperazone <- subset(metabolome_nmds, abx == 'cefoperazone')
-metabolome_clindamycin <- subset(metabolome_nmds, abx == 'clindamycin')
-metabolome_streptomycin <- subset(metabolome_nmds, abx == 'streptomycin')
-metabolome_untreated <- subset(metabolome_nmds, abx == 'none')
 
 # Community structure
 otu_nmds <- metaMDS(shared_otu, k=2, trymax=100)$points
 otu_nmds[,1] <- otu_nmds[,1] - 0.2
-otu_nmds[,2] <- otu_nmds[,2] - 0.2
+otu_nmds[,2] <- otu_nmds[,2] + 0.1
 otu_nmds <- clean_merge(metadata, otu_nmds)
+
+# Subset to color points
+metabolome_cefoperazone <- subset(metabolome_nmds, abx == 'cefoperazone')
+metabolome_cefoperazone_630 <- subset(metabolome_cefoperazone, infection == '630')
+metabolome_cefoperazone_mock <- subset(metabolome_cefoperazone, infection == 'mock')
+rm(metabolome_cefoperazone)
+metabolome_clindamycin <- subset(metabolome_nmds, abx == 'clindamycin')
+metabolome_clindamycin_630 <- subset(metabolome_clindamycin, infection == '630')
+metabolome_clindamycin_mock <- subset(metabolome_clindamycin, infection == 'mock')
+rm(metabolome_clindamycin)
+metabolome_streptomycin <- subset(metabolome_nmds, abx == 'streptomycin')
+metabolome_streptomycin_630 <- subset(metabolome_streptomycin, infection == '630')
+metabolome_streptomycin_mock <- subset(metabolome_streptomycin, infection == 'mock')
+rm(metabolome_streptomycin)
 otu_cefoperazone <- subset(otu_nmds, abx == 'cefoperazone')
+otu_cefoperazone_630 <- subset(otu_cefoperazone, infection == '630')
+otu_cefoperazone_mock <- subset(otu_cefoperazone, infection == 'mock')
+rm(otu_cefoperazone)
 otu_clindamycin <- subset(otu_nmds, abx == 'clindamycin')
+otu_clindamycin_630 <- subset(otu_clindamycin, infection == '630')
+otu_clindamycin_mock <- subset(otu_clindamycin, infection == 'mock')
+rm(otu_clindamycin)
 otu_streptomycin <- subset(otu_nmds, abx == 'streptomycin')
-otu_untreated <- subset(otu_nmds, abx == 'none')
+otu_streptomycin_630 <- subset(otu_streptomycin, infection == '630')
+otu_streptomycin_mock <- subset(otu_streptomycin, infection == 'mock')
+rm(otu_streptomycin)
 
 #----------------#
 
-# Test differences between groups
+# Combine 16S and metabolome for heatmaps
 
-#adonis()
-
-
-
-
-#----------------#
-
-# Subset for feature selection
-all_infection <- metabolome_16s
-all_infection$abx <- NULL
-conv_infection <- subset(metabolome_16s, abx != 'germfree')
-abx_infection <- subset(metabolome_16s, abx != 'none')
-conv_infection$abx <- NULL
-abx_infection$abx <- NULL
-cef_infection <- subset(metabolome_16s, abx == 'cefoperazone')
-cef_infection$abx <- NULL
-strep_infection <- subset(metabolome_16s, abx == 'streptomycin')
-strep_infection$abx <- NULL
-clinda_infection <- subset(metabolome_16s, abx == 'clindamycin')
-clinda_infection$abx <- NULL
-
-# Filter subset tables
+metabolome <- clean_merge(metadata, metabolome)
+shared_otu <- clean_merge(metadata, shared_otu)
 
 
 
 
-# Run random forest
-#all_infection_rf <- featureselect_RF(all_infection, 'infection') # OOB = 7.69%
-#conv_infection_rf <- featureselect_RF(conv_infection, 'infection') # OOB = 10.71%
-#abx_infection_rf <- featureselect_RF(abx_infection, 'infection') # OOB = 11.86%
-#cef_infection_rf <- featureselect_RF(cef_infection, 'infection') # OOB = 0%    why???
-#strep_infection_rf <- featureselect_RF(strep_infection, 'infection') # OOB = 6.67%
-#clinda_infection_rf <- featureselect_RF(clinda_infection, 'infection') # OOB = 33.33%
-rm(all_infection, conv_infection, cef_infection, strep_infection, clinda_infection, abx_infection)
-
+rm(metabolome, shared_otu)
 
 #----------------#
-
 
 # Calculate correlations for heatmap
 
@@ -169,75 +167,67 @@ rm(all_infection, conv_infection, cef_infection, strep_infection, clinda_infecti
 #melted_cormat <- melt(cormat)
 
 
-
-
-
-
-
-
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
 pdf(file=plot_file, width=8.5, height=11)
 layout(matrix(c(1,2,
-                3,4,
-                3,4),
+                3,3,
+                3,3),
               nrow=3, ncol=2, byrow=TRUE))
+par(mar=c(4,4,1,1), las=1, mgp=c(3,0.75,0), xaxs='i', yaxs='i')
 
 #-------------------#
 
 # OTUs alone
-
-par(mar=c(3,4,1,1), las=1, mgp=c(2,0.75,0), xaxs='i', yaxs='i')
-plot(x=otu_nmds$MDS1, y=otu_nmds$MDS2, xlim=c(-1.6,1.6), ylim=c(-1.5,1.5),
+plot(x=otu_nmds$MDS1, y=otu_nmds$MDS2, xlim=c(-1.2,1.2), ylim=c(-1.5,1.5),
      xlab='NMDS axis 1', ylab='NMDS axis 2', xaxt='n', yaxt='n', pch=19, cex=0.2)
-axis(side=1, at=seq(-1.6,1.6,0.4), labels=seq(-1.6,1.6,0.4))
-axis(side=2, at=seq(-1.5,1.5,0.3), labels=seq(-1.5,1.5,0.3))
-points(x=otu_cefoperazone$MDS1, y=otu_cefoperazone$MDS2, bg=cef_col, pch=21, cex=1.7, lwd=1.2)
-points(x=otu_clindamycin$MDS1, y=otu_clindamycin$MDS2, bg=clinda_col, pch=21, cex=1.7, lwd=1.2)
-points(x=otu_streptomycin$MDS1, y=otu_streptomycin$MDS2, bg=strep_col, pch=21, cex=1.7, lwd=1.2)
-points(x=otu_untreated$MDS1, y=otu_untreated$MDS2, bg='azure2', pch=21, cex=1.7, lwd=1.2)
-legend('bottomright', legend=c('No Antibiotics','Streptomycin-pretreated','Cefoperzone-pretreated','Clindamycin-pretreated'), 
-       pt.bg=c('azure2',strep_col,cef_col,clinda_col), 
-       pch=21, cex=1.1, pt.cex=2.2, bty='n')
-text(x=-0.73, y=1.35, labels='16S rRNA Gene Sequencing', cex=1.2)
+axis(side=1, at=seq(-1.2,1.2,0.4), labels=c(-1.2,-0.8,-0.4,0,0.4,0.8,1.2))
+axis(side=2, at=seq(-1.5,1.5,0.5), labels=seq(-1.5,1.5,0.5))
+mtext('a', side=2, line=2, las=2, adj=2, padj=-10, cex=1.2, font=2)
+legend('topright', legend=c('16S rRNA Gene Sequencing'), pch=21, cex=1.4, pt.cex=0, bty='n')
+legend('bottomright', legend=c('Streptomycin-pretreated','Cefoperzone-pretreated','Clindamycin-pretreated'), 
+       pt.bg=c(strep_col,cef_col,clinda_col), 
+       pch=22, cex=1.2, pt.cex=2.4)
+legend('bottomleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
+       col='black', pch=c(16,17), cex=1.2, pt.cex=c(2.2,2))
 
-#draw.ellipse(x=-0.27, y=-0.13, a=0.15, b=0.1, angle=-100, lty=2, lwd=2) # resistant
-#text(x=-0.27, y=0.04, labels='Resistant', font=2)
-
-
-mtext('a', side=2, line=2, las=2, adj=2, padj=-11.5, cex=1.1, font=2)
+points(x=otu_cefoperazone_630$MDS1, y=otu_cefoperazone_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
+points(x=otu_clindamycin_630$MDS1, y=otu_clindamycin_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
+points(x=otu_streptomycin_630$MDS1, y=otu_streptomycin_630$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
+points(x=otu_cefoperazone_mock$MDS1, y=otu_cefoperazone_mock$MDS2, bg=cef_col, pch=24, cex=1.8, lwd=1.2)
+points(x=otu_clindamycin_mock$MDS1, y=otu_clindamycin_mock$MDS2, bg=clinda_col, pch=24, cex=1.8, lwd=1.2)
+points(x=otu_streptomycin_mock$MDS1, y=otu_streptomycin_mock$MDS2, bg=strep_col, pch=24, cex=1.8, lwd=1.2)
 
 #-------------------#
 
 # Metabolomics alone
-
-par(mar=c(3,4,1,1), las=1, mgp=c(2,0.75,0), xaxs='i', yaxs='i')
-plot(x=metabolome_nmds$MDS1, y=metabolome_nmds$MDS2, xlim=c(-0.3,0.3), ylim=c(-0.15,0.1),
+plot(x=metabolome_nmds$MDS1, y=metabolome_nmds$MDS2, xlim=c(-0.25,0.2), ylim=c(-0.25,0.2),
      xlab='NMDS axis 1', ylab='NMDS axis 2', xaxt='n', yaxt='n', pch=19, cex=0.2)
-axis(side=1, at=seq(-0.4,0.4,0.1), labels=seq(-0.4,0.4,0.1))
-axis(side=2, at=seq(-0.3,0.3,0.1), labels=c(-0.3,-0.2,-0.1,0,0.1,0.2,0.3))
-points(x=metabolome_cefoperazone$MDS1, y=metabolome_cefoperazone$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_clindamycin$MDS1, y=metabolome_clindamycin$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_streptomycin$MDS1, y=metabolome_streptomycin$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_germfree$MDS1, y=metabolome_germfree$MDS2, bg='gold1', pch=21, cex=2, lwd=1.2)
-points(x=metabolome_untreated$MDS1, y=metabolome_untreated$MDS2, bg='azure2', pch=21, cex=2, lwd=1.2)
-#draw.ellipse(x=0.19, y=-0.01, a=0.28, b=0.17, angle=-60, lty=2, lwd=2) # susceptible
-#text(x=0.25, y=0.25, labels='Susceptible', font=2)
-#draw.ellipse(x=-0.27, y=-0.13, a=0.15, b=0.1, angle=-100, lty=2, lwd=2) # resistant
-#text(x=-0.27, y=0.04, labels='Resistant', font=2)
-legend('bottomright', legend=c('No Antibiotics','Streptomycin-pretreated','Cefoperzone-pretreated','Clindamycin-pretreated'), 
-       pt.bg=c('azure2',strep_col,cef_col,clinda_col), 
-       pch=21, cex=1.1, pt.cex=2.2, bty='n')
-text(x=-0.15, y=0.085, labels='Untargeted Metabolomics', cex=1.2)
+axis(side=1, at=seq(-0.25,0.2,0.05), labels=seq(-0.25,0.2,0.05))
+axis(side=2, at=seq(-0.25,0.2,0.05), labels=seq(-0.25,0.2,0.05))
+mtext('b', side=2, line=2, las=2, adj=2, padj=-10, cex=1.2, font=2)
+legend('topright', legend=c('Untargeted Metabolomics'), pch=21, cex=1.4, pt.cex=0, bty='n')
+legend('bottomright', legend=c('Streptomycin-pretreated','Cefoperzone-pretreated','Clindamycin-pretreated'), 
+       pt.bg=c(strep_col,cef_col,clinda_col), 
+       pch=22, cex=1.2, pt.cex=2.4)
+legend('bottomleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
+       col='black', pch=c(16,17), cex=1.2, pt.cex=c(2.2,2))
 
-mtext('b', side=2, line=2, las=2, adj=2, padj=-11.5, cex=1.1, font=2)
+points(x=metabolome_cefoperazone_630$MDS1, y=metabolome_cefoperazone_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
+points(x=metabolome_clindamycin_630$MDS1, y=metabolome_clindamycin_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
+points(x=metabolome_streptomycin_630$MDS1, y=metabolome_streptomycin_630$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
+points(x=metabolome_cefoperazone_mock$MDS1, y=metabolome_cefoperazone_mock$MDS2, bg=cef_col, pch=24, cex=1.8, lwd=1.2)
+points(x=metabolome_clindamycin_mock$MDS1, y=metabolome_clindamycin_mock$MDS2, bg=clinda_col, pch=24, cex=1.8, lwd=1.2)
+points(x=metabolome_streptomycin_mock$MDS1, y=metabolome_streptomycin_mock$MDS2, bg=strep_col, pch=24, cex=1.8, lwd=1.2)
 
 #-------------------#
 
+par(mar=c(4,4,1,1), las=1, mgp=c(3,0.75,0), xaxs='i', yaxs='i')
 plot(0, type='n', axes=FALSE, xlab='', ylab='')
+mtext('c', side=2, line=2, las=2, adj=2, padj=-23, cex=1.2, font=2)
+
 # Heatmap or correlation somehow...
-mtext('c', side=2, line=2, las=2, adj=2, padj=-25, cex=1.1, font=2)
 
 dev.off()
 
@@ -245,10 +235,10 @@ dev.off()
 
 # Clean up
 
-#for (dep in deps){
-#  pkg <- paste('package:', dep, sep='')
-#  detach(pkg, character.only = TRUE)
-#}
-#rm(list=ls())
-#gc()
+for (dep in deps){
+  pkg <- paste('package:', dep, sep='')
+  detach(pkg, character.only = TRUE)
+}
+rm(list=ls())
+gc()
 

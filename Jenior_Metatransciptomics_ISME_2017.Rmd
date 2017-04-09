@@ -88,6 +88,12 @@ toxin <- read.delim('data/wetlab_assays/toxin_titer.dat', sep='\t', header=T)
 
 **Sequence curation, read mapping, and normalization.** Raw transcript sequencing read curation was performed in a two step process. Residual 5’ and 3’ Illumina adapter sequences were trimmed using CutAdapt [@Martin2013] on a per library basis. Reads were quality trimmed using Sickle (Joshi, 2011) on the default settings. An average of \~300,000,000 total reads (both paired and orphaned) remained after quality trimming. Mapping was accomplished using Bowtie2 [@Langmead2009] and the default stringent settings. \~1,600,000 reads in sample each mapped to the annotated nucleotide gene sequences of *PeptoClostridium difficile* str. 630 from the KEGG: Kyoto Encyclopedia of Genes and Genomes [@Ogata1999]. Optical and PCR duplicates were then removed using Picard MarkDuplicates (http://broadinstitute.github.io/picard/), leaving ~150,000 reads per sample for final analysis. The remaining mappings were converted to idxstats format using Samtools [@Li2009] and the read counts per gene were tabulated. Discordant pair mappings were discarded and counts were then normalized to read length and gene length to give a per base report of gene coverage. Unless indicated otherwise, each collection of reads was then 1000-fold iteratively subsampled to 90% of the lowest sequence total within each analysis, and a median expression value for each gene was calculated.
 
+**Metabolic modeling.**
+
+Algorithm
+
+
+
 **Quantification of *in vivo* metabolite relative concentrations.** Metabolomic analysis performed by Metabolon (Durham, NC), a brief description of their methods is as follows. All methods utilized a Waters ACQUITY ultra-performance liquid chromatography (UPLC) and a Thermo Scientific Q-Exactive high resolution/accurate mass spectrometer interfaced with a heated electrospray ionization (HESI-II) source and Orbitrap mass analyzer at 35,000 mass resolution. Samples were dried then reconstituted in solvents compatible to each of the four methods. The first, in acidic positive conditions using a C18 column (Waters UPLC BEH C18-2.1x100 mm, 1.7 µm) using water and methanol, containing 0.05% perfluoropentanoic acid (PFPA) and 0.1% formic acid (FA). The second method was identical to the first but was chromatographically optimized for more hydrophobic compounds. The third approach utilized a basic negative ion optimized conditions using a separate dedicated C18 column. Basic extracts were gradient eluted from the column using methanol and water, however with 6.5mM Ammonium Bicarbonate at pH 8. Samples were then analyzed via negative ionization following elution from a hydrophilic interaction chromatography column (Waters UPLC BEH Amide 2.1x150 mm, 1.7 µm) using a gradient consisting of water and acetonitrile with 10mM Ammonium Formate, pH 10.8. The MS analysis alternated between MS and data-dependent MS n scans using dynamic exclusion. The scan range varied slighted between methods but covered 70-1000 m/z. Library matches for each compound were checked for each sample and corrected if necessary. Peaks were quantified using area under the curve.
 
 **Statistical methods.** All statistical analyses were performed using R (v.3.2.0). Significant differences between community structure of treatment groups from 16S rRNA gene sequencing were determined with AMOVA in the mothur software package. Significant differences of Inv. Simpson diversity, cfu, toxin titer, and metabolite concentrations were determined by Wilcoxon signed-rank test with Benjamini-Hochberg correction. Undetectable points used half the limit of detection for all statistical calculations. Significant differences for growth curves compared to no carbohydrate control (+ amino acids) were calculated using 1-way ANOVA with Benjamini-Hochberg correction.
@@ -125,24 +131,24 @@ Abx table
 
 **Figure 2 | ** Correlation of 16S and metabolome (species level) A) 16s nmds B) metabolome nmds C) combined analysis
 
-**Figure 3 | *C. difficile* colonization alters community-level gene expression differently between antibiotic pretreatements.** All points represent unique genes from metagenomic assembly and each metatranscriptome is normalized to their respective metganomic coverage. Point position is determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Points are colored based on the annotated genus of origin. **(a)** Streptomycin-pretreatment, **(b)** Cefoperazone-pretreatment, and **(c)** Clindamycon-pretreatment. Outliers were defined by least-squared residuals analysis. 
+**Figure 3 | *C. difficile* colonization alters community-level gene expression differently between antibiotic pretreatements.** All points represent unique genes from metagenomic assembly and each metatranscriptome is normalized to their respective metganomic coverage. Point position is determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Points are colored based on the annotated genus of origin. **(a)** Streptomycin-pretreatment, **(b)** Cefoperazone-pretreatment, and **(c)** Clindamycon-pretreatment. Outliers were defined by least-squared residuals analysis. **(d)** Top 5 expression of KEGG pathways in each condition.
 
-**Figure 4 | ** Correlation of metabolome and metatranscriptome (changes to pathways)
+**Figure 4 | ** Community-level modeling schematic
 
-**Figure 5 | ** Community-level modeling schematic
+**Figure 5 | ** 
+- Most important metabolites at community level
+- most important to each community member
+- global correlation of importances and metabolomics
 
-Algorithm
-
-**Figure 5 | ** Modeling results
 
 
-**Supplementary Figure 1 | **
+**Supplementary Figure 1 | Rarefaction curves for reads?**
 
-**Supplementary Figure 2 | Rarefaction curves for reads?**
+**Supplementary Figure 2 | NMDS including untreated controls and within group ordinations**
 
 **Supplementary Figure 3 | **
 
-**Supplementary Figure 4 | **
+**Supplementary Figure 4 | CONCOCT clustering**
 
 
 ### References
