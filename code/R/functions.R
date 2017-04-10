@@ -45,7 +45,7 @@ conf_interval <- function(data) {
 # Neatly merge 2 matices with shared row names
 clean_merge <- function(data_1, data_2){
   
-  clean_merged <- merge(data_1, data_2, by = 'row.names')
+  clean_merged <- merge(data_1, data_2, by='row.names', all.y=TRUE)
   rownames(clean_merged) <- clean_merged$Row.names
   clean_merged$Row.names <- NULL
   
