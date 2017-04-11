@@ -3,7 +3,7 @@ rm(list=ls())
 gc()
 
 # Load dependencies
-deps <- c('vegan', 'plotrix', 'reshape2')
+deps <- c('vegan', 'plotrix', 'reshape2', 'Matrix')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -21,7 +21,7 @@ source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.
 plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/supplement/figures/figure_S2.pdf'
 
 # Input 0.03 OTU shared file
-shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
+shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
 
 # Input Metabolomes
 metabolome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metabolome/metabolomics.tsv'
@@ -65,6 +65,7 @@ metabolome <- metabolome[,!colnames(metabolome) %in% c('GfC1M1','GfC1M2','GfC1M3
                                                       'GfC4M1','GfC4M2','GfC4M3',
                                                       'GfC5M1','GfC5M2','GfC5M3',
                                                       'GfC6M1','GfC6M2','GfC6M3')] # Germfree samples
+shared_otu <- shared_otu[!rownames(shared_otu) %in% c('StrepC4M1','StrepC4M2','StrepC4M3'), ] 
 rownames(metabolome) <- metabolome$BIOCHEMICAL
 metabolome$BIOCHEMICAL <- NULL
 metabolome$PUBCHEM <- NULL
@@ -86,14 +87,9 @@ metabolome <- t(metabolome)
 shared_otu$label <- NULL
 shared_otu$numOtus <- NULL
 shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ] # Contaminated sample
-shared_otu <- shared_otu[,!(names(shared_otu) == 'Otu0004')] # Remove residual C. difficile OTU
-shared_otu <- shared_otu[!rownames(shared_otu) %in% c('StrepC4M1','StrepC4M2','StrepC4M3'), ]
-shared_otu <- shared_otu[!rownames(shared_otu) %in% c('GfC1M1','GfC1M2','GfC1M3',
-                                                      'GfC2M1','GfC2M2','GfC2M3',
-                                                      'GfC3M1','GfC3M2','GfC3M3',
-                                                      'GfC4M1','GfC4M2','GfC4M3',
-                                                      'GfC5M1','GfC5M2','GfC5M3',
-                                                      'GfC6M1','GfC6M2','GfC6M3'), ] # Germfree samples
+shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))] # Remove residual C. difficile OTUs
+shared_otu <- rrarefy(shared_otu, ceiling(min(rowSums(shared_otu)) * 0.9))
+shared_otu <- filter_table(shared_otu)
 metabolome_16s <- clean_merge(metabolome, shared_otu)
 metabolome_16s <- clean_merge(metadata, metabolome_16s)
 
@@ -124,10 +120,26 @@ otu_untreated <- subset(otu_nmds, abx == 'none')
 #----------------#
 
 # Test differences between untreated and all other groups
+shared_otu <- clean_merge(metadata, shared_otu)
+shared_otu$infection <- NULL
 
-#adonis(formula, otu_nmds, permutations=999, method='bray')
+# Subset for testing
+cef_otu <- rbind(subset(shared_otu, abx == 'cefoperazone'), subset(shared_otu, abx == 'none'))
+cef_abx <- cef_otu$abx
+cef_otu$abx <- NULL
+clinda_otu <- rbind(subset(shared_otu, abx == 'clindamycin'), subset(shared_otu, abx == 'none'))
+clinda_abx <- clinda_otu$abx
+clinda_otu$abx <- NULL
+strep_otu <- rbind(subset(shared_otu, abx == 'streptomycin'), subset(shared_otu, abx == 'none'))
+strep_abx <- strep_otu$abx
+strep_otu$abx <- NULL
 
+# Calculate significant differences
+cef_p <- anosim(cef_otu, cef_abx, permutations=999, distance='bray')$signif
+clinda_p <- anosim(clinda_otu, clinda_abx, permutations=999, distance='bray')$signif
+strep_p <- anosim(strep_otu, strep_abx, permutations=999, distance='bray')$signif
 
+rm(shared_otu, cef_otu, cef_abx, clinda_otu, clinda_abx, strep_otu, strep_abx)
 
 #----------------#
 

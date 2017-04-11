@@ -1,7 +1,7 @@
 
 # Start with clear environment
-#rm(list=ls())
-#gc()
+rm(list=ls())
+gc()
 
 # Load dependencies
 deps <- c('vegan', 'shape', 'Matrix')
@@ -16,13 +16,15 @@ for (dep in deps){
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
 # Define files
-shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
+shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
+otu_tax_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/formatted.all_treatments.0.03.cons.taxonomy'
+
 shared_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.subsample.shared'
 taxonomy_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.cons.family.format.taxonomy'
+
 wetlab_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/wetlab_assays.tsv'
+
 metadata_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metadata.tsv'
-otu_tax_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/formatted.all_treatments.0.03.cons.taxonomy'
-shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
@@ -36,7 +38,7 @@ metadata$mouse <- NULL
 metadata$gender <- NULL
 shared_otu <- read.delim(shared_otu_file, sep='\t', header=T, row.names=2)
 shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]  # Remove contaminated sample
-shared_otu <- shared_otu[ , !(names(shared_otu) == 'Otu0004')] # Remove residual C. difficile OTU
+shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))] # Remove residual C. difficile OTUs
 shared_otu$numOtus <- NULL
 shared_otu$label <- NULL
 taxonomy_family <- read.delim(taxonomy_family_file, sep='\t', header=T)
@@ -52,9 +54,10 @@ rm(shared_family_file, taxonomy_family_file, metadata_file, wetlab_file, otu_tax
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
-# Format data (previously subsampled and filtered in mothur)
+# Format data
 
 # OTU shared file
+shared_otu <- rrarefy(shared_otu, ceiling(min(rowSums(shared_otu)) * 0.9))
 metadata_shared_otu <- clean_merge(metadata, shared_otu)
 cef_shared_otu <- subset(metadata_shared_otu, abx == 'cefoperazone')
 cef_shared_otu$abx <- NULL
@@ -120,7 +123,6 @@ for (index in 1:length(cef_pvalues)){
   }
 }
 cef_final_p <- as.character(cef_final_p)
-rm(cef_feat_shared, cef_features)
 
 clinda_infected_otu <- subset(clinda_shared_otu, infection == '630')
 clinda_infected_otu$infection <- NULL
@@ -166,7 +168,6 @@ for (index in 1:length(clinda_pvalues)){
   }
 }
 clinda_final_p <- as.character(clinda_final_p)
-rm(clinda_feat_shared, clinda_features)
 
 strep_infected_otu <- subset(strep_shared_otu, infection == '630')
 strep_infected_otu$infection <- NULL
@@ -212,7 +213,6 @@ for (index in 1:length(strep_pvalues)){
   }
 }
 strep_final_p <- as.character(strep_final_p)
-rm(strep_feat_shared, strep_features)
 
 # Rename OTUs with species-level identifier
 cef_infected_otu <- clean_merge(t(cef_infected_otu), otu_tax)
@@ -260,9 +260,6 @@ rm(otu_tax)
 
 # Phylotype family-level shared file
 
-# Remove Young lab mice
-shared_family <- shared_family[!rownames(shared_family) %in% c('StrepC1M1','StrepC1M2','StrepC1M3','StrepC4M1','StrepC4M2','StrepC4M3'), ]
-
 # Convert to relative abundance
 relabund_shared <- (shared_family / rowSums(shared_family)) * 100
 rm(shared_family)
@@ -281,9 +278,10 @@ taxonomy_family <- taxonomy_family[order(taxonomy_family$Taxonomy),]
 rm(top_otus)
 
 # Sort shared based on OTUs and add 'Other' category
+
 relabund_shared <- as.data.frame(t(relabund_shared))
 relabund_shared$otu <- rownames(relabund_shared)
-relabund_shared <- relabund_shared[match(as.vector(taxonomy_family$OTU), relabund_shared$otu),]
+relabund_shared <- relabund_shared[match(as.vector(taxonomy_family$OTU), relabund_shared$otu),] 
 relabund_shared$otu <- NULL
 relabund_shared <- as.data.frame(t(relabund_shared))
 relabund_shared$Other <- 100 - rowSums(relabund_shared)
@@ -304,12 +302,12 @@ relabund_shared <- relabund_shared[order(match(relabund_shared$abx, c('none', 'c
 relabund_shared$abx <- NULL
 rm(empty_columns)
 family_colors <- c('chartreuse3',
-                   'mediumorchid3',
+                   'gray50',
                    'darkred','firebrick3','salmon','tomato2','red2',
                    'navy','mediumblue','royalblue3','lightslateblue','dodgerblue2','deepskyblue','powderblue',
                    'chocolate2','darkgoldenrod1',
                    'magenta2',
-                   'gray50')
+                   'mediumorchid3')
 taxonomy_color <- as.data.frame(cbind(taxonomy_family, family_colors))
 taxonomy_color <- taxonomy_color[order(taxonomy_color$taxonomy_family),]
 bacteria <- taxonomy_color[which(taxonomy_color$taxonomy_family == 'Bacteria unclassified'),]

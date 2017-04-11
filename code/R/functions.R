@@ -10,13 +10,13 @@ filter_table <- function(data) {
   drop <- c()
   if (class(data[,1]) != 'character') {
     if (nnzero(data[,1]) < 3) {
-      drop <- c(drop, names(data)[1])
+      drop <- c(drop, colnames(data)[1])
     }
   }
   
   for (index in 2:ncol(data)) {
     if (nnzero(data[,index]) < 3) {
-      drop <- c(drop, names(data)[index])
+      drop <- c(drop, colnames(data)[index])
     }
   }
   

@@ -4,7 +4,7 @@ rm(list=ls())
 gc()
 
 # Load dependencies
-deps <- c('vegan', 'plotrix', 'reshape2')
+deps <- c('vegan', 'plotrix', 'reshape2', 'Matrix')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -22,7 +22,7 @@ source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.
 plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/supplement/figures/figure_S1.pdf'
 
 # Input 0.03 OTU shared file
-shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
+shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
 
 # Input Metadata
 metadata_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metadata.tsv'
@@ -55,8 +55,7 @@ metadata$susceptibility <- NULL
 shared_otu$label <- NULL
 shared_otu$numOtus <- NULL
 shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ] # Contaminated sample
-shared_otu <- shared_otu[,!(names(shared_otu) == 'Otu0004')] # Remove residual C. difficile OTU
-#shared_otu <- shared_otu[!rownames(shared_otu) %in% c('StrepC4M1','StrepC4M2','StrepC4M3'), ]
+shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))] # Remove residual C. difficile OTUs
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -83,6 +82,16 @@ rm(shared_otu)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
+# Rarefy shared files
+cef_otu <- rrarefy(cef_otu, ceiling(min(rowSums(cef_otu)) * 0.9))
+clinda_otu <- rrarefy(clinda_otu, ceiling(min(rowSums(clinda_otu)) * 0.9))
+strep_otu <- rrarefy(strep_otu, ceiling(min(rowSums(strep_otu)) * 0.9))
+
+# Filter out 0 sum columns
+cef_otu <- filter_table(cef_otu)
+clinda_otu <- filter_table(clinda_otu)
+strep_otu <- filter_table(strep_otu)
+
 # Calculate axes and merge with metadata
 cef_nmds <- metaMDS(cef_otu, k=2, trymax=100)$points
 cef_nmds <- clean_merge(metadata, cef_nmds)
@@ -100,6 +109,9 @@ clinda_r <- as.character(round(anosim(clinda_otu, clinda_nmds$infection, permuta
 strep_p <- as.character(anosim(strep_otu, strep_nmds$infection, permutations=999, distance='bray')$signif)
 strep_r <- as.character(round(anosim(strep_otu, strep_nmds$infection, permutations=999, distance='bray')$statistic, 3))
 rm(cef_otu, clinda_otu, strep_otu)
+
+# Move points for easier viewing
+strep_nmds$MDS2 <- strep_nmds$MDS2 + 0.2
 
 # Subset to points for plot
 cef_nmds_630 <- subset(cef_nmds, infection == '630')
@@ -127,7 +139,7 @@ par(mar=c(4,4,1,1), las=1, mgp=c(2.5,0.75,0), xaxs='i', yaxs='i')
 #-------------------#
 
 # Streptomycin
-plot(x=strep_nmds$MDS1, y=strep_nmds$MDS2, xlim=c(-1.2,1.2), ylim=c(-1.2,1.2),
+plot(x=strep_nmds$MDS1, y=strep_nmds$MDS2, xlim=c(-1.3,1.3), ylim=c(-1.8,1.8),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
 mtext('a', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.2, font=2)
 legend('topright', legend='Streptomycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
@@ -143,7 +155,7 @@ legend('bottomright', legend=c(as.expression(bquote(paste(italic('R'),' = ',.(st
 #-------------------#
 
 # Cefoperazone
-plot(x=cef_nmds$MDS1, y=cef_nmds$MDS2, xlim=c(-0.8,0.8), ylim=c(-0.8,0.8),
+plot(x=cef_nmds$MDS1, y=cef_nmds$MDS2, xlim=c(-1.2,1.2), ylim=c(-0.8,0.8),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
 mtext('b', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.2, font=2)
 legend('topright', legend='Cefoperazone-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
@@ -159,7 +171,7 @@ legend('bottomright', legend=c(as.expression(bquote(paste(italic('R'),' = ',.(ce
 #-------------------#
 
 # Clindamycin
-plot(x=clinda_nmds$MDS1, y=clinda_nmds$MDS2, xlim=c(-0.9,0.9), ylim=c(-0.8,0.8),
+plot(x=clinda_nmds$MDS1, y=clinda_nmds$MDS2, xlim=c(-1.1,1.1), ylim=c(-1.2,1.2),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
 mtext('c', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.2, font=2)
 legend('topright', legend='Clindamycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')

@@ -3,7 +3,7 @@ rm(list=ls())
 gc()
 
 # Load dependencies
-deps <- c('vegan', 'plotrix', 'reshape2', 'GMD')
+deps <- c('vegan', 'plotrix', 'reshape2', 'GMD', 'Matrix')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -21,7 +21,7 @@ source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.
 plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/figures/figure_2.pdf'
 
 # Input 0.03 OTU shared file
-shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
+shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
 
 # Input 0.03 OTU taxonomy file
 tax_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/formatted.all_treatments.0.03.cons.taxonomy'
@@ -63,14 +63,12 @@ metadata$susceptibility <- NULL
 
 # Metabolomes
 metabolome <- metabolome[,!colnames(metabolome) %in% c('CefC5M2')] # Contaminated sample
-metabolome <- metabolome[,!colnames(metabolome) %in% c('GfC1M1','GfC1M2','GfC1M3',
-                                                      'GfC2M1','GfC2M2','GfC2M3',
-                                                      'GfC3M1','GfC3M2','GfC3M3',
-                                                      'GfC4M1','GfC4M2','GfC4M3',
-                                                      'GfC5M1','GfC5M2','GfC5M3',
-                                                      'GfC6M1','GfC6M2','GfC6M3')] # Germfree samples
-#conv_metabolome <- metabolome[,colnames(metabolome) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-#                                                       'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5')] # Untreated SPF samples
+metabolome <- metabolome[,!colnames(metabolome) %in% c('GfC1M1','GfC1M2','GfC1M3', 
+                                                       'GfC2M1','GfC2M2','GfC2M3', 
+                                                       'GfC3M1','GfC3M2','GfC3M3', 
+                                                       'GfC4M1','GfC4M2','GfC4M3', 
+                                                       'GfC5M1','GfC5M2','GfC5M3', 
+                                                       'GfC6M1','GfC6M2','GfC6M3')] # Germfree samples 
 metabolome <- metabolome[,!colnames(metabolome) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
                                                        'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5')] # Untreated SPF samples
 rownames(metabolome) <- metabolome$BIOCHEMICAL
@@ -78,16 +76,7 @@ metabolome$BIOCHEMICAL <- NULL
 metabolome_annotation <- metabolome[,1:4]
 metabolome$PUBCHEM <- NULL
 metabolome$KEGG <- NULL
-#bile_metabolome <- rbind(subset(metabolome, SUB_PATHWAY == 'Primary_Bile_Acid_Metabolism'),
-#                         subset(metabolome, SUB_PATHWAY == 'Secondary_Bile_Acid_Metabolism'))
-#bile_metabolome$SUB_PATHWAY <- NULL
 metabolome$SUB_PATHWAY <- NULL
-#carb_metabolome <- subset(metabolome, SUPER_PATHWAY == 'Carbohydrate')
-#carb_metabolome$SUPER_PATHWAY <- NULL
-#carb_metabolome <- t(carb_metabolome)
-#aa_metabolome <- subset(metabolome, SUPER_PATHWAY == 'Amino_Acid')
-#aa_metabolome$SUPER_PATHWAY <- NULL
-#aa_metabolome <- t(aa_metabolome)
 metabolome$SUPER_PATHWAY <- NULL
 metabolome <- t(metabolome)
 
@@ -95,18 +84,13 @@ metabolome <- t(metabolome)
 shared_otu$label <- NULL
 shared_otu$numOtus <- NULL
 shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ] # Contaminated sample
-shared_otu <- shared_otu[,!(names(shared_otu) == 'Otu0004')] # Remove residual C. difficile OTU
-shared_otu <- shared_otu[!rownames(shared_otu) %in% c('StrepC4M1','StrepC4M2','StrepC4M3'), ]
-shared_otu <- shared_otu[!rownames(shared_otu) %in% c('GfC1M1','GfC1M2','GfC1M3',
-                                                      'GfC2M1','GfC2M2','GfC2M3',
-                                                      'GfC3M1','GfC3M2','GfC3M3',
-                                                      'GfC4M1','GfC4M2','GfC4M3',
-                                                      'GfC5M1','GfC5M2','GfC5M3',
-                                                      'GfC6M1','GfC6M2','GfC6M3'), ] # Germfree samples
-conv_otu <- shared_otu[rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-                                                    'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ]
+shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))] # Remove residual C. difficile OTUs
 shared_otu <- shared_otu[!rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
                                                        'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ] # Untreated SPF samples
+sub_sample <- ceiling(min(rowSums(shared_otu)) * 0.9) # calculate rarefaction level
+shared_otu <- rrarefy(shared_otu, sub_sample) # subsample shared file
+shared_otu <- filter_table(shared_otu)
+rm(sub_sample)
 
 # Format taxonomy
 tax_otu$OTU_short <- NULL
