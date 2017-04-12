@@ -62,6 +62,16 @@ toxin <- read.delim('data/wetlab_assays/toxin_titer.dat', sep='\t', header=T)
 
 
 
+
+***C. difficile* colonization alters community-level expression distinctly between perturbed environments**
+
+In order to more closely examine the response of ... we performed metatranscriptomic sequencing
+
+look at how greg introduces this...
+
+
+
+
 ###Discussion
 
 
