@@ -82,6 +82,7 @@ Add panels to fig 4 about individual species importances and high demand metabol
 
 **Metabolic modeling-based importance calculations predict changes in metabolite concentrations**
 
+More effective way to integrate metatranscriptome with metabolome - unified global correlation og gene expression and change in metabolite concentrations neglects the activity of individual species
 
 
 ###Discussion
