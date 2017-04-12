@@ -414,19 +414,19 @@ points(x=metabolome_streptomycin_mock$MDS1, y=metabolome_streptomycin_mock$MDS2,
 par(mar=c(1,1,1,1), las=1, mgp=c(3,0.75,0), xaxs='i', yaxs='i')
 
 # Streptomycin heatmap
-heatmap.3(t(strep_corr), dendrogram='none', key=FALSE, main='', labRow='', labCol='', cluster.by.row=FALSE, cluster.by.col=FALSE)
+heatmap.3(t(strep_corr), dendrogram='none', key=FALSE, main='', labRow='', labCol='')
 mtext('c', side=2, line=2, las=2, adj=2, padj=-9, cex=1.2, font=2)
 
 #-------------------#
 
 # Cefoperazone heatmap
-heatmap.3(t(cef_corr), dendrogram='none', key=FALSE, main='', labRow='', labCol='', cluster.by.row=FALSE, cluster.by.col=FALSE)
+heatmap.3(t(cef_corr), dendrogram='none', key=FALSE, main='', labRow='', labCol='')
 mtext('d', side=2, line=2, las=2, adj=2, padj=-9, cex=1.2, font=2)
 
 #-------------------#
 
 # Clindamycin heatmap
-heatmap.3(t(clinda_corr), dendrogram='none', key=FALSE, main='', labRow='', labCol='', cluster.by.row=FALSE, cluster.by.col=FALSE)
+heatmap.3(t(clinda_corr), dendrogram='none', key=FALSE, main='', labRow='', labCol='')
 mtext('e', side=2, line=2, las=2, adj=2, padj=-9, cex=1.2, font=2)
 
 
