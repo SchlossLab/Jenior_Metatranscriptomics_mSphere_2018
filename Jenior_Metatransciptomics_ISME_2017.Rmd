@@ -72,6 +72,16 @@ look at how greg introduces this...
 
 **Modeling competition for nutrients across the microbiome**
 
+To more clearly integrate community-level transcriptomic data, we chose to leverage methods for genome-scale metabolic modeling previouslt developed in our laboratory [@Jenior2017]. To generate annotated genomes for discrete bacterial taxa on which to map transcriptomic reads, we implemented clustering of our assembled contigs based on abundance and composition [CONCOCT reference]. Strongly clustered groups of sequences were treated as individual species and a separate metabolic model with metabolite importance scores were calculated for each (Fig. S____). Within each community, we then compared pair-wise ratios of metabolite importance scores for each possible interspecies interaction utilizing evenly rarified transcriptomic abundances between the models (Fig. 4A). This provided a metric that reflected the level of competition for a given metabolite existed between particular pairs of bacterial taxa. We then went on to perform cumulative calculation of importance for each metabolite across all species in a given community (Fig. 4B). Values from this analysis give and estimation of the most highly sought after metabolites in the communities tested. Combined, this approach allowed for predicition of nutrient niche segregation between species in the cecal bacterial community and how *C. difficile* altered this landscape to establish its own metabolic strategy.
+
+CONCOCT clusters in supplement for this section
+
+Add panels to fig 4 about individual species importances and high demand metabolites.
+
+
+
+**Metabolic modeling-based importance calculations predict changes in metabolite concentrations**
+
 
 
 ###Discussion
