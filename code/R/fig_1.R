@@ -3,28 +3,19 @@
 rm(list=ls())
 gc()
 
-# Load dependencies
-deps <- c('vegan', 'shape', 'Matrix')
-for (dep in deps){
-  if (dep %in% installed.packages()[,"Package"] == FALSE){
-    install.packages(as.character(dep), quiet=TRUE);
-  } 
-  library(dep, verbose=FALSE, character.only=TRUE)
-}
-
 # Load in functions
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
-# Define files
-shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
-otu_tax_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/formatted.all_treatments.0.03.cons.taxonomy'
+# Define input files
+shared_otu_file <- 'data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
+otu_tax_file <- 'data/16S_analysis/formatted.all_treatments.0.03.cons.taxonomy'
+shared_family_file <- 'data/16S_analysis/all_treatments.family.subsample.shared'
+taxonomy_family_file <- 'data/16S_analysis/all_treatments.family.cons.format.taxonomy'
+wetlab_file <- 'data/wetlab_assays.tsv'
+metadata_file <- 'data/metadata.tsv'
 
-shared_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.subsample.shared'
-taxonomy_family_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.family.cons.family.format.taxonomy'
-
-wetlab_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/wetlab_assays.tsv'
-
-metadata_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metadata.tsv'
+# Define output files
+plot_file <- 'results/figures/figure_1.pdf'
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
@@ -42,7 +33,6 @@ shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))] # Re
 shared_otu$numOtus <- NULL
 shared_otu$label <- NULL
 taxonomy_family <- read.delim(taxonomy_family_file, sep='\t', header=T)
-taxonomy_family$Size <- NULL
 shared_family <- read.delim(shared_family_file, sep='\t', header=T, row.names=2)
 shared_family <- shared_family[!rownames(shared_family) %in% c('CefC5M2'), ]  # Remove contaminated sample
 shared_family <- shared_family[ , !(names(shared_family) == 'Otu008')] # Remove residual C. difficile OTU
@@ -102,27 +92,23 @@ for (index in colnames(cef_infected_otu)){
   }
 }
 cef_pvalues <- round(p.adjust(cef_pvalues, method='BH'), 3)
-cef_final_p <- c()
-cef_sig <- c()
 for (index in 1:length(cef_pvalues)){
   if (cef_pvalues[index] > 0.05){
     cef_infected_otu[,index] <- NULL
     cef_mock_otu[,index] <- NULL
   }
   else {
-    cef_final_p <- c(cef_final_p, cef_pvalues[index])
     if (cef_pvalues[index] <= 0.001) {
-      cef_sig <- c(cef_sig, '***')
+      cef_pvalues[index] <- paste('= ', as.character(cef_pvalues[index]), '***', sep='')
     }
     else if (cef_pvalues[index] <= 0.01) {
-      cef_sig <- c(cef_sig, '**')
+      cef_pvalues[index] <- paste('= ', as.character(cef_pvalues[index]), '***', sep='')
     }
     else {
-      cef_sig <- c(cef_sig, '*')
+      cef_pvalues[index] <- paste('= ', as.character(cef_pvalues[index]), '***', sep='')
     }
   }
 }
-cef_final_p <- as.character(cef_final_p)
 
 clinda_infected_otu <- subset(clinda_shared_otu, infection == '630')
 clinda_infected_otu$infection <- NULL
@@ -147,27 +133,23 @@ for (index in colnames(clinda_infected_otu)){
   }
 }
 clinda_pvalues <- round(p.adjust(clinda_pvalues, method='BH'), 3)
-clinda_final_p <- c()
-clinda_sig <- c()
 for (index in 1:length(clinda_pvalues)){
   if (cef_pvalues[index] > 0.05){
     clinda_infected_otu[,index] <- NULL
     clinda_mock_otu[,index] <- NULL
   }
   else {
-    clinda_final_p <- c(clinda_final_p, clinda_pvalues[index])
     if (clinda_pvalues[index] <= 0.001) {
-      clinda_sig <- c(clinda_sig, '***')
+      clinda_pvalues[index] <- paste('= ', as.character(clinda_pvalues[index]), '***', sep='')
     }
     else if (clinda_pvalues[index] <= 0.01) {
-      clinda_sig <- c(clinda_sig, '**')
+      clinda_pvalues[index] <- paste('= ', as.character(clinda_pvalues[index]), '**', sep='')
     }
     else {
-      clinda_sig <- c(clinda_sig, '*')
+      clinda_pvalues[index] <- paste('= ', as.character(clinda_pvalues[index]), '*', sep='')
     }
   }
 }
-clinda_final_p <- as.character(clinda_final_p)
 
 strep_infected_otu <- subset(strep_shared_otu, infection == '630')
 strep_infected_otu$infection <- NULL
@@ -192,30 +174,26 @@ for (index in colnames(strep_infected_otu)){
   }
 }
 strep_pvalues <- round(p.adjust(strep_pvalues, method='BH'), 3)
-strep_final_p <- c()
-strep_sig <- c()
 for (index in 1:length(strep_pvalues)){
   if (strep_pvalues[index] > 0.05){
     strep_infected_otu[,index] <- NULL
     strep_mock_otu[,index] <- NULL
   }
   else {
-    strep_final_p <- c(strep_final_p, strep_pvalues[index])
     if (strep_pvalues[index] <= 0.001) {
-      strep_sig <- c(strep_sig, '***')
+      strep_pvalues[index] <- paste('= ', as.character(clinda_pvalues[index]), '***', sep='')
     }
     else if (strep_pvalues[index] <= 0.01) {
-      strep_sig <- c(strep_sig, '**')
+      strep_pvalues[index] <- paste('= ', as.character(strep_pvalues[index]), '**', sep='')
     }
     else {
-      strep_sig <- c(strep_sig, '*')
+      strep_pvalues[index] <- paste('= ', as.character(strep_pvalues[index]), '*', sep='')
     }
   }
 }
-strep_final_p <- as.character(strep_final_p)
 
 # Rename OTUs with species-level identifier
-cef_infected_otu <- clean_merge(t(cef_infected_otu), otu_tax)
+cef_infected_otu <- clean_merge(otu_tax, t(cef_infected_otu))
 cef_genera <- as.vector(cef_infected_otu$genus)
 cef_phyla <- as.vector(cef_infected_otu$phylum)
 cef_otus <- as.vector(cef_infected_otu$OTU_short)
@@ -223,12 +201,12 @@ cef_infected_otu$genus <- NULL
 cef_infected_otu$phylum <- NULL
 cef_infected_otu$OTU_short <- NULL
 cef_infected_otu <- as.data.frame(t(cef_infected_otu))
-cef_mock_otu <- clean_merge(t(cef_mock_otu), otu_tax)
+cef_mock_otu <- clean_merge(otu_tax, t(cef_mock_otu))
 cef_mock_otu$genus <- NULL
 cef_mock_otu$phylum <- NULL
 cef_mock_otu$OTU_short <- NULL
 cef_mock_otu <- as.data.frame(t(cef_mock_otu))
-clinda_infected_otu <- clean_merge(t(clinda_infected_otu), otu_tax)
+clinda_infected_otu <- clean_merge(otu_tax, t(clinda_infected_otu))
 clinda_genera <- as.vector(clinda_infected_otu$genus)
 clinda_phyla <- as.vector(clinda_infected_otu$phylum)
 clinda_otus <- as.vector(clinda_infected_otu$OTU_short)
@@ -236,12 +214,12 @@ clinda_infected_otu$genus <- NULL
 clinda_infected_otu$phylum <- NULL
 clinda_infected_otu$OTU_short <- NULL
 clinda_infected_otu <- as.data.frame(t(clinda_infected_otu))
-clinda_mock_otu <- clean_merge(t(clinda_mock_otu), otu_tax)
+clinda_mock_otu <- clean_merge(otu_tax, t(clinda_mock_otu))
 clinda_mock_otu$genus <- NULL
 clinda_mock_otu$phylum <- NULL
 clinda_mock_otu$OTU_short <- NULL
 clinda_mock_otu <- as.data.frame(t(clinda_mock_otu))
-strep_infected_otu <- clean_merge(t(strep_infected_otu), otu_tax)
+strep_infected_otu <- clean_merge(otu_tax, t(strep_infected_otu))
 strep_genera <- as.vector(strep_infected_otu$genus)
 strep_phyla <- as.vector(strep_infected_otu$phylum)
 strep_otus <- as.vector(strep_infected_otu$OTU_short)
@@ -249,57 +227,65 @@ strep_infected_otu$genus <- NULL
 strep_infected_otu$phylum <- NULL
 strep_infected_otu$OTU_short <- NULL
 strep_infected_otu <- as.data.frame(t(strep_infected_otu))
-strep_mock_otu <- clean_merge(t(strep_mock_otu), otu_tax)
+strep_mock_otu <- clean_merge(otu_tax, t(strep_mock_otu))
 strep_mock_otu$genus <- NULL
 strep_mock_otu$phylum <- NULL
 strep_mock_otu$OTU_short <- NULL
 strep_mock_otu <- as.data.frame(t(strep_mock_otu))
 rm(otu_tax)
 
+# Remove necessary groups
+clinda_infected_otu[,2] <- NULL
+clinda_mock_otu[,2] <- NULL
+clinda_otus <- clinda_otus[-2]
+clinda_genera <- clinda_genera[-2]
+clinda_phyla <- clinda_phyla[-2]
+clinda_pvalues <- clinda_pvalues[-2]
+cef_infected_otu[,1] <- NULL
+cef_mock_otu[,1] <- NULL
+cef_otus <- cef_otus[-1]
+cef_genera <- cef_genera[-1]
+cef_phyla <- cef_phyla[-1]
+cef_pvalues <- cef_pvalues[-1]
+
 #--------------------------#
 
 # Phylotype family-level shared file
 
 # Convert to relative abundance
-relabund_shared <- (shared_family / rowSums(shared_family)) * 100
+relabund_family <- (shared_family / rowSums(shared_family)) * 100
 rm(shared_family)
 
 # Bin lowly abundant OTUs into an 'Other' category
-relabund_shared[relabund_shared < 1] <- 0
-relabund_shared <- relabund_shared[, colSums(relabund_shared != 0) > 0]
-top_otus <- colnames(relabund_shared)
+relabund_family[relabund_family < 1] <- 0
+relabund_family <- relabund_family[, colSums(relabund_family != 0) > 0]
+top_otus <- colnames(relabund_family)
 
 # Subset family-level taxonomy
-rownames(taxonomy_family) <- taxonomy_family$OTU
-taxonomy_family <- subset(taxonomy_family, rownames(taxonomy_family) %in% top_otus)
+taxonomy_family <- subset(taxonomy_family, taxonomy_family$OTU %in% top_otus)
 taxonomy_family$Taxonomy <- gsub('_', ' ', taxonomy_family$Taxonomy)
-taxonomy_family$Taxonomy <- gsub('\\(OTU\\d+\\)', '', taxonomy_family$Taxonomy)
 taxonomy_family <- taxonomy_family[order(taxonomy_family$Taxonomy),]
 rm(top_otus)
 
 # Sort shared based on OTUs and add 'Other' category
 
-relabund_shared <- as.data.frame(t(relabund_shared))
-relabund_shared$otu <- rownames(relabund_shared)
-relabund_shared <- relabund_shared[match(as.vector(taxonomy_family$OTU), relabund_shared$otu),] 
-relabund_shared$otu <- NULL
-relabund_shared <- as.data.frame(t(relabund_shared))
-relabund_shared$Other <- 100 - rowSums(relabund_shared)
+relabund_family <- relabund_family[match(as.vector(taxonomy_family$OTU), colnames(relabund_family)),] 
+relabund_family$Other <- 100 - rowSums(relabund_family)
 taxonomy_family <- as.vector(taxonomy_family$Taxonomy)
 taxonomy_family <- append(taxonomy_family, 'Other (<1% each)')
 
 # Add empty columns for plotting and sort table
-relabund_shared <- clean_merge(metadata, relabund_shared)
-relabund_shared$type <- NULL
-relabund_shared$infection <- NULL
-relabund_shared$susceptibility <- NULL
-empty_columns <- as.data.frame(rbind(c('col_1', rep(0, ncol(relabund_shared)-1)),
-                                     c('col_2', rep(0, ncol(relabund_shared)-1)),
-                                     c('col_3', rep(0, ncol(relabund_shared)-1))))
-colnames(empty_columns) <- colnames(relabund_shared)
-relabund_shared <- rbind(relabund_shared, empty_columns)
-relabund_shared <- relabund_shared[order(match(relabund_shared$abx, c('none', 'col_1', 'streptomycin', 'col_2', 'cefoperazone', 'col_3', 'clindamycin'))),] # sort by treatment
-relabund_shared$abx <- NULL
+relabund_family <- clean_merge(metadata, relabund_family)
+relabund_family$type <- NULL
+relabund_family$infection <- NULL
+relabund_family$susceptibility <- NULL
+empty_columns <- as.data.frame(rbind(c('col_1', rep(0, ncol(relabund_family)-1)),
+                                     c('col_2', rep(0, ncol(relabund_family)-1)),
+                                     c('col_3', rep(0, ncol(relabund_family)-1))))
+colnames(empty_columns) <- colnames(relabund_family)
+relabund_family <- rbind(relabund_family, empty_columns)
+relabund_family <- relabund_family[order(match(relabund_family$abx, c('none', 'col_1', 'streptomycin', 'col_2', 'cefoperazone', 'col_3', 'clindamycin'))),] # sort by treatment
+relabund_family$abx <- NULL
 rm(empty_columns)
 family_colors <- c('chartreuse3',
                    'gray50',
@@ -341,7 +327,6 @@ wetlab$toxin_titer[wetlab$toxin_titer <= 2.0] <- 1.94 # Undetectable points belo
 #----------------------------------------------------------------------------------------------------------------------#
 
 # Set up multi-panel figure
-plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/figures/figure_1.pdf'
 pdf(file=plot_file, width=12, height=10)
 layout(matrix(c(1,2,2,
                 3,3,4,
@@ -454,7 +439,7 @@ mtext('b', side=2, line=2, las=2, adj=3, padj=-11, cex=1.0, font=2)
 # Family-level phylotype bar chart
 
 par(mar=c(5,5,1,1), new=FALSE, xpd=FALSE)
-barplot(t(relabund_shared), col=family_colors, yaxt='n', xaxt='n', 
+barplot(t(relabund_family), col=family_colors, yaxt='n', xaxt='n', 
         ylim=c(0,100), ylab='% Relative Abundance', cex.names=1.2)
 box()
 axis(side=2, at=seq(0,100,20), tick=TRUE, las=1)
@@ -497,7 +482,7 @@ text(x=c(3.8,3.8,3.8,3.8,3.8), y=c(3.69,2,-1.4,-4.2,-4.82), cex=1.2,
 # Significant OTUs and relative abundance changes
 
 # Streptomycin plot
-par(mar=c(4, 16, 2, 1), mgp=c(2.3, 1, 0), xpd=FALSE, xaxs='i', yaxs='i')
+par(mar=c(4, 12, 2, 1), mgp=c(2.3, 1, 0), xpd=FALSE, xaxs='i', yaxs='i')
 plot(1, type="n", ylim=c(0,length(strep_otus)*2), xlim=c(-0.1,4), 
      ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
 title('Streptomycin-pretreated', line=0.5, cex.main=1.1, font.main=1)
@@ -516,24 +501,25 @@ for(i in colnames(strep_mock_otu)){
   segments(median(strep_mock_otu[,i]), index-0.5, median(strep_mock_otu[,i]), index, lwd=2) #adds line for median
   segments(median(strep_infected_otu[,i]), index+0.5, median(strep_infected_otu[,i]), index, lwd=2)
   maxes <- append(maxes, ceiling(max(c(as.vector(strep_mock_otu[,i]), as.vector(strep_infected_otu[,i])))))
-  text(x=3.5, y=index-0.75, bquote(paste(italic('p'),' = ', .(strep_final_p[i2]), .(strep_sig[i2]), sep='')), cex=0.8)
   index <- index + 2
   i2 <- i2 + 1
 }
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", "10000"))
-legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
+legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'), cex=0.9,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
-formatted <- lapply(1:length(strep_otus), function(i) bquote(paste(.(strep_phyla[i]),'; ',italic(.(strep_genera[i])), .(strep_otus[i]), sep=' ')))
+formatted <- lapply(1:length(strep_otus), function(i) bquote(paste(italic(.(strep_genera[i])), .(strep_otus[i]), sep=' ')))
+axis(2, at=seq(1,index-2,2)+0.4, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
+axis(2, at=seq(1,index-2,2), labels=strep_phyla, las=1, line=-0.5, tick=F, cex.axis=0.9) 
+formatted <- lapply(1:length(strep_pvalues), function(i) bquote(paste(italic('p'), .(strep_pvalues[i]), sep=' ')))
+axis(2, at=seq(1,index-2,2)-0.5, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
 
-axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
-
-mtext('d', side=2, line=2, las=2, adj=17, padj=-11, cex=1.0, font=2)
+mtext('d', side=2, line=2, las=2, adj=12, padj=-11, cex=1.0, font=2)
 
 #-----------------#
 
 # Cefoperazone plot
-par(mar=c(4, 15, 2, 1), mgp=c(2.3, 1, 0), xaxs='i', yaxs='i')
-plot(1, type='n', ylim=c(0,length(cef_otus)*2), xlim=c(-0.1,4), 
+par(mar=c(4, 10, 2, 1), mgp=c(2.3, 1, 0), xaxs='i', yaxs='i')
+plot(1, type='n', ylim=c(0,length(cef_otus)*2), xlim=c(-0.1,2), 
      ylab='', xlab='Normalized Abundance', xaxt='n', yaxt='n') # make blank plot
 title('Cefoperazone-pretreated', line=0.5, cex.main=1.1, font.main=1)
 index <- 1
@@ -551,20 +537,22 @@ for(i in colnames(cef_mock_otu)){
   segments(median(cef_mock_otu[,i]), index-0.5, median(cef_mock_otu[,i]), index, lwd=2) #adds line for median
   segments(median(cef_infected_otu[,i]), index+0.5, median(cef_infected_otu[,i]), index, lwd=2)
   maxes <- append(maxes, ceiling(max(c(as.vector(cef_mock_otu[,i]), as.vector(cef_infected_otu[,i])))))
-  text(x=3.5, y=index-0.75, bquote(paste(italic('p'),' = ', .(cef_final_p[i2]), .(cef_sig[i2]), sep='')), cex=0.8)
   index <- index + 2
   i2 <- i2 + 1
 }
-axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", '10000'))
-legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
+axis(1, at=c(0, 1, 2), label=c('0','10', '100'))
+legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'), cex=0.9,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
-formatted <- lapply(1:length(cef_otus), function(i) bquote(paste(.(cef_phyla[i]),'; ',italic(.(cef_genera[i])), .(cef_otus[i]), sep=' ')))
-axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
+formatted <- lapply(1:length(cef_otus), function(i) bquote(paste(italic(.(cef_genera[i])), .(cef_otus[i]), sep=' ')))
+axis(2, at=seq(1,index-2,2)+0.4, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
+axis(2, at=seq(1,index-2,2), labels=cef_phyla, las=1, line=-0.5, tick=F, cex.axis=0.9) 
+formatted <- lapply(1:length(cef_pvalues), function(i) bquote(paste(italic('p'), .(cef_pvalues[i]), sep=' ')))
+axis(2, at=seq(1,index-2,2)-0.5, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
 
 #-----------------#
 
 # Clindamycin plot
-par(mar=c(4, 13, 2, 1), mgp=c(2.3, 1, 0), xaxs='i', yaxs='i')
+par(mar=c(4, 11, 2, 2), mgp=c(2.3, 1, 0), xaxs='i', yaxs='i')
 plot(1, type="n", ylim=c(0,length(clinda_otus)*2), xlim=c(-0.1,3), 
      ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
 title('Clindamycin-pretreated', line=0.5, cex.main=1.1, font.main=1)
@@ -583,27 +571,29 @@ for(i in colnames(clinda_mock_otu)){
   segments(median(clinda_mock_otu[,i]), index-0.5, median(clinda_mock_otu[,i]), index, lwd=2) #adds line for median
   segments(median(clinda_infected_otu[,i]), index+0.5, median(clinda_infected_otu[,i]), index, lwd=2)
   maxes <- append(maxes, ceiling(max(c(as.vector(clinda_mock_otu[,i]), as.vector(clinda_infected_otu[,i])))))
-  text(x=2.6, y=index-0.75, bquote(paste(italic('p'),' = ', .(clinda_final_p[i2]), .(clinda_sig[i2]), sep='')), cex=0.8)
   index <- index + 2
   i2 <- i2 + 1
 }
 axis(1, at=c(0, 1, 2, 3), label=c('0','10', '100', "1000"))
-legend('topright', legend=c("630 infected", "Mock infected"), cex=0.8,
+legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'), cex=0.9,
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.5)
-formatted <- lapply(1:length(clinda_otus), function(i) bquote(paste(.(clinda_phyla[i]),'; ',italic(.(clinda_genera[i])), .(clinda_otus[i]), sep=' ')))
-axis(2, at=seq(1,index-2,2), labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
+formatted <- lapply(1:length(clinda_otus), function(i) bquote(paste(italic(.(clinda_genera[i])), .(clinda_otus[i]), sep=' ')))
+axis(2, at=seq(1,index-2,2)+0.4, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
+axis(2, at=seq(1,index-2,2), labels=clinda_phyla, las=1, line=-0.5, tick=F, cex.axis=0.9) 
+formatted <- lapply(1:length(clinda_pvalues), function(i) bquote(paste(italic('p'), .(clinda_pvalues[i]), sep=' ')))
+axis(2, at=seq(1,index-2,2)-0.5, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=0.9, font=3) 
+
 
 dev.off()
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
 #Clean up
-
-#for (dep in deps){
-#  pkg <- paste('package:', dep, sep='')
-#  detach(pkg, character.only = TRUE)
-#}
-#rm(list=ls())
-#gc()
+for (dep in deps){
+  pkg <- paste('package:', dep, sep='')
+  detach(pkg, character.only = TRUE)
+}
+rm(list=ls())
+gc()
 
 

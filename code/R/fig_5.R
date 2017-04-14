@@ -3,25 +3,29 @@
 rm(list=ls())
 gc()
 
-# Load dependencies
-deps <- c('wesanderson', 'shape');
-for (dep in deps){
-  if (dep %in% installed.packages()[,"Package"] == FALSE){
-    install.packages(as.character(dep), quiet=TRUE);
-  } 
-  library(dep, verbose=FALSE, character.only=TRUE)
-}
+# Load in functions
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
-# Define files
-metabolome <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/wetlab_assays/metabolomics.tsv'
-cef_importances <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/metabolic_models/cefoperazone_630.bipartite.files/importances.tsv'
-strep_importances <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/metabolic_models/streptomycin_630.bipartite.files/importances.tsv'
-clinda_importances <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/metabolic_models/clindamycin_630.bipartite.files/importances.tsv'
-gf_importances <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/metabolic_models/germfree_630.bipartite.files/importances.tsv'
-metadata <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/metadata.tsv'
+# Define input files
+metabolome <- 'data/wetlab_assays/metabolomics.tsv'
+cef_importances <- 'data/metabolic_models/cefoperazone_630.bipartite.files/importances.tsv'
+strep_importances <- 'data/metabolic_models/streptomycin_630.bipartite.files/importances.tsv'
+clinda_importances <- 'data/metabolic_models/clindamycin_630.bipartite.files/importances.tsv'
+metadata <- 'data/metadata.tsv'
+
+# Define output files
+supptable_S5A_file <'results/supplement/tables/table_S5strep.tsv'
+supptable_S5B_file <'results/supplement/tables/table_S5cef.tsv'
+supptable_S5C_file <'results/supplement/tables/table_S5clinda.tsv'
+supptable_S5D_file <'results/supplement/tables/table_S5all.tsv'
+plot_file <- 'results/figures/figure_6.pdf'
+
 
 # Metabolomic data
 metabolome <- read.delim(metabolome, sep='\t', header=T)
+
+# Remove germfree samples
+
 annotation <- metabolome[,1:5]
 metabolome$SUPER_PATHWAY <- NULL
 metabolome$SUB_PATHWAY <- NULL
@@ -57,7 +61,7 @@ metabolome_630 <- aggregate(metabolome_630[, 1:399], list(metabolome_630$abx), m
 rownames(metabolome_630) <- metabolome_630$Group.1
 metabolome_630$Group.1 <- NULL
 metabolome_630 <- as.data.frame(t(metabolome_630))
-colnames(metabolome_630) <- c('cef_630','clinda_630','gf_630','strep_630')
+colnames(metabolome_630) <- c('cef_630','clinda_630','strep_630')
 metabolome_mock <- subset(metabolome, infection == 'mock')
 metabolome_mock$cage <- NULL
 metabolome_mock$mouse <- NULL
@@ -68,12 +72,17 @@ metabolome_mock <- aggregate(metabolome_mock[, 1:399], list(metabolome_mock$abx)
 rownames(metabolome_mock) <- metabolome_mock$Group.1
 metabolome_mock$Group.1 <- NULL
 metabolome_mock <- as.data.frame(t(metabolome_mock))
-colnames(metabolome_mock) <- c('cef_mock','clinda_mock','gf_mock','strep_mock')
+colnames(metabolome_mock) <- c('cef_mock','clinda_mock','strep_mock')
+
+# Calculate ratio of mock to infected concentrations
+metabolome_mock <- 10 ^ metabolome_mock
+metabolome_630 <- 10 ^ metabolome_630
 metabolome <- metabolome_mock / metabolome_630
+metabolome <- log10(metabolome)
 metabolome <- merge(metabolome, annotation, by='row.names')
 rownames(metabolome) <- metabolome$Row.names
 metabolome$Row.names <- NULL
-colnames(metabolome) <- c('cefoperazone_conc', 'clindamycin_conc', 'germfree_conc', 'streptomycin_conc', 'pathway')
+colnames(metabolome) <- c('cefoperazone_conc', 'clindamycin_conc', 'streptomycin_conc', 'pathway')
 rm(annotation, metabolome_mock, metabolome_630)
 
 # Merge importances to one table
@@ -85,21 +94,15 @@ clinda_importances$Compound_name <- NULL
 strep_importances <- read.delim(strep_importances, sep='\t', header=T, row.names=1)
 strep_importances$p_value <- NULL
 strep_importances$Compound_name <- NULL
-gf_importances <- read.delim(gf_importances, sep='\t', header=T, row.names=1)
-gf_importances$p_value <- NULL
-gf_importances$Compound_name <- NULL
 importances <- merge(cef_importances, clinda_importances, by='row.names')
 rownames(importances) <- importances$Row.names
 importances$Row.names <- NULL
 importances <- merge(importances, strep_importances, by='row.names')
 rownames(importances) <- importances$Row.names
 importances$Row.names <- NULL
-importances <- merge(importances, gf_importances, by='row.names')
-rownames(importances) <- importances$Row.names
-importances$Row.names <- NULL
-colnames(importances) <- c('Compound_name', 'cefoperazone_score', 'clindamycin_score', 'streptomycin_score', 'germfree_score')
+colnames(importances) <- c('Compound_name', 'cefoperazone_score', 'clindamycin_score', 'streptomycin_score')
 importances$Compound_name <- gsub('_',' ', importances$Compound_name)
-rm(cef_importances, clinda_importances, strep_importances, gf_importances)
+rm(cef_importances, clinda_importances, strep_importances)
 
 # Merge metabolome medians and importance values
 combined <- merge(importances, metabolome, by='row.names')
@@ -129,14 +132,7 @@ strep$name <- combined$Compound_name
 strep$score <- as.numeric(as.vector(strep$score))
 strep$conc <- as.numeric(as.vector(strep$conc))
 strep <- subset(strep, strep[,1] != 0) # remove metabolites with 0 importance
-germfree <- as.data.frame(cbind(combined$germfree_score, combined$germfree_conc, combined$pathway))
-rownames(germfree) <- rownames(combined)
-colnames(germfree) <- c('score', 'conc', 'pathway')
-germfree$name <- combined$Compound_name
-germfree$score <- as.numeric(as.vector(germfree$score))
-germfree$conc <- as.numeric(as.vector(germfree$conc))
-germfree <- subset(germfree, germfree[,1] != 0)
-combined <- rbind(cef, clinda, strep, germfree)
+combined <- rbind(cef, clinda, strep)
 
 # Fit to general linear models and identify outliers (L1 regression)
 strep_fit <- glm(conc ~ score, data=strep)
@@ -151,10 +147,6 @@ clinda_fit <- glm(conc ~ score, data=clinda)
 clinda$residuals <- residuals(clinda_fit)
 clinda$residuals <- (clinda$residuals / sd(clinda$residuals))^2
 clinda_outliers <- clinda[clinda$residuals > 1.5, ]
-germfree_fit <- glm(conc ~ score, data=germfree)
-germfree$residuals <- residuals(germfree_fit)
-germfree$residuals <- (germfree$residuals / sd(germfree$residuals))^2
-germfree_outliers <- germfree[germfree$residuals > 1.5, ]
 combined_fit <- glm(conc ~ score, data=combined)
 combined$residuals <- residuals(combined_fit)
 combined$residuals <- (combined$residuals / sd(combined$residuals))^2
@@ -164,27 +156,23 @@ combined_outliers <- combined[combined$residuals > 1.5, ]
 test <- as.data.frame(cbind(round(c(strep_fit$coefficients[[2]],
                                     cef_fit$coefficients[[2]],
                                     clinda_fit$coefficients[[2]],
-                                    germfree_fit$coefficients[[2]],
                                     combined_fit$coefficients[[2]]), digits=3),
                             round(c(cor.test(strep[,1], strep[,2], method='spearman', exact=FALSE)$estimate,
                                     cor.test(cef[,1], cef[,2], method='spearman', exact=FALSE)$estimate,
                                     cor.test(clinda[,1], clinda[,2], method='spearman', exact=FALSE)$estimate,
-                                    cor.test(germfree[,1], germfree[,2], method='spearman', exact=FALSE)$estimate,
                                     cor.test(combined[,1], combined[,2], method='spearman', exact=FALSE)$estimate), digits=3),
                             round(c(cor.test(strep[,1], strep[,2], method='spearman', exact=FALSE)$p.value,
                                              cor.test(cef[,1], cef[,2], method='spearman', exact=FALSE)$p.value,
                                              cor.test(clinda[,1], clinda[,2], method='spearman', exact=FALSE)$p.value,
-                                             cor.test(germfree[,1], germfree[,2], method='spearman', exact=FALSE)$p.value,
                                              cor.test(combined[,1], combined[,2], method='spearman', exact=FALSE)$p.value), digits=3)))
-rownames(test) <- c('streptomycin','cefoperazone','clindamycin','germfree','combined')
+rownames(test) <- c('streptomycin','cefoperazone','clindamycin','combined')
 colnames(test) <- c('m','r', 'p')
 
 # Write outliers to supplementary table
-write.table(cef_outliers, file='~/Desktop/Repositories/Jenior_Transcriptomics_2015/results/supplement/tables/table_S5cef.tsv', quote=FALSE, sep='\t', row.names=TRUE)
-write.table(clinda_outliers, file='~/Desktop/Repositories/Jenior_Transcriptomics_2015/results/supplement/tables/table_S5clinda.tsv', quote=FALSE, sep='\t', row.names=TRUE)
-write.table(strep_outliers, file='~/Desktop/Repositories/Jenior_Transcriptomics_2015/results/supplement/tables/table_S5strep.tsv', quote=FALSE, sep='\t', row.names=TRUE)
-write.table(germfree_outliers, file='~/Desktop/Repositories/Jenior_Transcriptomics_2015/results/supplement/tables/table_S5gf.tsv', quote=FALSE, sep='\t', row.names=TRUE)
-write.table(combined_outliers, file='~/Desktop/Repositories/Jenior_Transcriptomics_2015/results/supplement/tables/table_S5combined.tsv', quote=FALSE, sep='\t', row.names=TRUE)
+write.table(strep_outliers, file=supptable_S5A_file, quote=FALSE, sep='\t', row.names=TRUE)
+write.table(cef_outliers, file=supptable_S5B_file, quote=FALSE, sep='\t', row.names=TRUE)
+write.table(clinda_outliers, file=supptable_S5C_file, quote=FALSE, sep='\t', row.names=TRUE)
+write.table(combined_outliers, file=supptable_S5D_file, quote=FALSE, sep='\t', row.names=TRUE)
 # Assemble into multi-paneled Excel table downstream
 
 # Add column for colors to combined outliers
@@ -195,12 +183,10 @@ combined_outliers$color <- values[match(combined_outliers$pathway, index)]
 #----------------------------------------#
 
 # Set up multi-panel figure
-plot_file <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/results/figures/figure_6.pdf'
-pdf(file=plot_file, width=6.3, height=9)
-layout(matrix(c(1,1,
-                2,3,
-                4,5), 
-              nrow=3, ncol=2, byrow=TRUE))
+pdf(file=plot_file, width=9, height=9)
+layout(matrix(c(1,2,
+                3,4), 
+              nrow=2, ncol=2, byrow=TRUE))
 par(las=1, mar=c(3,3,1,1), mgp=c(1.8,0.7,0))
 
 # Plot the data and correlations
@@ -275,23 +261,6 @@ text(x=c(6.4,-3.8,4.9,7.6,6.3,-4,-7,5.8,5.2,6.1),
 segments(x0=c(-4.3,1.1,3.2), y0=c(-0.8,0,0.3), 
          x1=c(-3.3,1.6,4.2), y1=c(-0.05,-0.4,0), col='gray20')
 
-# germfree alone
-plot(germfree[,1], germfree[,2], xlab='Importance Score', ylab=expression(paste(Delta,' Median Scaled Intensity')), 
-     pch=19, cex=0.9, xlim=c(-8,8), ylim=c(-1,17), col='forestgreen', xaxt='n')
-filledrectangle(wx=24, wy=5, col='gray90', mid=c(0,1.4), angle=23)
-abline(v=0, lty=2, col='gray60')
-box()
-points(germfree[,1], germfree[,2], pch=19, col='forestgreen')
-axis(side=1, at=c(-8,-4,0,4,8), labels=c(-8,-4,0,4,8))
-abline(germfree_fit, col='black', lwd=2)
-mtext('E', side=2, line=2, las=2, adj=0.8, padj=-8, cex=1.2)
-legend('topleft', legend=c(as.expression(bquote(paste(italic('rho'),' = ',.(test$r[4])))), 
-                           as.expression(bquote(paste(italic('P'),' = ',.(test$p[4]),'*')))), pt.cex=0, bty='n', cex=1.1)
-legend('topright', legend='Gnotobiotic', bty='n', cex=1.1, col='black')
-points(germfree_outliers[,1], germfree_outliers[,2], pch=21, bg='forestgreen', cex=1.5, lwd=2) # color outliers
-text(x=c(3.3,6,6), 
-     y=c(5.924171,14.439394,11.890565), 
-     germfree_outliers$name, cex=0.9, col='gray20')
 
 dev.off()
 

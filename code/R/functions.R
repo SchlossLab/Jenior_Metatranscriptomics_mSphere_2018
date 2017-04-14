@@ -1,21 +1,36 @@
 
+# Set sorking directory
+setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/')
+
+# Load dependencies
+deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD')
+for (dep in deps){
+  if (dep %in% installed.packages()[,"Package"] == FALSE){
+    install.packages(as.character(dep), quiet=TRUE);
+  } 
+  library(dep, verbose=FALSE, character.only=TRUE)
+}
+
+# Set seed for RNG
+set.seed(8619)
+
 # Conserved colors across studies and figures
 strep_col <- '#D37A1F'
 cef_col <- '#3A9CBC'
 clinda_col <- '#A40019'
 
-# Filter out columns that have values in at least 3 samples (ignores first column)
+# Filter out columns that have values in at least 3 samples (ignores first column if needed)
 filter_table <- function(data) {
 
   drop <- c()
   if (class(data[,1]) != 'character') {
-    if (nnzero(data[,1]) < 3) {
+    if (sum(data[,1] != 0) < 3) {
       drop <- c(drop, colnames(data)[1])
     }
   }
   
   for (index in 2:ncol(data)) {
-    if (nnzero(data[,index]) < 3) {
+    if (sum(data[,index] != 0) < 3) {
       drop <- c(drop, colnames(data)[index])
     }
   }

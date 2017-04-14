@@ -3,18 +3,6 @@
 rm(list=ls())
 gc()
 
-# Load dependencies
-deps <- c('vegan', 'plotrix', 'reshape2', 'Matrix')
-for (dep in deps){
-  if (dep %in% installed.packages()[,"Package"] == FALSE){
-    install.packages(as.character(dep), quiet=TRUE);
-  }
-  library(dep, verbose=FALSE, character.only=TRUE)
-}
-
-# Set seed for RNG
-set.seed(9861)
-
 # Load in functions
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 

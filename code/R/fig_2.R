@@ -18,19 +18,19 @@ set.seed(9861)
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
 # Output plot name
-plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/figures/figure_2.pdf'
+plot_file <- 'results/figures/figure_2.pdf'
 
 # Input 0.03 OTU shared file
-shared_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
+shared_otu_file <- 'data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
 
 # Input 0.03 OTU taxonomy file
-tax_otu_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/16S_analysis/formatted.all_treatments.0.03.cons.taxonomy'
+tax_otu_file <- 'data/16S_analysis/formatted.all_treatments.0.03.cons.taxonomy'
 
 # Input Metabolomes
-metabolome_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metabolome/metabolomics.tsv'
+metabolome_file <- 'data/metabolome/metabolomics.tsv'
 
 # Input Metadata
-metadata_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/metadata.tsv'
+metadata_file <- 'data/metadata.tsv'
 
 #----------------#
 
@@ -100,13 +100,13 @@ tax_otu$OTU_short <- NULL
 # Calculate axes
 
 # Metabolome
-metabolome_nmds <- metaMDS(metabolome, k=2, trymax=100)$points
+metabolome_nmds <- metaMDS(metabolome, k=2, trymax=100, distance='bray')$points
 metabolome_nmds[,1] <- metabolome_nmds[,1] - 0.05
 metabolome_nmds[,2] <- metabolome_nmds[,2] * -1
 metabolome_nmds <- clean_merge(metadata, metabolome_nmds)
 
 # Community structure
-otu_nmds <- metaMDS(shared_otu, k=2, trymax=100)$points
+otu_nmds <- metaMDS(shared_otu, k=2, trymax=100, distance='bray')$points
 otu_nmds[,1] <- otu_nmds[,1] - 0.2
 otu_nmds[,2] <- otu_nmds[,2] + 0.1
 otu_nmds <- clean_merge(metadata, otu_nmds)
