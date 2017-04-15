@@ -60,7 +60,11 @@ toxin <- read.delim('data/wetlab_assays/toxin_titer.dat', sep='\t', header=T)
 
 ###Results
 
+***C. difficile* differentially expresses virulence factors across distinct gut microbiome.**
 
+Utilizing 
+
+Conventionally-reared SPF mice were treated with one of three different antibiotics. These included streptomycin, cefoperazone, and clindamycin (Table 1 and Fig. S1), which were selected because they each have distinct, significant impacts on the structure and diversity of the cecal microbiome (Fig. S2A and S2B). This toxigenic strain of C. difficile was chosen for its moderate clinical severity in mouse models (24) and well-annotated genome (25). After infection, we measured sporulation and toxin production at 18 hours post innoculation. That time point corresponded with when another laboratory strain of C. difficile reached its maximum vegetative cell density in the cecum with limited sporulation (26). There was not a signific
 
 
 ***C. difficile* colonization alters community-level expression distinctly between perturbed environments**
