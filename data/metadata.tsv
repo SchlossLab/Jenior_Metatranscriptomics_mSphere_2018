@@ -56,9 +56,11 @@ StrepC6M3	6	3	M	conventional	streptomycin	mock	susceptible
 ConvC1M1	1	1	F	conventional	none	mock	resistant
 ConvC1M2	1	2	F	conventional	none	mock	resistant
 ConvC1M3	1	3	F	conventional	none	mock	resistant
+ConvC1M4	1	3	F	conventional	none	mock	resistant
 ConvC2M1	2	1	M	conventional	none	mock	resistant
 ConvC2M2	2	2	M	conventional	none	mock	resistant
 ConvC2M3	2	3	M	conventional	none	mock	resistant
+ConvC2M4	2	3	M	conventional	none	mock	resistant
 ConvC3M1	3	1	M	conventional	none	mock	resistant
 ConvC3M2	3	2	M	conventional	none	mock	resistant
 ConvC3M3	3	3	M	conventional	none	mock	resistant
