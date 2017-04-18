@@ -69,7 +69,7 @@ clean_merge <- function(data_1, data_2){
 
 
 # Plot logarithmic tick marks on axes
-minor.ticks.axis <- function(ax,n,t.ratio=0.5,mn,mx,...){
+minor.ticks.axis <- function(ax, n, t.ratio=0.5, mn, mx,...){
   
   lims <- par("usr")
   if(ax %in%c(1,3)) lims <- lims[1:2] else lims[3:4]
@@ -80,7 +80,7 @@ minor.ticks.axis <- function(ax,n,t.ratio=0.5,mn,mx,...){
   
   major.ticks <- major.ticks[major.ticks >= mn & major.ticks <= mx]
   
-  axis(ax,at=major.ticks, las=1)
+  axis(ax, at=major.ticks, labels=rep('', length(major.ticks)), las=1)
   
   n <- n+2
   minors <- log10(pretty(10^major.ticks[1:2],n))-major.ticks[1]
@@ -88,7 +88,6 @@ minor.ticks.axis <- function(ax,n,t.ratio=0.5,mn,mx,...){
   
   minor.ticks = c(outer(minors,major.ticks,`+`))
   minor.ticks <- minor.ticks[minor.ticks > mn & minor.ticks < mx]
-  
   
   axis(ax,at=minor.ticks,tcl=par("tcl")*t.ratio,labels=FALSE)
 }
