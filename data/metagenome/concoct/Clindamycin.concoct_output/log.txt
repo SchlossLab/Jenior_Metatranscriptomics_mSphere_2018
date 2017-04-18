@@ -1,0 +1,10 @@
+2016-05-19 10:26:33,721:INFO:root:Results created at /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/contigs/Clindamycin.concoct_output
+2016-05-19 10:26:37,675:INFO:root:Successfully loaded composition data.
+2016-05-19 10:26:37,753:INFO:root:Successfully loaded coverage data.
+2016-05-19 10:26:38,045:INFO:root:Performed PCA, resulted in 71 dimensions
+2016-05-19 10:26:39,981:INFO:root:Wrote original filtered data file.
+2016-05-19 10:26:41,034:INFO:root:Wrote PCA transformed file.
+2016-05-19 10:26:41,046:INFO:root:Wrote PCA components file.
+2016-05-19 10:26:41,046:INFO:root:PCA transformed data.
+2016-05-19 10:26:41,046:INFO:root:Will call vbgmm with parameters: /mnt/EXT/Schloss-data/matt/metagenomes_HiSeq/contigs/Clindamycin.concoct_output/, 400, 1000
+2016-05-19 10:36:58,498:INFO:root:CONCOCT Finished

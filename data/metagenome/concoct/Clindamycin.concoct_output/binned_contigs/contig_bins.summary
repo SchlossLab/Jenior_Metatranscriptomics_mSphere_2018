@@ -1,0 +1,32 @@
+# Input file name: cluster_17.contigs.fasta
+# File type: Fasta
+# Total sequences: 216
+# Total bases: 2.17 Mb
+# Sequence N50: 10000
+# Sequence L50: 90
+# Sequence N90: 8462
+# Median sequence length: 10000
+# Interquartile range: 3586
+# Shortest sequence length: 1058
+# Longest sequence length: 19950
+# Sequences > 1 kb: 216
+# Sequences > 5 kb: 174
+# G-C content: 40.66%
+# Ns included: 0
+
+# Input file name: cluster_28.contigs.fasta
+# File type: Fasta
+# Total sequences: 3264
+# Total bases: 3.91 Mb
+# Sequence N50: 1141
+# Sequence L50: 4
+# Sequence N90: 1022
+# Median sequence length: 1115
+# Interquartile range: 190
+# Shortest sequence length: 1001
+# Longest sequence length: 5079
+# Sequences > 1 kb: 3264
+# Sequences > 5 kb: 1
+# G-C content: 46.09%
+# Ns included: 0
+
