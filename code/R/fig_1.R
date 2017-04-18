@@ -482,13 +482,10 @@ text(x=c(3.75,3.75,3.75,3.75,3.75), y=c(4.8,3.125,-0.275,-2.8,-3.7), cex=1.2,
 
 # Streptomycin plot
 par(mar=c(4, 12, 2, 1), mgp=c(2.3, 1, 0), xpd=FALSE, xaxs='i', yaxs='i')
-plot(1, type="n", ylim=c(0,length(strep_otus)*2), xlim=c(-0.1,4), 
-     ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
+plot(1, type='n', ylim=c(0,length(strep_otus)*2), xlim=c(-0.1,4), 
+     ylab='', xlab='Normalized Abundance', xaxt="n", yaxt="n") # make blank plot
 title('Streptomycin-pretreated', line=0.5, cex.main=1.1, font.main=1)
 index <- 1
-i2 <- 1
-p_values <- c()
-maxes <- c()
 for(i in colnames(strep_mock_otu)){
   stripchart(at=index-0.35, jitter(strep_mock_otu[,i], amount=1e-5), 
              pch=21, bg="mediumseagreen", method="jitter", jitter=0.12, add=T, cex=1.1, lwd=0.5)
@@ -499,9 +496,7 @@ for(i in colnames(strep_mock_otu)){
   }
   segments(median(strep_mock_otu[,i]), index-0.5, median(strep_mock_otu[,i]), index, lwd=2) #adds line for median
   segments(median(strep_infected_otu[,i]), index+0.5, median(strep_infected_otu[,i]), index, lwd=2)
-  maxes <- append(maxes, ceiling(max(c(as.vector(strep_mock_otu[,i]), as.vector(strep_infected_otu[,i])))))
   index <- index + 2
-  i2 <- i2 + 1
 }
 axis(1, at=c(0, 1, 2, 3, 4), label=c('0','10', '100', "1000", "10000"))
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'), cex=0.9,
@@ -522,9 +517,6 @@ plot(1, type='n', ylim=c(0,length(cef_otus)*2), xlim=c(-0.1,2),
      ylab='', xlab='Normalized Abundance', xaxt='n', yaxt='n') # make blank plot
 title('Cefoperazone-pretreated', line=0.5, cex.main=1.1, font.main=1)
 index <- 1
-i2 <- 1
-p_values <- c()
-maxes <- c()
 for(i in colnames(cef_mock_otu)){
   stripchart(at=index-0.35, jitter(cef_mock_otu[,i], amount=1e-5), 
              pch=21, bg="mediumseagreen", method="jitter", jitter=0.12, add=T, cex=1.5, lwd=0.5)
@@ -535,9 +527,7 @@ for(i in colnames(cef_mock_otu)){
   }
   segments(median(cef_mock_otu[,i]), index-0.5, median(cef_mock_otu[,i]), index, lwd=2) #adds line for median
   segments(median(cef_infected_otu[,i]), index+0.5, median(cef_infected_otu[,i]), index, lwd=2)
-  maxes <- append(maxes, ceiling(max(c(as.vector(cef_mock_otu[,i]), as.vector(cef_infected_otu[,i])))))
   index <- index + 2
-  i2 <- i2 + 1
 }
 axis(1, at=c(0, 1, 2), label=c('0','10', '100'))
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'), cex=0.9,
@@ -556,9 +546,6 @@ plot(1, type="n", ylim=c(0,length(clinda_otus)*2), xlim=c(-0.1,3),
      ylab="", xlab="Normalized Abundance", xaxt="n", yaxt="n") # make blank plot
 title('Clindamycin-pretreated', line=0.5, cex.main=1.1, font.main=1)
 index <- 1
-i2 <- 1
-p_values <- c()
-maxes <- c()
 for(i in colnames(clinda_mock_otu)){
   stripchart(at=index-0.35, jitter(clinda_mock_otu[,i], amount=1e-5), 
              pch=21, bg="mediumseagreen", method="jitter", jitter=0.12, add=T, cex=1.5, lwd=0.5)
@@ -569,9 +556,7 @@ for(i in colnames(clinda_mock_otu)){
   }
   segments(median(clinda_mock_otu[,i]), index-0.5, median(clinda_mock_otu[,i]), index, lwd=2) #adds line for median
   segments(median(clinda_infected_otu[,i]), index+0.5, median(clinda_infected_otu[,i]), index, lwd=2)
-  maxes <- append(maxes, ceiling(max(c(as.vector(clinda_mock_otu[,i]), as.vector(clinda_infected_otu[,i])))))
   index <- index + 2
-  i2 <- i2 + 1
 }
 axis(1, at=c(0, 1, 2, 3), label=c('0','10', '100', "1000"))
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'), cex=0.9,
