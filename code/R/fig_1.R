@@ -350,6 +350,11 @@ text(-4.4, 1, '2', font=2, cex=1.5)
 legend(x=-0.6, y=2, legend=expression('Antibiotic in Drinking Water', 'Antibiotic IP Injection',paste(italic('C. difficile'), ' Spore Gavage'), 'Necropsy (18 hpi)'), 
        pt.bg=c('cadetblue3','coral1','white','black'), pch=c(22,25,25,25), cex=1.2, pt.cex=c(3,2,2,2), bty='n')
 
+# Route of administration
+text(x=c(-2, 2), y=c(-0.6,-0.6), c('In Drinking Water:', 'IP Injected:'), cex=1.2, font=2)
+text(x=-2, y=c(-1,-1.4), c('- Cefoperazone', '- Streptomycin'), cex=1.2)
+text(x=2, y=-1, '- Clindamycin', cex=1.2)
+
 # Plot label
 text(-4.7, 4.88, 'a', cex=1.5, font=2)
 
