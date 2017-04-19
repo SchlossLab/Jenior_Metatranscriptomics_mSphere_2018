@@ -365,8 +365,10 @@ stripchart(cfu_vegetative~treatment, data=wetlab, col='black', bg='firebrick2', 
 abline(h=2, lwd=1.5, col='gray30', lty=5) # LOD
 abline(v=c(5,11,17), lwd=1.5) # dividers
 axis(side=2, at=seq(0,9,1), labels=c(0, parse(text=paste(rep(10,9), '^', seq(1,9,1), sep=''))), las=1)
-axis(side=1, at=c(2,8,14,20), cex.axis=1.1, tick=FALSE, font=2, col=c('black',strep_col, cef_col, clinda_col),
-     labels=c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'))
+
+mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), col=c('black',strep_col, cef_col, clinda_col), 
+      at=c(2,8,14,20), side=1, font=2, cex=0.75, padj=0.75)
+
 
 # Median lines
 segments(x0=c(0.5, 6.5, 12.5, 18.5)-0.6, y0=c(
@@ -525,7 +527,7 @@ axis(2, at=seq(1,index-2,2), labels=cef_phyla, las=1, line=-0.5, tick=F, cex.axi
 formatted <- lapply(1:length(cef_pvalues), function(i) bquote(paste(italic('p'), .(cef_pvalues[i]), sep=' ')))
 axis(2, at=seq(1,index-2,2)-0.5, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 
-mtext('e', side=2, line=2, las=2, adj=14, padj=-11, cex=1.0, font=2)
+mtext('e', side=2, line=2, las=2, adj=16, padj=-11, cex=1.0, font=2)
   
 #-----------------#
 
@@ -556,7 +558,7 @@ axis(2, at=seq(1,index-2,2), labels=clinda_phyla, las=1, line=-0.5, tick=F, cex.
 formatted <- lapply(1:length(clinda_pvalues), function(i) bquote(paste(italic('p'), .(clinda_pvalues[i]), sep=' ')))
 axis(2, at=seq(1,index-2,2)-0.5, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 
-mtext('f', side=2, line=2, las=2, adj=14, padj=-11, cex=1.0, font=2)
+mtext('f', side=2, line=2, las=2, adj=27, padj=-11, cex=1.0, font=2)
 
 dev.off()
 
