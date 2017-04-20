@@ -48,16 +48,22 @@ noabx_annotated <- noabx_normalized_reads[!rownames(noabx_normalized_reads) %in%
 cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', cef_normalized_reads$gene),]), ]
 clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', clinda_normalized_reads$gene),]), ]
 strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
+rm(noabx_normalized_reads, cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
 
-
-
-
-
-
-
-
-
-
+# Merge with abx-treated with untreated
+cef_annotated$ko <- NULL
+cef_annotated$gene <- NULL
+cef_annotated$pathway <- NULL
+cef_noabx_annotated <- clean_merge(cef_annotated, noabx_annotated)
+clinda_annotated$ko <- NULL
+clinda_annotated$gene <- NULL
+clinda_annotated$pathway <- NULL
+clinda_noabx_annotated <- clean_merge(clinda_annotated, noabx_annotated)
+strep_annotated$ko <- NULL
+strep_annotated$gene <- NULL
+strep_annotated$pathway <- NULL
+strep_noabx_annotated <- clean_merge(strep_annotated, noabx_annotated)
+rm(cef_annotated, strep_annotated, clinda_annotated, noabx_annotated)
 
 
 
