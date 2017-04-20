@@ -204,7 +204,7 @@ conv_normalized_reads[,1] <- log2(conv_normalized_reads[,1] + 1)
 cef_normalized_reads <- subset(cef_normalized_reads, cef_normalized_reads$cef_630_metaT_reads > 0 | cef_normalized_reads$cef_mock_metaT_reads > 0)
 clinda_normalized_reads <- subset(clinda_normalized_reads, clinda_normalized_reads$clinda_630_metaT_reads > 0 | clinda_normalized_reads$clinda_mock_metaT_reads > 0)
 strep_normalized_reads <- subset(strep_normalized_reads, strep_normalized_reads$strep_630_metaT_reads > 0 | strep_normalized_reads$strep_mock_metaT_reads > 0)
-conv_normalized_reads <- subset(strep_normalized_reads, conv_normalized_reads$conv_metaT_reads > 0)
+conv_normalized_reads <- subset(conv_normalized_reads, conv_normalized_reads$conv_metaT_reads > 0)
 
 # Move row names to column
 cef_normalized_reads$kegg_id <- rownames(cef_normalized_reads)
