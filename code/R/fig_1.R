@@ -330,7 +330,7 @@ par(mar=c(0,0,0,0))
 plot(0, type='n', axes=F, xlab='', ylab='', xlim=c(-4.75,4), ylim=c(-2,5))
 
 # Abx in drinking water timeline
-rect(xleft=-4, ybottom=3.8, xright=0, ytop=4.2, col='cadetblue3', border='black')
+rect(xleft=-4, ybottom=3.8, xright=0, ytop=4.2, col='gray70', border='black')
 Arrows(x0=-4, y0=4, x1=3.5, y1=4, lwd=4, arr.type='triangle', arr.length=0.6, arr.width=0.2)
 segments(x0=c(-4,0,2,2.75), y0=c(4.4,4.4,4.4,4.3), x1=c(-4,0,2,2.75), y1=c(3.6,3.6,3.6,3.7), 
          lwd=4, col=c('black','black','black','black'))
@@ -342,18 +342,18 @@ text(x=-4.4, y=4, '1', font=2, cex=1.5)
 # IP injection abx timeline
 Arrows(x0=-4, y0=1, x1=-1.5, y1=1, lwd=4, arr.type='triangle', arr.length=0.6, arr.width=0.2)
 segments(x0=c(-4,-3,-2.25), y0=c(0.6,0.6,0.7), x1=c(-4,-3,-2.25), y1=c(1.4,1.4,1.3), lwd=4, col=c('black','black','black'))
-points(x=c(-4,-3,-2.25), y=c(1.8,1.8,1.8), pch=c(25,25,25), bg=c('coral1','white','black'), col='black', cex=2.5)
+points(x=c(-4,-3,-2.25), y=c(1.8,1.8,1.8), pch=c(25,25,25), bg=c('gray70','white','black'), col='black', cex=2.5)
 text(x=c(-4,-3), y=c(0.2,0.2), c('Day -1', 'Day 0'), cex=1.1)
 text(-4.4, 1, '2', font=2, cex=1.5)
 
 # Legend
 legend(x=-0.6, y=2, legend=expression('Antibiotic in Drinking Water', 'Antibiotic IP Injection',paste(italic('C. difficile'), ' Spore Gavage'), 'Necropsy (18 hpi)'), 
-       pt.bg=c('cadetblue3','coral1','white','black'), pch=c(22,25,25,25), cex=1.2, pt.cex=c(3,2,2,2), bty='n')
+       pt.bg=c('gray70','gray70','white','black'), pch=c(22,25,25,25), cex=1.2, pt.cex=c(3,2,2,2), bty='n')
 
 # Route of administration
 text(x=c(-2, 2), y=c(-0.6,-0.6), c('In Drinking Water:', 'IP Injected:'), cex=1.2, font=2)
-text(x=-2, y=c(-1,-1.4), c('- Cefoperazone', '- Streptomycin'), cex=1.2)
-text(x=2, y=-1, '- Clindamycin', cex=1.2)
+text(x=-2, y=c(-1,-1.4), c('- Streptomycin','- Cefoperazone'), cex=1.2, col=c(cef_col, strep_col), font=2)
+text(x=2, y=-1, '- Clindamycin', cex=1.2, col=clinda_col, font=2)
 
 # Plot label
 text(-4.7, 4.88, 'a', cex=1.5, font=2)
