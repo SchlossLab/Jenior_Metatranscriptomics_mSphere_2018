@@ -81,11 +81,6 @@ clinda_pathways <- subset(clinda_pathways, pathway != 'none')
 strep_pathways$kegg_id <- rownames(strep_pathways)
 cef_pathways$kegg_id <- rownames(cef_pathways)
 clinda_pathways$kegg_id <- rownames(clinda_pathways)
-
-# Write them to a file
-#write.table(strep_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-#write.table(cef_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
-#write.table(clinda_pathways, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_pathways.tsv', quote=FALSE, sep='\t', row.names=FALSE)
 rm(strep_pathways, cef_pathways, clinda_pathways)
 
 #-------------------------------------------------------------------------------------------------------------------------#
