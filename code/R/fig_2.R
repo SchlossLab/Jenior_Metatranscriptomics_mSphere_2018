@@ -51,6 +51,18 @@ strep_annotated <- subset(strep_normalized_reads, gene != '')
 strep_annotated <- strep_annotated[!rownames(strep_annotated) %in% rownames(strep_annotated[grep('unknown_\\d', strep_annotated$gene),]), ]
 rm(noabx_normalized_reads, cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
 
+# Screen out ribosomal genes
+noabx_annotated <- rbind(subset(noabx_annotated, !grepl('rps*', noabx_annotated$gene)),
+                         subset(noabx_annotated, !grepl('rpl*', noabx_annotated$gene)),
+                         subset(noabx_annotated, !grepl('rpm*', noabx_annotated$gene)))
+
+cef_annotated <- rbind(subset(cef_annotated, !grepl('rps.', cef_annotated$gene)),
+                       subset(cef_annotated, !grepl('rpl.', cef_annotated$gene)))
+clinda_annotated <- rbind(subset(clinda_annotated, !grepl('rps.', clinda_annotated$gene)),
+                          subset(clinda_annotated, !grepl('rpl.', clinda_annotated$gene)))
+strep_annotated <- rbind(subset(strep_annotated, !grepl('rps.', strep_annotated$gene)),
+                         subset(strep_annotated, !grepl('rpl.', strep_annotated$gene)))
+
 # Save pathway information
 all_pathways <- rbind(noabx_annotated[,2:3],cef_annotated[,3:4],clinda_annotated[,3:4],strep_annotated[,3:4])
 all_pathways <- all_pathways[!duplicated(all_pathways$gene), ]
@@ -127,37 +139,27 @@ strep_630_annotated <- subset(strep_630_annotated, difference > 0)
 strep_mock_annotated$difference <- abs(strep_mock_annotated$strep_mock_reads - strep_mock_annotated$noabx_reads)
 strep_mock_annotated <- subset(strep_mock_annotated, difference > 0)
 
-# Rank differences and subset to top 25
+# Rank differences and subset to top 15
 cef_630_annotated <- cef_630_annotated[order(-cef_630_annotated$difference),]
 cef_630_annotated$difference <- NULL
-cef_630_top <- cef_630_annotated[1:25,]
+cef_630_top <- cef_630_annotated[1:15,]
 cef_mock_annotated <- cef_mock_annotated[order(-cef_mock_annotated$difference),]
 cef_mock_annotated$difference <- NULL
-cef_mock_top <- cef_mock_annotated[1:25,]
+cef_mock_top <- cef_mock_annotated[1:15,]
 clinda_630_annotated <- clinda_630_annotated[order(-clinda_630_annotated$difference),]
 clinda_630_annotated$difference <- NULL
-clinda_630_top <- clinda_630_annotated[1:25,]
+clinda_630_top <- clinda_630_annotated[1:15,]
 clinda_mock_annotated <- clinda_mock_annotated[order(-clinda_mock_annotated$difference),]
 clinda_mock_annotated$difference <- NULL
-clinda_mock_top <- clinda_mock_annotated[1:25,]
+clinda_mock_top <- clinda_mock_annotated[1:15,]
 strep_630_annotated <- strep_630_annotated[order(-strep_630_annotated$difference),]
 strep_630_annotated$difference <- NULL
-strep_630_top <- strep_630_annotated[1:25,]
+strep_630_top <- strep_630_annotated[1:15,]
 strep_mock_annotated <- strep_mock_annotated[order(-strep_mock_annotated$difference),]
 strep_mock_annotated$difference <- NULL
-strep_mock_top <- strep_mock_annotated[1:25,]
+strep_mock_top <- strep_mock_annotated[1:15,]
 rm(cef_630_annotated,cef_mock_annotated,clinda_630_annotated,
    clinda_mock_annotated,strep_630_annotated,strep_mock_annotated)
-
-test<-unique(c(cef_630_top$gene,cef_mock_top$gene,clinda_630_top$gene,clinda_mock_top$gene,strep_630_top$gene,strep_mock_top$gene))
-
-# Reorder by expression in treatment group
-cef_630_top <- cef_630_top[order(cef_630_top$cef_630_reads),]
-cef_mock_top <- cef_mock_top[order(cef_mock_top$cef_mock_reads),]
-clinda_630_top <- clinda_630_top[order(clinda_630_top$clinda_630_reads),]
-clinda_mock_top <- clinda_mock_top[order(clinda_mock_top$clinda_mock_reads),]
-strep_630_top <- strep_630_top[order(strep_630_top$strep_630_reads),]
-strep_mock_top <- strep_mock_top[order(strep_mock_top$strep_mock_reads),]
 
 # Log transform expression
 cef_630_top[,2:3] <- log2(cef_630_top[,2:3] + 1)
@@ -180,34 +182,42 @@ rm(all_pathways)
 cef_630_top <- merge(cef_630_top, genes, by='gene', all.x=TRUE)
 cef_630_top$gene <- NULL
 cef_630_top$name <- gsub('_', ' ', cef_630_top$name)
-rownames(cef_630_name) <- cef_630_top$name
+rownames(cef_630_top) <- cef_630_top$name
 cef_630_top$name <- NULL
 cef_mock_top <- merge(cef_mock_top, genes, by='gene', all.x=TRUE)
 cef_mock_top$gene <- NULL
 cef_mock_top$name <- gsub('_', ' ', cef_mock_top$name)
-rownames(cef_mock_name) <- cef_mock_top$name
+rownames(cef_mock_top) <- cef_mock_top$name
 cef_mock_top$name <- NULL
 clinda_630_top <- merge(clinda_630_top, genes, by='gene', all.x=TRUE)
 clinda_630_top$gene <- NULL
 clinda_630_top$name <- gsub('_', ' ', clinda_630_top$name)
-rownames(clinda_630_name) <- clinda_630_top$name
+rownames(clinda_630_top) <- clinda_630_top$name
 clinda_630_top$name <- NULL
 clinda_mock_top <- merge(clinda_mock_top, genes, by='gene', all.x=TRUE)
 clinda_mock_top$gene <- NULL
 clinda_mock_top$name <- gsub('_', ' ', clinda_mock_top$name)
-rownames(clinda_mock_name) <- clinda_mock_top$name
+rownames(clinda_mock_top) <- clinda_mock_top$name
 clinda_mock_top$name <- NULL
 strep_630_top <- merge(strep_630_top, genes, by='gene', all.x=TRUE)
 strep_630_top$gene <- NULL
 strep_630_top$name <- gsub('_', ' ', strep_630_top$name)
-rownames(strep_630_name) <- strep_630_top$name
+rownames(strep_630_top) <- strep_630_top$name
 strep_630_top$name <- NULL
 strep_mock_top <- merge(strep_mock_top, genes, by='gene', all.x=TRUE)
 strep_mock_top$gene <- NULL
 strep_mock_top$name <- gsub('_', ' ', strep_mock_top$name)
-rownames(strep_mock_name) <- strep_mock_top$name
+rownames(strep_mock_top) <- strep_mock_top$name
 strep_mock_top$name <- NULL
 rm(genes)
+
+# Reorder by expression in treatment group
+cef_630_top <- cef_630_top[order(cef_630_top$cef_630_reads),]
+cef_mock_top <- cef_mock_top[order(cef_mock_top$cef_mock_reads),]
+clinda_630_top <- clinda_630_top[order(clinda_630_top$clinda_630_reads),]
+clinda_mock_top <- clinda_mock_top[order(clinda_mock_top$clinda_mock_reads),]
+strep_630_top <- strep_630_top[order(strep_630_top$strep_630_reads),]
+strep_mock_top <- strep_mock_top[order(strep_mock_top$strep_mock_reads),]
 
 # Convert to matrices for barplots
 cef_630_top <- as.matrix(t(cef_630_top))
@@ -217,79 +227,115 @@ clinda_mock_top <- as.matrix(t(clinda_mock_top))
 strep_630_top <- as.matrix(t(strep_630_top))
 strep_mock_top <- as.matrix(t(strep_mock_top))
 
+# Reverse the row order so infected plots first
+cef_630_top <- cef_630_top[rev(rownames(cef_630_top)),]
+cef_mock_top <- cef_mock_top[rev(rownames(cef_mock_top)),]
+clinda_630_top <- clinda_630_top[rev(rownames(clinda_630_top)),]
+clinda_mock_top <- clinda_mock_top[rev(rownames(clinda_mock_top)),]
+strep_630_top <- strep_630_top[rev(rownames(strep_630_top)),]
+strep_mock_top <- strep_mock_top[rev(rownames(strep_mock_top)),]
+
 #--------------------------------------------------------------------------------------------------#
 
 # Generate figure
-pdf(file=plot_file, width=7, height=10)
-layout(matrix(c(1,2,
-                3,3,
-                5,6),
-              nrow=3, ncol=2, byrow = TRUE))
-par(mar=c(3,8,1,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+pdf(file=plot_file, width=11, height=12)
+layout(matrix(c(1,1,2,2,3,
+                4,4,5,5,6,
+                7,7,8,8,9),
+              nrow=3, ncol=5, byrow = TRUE))
 
 #------------------#
 
 # Streptomycin
 # 630-infected
-barplot(strep_630_top, xaxt='n',
-        xlim=c(0,14), beside=TRUE, horiz=TRUE,
-        xlab='', ylab='', col=c(strep_col, noabx_col)) 
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(strep_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE,
+        xlab='', ylab='', col=c(noabx_col, strep_col), cex.names=1) 
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.9)
-
-
-
-
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext(expression(paste(italic('C. difficile'),'-infected')), side=3, padj=-0.3, cex=0.9)
+mtext('a', side=2, padj=-11, adj=18, cex=1.2, font=2)
 
 # Mock-infected
-barplot(strep_mock_top, xaxt='n',
-        xlim=c(0,14), beside=TRUE, horiz=TRUE,
-        xlab='', ylab='', col=c(strep_col, noabx_col)) 
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(strep_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, strep_col), cex.names=1) 
 box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
+mtext('b', side=2, padj=-11, adj=17, cex=1.2, font=2)
 
-
-
+# Legend
+par(mar=c(0,0,0,0))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
+legend('left', legend=c('Streptomycin-pretreated','No Antibiotics'), pt.bg=c(strep_col,noabx_col), 
+       pch=22, pt.cex=2.5, cex=1.4)
 
 #------------------#
 
 # Cefoperazone
-# 630
-barplot(cef_630_top, xaxt='n',
-        xlim=c(0,14), beside=TRUE, horiz=TRUE,
-        xlab='', ylab='', col=c(cef_col, noabx_col)) 
+# 630-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(cef_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, cef_col), cex.names=1) 
 box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext(expression(paste(italic('C. difficile'),'-infected')), side=3, padj=-0.3, cex=0.9)
+mtext('c', side=2, padj=-11, adj=18, cex=1.2, font=2)
 
-# Mock
-barplot(cef_mock_top, xaxt='n',
-        xlim=c(0,14), beside=TRUE, horiz=TRUE,
-        xlab='', ylab='', col=c(cef_col, noabx_col)) 
+# Mock-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(cef_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, cef_col), cex.names=1) 
 box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
+mtext('d', side=2, padj=-11, adj=17, cex=1.2, font=2)
 
-
-
-
+# Legend
+par(mar=c(0,0,0,0))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
+legend('left', legend=c('Cefoperazone-pretreated','No Antibiotics'), pt.bg=c(cef_col,noabx_col), 
+       pch=22, pt.cex=2.5, cex=1.4)
 
 #------------------#
 
 # Clindamycin
-# 630
-barplot(clinda_630_top, xaxt='n',
-        xlim=c(0,14), beside=TRUE, horiz=TRUE,
-        xlab='', ylab='', col=c(clinda_col, noabx_col)) 
+# 630-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(clinda_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, clinda_col), cex.names=1) 
 box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext(expression(paste(italic('C. difficile'),'-infected')), side=3, padj=-0.3, cex=0.9)
+mtext('e', side=2, padj=-11, adj=18, cex=1.2, font=2)
 
-# Mock
-barplot(clinda_mock_top, xaxt='n',
-        xlim=c(0,14), beside=TRUE, horiz=TRUE,
-        xlab='', ylab='', col=c(clinda_col, noabx_col)) 
+# Mock-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(clinda_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, clinda_col), cex.names=1) 
 box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
+mtext('f', side=2, padj=-11, adj=30, cex=1.2, font=2)
 
-
-
-
-
+# Legend
+par(mar=c(0,0,0,0))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
+legend('left', legend=c('Clindamycin-pretreated','No Antibiotics'), pt.bg=c(clinda_col,noabx_col), 
+       pch=22, pt.cex=2.5, cex=1.4)
 
 dev.off()
 
