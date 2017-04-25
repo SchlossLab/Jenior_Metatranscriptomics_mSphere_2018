@@ -10,6 +10,7 @@ for (dep in deps){
   } 
   library(dep, verbose=FALSE, character.only=TRUE)
 }
+rm(dep)
 
 # Set seed for RNG
 set.seed(8619)
@@ -18,6 +19,7 @@ set.seed(8619)
 strep_col <- '#D37A1F'
 cef_col <- '#3A9CBC'
 clinda_col <- '#A40019'
+noabx_col <- 'gray40'
 
 # Filter out columns that have values in at least 3 samples (ignores first column if needed)
 filter_table <- function(data) {

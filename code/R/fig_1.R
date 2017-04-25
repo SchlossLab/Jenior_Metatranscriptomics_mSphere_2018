@@ -104,10 +104,10 @@ for (index in 1:length(cef_pvalues)){
       cef_pvalues[index] <- paste('= ', as.character(cef_pvalues[index]), '***', sep='')
     }
     else if (cef_pvalues[index] <= 0.01) {
-      cef_pvalues[index] <- paste('= ', as.character(cef_pvalues[index]), '***', sep='')
+      cef_pvalues[index] <- paste('= ', as.character(cef_pvalues[index]), '**', sep='')
     }
     else {
-      cef_pvalues[index] <- paste('= ', as.character(cef_pvalues[index]), '***', sep='')
+      cef_pvalues[index] <- paste('= ', as.character(cef_pvalues[index]), '*', sep='')
     }
   }
 }
@@ -373,7 +373,6 @@ axis(side=2, at=seq(0,9,1), labels=c(0, parse(text=paste(rep(10,9), '^', seq(1,9
 
 mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), col=c('black',strep_col, cef_col, clinda_col), 
       at=c(2,8,14,20), side=1, font=2, cex=0.75, padj=0.75)
-
 
 # Median lines
 segments(x0=c(0.5, 6.5, 12.5, 18.5)-0.6, y0=c(

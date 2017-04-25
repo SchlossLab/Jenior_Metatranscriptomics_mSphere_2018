@@ -155,6 +155,10 @@ clinda_raw_reads <- subset(clinda_raw_reads, clinda_metaG_reads != 0)
 strep_raw_reads <- subset(strep_raw_reads, strep_metaG_reads != 0)
 conv_raw_reads <- subset(conv_raw_reads, conv_metaG_reads != 0)
 
+
+# Add rarefaction curves with rarecurve()
+
+
 # Rarefy read abundances
 size <- round(min(colSums(cef_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
 cef_raw_reads$cef_metaG_reads <- t(rrarefy(cef_raw_reads$cef_metaG_reads, sample=size)) + 1
