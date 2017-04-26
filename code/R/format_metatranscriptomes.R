@@ -155,35 +155,84 @@ clinda_raw_reads <- subset(clinda_raw_reads, clinda_metaG_reads != 0)
 strep_raw_reads <- subset(strep_raw_reads, strep_metaG_reads != 0)
 conv_raw_reads <- subset(conv_raw_reads, conv_metaG_reads != 0)
 
-
-# Add rarefaction curves with rarecurve()
-
-
-# Rarefy read abundances
-size <- round(min(colSums(cef_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
-cef_raw_reads$cef_metaG_reads <- t(rrarefy(cef_raw_reads$cef_metaG_reads, sample=size)) + 1
-cef_raw_reads$cef_630_metaT_reads <- t(rrarefy(cef_raw_reads$cef_630_metaT_reads, sample=size)) + 1
-cef_raw_reads$cef_mock_metaT_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaT_reads, sample=size)) + 1
+# Rarefy read abundances and benerate rarefaction curves for metagenomes + metatranscriptomes
+#pdf(file='results/supplement/figures/figure_S3.pdf', width=11, height=6)
+layout(matrix(c(1,2,3,
+                4,5,6,
+                7,8,9,
+                10,11,12), nrow=4, ncol=3, byrow=TRUE))
+par(mar=c(3,3,1,1), mgp=c(2,1,0))
+cef_size <- round(min(colSums(cef_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
+rarecurve(cef_raw_reads$cef_metaG_reads, sample=cef_size)
+legend('topleft', legend='Cefoperazone-pretreated Metagenome', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=cef_size, pt.cex=0, bty='n')
+mtext('a', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+cef_raw_reads$cef_metaG_reads <- t(rrarefy(cef_raw_reads$cef_metaG_reads, sample=cef_size)) + 1
+rarecurve(cef_raw_reads$cef_630_metaT_reads, sample=cef_size)
+legend('topleft', legend='Cefoperazone-pretreated Metatranscriptome (Infected)', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=cef_size, pt.cex=0, bty='n')
+mtext('b', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+cef_raw_reads$cef_630_metaT_reads <- t(rrarefy(cef_raw_reads$cef_630_metaT_reads, sample=cef_size)) + 1
+rarecurve(cef_raw_reads$cef_ock_metaT_reads, sample=cef_size)
+legend('topleft', legend='Cefoperazone-pretreated Metatranscriptome (Mock)', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=cef_size, pt.cex=0, bty='n')
+mtext('c', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+cef_raw_reads$cef_mock_metaT_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaT_reads, sample=cef_size)) + 1
 cef_normalized_reads <- cef_raw_reads
 rm(cef_raw_reads)
-size <- round(min(colSums(clinda_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
-clinda_raw_reads$clinda_metaG_reads <- t(rrarefy(clinda_raw_reads$clinda_metaG_reads, sample=size)) + 1
-clinda_raw_reads$clinda_630_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_630_metaT_reads, sample=size)) + 1
-clinda_raw_reads$clinda_mock_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_mock_metaT_reads, sample=size)) + 1
+clinda_size <- round(min(colSums(clinda_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
+clinda_raw_reads$clinda_metaG_reads <- t(rrarefy(clinda_raw_reads$clinda_metaG_reads, sample=clinda_size)) + 1
+rarecurve(clinda_raw_reads$clinda_metaG_reads, sample=clinda_size)
+legend('topleft', legend='Clindamycin-pretreated Metagenome', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=clinda_size, pt.cex=0, bty='n')
+mtext('d', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+clinda_raw_reads$clinda_630_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_630_metaT_reads, sample=clinda_size)) + 1
+rarecurve(clinda_raw_reads$clinda_630_metaT_reads, sample=clinda_size)
+legend('topleft', legend='Clindamycin-pretreated Metatranscriptome (Infected)', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=clinda_size, pt.cex=0, bty='n')
+mtext('e', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+clinda_raw_reads$clinda_mock_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_mock_metaT_reads, sample=clinda_size)) + 1
+rarecurve(clinda_raw_reads$clinda_mock_metaT_reads, sample=clinda_size)
+legend('topleft', legend='Clindamycin-pretreated Metatranscriptome (Mock)', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=clinda_size, pt.cex=0, bty='n')
+mtext('f', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
 clinda_normalized_reads <- clinda_raw_reads
 rm(clinda_raw_reads)
-size <- round(min(colSums(strep_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
-strep_raw_reads$strep_metaG_reads <- t(rrarefy(strep_raw_reads$strep_metaG_reads, sample=size)) + 1
-strep_raw_reads$strep_630_metaT_reads <- t(rrarefy(strep_raw_reads$strep_630_metaT_reads, sample=size)) + 1
-strep_raw_reads$strep_mock_metaT_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaT_reads, sample=size)) + 1
+strep_size <- round(min(colSums(strep_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
+strep_raw_reads$strep_metaG_reads <- t(rrarefy(strep_raw_reads$strep_metaG_reads, sample=strep_size)) + 1
+rarecurve(strep_raw_reads$strep_metaG_reads, sample=strep_size)
+legend('topleft', legend='Streptomycin-pretreated Metagenome', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=strep_size, pt.cex=0, bty='n')
+mtext('g', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+strep_raw_reads$strep_630_metaT_reads <- t(rrarefy(strep_raw_reads$strep_630_metaT_reads, sample=strep_size)) + 1
+rarecurve(strep_raw_reads$strep_630_metaT_reads, sample=strep_size)
+legend('topleft', legend='Streptomycin-pretreated Metatranscriptome (Infected)', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=strep_size, pt.cex=0, bty='n')
+mtext('h', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+strep_raw_reads$strep_mock_metaT_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaT_reads, sample=strep_size)) + 1
+rarecurve(strep_raw_reads$strep_mock_metaT_reads, sample=strep_size)
+legend('topleft', legend='Streptomycin-pretreated Metatranscriptome (Mock)', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=strep_size, pt.cex=0, bty='n')
+mtext('i', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
 strep_normalized_reads <- strep_raw_reads
 rm(strep_raw_reads)
-size <- round(min(colSums(conv_raw_reads[,c(1:2)]))*0.9) # Determine subsample level
-conv_raw_reads$conv_metaG_reads <- t(rrarefy(conv_raw_reads$conv_metaG_reads, sample=size)) + 1
-conv_raw_reads$conv_metaT_reads <- t(rrarefy(conv_raw_reads$conv_metaT_reads, sample=size)) + 1
+conv_size <- round(min(colSums(conv_raw_reads[,c(1:2)]))*0.9) # Determine subsample level
+conv_raw_reads$conv_metaG_reads <- t(rrarefy(conv_raw_reads$conv_metaG_reads, sample=conv_size)) + 1
+rarecurve(conv_raw_reads$conv_metaG_reads, sample=conv_size)
+legend('topleft', legend='No Antibiotics Metagenome', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=conv_size, pt.cex=0, bty='n')
+mtext('j', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+conv_raw_reads$conv_metaT_reads <- t(rrarefy(conv_raw_reads$conv_metaT_reads, sample=conv_size)) + 1
+rarecurve(conv_raw_reads$conv_metaT_reads, sample=conv_size)
+legend('topleft', legend='No Antibiotics Metatranscriptome', pt.cex=0, bty='n', cex=0.9)
+legend('bottomright', legend=conv_size, pt.cex=0, bty='n')
+mtext('k', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
 conv_normalized_reads <- conv_raw_reads
 rm(conv_raw_reads)
-rm(size)
+par(mar=c(0,0,0,0))
+plot(0, type='n', ylim=c(-5,5), xlim=c(5,5), ylab='', xlab='', xaxt='n', yaxt='n', axes=FALSE)
+rm(cef_size, clinda_size, strep_size, conv_size)
+dev.off()
 
 # Normalize metatranscriptomes to metagenomic coverage
 cef_normalized_reads$cef_630_metaT_reads <- cef_normalized_reads$cef_630_metaT_reads / cef_normalized_reads$cef_metaG_reads
