@@ -189,8 +189,6 @@ clinda_otu_r <- as.character(round(anosim(clinda_otu, clinda_otu_nmds$infection,
 strep_otu_p <- as.character(anosim(strep_otu, strep_otu_nmds$infection, permutations=999, distance='bray')$signif)
 strep_otu_r <- as.character(round(anosim(strep_otu, strep_otu_nmds$infection, permutations=999, distance='bray')$statistic, 3))
 rm(cef_otu, clinda_otu, strep_otu)
-# Move points for easier viewing
-strep_otu_nmds$MDS2 <- strep_otu_nmds$MDS2 + 0.2
 cef_metabolome_p <- as.character(anosim(cef_metabolome, cef_metabolome_nmds$infection, permutations=999, distance='bray')$signif)
 cef_metabolome_r <- as.character(round(anosim(cef_metabolome, cef_metabolome_nmds$infection, permutations=999, distance='bray')$statistic, 3))
 clinda_metabolome_p <- as.character(anosim(clinda_metabolome, clinda_metabolome_nmds$infection, permutations=999, distance='bray')$signif)
@@ -198,6 +196,10 @@ clinda_metabolome_r <- as.character(round(anosim(clinda_metabolome, clinda_metab
 strep_metabolome_p <- as.character(anosim(strep_metabolome, strep_metabolome_nmds$infection, permutations=999, distance='bray')$signif)
 strep_metabolome_r <- as.character(round(anosim(strep_metabolome, strep_metabolome_nmds$infection, permutations=999, distance='bray')$statistic, 3))
 rm(cef_metabolome, clinda_metabolome, strep_metabolome)
+
+# Move points for easier viewing
+strep_otu_nmds$MDS2 <- strep_otu_nmds$MDS2 + 0.2
+cef_metabolome_nmds$MDS2 <- cef_metabolome_nmds$MDS2 + 0.025
 
 # Subset to points for plot
 cef_otu_nmds_630 <- subset(cef_otu_nmds, infection == '630')
