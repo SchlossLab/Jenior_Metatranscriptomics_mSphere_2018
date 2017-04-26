@@ -272,7 +272,7 @@ mtext('b', side=2, padj=-11, adj=17, cex=1.2, font=2)
 # Legend
 par(mar=c(0,0.5,0,0.5))
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Streptomycin-pretreated','No Antibiotics'), pt.bg=c(strep_col,noabx_col), 
+legend('center', legend=c('Streptomycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(strep_col,noabx_col), 
        pch=22, pt.cex=2.5, cex=1.4)
 
 #------------------#
@@ -303,7 +303,7 @@ mtext('d', side=2, padj=-11, adj=17, cex=1.2, font=2)
 # Legend
 par(mar=c(0,0.5,0,0.5))
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Cefoperazone-pretreated','No Antibiotics'), pt.bg=c(cef_col,noabx_col), 
+legend('center', legend=c('Cefoperazone-pretreated','No Antibiotics (No CDI)'), pt.bg=c(cef_col,noabx_col), 
        pch=22, pt.cex=2.5, cex=1.4)
 
 #------------------#
@@ -334,7 +334,7 @@ mtext('f', side=2, padj=-11, adj=30, cex=1.2, font=2)
 # Legend
 par(mar=c(0,0.5,0,0.5))
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Clindamycin-pretreated','No Antibiotics'), pt.bg=c(clinda_col,noabx_col), 
+legend('center', legend=c('Clindamycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(clinda_col,noabx_col), 
        pch=22, pt.cex=2.5, cex=1.4)
 
 dev.off()
