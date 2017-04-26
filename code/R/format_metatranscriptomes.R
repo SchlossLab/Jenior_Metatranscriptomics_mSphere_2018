@@ -4,24 +4,25 @@ rm(list=ls())
 gc()
 
 # Load in functions
+starting_dir <- getwd()
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
 # Define files
 
 # Metagenomes
-cef_metagenome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_metagenome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Clindamycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_metagenome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Streptomycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_metagenome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metagenome/Conventional.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_metagenome <- 'data/read_mapping/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_metagenome <- 'data/read_mapping/metagenome/Clindamycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_metagenome <- 'data/read_mapping/metagenome/Streptomycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
+conv_metagenome <- 'data/read_mapping/metagenome/Conventional.DNA_reads2pangenome.all.norm.remove.annotated.txt'
 
 # Metatranscriptomes
-cef_630_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-cef_mock_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/cefoperazone_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_630_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/clindamycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_mock_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/clindamycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_630_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_mock_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_metatranscriptome <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/metatranscriptome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/cefoperazone_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/clindamycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+clinda_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/clindamycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+strep_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+conv_metatranscriptome <- 'data/read_mapping/metatranscriptome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -156,74 +157,85 @@ strep_raw_reads <- subset(strep_raw_reads, strep_metaG_reads != 0)
 conv_raw_reads <- subset(conv_raw_reads, conv_metaG_reads != 0)
 
 # Rarefy read abundances and benerate rarefaction curves for metagenomes + metatranscriptomes
-#pdf(file='results/supplement/figures/figure_S3.pdf', width=11, height=6)
+pdf(file='results/supplement/figures/figure_S3.pdf', width=11, height=6)
 layout(matrix(c(1,2,3,
                 4,5,6,
                 7,8,9,
                 10,11,12), nrow=4, ncol=3, byrow=TRUE))
 par(mar=c(3,3,1,1), mgp=c(2,1,0))
 cef_size <- round(min(colSums(cef_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
-rarecurve(cef_raw_reads$cef_metaG_reads, sample=cef_size)
+test <- t(as.matrix(setNames(as.numeric(cef_raw_reads$cef_metaG_reads), as.character(rownames(cef_raw_reads)))))
+rarecurve(test, sample=cef_size, label=FALSE)
+cef_raw_reads$cef_metaG_reads <- t(rrarefy(cef_raw_reads$cef_metaG_reads, sample=cef_size)) + 1
 legend('topleft', legend='Cefoperazone-pretreated Metagenome', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=cef_size, pt.cex=0, bty='n')
 mtext('a', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
-cef_raw_reads$cef_metaG_reads <- t(rrarefy(cef_raw_reads$cef_metaG_reads, sample=cef_size)) + 1
-rarecurve(cef_raw_reads$cef_630_metaT_reads, sample=cef_size)
+test <- t(as.matrix(setNames(as.numeric(cef_raw_reads$cef_630_metaT_reads), as.character(rownames(cef_raw_reads)))))
+rarecurve(test, sample=cef_size, label=FALSE)
+cef_raw_reads$cef_630_metaT_reads <- t(rrarefy(cef_raw_reads$cef_630_metaT_reads, sample=cef_size)) + 1
 legend('topleft', legend='Cefoperazone-pretreated Metatranscriptome (Infected)', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=cef_size, pt.cex=0, bty='n')
 mtext('b', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
-cef_raw_reads$cef_630_metaT_reads <- t(rrarefy(cef_raw_reads$cef_630_metaT_reads, sample=cef_size)) + 1
-rarecurve(cef_raw_reads$cef_ock_metaT_reads, sample=cef_size)
+test <- t(as.matrix(setNames(as.numeric(cef_raw_reads$cef_mock_metaT_reads), as.character(rownames(cef_raw_reads)))))
+rarecurve(test, sample=cef_size, label=FALSE)
+cef_raw_reads$cef_mock_metaT_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaT_reads, sample=cef_size)) + 1
 legend('topleft', legend='Cefoperazone-pretreated Metatranscriptome (Mock)', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=cef_size, pt.cex=0, bty='n')
 mtext('c', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
-cef_raw_reads$cef_mock_metaT_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaT_reads, sample=cef_size)) + 1
 cef_normalized_reads <- cef_raw_reads
 rm(cef_raw_reads)
 clinda_size <- round(min(colSums(clinda_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
+test <- t(as.matrix(setNames(as.numeric(clinda_raw_reads$clinda_metaG_reads), as.character(rownames(clinda_raw_reads)))))
+rarecurve(test, sample=clinda_size, label=FALSE)
 clinda_raw_reads$clinda_metaG_reads <- t(rrarefy(clinda_raw_reads$clinda_metaG_reads, sample=clinda_size)) + 1
-rarecurve(clinda_raw_reads$clinda_metaG_reads, sample=clinda_size)
 legend('topleft', legend='Clindamycin-pretreated Metagenome', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=clinda_size, pt.cex=0, bty='n')
 mtext('d', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+test <- t(as.matrix(setNames(as.numeric(clinda_raw_reads$clinda_630_metaT_reads), as.character(rownames(clinda_raw_reads)))))
+rarecurve(test, sample=clinda_size, label=FALSE)
 clinda_raw_reads$clinda_630_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_630_metaT_reads, sample=clinda_size)) + 1
-rarecurve(clinda_raw_reads$clinda_630_metaT_reads, sample=clinda_size)
 legend('topleft', legend='Clindamycin-pretreated Metatranscriptome (Infected)', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=clinda_size, pt.cex=0, bty='n')
 mtext('e', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+test <- t(as.matrix(setNames(as.numeric(clinda_raw_reads$clinda_mock_metaT_reads), as.character(rownames(clinda_raw_reads)))))
+rarecurve(test, sample=clinda_size, label=FALSE)
 clinda_raw_reads$clinda_mock_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_mock_metaT_reads, sample=clinda_size)) + 1
-rarecurve(clinda_raw_reads$clinda_mock_metaT_reads, sample=clinda_size)
 legend('topleft', legend='Clindamycin-pretreated Metatranscriptome (Mock)', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=clinda_size, pt.cex=0, bty='n')
 mtext('f', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
 clinda_normalized_reads <- clinda_raw_reads
 rm(clinda_raw_reads)
 strep_size <- round(min(colSums(strep_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
+test <- t(as.matrix(setNames(as.numeric(strep_raw_reads$strep_metaG_reads), as.character(rownames(strep_raw_reads)))))
+rarecurve(test, sample=strep_size, label=FALSE)
 strep_raw_reads$strep_metaG_reads <- t(rrarefy(strep_raw_reads$strep_metaG_reads, sample=strep_size)) + 1
-rarecurve(strep_raw_reads$strep_metaG_reads, sample=strep_size)
 legend('topleft', legend='Streptomycin-pretreated Metagenome', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=strep_size, pt.cex=0, bty='n')
 mtext('g', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+test <- t(as.matrix(setNames(as.numeric(strep_raw_reads$strep_630_metaT_reads), as.character(rownames(strep_raw_reads)))))
+rarecurve(test, sample=strep_size, label=FALSE)
 strep_raw_reads$strep_630_metaT_reads <- t(rrarefy(strep_raw_reads$strep_630_metaT_reads, sample=strep_size)) + 1
-rarecurve(strep_raw_reads$strep_630_metaT_reads, sample=strep_size)
 legend('topleft', legend='Streptomycin-pretreated Metatranscriptome (Infected)', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=strep_size, pt.cex=0, bty='n')
 mtext('h', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+test <- t(as.matrix(setNames(as.numeric(strep_raw_reads$strep_mock_metaT_reads), as.character(rownames(strep_raw_reads)))))
+rarecurve(test, sample=strep_size, label=FALSE)
 strep_raw_reads$strep_mock_metaT_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaT_reads, sample=strep_size)) + 1
-rarecurve(strep_raw_reads$strep_mock_metaT_reads, sample=strep_size)
 legend('topleft', legend='Streptomycin-pretreated Metatranscriptome (Mock)', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=strep_size, pt.cex=0, bty='n')
 mtext('i', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
 strep_normalized_reads <- strep_raw_reads
 rm(strep_raw_reads)
 conv_size <- round(min(colSums(conv_raw_reads[,c(1:2)]))*0.9) # Determine subsample level
+test <- t(as.matrix(setNames(as.numeric(conv_raw_reads$conv_metaG_reads), as.character(rownames(conv_raw_reads)))))
+rarecurve(test, sample=conv_size, label=FALSE)
 conv_raw_reads$conv_metaG_reads <- t(rrarefy(conv_raw_reads$conv_metaG_reads, sample=conv_size)) + 1
-rarecurve(conv_raw_reads$conv_metaG_reads, sample=conv_size)
 legend('topleft', legend='No Antibiotics Metagenome', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=conv_size, pt.cex=0, bty='n')
 mtext('j', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
+test <- t(as.matrix(setNames(as.numeric(conv_raw_reads$conv_metaT_reads), as.character(rownames(conv_raw_reads)))))
+rarecurve(test, sample=conv_size, label=FALSE)
 conv_raw_reads$conv_metaT_reads <- t(rrarefy(conv_raw_reads$conv_metaT_reads, sample=conv_size)) + 1
-rarecurve(conv_raw_reads$conv_metaT_reads, sample=conv_size)
 legend('topleft', legend='No Antibiotics Metatranscriptome', pt.cex=0, bty='n', cex=0.9)
 legend('bottomright', legend=conv_size, pt.cex=0, bty='n')
 mtext('k', side=2, line=2, las=2, adj=1, padj=-8, cex=1.5, font=2)
@@ -266,12 +278,12 @@ strep_normalized_reads$kegg_id <- rownames(strep_normalized_reads)
 conv_normalized_reads$kegg_id <- rownames(conv_normalized_reads)
 
 # Write normalized reads to files
-write.table(cef_normalized_reads, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-write.table(clinda_normalized_reads, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-write.table(strep_normalized_reads, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-write.table(conv_normalized_reads, file='~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/conv_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(cef_normalized_reads, file='data/read_mapping/cef_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(clinda_normalized_reads, file='data/read_mapping/clinda_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(strep_normalized_reads, file='data/read_mapping/strep_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(conv_normalized_reads, file='data/read_mapping/conv_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
 
 # Clean up
 rm(list=ls())
 gc()
-
+setwd(starting_dir)

@@ -247,17 +247,6 @@ layout(matrix(c(1,1,2,2,3,
 #------------------#
 
 # Streptomycin
-# 630-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(strep_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE,
-        xlab='', ylab='', col=c(noabx_col, strep_col), cex.names=1) 
-box()
-axis(1, at=seq(0,14,2), label=seq(0,14,2))
-minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext(expression(paste(italic('C. difficile'),'-infected')), side=3, padj=-0.3, cex=0.9)
-mtext('a', side=2, padj=-11, adj=18, cex=1.2, font=2)
-
 # Mock-infected
 par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
 barplot(strep_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
@@ -267,28 +256,28 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
 mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
-mtext('b', side=2, padj=-11, adj=17, cex=1.2, font=2)
+mtext('a', side=2, padj=-11, adj=18, cex=1.2, font=2)
 
-# Legend
-par(mar=c(0,0.5,0,0.5))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Streptomycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(strep_col,noabx_col), 
-       pch=22, pt.cex=2.5, cex=1.4)
-
-#------------------#
-
-# Cefoperazone
 # 630-infected
 par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(cef_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, cef_col), cex.names=1) 
+barplot(strep_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE,
+        xlab='', ylab='', col=c(noabx_col, strep_col), cex.names=1) 
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
 mtext(expression(paste(italic('C. difficile'),'-infected')), side=3, padj=-0.3, cex=0.9)
-mtext('c', side=2, padj=-11, adj=18, cex=1.2, font=2)
+mtext('b', side=2, padj=-11, adj=17, cex=1.2, font=2)
 
+# Legend
+par(mar=c(0,0,0,1))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
+legend('center', legend=c('Streptomycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(strep_col,noabx_col), 
+       pch=22, pt.cex=2.4, cex=1.3)
+
+#------------------#
+
+# Cefoperazone
 # Mock-infected
 par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
 barplot(cef_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
@@ -298,28 +287,28 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
 mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
-mtext('d', side=2, padj=-11, adj=17, cex=1.2, font=2)
+mtext('c', side=2, padj=-11, adj=18, cex=1.2, font=2)
 
-# Legend
-par(mar=c(0,0.5,0,0.5))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Cefoperazone-pretreated','No Antibiotics (No CDI)'), pt.bg=c(cef_col,noabx_col), 
-       pch=22, pt.cex=2.5, cex=1.4)
-
-#------------------#
-
-# Clindamycin
 # 630-infected
 par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(clinda_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, clinda_col), cex.names=1) 
+barplot(cef_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, cef_col), cex.names=1) 
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
 mtext(expression(paste(italic('C. difficile'),'-infected')), side=3, padj=-0.3, cex=0.9)
-mtext('e', side=2, padj=-11, adj=18, cex=1.2, font=2)
+mtext('d', side=2, padj=-11, adj=17, cex=1.2, font=2)
 
+# Legend
+par(mar=c(0,0,0,1))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
+legend('center', legend=c('Cefoperazone-pretreated','No Antibiotics (No CDI)'), pt.bg=c(cef_col,noabx_col), 
+       pch=22, pt.cex=2.4, cex=1.3)
+
+#------------------#
+
+# Clindamycin
 # Mock-infected
 par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
 barplot(clinda_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
@@ -329,13 +318,24 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
 mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
+mtext('e', side=2, padj=-11, adj=18, cex=1.2, font=2)
+
+# 630-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(clinda_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, clinda_col), cex.names=1) 
+box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext(expression(paste(italic('C. difficile'),'-infected')), side=3, padj=-0.3, cex=0.9)
 mtext('f', side=2, padj=-11, adj=30, cex=1.2, font=2)
 
 # Legend
-par(mar=c(0,0.5,0,0.5))
+par(mar=c(0,0,0,1))
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
 legend('center', legend=c('Clindamycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(clinda_col,noabx_col), 
-       pch=22, pt.cex=2.5, cex=1.4)
+       pch=22, pt.cex=2.4, cex=1.3)
 
 dev.off()
 

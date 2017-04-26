@@ -352,8 +352,8 @@ legend(x=-0.6, y=2, legend=expression('Antibiotic in Drinking Water', 'Antibioti
 
 # Route of administration
 text(x=c(-2, 2), y=c(-0.6,-0.6), c('In Drinking Water:', 'IP Injected:'), cex=1.2, font=2)
-text(x=-2, y=c(-1,-1.4), c('- Streptomycin','- Cefoperazone'), cex=1.2, col=c(cef_col, strep_col), font=2)
-text(x=2, y=-1, '- Clindamycin', cex=1.2, col=clinda_col, font=2)
+text(x=-2, y=c(-1,-1.4), c('Streptomycin','Cefoperazone'), cex=1.2, col=c(cef_col, strep_col), font=2)
+text(x=2, y=-1, 'Clindamycin', cex=1.2, col=clinda_col, font=2)
 
 # Plot label
 text(-4.7, 4.88, 'a', cex=1.5, font=2)
@@ -425,6 +425,10 @@ legend('topleft', legend=c('Vegetative cells (CFU)','Spores (CFU)'), ncol=1, bty
 legend('topright', legend='Toxin titer', bty='n',
        pch=23, col='black', pt.bg='green3', pt.cex=1.9)
 box()
+
+# Add significance
+text(x=c(6.5,12.5,18.5,8,14,20,15.5,21.5), y=c(3.4,3.4,3.4,3,3,3,3.2,2.5), labels=rep('*',8), col=noabx_col, font=2, cex=2.2)
+
 mtext('b', side=2, line=2, las=2, adj=3, padj=-11, cex=1.0, font=2)
 
 #-------------------------------------------------------------------#

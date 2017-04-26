@@ -199,7 +199,7 @@ rm(cef_metabolome, clinda_metabolome, strep_metabolome)
 
 # Move points for easier viewing
 strep_otu_nmds$MDS2 <- strep_otu_nmds$MDS2 + 0.2
-cef_metabolome_nmds$MDS2 <- cef_metabolome_nmds$MDS2 + 0.025
+cef_metabolome_nmds$MDS2 <- cef_metabolome_nmds$MDS2 + 0.027
 
 # Subset to points for plot
 cef_otu_nmds_630 <- subset(cef_otu_nmds, infection == '630')
