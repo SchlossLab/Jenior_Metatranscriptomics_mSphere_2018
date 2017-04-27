@@ -4,6 +4,7 @@ rm(list=ls())
 gc()
 
 # Load in functions
+starting_dir <- getwd()
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
 # Define files
@@ -436,3 +437,4 @@ for (dep in deps){
   detach(pkg, character.only = TRUE)}
 rm(list=ls())
 gc()
+setwd(starting_dir)
