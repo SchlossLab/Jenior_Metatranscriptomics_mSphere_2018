@@ -243,7 +243,7 @@ conv_normalized_reads <- conv_raw_reads
 rm(conv_raw_reads)
 par(mar=c(0,0,0,0))
 plot(0, type='n', ylim=c(-5,5), xlim=c(5,5), ylab='', xlab='', xaxt='n', yaxt='n', axes=FALSE)
-rm(cef_size, clinda_size, strep_size, conv_size)
+rm(test, cef_size, clinda_size, strep_size, conv_size)
 dev.off()
 
 # Normalize metatranscriptomes to metagenomic coverage

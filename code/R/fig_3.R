@@ -9,18 +9,18 @@ source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.
 # Define files
 
 # Normalized Metatranscriptomes
-cef_normalized_reads <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_normalized.tsv'
-clinda_normalized_reads <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_normalized.tsv'
-strep_normalized_reads <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_normalized.tsv'
+cef_normalized_reads <- 'data/read_mapping/cef_normalized.tsv'
+clinda_normalized_reads <- 'data/read_mapping/clinda_normalized.tsv'
+strep_normalized_reads <- 'data/read_mapping/strep_normalized.tsv'
 
 # KEGG taxonomy IDs
-kegg_tax <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/kegg_taxonomy.tsv'
+kegg_tax <- 'data/kegg_taxonomy.tsv'
 
 # Taxonomy colors
-tax_colors <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/taxonomy_color.tsv'
+tax_colors <- 'data/taxonomy_color.tsv'
 
 # Output plot
-plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/figures/figure_3.pdf'
+plot_file <- 'results/figures/figure_3.pdf'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -309,9 +309,9 @@ axis(1, at=seq(0,12,2), label=seq(0,12,2))
 axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
 minor.ticks.axis(1, 10, mn=0, mx=12)
 minor.ticks.axis(2, 10, mn=0, mx=12)
-mtext('Fold Normalized cDNA Abundance', side=1, padj=2.8, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.6, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
-mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2.5, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(strep_col,'black'))
 mtext('a', side=2, line=2, las=2, adj=2.5, padj=-11, cex=1.2, font=2)
@@ -337,9 +337,9 @@ axis(1, at=seq(0,12,2), label=seq(0,12,2))
 axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
 minor.ticks.axis(1, 10, mn=0, mx=12)
 minor.ticks.axis(2, 10, mn=0, mx=12)
-mtext('Fold Normalized cDNA Abundance', side=1, padj=2.8, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.6, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
-mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2.5, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(cef_col,'black'))
 mtext('b', side=2, line=2, las=2, adj=2.5, padj=-11, cex=1.2, font=2)
@@ -365,9 +365,9 @@ axis(1, at=seq(0,12,2), label=seq(0,12,2))
 axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
 minor.ticks.axis(1, 10, mn=0, mx=12)
 minor.ticks.axis(2, 10, mn=0, mx=12)
-mtext('Fold Normalized cDNA Abundance', side=1, padj=2.8, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.6, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
-mtext('Fold Normalized cDNA Abundance', side=2, padj=-2.7, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2.5, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(clinda_col,'black'))
 mtext('c', side=2, line=2, las=2, adj=2.5, padj=-11, cex=1.2, font=2)

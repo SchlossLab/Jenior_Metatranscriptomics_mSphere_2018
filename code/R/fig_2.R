@@ -266,7 +266,7 @@ box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext(expression(paste(italic('C. difficile'),'-infected')), side=3, padj=-0.3, cex=0.9)
+mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
 mtext('b', side=2, padj=-11, adj=17, cex=1.2, font=2)
 
 # Legend
@@ -297,7 +297,7 @@ box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext(expression(paste(italic('C. difficile'),'-infected')), side=3, padj=-0.3, cex=0.9)
+mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
 mtext('d', side=2, padj=-11, adj=17, cex=1.2, font=2)
 
 # Legend
@@ -328,7 +328,7 @@ box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext(expression(paste(italic('C. difficile'),'-infected')), side=3, padj=-0.3, cex=0.9)
+mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
 mtext('f', side=2, padj=-11, adj=30, cex=1.2, font=2)
 
 # Legend
