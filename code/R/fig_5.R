@@ -272,7 +272,6 @@ for (dep in deps){
   pkg <- paste('package:', dep, sep='')
   detach(pkg, character.only = TRUE)
 }
-test
+setwd(starting_dir)
 rm(list=ls())
 gc()
-setwd(starting_dir)

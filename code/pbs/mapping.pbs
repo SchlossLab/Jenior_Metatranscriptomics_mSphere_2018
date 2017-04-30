@@ -1,0 +1,63 @@
+#!/bin/sh
+#PBS -N cDNA_mapping
+#PBS -q fluxod
+#PBS -l qos=flux
+#PBS -l nodes=1:ppn=4,mem=32GB
+#PBS -l walltime=300:00:00
+#PBS -j oe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -A pschloss_fluxod
+
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+
+cd $PBS_O_WORKDIR
+
+NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
+
+
+# Load samtools
+module load samtools
+
+# Align paired-end reads to Full length C. difficile 630 genome and plasmid
+/nfs/turbo/pschloss/bin/bowtie2/bowtie2 -f --fr -p 8 -x ${cluster}.genes.nuc.250.annotated.fasta_gene_db \
+        -1 /nfs/turbo/pschloss/matt/metatranscriptomes_HiSeq/final_reads/${metatranscriptome}.read1.pool.cut.trim.silva_filter.mus_filter.fasta \
+        -2 /nfs/turbo/pschloss/matt/metatranscriptomes_HiSeq/final_reads/${metatranscriptome}.read2.pool.cut.trim.silva_filter.mus_filter.fasta \
+        -S ${cluster}.${metatranscriptome}_cDNA.pair.sam
+samtools view -bS ${cluster}.${metatranscriptome}_cDNA.pair.sam > ${cluster}.${metatranscriptome}_cDNA.pair.bam
+samtools sort ${cluster}.${metatranscriptome}_cDNA.pair.bam ${cluster}.${metatranscriptome}_cDNA.pair.sort
+rm ${cluster}.${metatranscriptome}_cDNA.pair.sam
+
+# Align orphaned reads to Full length C. difficile 630 genome and plasmid
+/nfs/turbo/pschloss/bin/bowtie2/bowtie2 -f -p 8 -x ${cluster}.genes.nuc.250.annotated.fasta_gene_db \
+        -U /nfs/turbo/pschloss/matt/metatranscriptomes_HiSeq/final_reads/${metatranscriptome}.orphan.pool.cut.trim.silva_filter.mus_filter.fasta \
+        -S ${metatranscriptome}.orphan.RNA_2_${cluster}.sam
+samtools view -bS ${cluster}.${metatranscriptome}_cDNA.orphan.sam > ${cluster}.${metatranscriptome}_cDNA.orphan.bam
+samtools sort ${cluster}.${metatranscriptome}_cDNA.orphan.bam ${cluster}.${metatranscriptome}_cDNA.orphan.sort
+rm ${cluster}.${metatranscriptome}_cDNA.orphan.sam
+
+# Merge alignments and convert to idxstats format
+samtools merge ${cluster}.${metatranscriptome}_cDNA.sort.merge.bam ${cluster}.${metatranscriptome}_cDNA.pair.sort.bam ${cluster}.${metatranscriptome}_cDNA.orphan.sort.bam
+samtools sort ${cluster}.${metatranscriptome}_cDNA.sort.merge.bam ${cluster}.${metatranscriptome}_cDNA.sort.merge.sort
+
+# Remove PCR duplicates and sort
+/nfs/turbo/pschloss/matt/bin/java1.8/bin/java -Xmx2g -jar /nfs/turbo/pschloss/matt/bin/picard-tools-1.119/MarkDuplicates.jar \
+        INPUT=${cluster}.${metatranscriptome}_cDNA.sort.merge.sort.bam \
+        OUTPUT=${cluster}.${metatranscriptome}_cDNA.sort.merge.sort.rmdup.bam \
+        METRICS_FILE=${cluster}.${metatranscriptome}_cDNA.sort.merge.sort.rmdup.metrics \
+        AS=TRUE \
+        VALIDATION_STRINGENCY=LENIENT \
+        MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 \
+        REMOVE_DUPLICATES=TRUE
+samtools sort ${cluster}.${metatranscriptome}_cDNA.sort.merge.sort.rmdup.bam ${cluster}.${metatranscriptome}_cDNA.sort.merge.sort.rmdup.sort.bam
+samtools index ${cluster}.${metatranscriptome}_cDNA.sort.merge.sort.rmdup.sort.bam
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit
+
+

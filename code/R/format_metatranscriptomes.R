@@ -284,6 +284,6 @@ write.table(strep_normalized_reads, file='data/read_mapping/strep_normalized.tsv
 write.table(conv_normalized_reads, file='data/read_mapping/conv_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
 
 # Clean up
+setwd(starting_dir)
 rm(list=ls())
 gc()
-setwd(starting_dir)

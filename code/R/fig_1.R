@@ -353,8 +353,8 @@ legend(x=-0.6, y=2, legend=expression('Antibiotic in Drinking Water', 'Antibioti
 
 # Route of administration
 text(x=c(-2, 2), y=c(-0.6,-0.6), c('In Drinking Water:', 'IP Injected:'), cex=1.2, font=2)
-text(x=-2, y=c(-1,-1.4), c('Streptomycin','Cefoperazone'), cex=1.2, col=c(cef_col, strep_col), font=2)
-text(x=2, y=-1, 'Clindamycin', cex=1.2, col=clinda_col, font=2)
+text(x=-2, y=c(-1,-1.4), c('Streptomycin (5.0 mg/ml)','Cefoperazone (0.5 mg/ml)'), cex=1.2, col=c(cef_col, strep_col))
+text(x=2, y=-1, 'Clindamycin (10 mg/kg)', cex=1.2, col=clinda_col, font=2)
 
 # Plot label
 text(-4.7, 4.88, 'a', cex=1.5, font=2)
@@ -578,7 +578,8 @@ for (dep in deps){
   pkg <- paste('package:', dep, sep='')
   detach(pkg, character.only = TRUE)
 }
+setwd(starting_dir)
 rm(list=ls())
 gc()
-setwd(starting_dir)
+
 

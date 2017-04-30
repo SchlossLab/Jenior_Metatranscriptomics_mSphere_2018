@@ -1,0 +1,62 @@
+#!/bin/sh
+#PBS -N CONCOCT
+#PBS -q fluxod
+#PBS -l qos=flux
+#PBS -l nodes=1:ppn=4,mem=32GB
+#PBS -l walltime=300:00:00
+#PBS -j oe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -A pschloss_fluxod
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+cd $PBS_O_WORKDIR
+
+NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
+
+
+# Define where CONCOCT is
+CONCOCT=/nfs/turbo/pschloss/matt/home/CONCOCT
+scripts=/nfs/turbo/pschloss/matt/home/scripts
+Prodigal=/nfs/turbo/pschloss/matt/bin/Prodigal
+
+# Run CONCOCT
+${CONCOCT}/bin/concoct -c 400 --coverage_file ${metagenome}.coveragetable.tsv --composition_file ${metagenome}.final.contigs.1k.10k.fa -b ${metagenome}.concoct_output/
+
+# Incorporate read linkage with hierarchical clustering
+perl ${CONCOCT}/scripts/ClusterLinkNOverlap.pl --cfile=${metagenome}.concoct_output/clustering_gt1000.csv --lfile=${metagenome}.linkagetable.tsv --covfile=${metagenome}.coveragetable.tsv --ofile=${metagenome}.concoct_output/clustering_gt1000_link.csv
+
+# Validate output
+mkdir ${metagenome}.concoct_output/validation/
+Rscript ${CONCOCT}/scripts/ClusterPlot.R -c ${metagenome}.concoct-output/clustering_gt1000_link.csv -p ${metagenome}.concoct-output/PCA_transformed_data_gt1000.csv -m ${metagenome}.concoct-output/pca_means_gt1000.csv -r ${metagenome}.concoct-output/pca_variances_gt1000_dim -l -o ${metagenome}.concoct_output/validation/ClusterPlot.pdf
+perl ${CONCOCT}/scripts/Validate.pl --cfile=${metagenome}.concoct-output/clustering_gt1000_link.csv --sfile=${metagenome}.concoct_output/validation/clustering_gt1000_s.csv --ofile=${metagenome}.concoct_output/validation/clustering_gt1000_conf.csv --ffile={metagenome}.final.contigs.1k.10k.fa
+
+# Bin clustered contigs into separate fasta files
+cd ${metagenome}.concoct_output
+python ${scripts}/bin_contigs.py ../${metagenome}.final.contigs.1k.10k.fa clustering_gt1000_link.csv
+cd binned_contigs
+
+# Screen out small bins and gather some statistics
+find . -size -50k -delete
+for x in *.fasta; do python ${scripts}/seq_stats.py ${x} >> contig_bins.summary; done
+
+# Call genes for large clusters
+for x in *.contigs.fasta
+do 
+cluster="${x//.contigs.fasta}"
+${Prodigal}/prodigal -q -i ${x} -d ${cluster}.genes.fna -a ${cluster}.genes.faa
+gzip ${x}
+python ${scripts}/format_fasta.py ${cluster}.genes.fna 250
+python ${scripts}/format_fasta.py ${cluster}.genes.faa 80
+mv ${cluster}.genes.250.fasta ${cluster}.genes.nuc.250.fasta
+mv ${cluster}.genes.80.fasta ${cluster}.genes.pep.80.fasta
+python ${scripts}/seq_stats.py ${cluster}.genes.nuc.250.fasta >> genes.nuc.summary
+python ${scripts}/seq_stats.py ${cluster}.genes.pep.80.fasta >> genes.pep.summary
+done
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit
