@@ -23,7 +23,7 @@ NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
 module load samtools
 
 # Align paired-end reads to Full length C. difficile 630 genome and plasmid
-/nfs/turbo/pschloss/bin/bowtie2 -f --fr -p 8 -x ${cluster}.genes.nuc.250.annotated.fasta_gene_db \
+/nfs/turbo/pschloss/bin/bowtie2 -f --fr -p 8 -x ${cluster}_gene_db \
         -1 /nfs/turbo/pschloss/matt/metatranscriptomes_HiSeq/final_reads/${metatranscriptome}.read1.pool.cut.trim.silva_filter.mus_filter.fasta \
         -2 /nfs/turbo/pschloss/matt/metatranscriptomes_HiSeq/final_reads/${metatranscriptome}.read2.pool.cut.trim.silva_filter.mus_filter.fasta \
         -S ${cluster}.${metatranscriptome}_cDNA.pair.sam
@@ -32,9 +32,9 @@ samtools sort ${cluster}.${metatranscriptome}_cDNA.pair.bam ${cluster}.${metatra
 rm ${cluster}.${metatranscriptome}_cDNA.pair.sam
 
 # Align orphaned reads to Full length C. difficile 630 genome and plasmid
-/nfs/turbo/pschloss/bin/bowtie2 -f -p 8 -x ${cluster}.genes.nuc.250.annotated.fasta_gene_db \
+/nfs/turbo/pschloss/bin/bowtie2 -f -p 8 -x ${cluster}_gene_db \
         -U /nfs/turbo/pschloss/matt/metatranscriptomes_HiSeq/final_reads/${metatranscriptome}.orphan.pool.cut.trim.silva_filter.mus_filter.fasta \
-        -S ${metatranscriptome}.orphan.RNA_2_${cluster}.sam
+        -S ${cluster}.${metatranscriptome}_cDNA.orphan.sam
 samtools view -bS ${cluster}.${metatranscriptome}_cDNA.orphan.sam > ${cluster}.${metatranscriptome}_cDNA.orphan.bam
 samtools sort ${cluster}.${metatranscriptome}_cDNA.orphan.bam ${cluster}.${metatranscriptome}_cDNA.orphan.sort
 rm ${cluster}.${metatranscriptome}_cDNA.orphan.sam

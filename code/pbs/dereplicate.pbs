@@ -1,0 +1,29 @@
+#!/bin/sh
+#PBS -N cd-hit
+#PBS -q fluxod
+#PBS -l qos=flux
+#PBS -l nodes=1:ppn=4,mem=32GB
+#PBS -l walltime=300:00:00
+#PBS -j oe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -A pschloss_fluxod
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+
+cd $PBS_O_WORKDIR
+
+NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
+
+
+python /nfs/turbo/pschloss/matt/home/scripts/seq_stats.py ${cluster}.genes.nuc.250.annotated.fasta >> dereplication.summary.txt
+/nfs/turbo/pschloss/bin/cdhit/cd-hit-est -i ${cluster}.genes.nuc.250.annotated.fasta -o ${cluster}.genes.nuc.250.annotated.unique.fasta -c 1.0 -n 11 -M 44000 -T 8  
+python /nfs/turbo/pschloss/matt/home/scripts/seq_stats.py ${cluster}.genes.nuc.250.annotated.unique.fasta >> dereplication.summary.txt
+/nfs/turbo/pschloss/bin/bowtie2-build ${cluster}.genes.nuc.250.annotated.unique.fasta ${cluster}_gene_db
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit
