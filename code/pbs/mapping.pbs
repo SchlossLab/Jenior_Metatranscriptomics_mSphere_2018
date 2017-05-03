@@ -61,6 +61,7 @@ samtools idxstats ${cluster}.${metatranscriptome}_cDNA.sort.merge.sort.rmdup.sor
 # Format and normalize idxstats files
 /nfs/turbo/pschloss/matt/home/scripts/idxstats/pool_unmapped_idxstats.py ${cluster}.${metatranscriptome}_cDNA.final.txt
 /nfs/turbo/pschloss/matt/home/scripts/idxstats/normalize_idxstats.py ${cluster}.${metatranscriptome}_cDNA.final.pool.txt 50
+/nfs/turbo/pschloss/matt/home/scripts/get_ko.py ${cluster}.${metatranscriptome}_cDNA.final.pool.norm.txt
 
 
 echo "qsub working directory absolute is"
