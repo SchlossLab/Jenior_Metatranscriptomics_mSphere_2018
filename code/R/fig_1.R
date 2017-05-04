@@ -354,7 +354,7 @@ legend(x=-0.6, y=2, legend=expression('Antibiotic in Drinking Water', 'Antibioti
 # Route of administration
 text(x=c(-2, 2), y=c(-0.6,-0.6), c('In Drinking Water:', 'IP Injected:'), cex=1.2, font=2)
 text(x=-2, y=c(-1,-1.4), c('Streptomycin (5.0 mg/ml)','Cefoperazone (0.5 mg/ml)'), cex=1.2, col=c(cef_col, strep_col))
-text(x=2, y=-1, 'Clindamycin (10 mg/kg)', cex=1.2, col=clinda_col, font=2)
+text(x=2, y=-1, 'Clindamycin (10 mg/kg)', cex=1.2, col=clinda_col)
 
 # Plot label
 text(-4.7, 4.88, 'a', cex=1.5, font=2)
@@ -373,7 +373,7 @@ abline(v=c(5,11,17), lwd=1.5) # dividers
 axis(side=2, at=seq(0,9,1), labels=c(0, parse(text=paste(rep(10,9), '^', seq(1,9,1), sep=''))), las=1)
 
 mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), col=c('black',strep_col, cef_col, clinda_col), 
-      at=c(2,8,14,20), side=1, font=2, cex=0.75, padj=0.75)
+      at=c(2,8,14,20), side=1, cex=0.75, padj=0.75)
 
 # Median lines
 segments(x0=c(0.5, 6.5, 12.5, 18.5)-0.6, y0=c(
@@ -454,7 +454,7 @@ arrows(55.3, -2, 63.7, -2, angle=0, length=0, lwd=2, xpd=TRUE) # clinda - mock
 mtext(rep('CDI',3), side=1, at=c(13.5,32,50.5), adj=0.5, padj=1, cex=0.7)
 mtext(rep('Mock',4), side=1, at=c(4,22.5,40.5,59.5), adj=0.5, padj=1, cex=0.7)
 mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
-      side=1, at=c(4,18,36,55), adj=0.5, padj=2.5, cex=0.75, font=2, col=c('black',strep_col, cef_col, clinda_col))
+      side=1, at=c(4,18,36,55), adj=0.5, padj=2.5, cex=0.75, col=c('black',strep_col, cef_col, clinda_col))
 mtext('c', side=2, line=2, las=2, adj=3, padj=-11, cex=1.0, font=2)
 
 # Create a figure legend in empty plot
@@ -481,7 +481,7 @@ text(x=c(3.75,3.75,3.75,3.75,3.75), y=c(4.8,3.125,-0.275,-2.8,-3.7), cex=1.2,
 par(mar=c(4, 14, 2, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
 plot(1, type='n', ylim=c(0,length(clinda_otus)*2), xlim=c(0,4), 
      ylab='', xlab=expression(paste('Normalized Abundance (',log[10],')')), xaxt='n', yaxt='n')
-title('Streptomycin-pretreated', line=0.5, cex.main=1.1, font.main=2, col.main=strep_col)
+title('Streptomycin-pretreated', line=0.5, cex.main=1.1, col.main=strep_col, font.main=1)
 index <- 1
 for(i in colnames(strep_mock_otu)){
   stripchart(at=index-0.35, jitter(strep_mock_otu[,i], amount=1e-5), 
@@ -512,7 +512,7 @@ mtext('d', side=2, line=2, las=2, adj=14, padj=-11, cex=1.0, font=2)
 # Cefoperazone plot
 plot(1, type='n', ylim=c(0,length(clinda_otus)*2), xlim=c(0,4), 
      ylab='', xlab=expression(paste('Normalized Abundance (',log[10],')')), xaxt='n', yaxt='n')
-title('Cefoperazone-pretreated', line=0.5, cex.main=1.1, font.main=2, col.main=cef_col)
+title('Cefoperazone-pretreated', line=0.5, cex.main=1.1, col.main=cef_col, font.main=1)
 index <- 1
 for(i in colnames(cef_mock_otu)){
   stripchart(at=index-0.35, jitter(cef_mock_otu[,i], amount=1e-5), 
@@ -543,7 +543,7 @@ mtext('e', side=2, line=2, las=2, adj=16, padj=-11, cex=1.0, font=2)
 # Clindamycin plot
 plot(1, type='n', ylim=c(0,length(clinda_otus)*2), xlim=c(0,4), 
      ylab='', xlab=expression(paste('Normalized Abundance (',log[10],')')), xaxt='n', yaxt='n')
-title('Clindamycin-pretreated', line=0.5, cex.main=1.1, font.main=2, col.main=clinda_col)
+title('Clindamycin-pretreated', line=0.5, cex.main=1.1, font.main=1, col.main=clinda_col)
 index <- 1
 for(i in colnames(clinda_mock_otu)){
   stripchart(at=index-0.35, jitter(clinda_mock_otu[,i], amount=1e-5), 
