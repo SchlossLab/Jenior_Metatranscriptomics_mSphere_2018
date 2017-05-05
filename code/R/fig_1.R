@@ -479,7 +479,7 @@ text(x=c(3.75,3.75,3.75,3.75,3.75), y=c(4.8,3.125,-0.275,-2.8,-3.7), cex=1.2,
 
 # Streptomycin plot
 par(mar=c(4, 14, 2, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
-plot(1, type='n', ylim=c(0,length(clinda_otus)*2), xlim=c(0,4), 
+plot(1, type='n', ylim=c(0,length(strep_otus)*2), xlim=c(0,4), 
      ylab='', xlab=expression(paste('Normalized Abundance (',log[10],')')), xaxt='n', yaxt='n')
 title('Streptomycin-pretreated', line=0.5, cex.main=1.1, col.main=strep_col, font.main=1)
 index <- 1
@@ -500,17 +500,17 @@ minor.ticks.axis(1, 10, mn=0, mx=4)
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.4, cex=0.9)
 formatted <- lapply(1:length(strep_otus), function(i) bquote(paste(italic(.(strep_genera[i])), .(strep_otus[i]), sep=' ')))
-axis(2, at=seq(1,index-2,2)+0.4, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
+axis(2, at=seq(1,index-2,2)+0.5, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 axis(2, at=seq(1,index-2,2), labels=strep_phyla, las=1, line=-0.5, tick=F, cex.axis=1.1) 
 formatted <- lapply(1:length(strep_pvalues), function(i) bquote(paste(italic('p'), .(strep_pvalues[i]), sep=' ')))
-axis(2, at=seq(1,index-2,2)-0.5, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
+axis(2, at=seq(1,index-2,2)-0.6, labels=do.call(expression, formatted), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 
 mtext('d', side=2, line=2, las=2, adj=14, padj=-11, cex=1.0, font=2)
 
 #-----------------#
 
 # Cefoperazone plot
-plot(1, type='n', ylim=c(0,length(clinda_otus)*2), xlim=c(0,4), 
+plot(1, type='n', ylim=c(0,length(cef_otus)*2), xlim=c(0,4), 
      ylab='', xlab=expression(paste('Normalized Abundance (',log[10],')')), xaxt='n', yaxt='n')
 title('Cefoperazone-pretreated', line=0.5, cex.main=1.1, col.main=cef_col, font.main=1)
 index <- 1

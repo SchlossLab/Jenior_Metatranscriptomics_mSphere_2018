@@ -60,6 +60,18 @@ toxin <- read.delim('data/wetlab_assays/toxin_titer.dat', sep='\t', header=T)
 
 ###Results
 
+
+```{r abx_table, echo=F, message=F, warning=F, cache=F}
+
+#kable()
+```
+
+
+
+
+
+
+
 ***C. difficile* differentially expresses virulence factors across distinct gut microbiome.**
 
 Utilizing 
@@ -68,12 +80,31 @@ Conventionally-reared SPF mice were treated with one of three different antibiot
 
 There was not a significant difference in the number of vegetative cells between any susceptible condition tested (Fig. 1A). All antibiotic treated and ex-GF mice were colonized to ~1×108 colony forming units (cfu) per gram of cecal content, while untreated mice maintained colonization resistance to C. difficile (Table 1). Despite having the same number of vegetative C. difficile cells, more spores were detected in ex-GF mice than in the antibiotic pretreated mice (P = 0.003, 0.004, and 0.003; Fig. 1B). There was also a significantly higher toxin titer in ex-GF animals than any other colonized group (all P < 0.001), with slight variation between antibiotic pretreatment groups (Fig. 1C). These results showed that C. difficile colonized different communities to consistently high levels. In addition, colonization in the context of different microbiomes resulted in moderate differences in the production of C. difficile virulence factors.
 
+at the 18 hour time point communities in Streptomycin-pretreated animals exhibit more significant change in structure (Fig 1C & Fig. S2A.
+
+
+
+
+***C. difficile* colonization changes the structure the surrounding cecal bacterial community.**
+
+Next we determined that *C. difficile* colonization, in the absence of sequences contributed by *C. difficile* itself, altered the structure of the surrounding community (Fig. S2). Apparent changes were present in all antibiotic pretreatment groups, but associated with in streptomycin and clindamycin were significant (*p* < 0.01**, Fig. S2c & S2d). In order to determine which OTUs were most responsible for these shifts we performed pair-wise, corrected Wilcoxon tests on the relative abundance of each OTU in either *C. difficile* or mock-infected cecal communities (Fig. 1d-1f). Each group contained distinct sets of OTUs, save for Lactobacillus (OTU1) which had significant changes in both cefoperazone and clindamycin pretreatments (*p* < 0.05*). Interestingly, the type of changes were not consistent across all OTUs in that some would decrease following *C. difficile* colonization while others instead increased in abundance. These findings are suggestive that *C. difficile* may be differentially interacting these respective taxa either synergistically or antagonistically. Furthermore, the fact the which OTUs are affected differs between treatments also suggests the *C. difficile* may alter behavior between environments to best augment its own colonization.
+
+
+
 
 ***C. difficile* colonization alters community-level expression distinctly between perturbed environments**
 
+
+
+
 In order to more closely examine the response of ... we performed metatranscriptomic sequencing
 
-look at how greg introduces this...
+
+
+
+
+
+
 
 
 **Modeling competition for nutrients across the microbiome**
@@ -321,6 +352,8 @@ Correspondence to [Patrick D. Schloss](pdschloss@umich.edu)
 Abx table
 
 **Figure 1 | ** Description of animal models and changes to community from abx
+
+
 
 **Figure 2 | ** Correlation of 16S and metabolome (species level) A) 16s nmds B) metabolome nmds C) combined analysis
 
