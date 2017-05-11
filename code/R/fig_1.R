@@ -61,13 +61,15 @@ clinda_shared_otu$abx <- NULL
 clinda_shared_otu$susceptibility <- NULL
 rm(metadata_shared_otu, shared_otu)
 
-# Filter OTUs and transform
+# Filter OTUs and convert to relative abundance
 cef_shared_otu <- filter_table(cef_shared_otu)
 strep_shared_otu <- filter_table(strep_shared_otu)
 clinda_shared_otu <- filter_table(clinda_shared_otu)
-cef_shared_otu[,2:ncol(cef_shared_otu)] <- log10(cef_shared_otu[,2:ncol(cef_shared_otu)] + 1)
-strep_shared_otu[,2:ncol(strep_shared_otu)] <- log10(strep_shared_otu[,2:ncol(strep_shared_otu)] + 1)
-clinda_shared_otu[,2:ncol(clinda_shared_otu)] <- log10(clinda_shared_otu[,2:ncol(clinda_shared_otu)] + 1)
+
+# Convert to relative abundance
+cef_shared_otu[,2:ncol(cef_shared_otu)] <- (cef_shared_otu[,2:ncol(cef_shared_otu)] / rowSums(cef_shared_otu[,2:ncol(cef_shared_otu)])) * 100
+strep_shared_otu[,2:ncol(strep_shared_otu)] <- (strep_shared_otu[,2:ncol(strep_shared_otu)] / rowSums(strep_shared_otu[,2:ncol(strep_shared_otu)])) * 100
+clinda_shared_otu[,2:ncol(clinda_shared_otu)] <- (clinda_shared_otu[,2:ncol(clinda_shared_otu)] / rowSums(clinda_shared_otu[,2:ncol(clinda_shared_otu)])) * 100
 
 # Filter for significant OTUs by Wilcoxon
 # Cef
@@ -324,7 +326,7 @@ layout(matrix(c(1,2,2,
                 5,6,7),
               nrow=3, ncol=3, byrow = TRUE))
 
-#-------------------------------------------------------------------------------------------------------------------------------------#
+#----------------------------------------------------------------------------------------------------------------------#
 
 # Create an empty plot
 par(mar=c(0,0,0,0))
@@ -479,8 +481,8 @@ text(x=c(3.75,3.75,3.75,3.75,3.75), y=c(4.8,3.125,-0.275,-2.8,-3.7), cex=1.2,
 
 # Streptomycin plot
 par(mar=c(4, 14, 2, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
-plot(1, type='n', ylim=c(0,length(strep_otus)*2), xlim=c(0,4), 
-     ylab='', xlab=expression(paste('Normalized Abundance (',log[10],')')), xaxt='n', yaxt='n')
+plot(1, type='n', ylim=c(0,length(strep_otus)*2), xlim=c(0,100), 
+     ylab='', xlab='Relative Abundance', xaxt='n', yaxt='n')
 title('Streptomycin-pretreated', line=0.5, cex.main=1.1, col.main=strep_col, font.main=1)
 index <- 1
 for(i in colnames(strep_mock_otu)){
@@ -495,8 +497,7 @@ for(i in colnames(strep_mock_otu)){
   segments(median(strep_infected_otu[,i]), index+0.4, median(strep_infected_otu[,i]), index, lwd=2)
   index <- index + 2
 }
-axis(1, at=seq(0,4,1), label=c('0','10','100','1000','10000'))
-minor.ticks.axis(1, 10, mn=0, mx=4)
+axis(1, at=seq(0,100,20), label=c('0%','20%','40%','60%','80%','100%'))
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.4, cex=0.9)
 formatted <- lapply(1:length(strep_otus), function(i) bquote(paste(italic(.(strep_genera[i])), .(strep_otus[i]), sep=' ')))
@@ -510,8 +511,8 @@ mtext('d', side=2, line=2, las=2, adj=14, padj=-11, cex=1.0, font=2)
 #-----------------#
 
 # Cefoperazone plot
-plot(1, type='n', ylim=c(0,length(cef_otus)*2), xlim=c(0,4), 
-     ylab='', xlab=expression(paste('Normalized Abundance (',log[10],')')), xaxt='n', yaxt='n')
+plot(1, type='n', ylim=c(0,length(cef_otus)*2), xlim=c(0,100), 
+     ylab='', xlab='Relative Abundance', xaxt='n', yaxt='n')
 title('Cefoperazone-pretreated', line=0.5, cex.main=1.1, col.main=cef_col, font.main=1)
 index <- 1
 for(i in colnames(cef_mock_otu)){
@@ -526,8 +527,7 @@ for(i in colnames(cef_mock_otu)){
   segments(median(cef_infected_otu[,i]), index+0.4, median(cef_infected_otu[,i]), index, lwd=2)
   index <- index + 2
 }
-axis(1, at=seq(0,4,1), label=c('0','10','100','1000','10000'))
-minor.ticks.axis(1, 10, mn=0, mx=4)
+axis(1, at=seq(0,100,20), label=c('0%','20%','40%','60%','80%','100%'))
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.4, cex=0.9)
 formatted <- lapply(1:length(cef_otus), function(i) bquote(paste(italic(.(cef_genera[i])), .(cef_otus[i]), sep=' ')))
@@ -541,8 +541,8 @@ mtext('e', side=2, line=2, las=2, adj=16, padj=-11, cex=1.0, font=2)
 #-----------------#
 
 # Clindamycin plot
-plot(1, type='n', ylim=c(0,length(clinda_otus)*2), xlim=c(0,4), 
-     ylab='', xlab=expression(paste('Normalized Abundance (',log[10],')')), xaxt='n', yaxt='n')
+plot(1, type='n', ylim=c(0,length(clinda_otus)*2), xlim=c(0,100), 
+     ylab='', xlab='Relative Abundance', xaxt='n', yaxt='n')
 title('Clindamycin-pretreated', line=0.5, cex.main=1.1, font.main=1, col.main=clinda_col)
 index <- 1
 for(i in colnames(clinda_mock_otu)){
@@ -557,8 +557,7 @@ for(i in colnames(clinda_mock_otu)){
   segments(median(clinda_infected_otu[,i]), index+0.4, median(clinda_infected_otu[,i]), index, lwd=2)
   index <- index + 2
 }
-axis(1, at=seq(0,4,1), label=c('0','10','100','1000','10000'))
-minor.ticks.axis(1, 10, mn=0, mx=4)
+axis(1, at=seq(0,100,20), label=c('0%','20%','40%','60%','80%','100%'))
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
        pch=c(21, 21), pt.bg=c("mediumorchid3","mediumseagreen"), bg='white', pt.cex=1.4, cex=0.9)
 formatted <- lapply(1:length(clinda_otus), function(i) bquote(paste(italic(.(clinda_genera[i])), .(clinda_otus[i]), sep=' ')))

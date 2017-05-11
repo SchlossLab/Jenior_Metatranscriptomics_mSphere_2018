@@ -9,6 +9,7 @@ source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.
 
 # Define files
 # Normalized Metatranscriptomes
+noabx_normalized_reads <- 'data/read_mapping/conv_normalized.tsv'
 cef_normalized_reads <- 'data/read_mapping/cef_normalized.tsv'
 clinda_normalized_reads <- 'data/read_mapping/clinda_normalized.tsv'
 strep_normalized_reads <- 'data/read_mapping/strep_normalized.tsv'
@@ -17,12 +18,13 @@ strep_normalized_reads <- 'data/read_mapping/strep_normalized.tsv'
 genes <- 'data/gene_names.tsv'
 
 # Output plot
-plot_file <- 'results/figures/figure_2.pdf'
+plot_file <- 'results/supplement/figures/figure_S3.pdf'
 
 #--------------------------------------------------------------------------------------------------#
 
 # Read in data
 # Normalized Metatranscriptomes
+noabx_normalized_reads <- read.delim(noabx_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
 cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
 clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
 strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
@@ -33,21 +35,28 @@ genes <- read.delim(genes, sep='\t', header=TRUE, stringsAsFactors=FALSE)
 #--------------------------------------------------------------------------------------------------#
 
 # Format data
-# Remove excess column
+# Remove excess columns
+noabx_normalized_reads$ko <- NULL
 cef_normalized_reads$ko <- NULL
 clinda_normalized_reads$ko <- NULL
 strep_normalized_reads$ko <- NULL
 
 # Screen for those genes that have a gene annotation
+noabx_annotated <- subset(noabx_normalized_reads, gene != '')
+noabx_annotated <- noabx_annotated[!rownames(noabx_annotated) %in% rownames(noabx_annotated[grep('unknown_\\d', noabx_annotated$gene),]), ]
 cef_annotated <- subset(cef_normalized_reads, gene != '')
 cef_annotated <- cef_annotated[!rownames(cef_annotated) %in% rownames(cef_annotated[grep('unknown_\\d', cef_annotated$gene),]), ]
 clinda_annotated <- subset(clinda_normalized_reads, gene != '')
 clinda_annotated <- clinda_annotated[!rownames(clinda_annotated) %in% rownames(clinda_annotated[grep('unknown_\\d', clinda_annotated$gene),]), ]
 strep_annotated <- subset(strep_normalized_reads, gene != '')
 strep_annotated <- strep_annotated[!rownames(strep_annotated) %in% rownames(strep_annotated[grep('unknown_\\d', strep_annotated$gene),]), ]
-rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
+rm(noabx_normalized_reads, cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
 
 # Screen out ribosomal genes
+noabx_annotated <- rbind(subset(noabx_annotated, !grepl('rps*', noabx_annotated$gene)),
+                         subset(noabx_annotated, !grepl('rpl*', noabx_annotated$gene)),
+                         subset(noabx_annotated, !grepl('rpm*', noabx_annotated$gene)))
+
 cef_annotated <- rbind(subset(cef_annotated, !grepl('rps.', cef_annotated$gene)),
                        subset(cef_annotated, !grepl('rpl.', cef_annotated$gene)))
 clinda_annotated <- rbind(subset(clinda_annotated, !grepl('rps.', clinda_annotated$gene)),
@@ -56,10 +65,11 @@ strep_annotated <- rbind(subset(strep_annotated, !grepl('rps.', strep_annotated$
                          subset(strep_annotated, !grepl('rpl.', strep_annotated$gene)))
 
 # Save pathway information
-all_pathways <- rbind(cef_annotated[,3:4],clinda_annotated[,3:4],strep_annotated[,3:4])
+all_pathways <- rbind(noabx_annotated[,2:3],cef_annotated[,3:4],clinda_annotated[,3:4],strep_annotated[,3:4])
 all_pathways <- all_pathways[!duplicated(all_pathways$gene), ]
 
 # Reverse log2 transformation temporarily
+noabx_annotated$conv_metaT_reads <- 2 ^ noabx_annotated$conv_metaT_reads
 cef_annotated$cef_630_metaT_reads <- 2 ^ cef_annotated$cef_630_metaT_reads
 cef_annotated$cef_mock_metaT_reads <- 2 ^ cef_annotated$cef_mock_metaT_reads
 clinda_annotated$clinda_630_metaT_reads <- 2 ^ clinda_annotated$clinda_630_metaT_reads
@@ -68,6 +78,7 @@ strep_annotated$strep_630_metaT_reads <- 2 ^ strep_annotated$strep_630_metaT_rea
 strep_annotated$strep_mock_metaT_reads <- 2 ^ strep_annotated$strep_mock_metaT_reads
 
 # Subset to treatment groups
+noabx_annotated$conv_metaT_reads <- as.numeric(noabx_annotated$conv_metaT_reads)
 cef_630_annotated <- cef_annotated
 cef_630_annotated$cef_630_metaT_reads <- as.numeric(cef_630_annotated$cef_630_metaT_reads)
 cef_630_annotated$cef_mock_metaT_reads <- NULL
@@ -88,7 +99,9 @@ strep_mock_annotated$strep_mock_metaT_reads <- as.numeric(strep_mock_annotated$s
 strep_mock_annotated$strep_630_metaT_reads <- NULL
 rm(cef_annotated, clinda_annotated, strep_annotated)
 
-# Aggregate identical genes, regardless of organism
+# Aggregate identical genes, regardless of organism - retransform
+noabx_annotated <- aggregate(noabx_annotated$conv_metaT_reads, by=list(noabx_annotated$gene), FUN=sum)
+colnames(noabx_annotated) <- c('gene', 'noabx_reads')
 cef_630_annotated <- aggregate(cef_630_annotated$cef_630_metaT_reads, by=list(cef_630_annotated$gene), FUN=sum)
 colnames(cef_630_annotated) <- c('gene', 'cef_630_reads')
 cef_mock_annotated <- aggregate(cef_mock_annotated$cef_mock_metaT_reads, by=list(cef_mock_annotated$gene), FUN=sum)
@@ -102,55 +115,60 @@ colnames(strep_630_annotated) <- c('gene', 'strep_630_reads')
 strep_mock_annotated <- aggregate(strep_mock_annotated$strep_mock_metaT_reads, by=list(strep_mock_annotated$gene), FUN=sum)
 colnames(strep_mock_annotated) <- c('gene', 'strep_mock_reads')
 
-# Merge mock and infected within pretreatment groups
-cef_annotated <- merge(cef_630_annotated, cef_mock_annotated, by='gene')
-rm(cef_630_annotated, cef_mock_annotated)
-clinda_annotated <- merge(clinda_630_annotated, clinda_mock_annotated, by='gene')
-rm(clinda_630_annotated, clinda_mock_annotated)
-strep_annotated <- merge(strep_630_annotated, strep_mock_annotated, by='gene')
-rm(strep_630_annotated, strep_mock_annotated)
-
 #--------------------------------------------------------------------------------------------------#
 
-# Calculate ratios of infected to mock
-cef_annotated$infected_v_mock <- cef_annotated$cef_630_reads / cef_annotated$cef_mock_reads
-cef_annotated$mock_v_infected <- -(cef_annotated$cef_mock_reads / cef_annotated$cef_630_reads)
-clinda_annotated$infected_v_mock <- clinda_annotated$clinda_630_reads / clinda_annotated$clinda_mock_reads
-clinda_annotated$mock_v_infected <- -(clinda_annotated$clinda_mock_reads / clinda_annotated$clinda_630_reads)
-strep_annotated$infected_v_mock <- strep_annotated$strep_630_reads / strep_annotated$strep_mock_reads
-strep_annotated$mock_v_infected <- -(strep_annotated$strep_mock_reads / strep_annotated$strep_630_reads)
+# Combine each with no antibiotic controls
+cef_630_annotated <- merge(cef_630_annotated, noabx_annotated, by='gene')
+cef_mock_annotated <- merge(cef_mock_annotated, noabx_annotated, by='gene')
+clinda_630_annotated <- merge(clinda_630_annotated, noabx_annotated, by='gene')
+clinda_mock_annotated <- merge(clinda_mock_annotated, noabx_annotated, by='gene')
+strep_630_annotated <- merge(strep_630_annotated, noabx_annotated, by='gene')
+strep_mock_annotated <- merge(strep_mock_annotated, noabx_annotated, by='gene')
+rm(noabx_annotated)
 
-# Calculate degree of difference between groups
-cef_annotated$change <- cef_annotated$infected_v_mock - cef_annotated$mock_v_infected
-clinda_annotated$change <- clinda_annotated$infected_v_mock - clinda_annotated$mock_v_infected
-strep_annotated$change <- strep_annotated$infected_v_mock - strep_annotated$mock_v_infected
+# Calculate differences in expression and remove those with no change
+cef_630_annotated$difference <- abs(cef_630_annotated$cef_630_reads - cef_630_annotated$noabx_reads)
+cef_630_annotated <- subset(cef_630_annotated, difference > 0)
+cef_mock_annotated$difference <- abs(cef_mock_annotated$cef_mock_reads - cef_mock_annotated$noabx_reads)
+cef_mock_annotated <- subset(cef_mock_annotated, difference > 0)
+clinda_630_annotated$difference <- abs(clinda_630_annotated$clinda_630_reads - clinda_630_annotated$noabx_reads)
+clinda_630_annotated <- subset(clinda_630_annotated, difference > 0)
+clinda_mock_annotated$difference <- abs(clinda_mock_annotated$clinda_mock_reads - clinda_mock_annotated$noabx_reads)
+clinda_mock_annotated <- subset(clinda_mock_annotated, difference > 0)
+strep_630_annotated$difference <- abs(strep_630_annotated$strep_630_reads - strep_630_annotated$noabx_reads)
+strep_630_annotated <- subset(strep_630_annotated, difference > 0)
+strep_mock_annotated$difference <- abs(strep_mock_annotated$strep_mock_reads - strep_mock_annotated$noabx_reads)
+strep_mock_annotated <- subset(strep_mock_annotated, difference > 0)
 
 # Rank differences and subset to top 15
-cef_annotated <- cef_annotated[order(-cef_annotated$change),]
-cef_annotated_top <- cef_annotated[1:15,]
-clinda_annotated <- clinda_annotated[order(-clinda_annotated$change),]
-clinda_annotated_top <- clinda_annotated[1:15,]
-strep_annotated <- strep_annotated[order(-strep_annotated$change),]
-strep_annotated_top <- strep_annotated[1:15,]
+cef_630_annotated <- cef_630_annotated[order(-cef_630_annotated$difference),]
+cef_630_annotated$difference <- NULL
+cef_630_top <- cef_630_annotated[1:15,]
+cef_mock_annotated <- cef_mock_annotated[order(-cef_mock_annotated$difference),]
+cef_mock_annotated$difference <- NULL
+cef_mock_top <- cef_mock_annotated[1:15,]
+clinda_630_annotated <- clinda_630_annotated[order(-clinda_630_annotated$difference),]
+clinda_630_annotated$difference <- NULL
+clinda_630_top <- clinda_630_annotated[1:15,]
+clinda_mock_annotated <- clinda_mock_annotated[order(-clinda_mock_annotated$difference),]
+clinda_mock_annotated$difference <- NULL
+clinda_mock_top <- clinda_mock_annotated[1:15,]
+strep_630_annotated <- strep_630_annotated[order(-strep_630_annotated$difference),]
+strep_630_annotated$difference <- NULL
+strep_630_top <- strep_630_annotated[1:15,]
+strep_mock_annotated <- strep_mock_annotated[order(-strep_mock_annotated$difference),]
+strep_mock_annotated$difference <- NULL
+strep_mock_top <- strep_mock_annotated[1:15,]
+rm(cef_630_annotated,cef_mock_annotated,clinda_630_annotated,
+   clinda_mock_annotated,strep_630_annotated,strep_mock_annotated)
 
 # Log transform expression
-cef_annotated_top[,2:3] <- log2(cef_annotated_top[,2:3])
-clinda_annotated_top[,2:3] <- log2(clinda_annotated_top[,2:3])
-strep_annotated_top[,2:3] <- log2(strep_annotated_top[,2:3])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+cef_630_top[,2:3] <- log2(cef_630_top[,2:3] + 1)
+cef_mock_top[,2:3] <- log2(cef_mock_top[,2:3] + 1)
+clinda_630_top[,2:3] <- log2(clinda_630_top[,2:3] + 1)
+clinda_mock_top[,2:3] <- log2(clinda_mock_top[,2:3] + 1)
+strep_630_top[,2:3] <- log2(strep_630_top[,2:3] + 1)
+strep_mock_top[,2:3] <- log2(strep_mock_top[,2:3] + 1)
 
 # Reassociate with pathway annotations
 cef_630_top_pathways <- merge(cef_630_top, all_pathways, by='gene', all.x=TRUE)
