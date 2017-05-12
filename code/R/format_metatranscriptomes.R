@@ -8,21 +8,22 @@ starting_dir <- getwd()
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
 # Define files
-
 # Metagenomes
-cef_metagenome <- 'data/read_mapping/metagenome/Cefoperazone.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_metagenome <- 'data/read_mapping/metagenome/Clindamycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_metagenome <- 'data/read_mapping/metagenome/Streptomycin.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_metagenome <- 'data/read_mapping/metagenome/Conventional.DNA_reads2pangenome.all.norm.remove.annotated.txt'
-
+cef_630_metagenome <- 'data/read_mapping/metagenome/Cefoperazone_630.DNAreads_2_metaG.all.norm.remove.annotated.txt'
+cef_mock_metagenome <- 'data/read_mapping/metagenome/Cefoperazone_mock.DNAreads_2_metaG.all.norm.remove.annotated.txt'
+clinda_630_metagenome <- 'data/read_mapping/metagenome/Clindamycin_630.DNAreads_2_metaG.all.norm.remove.annotated.txt'
+clinda_mock_metagenome <- 'data/read_mapping/metagenome/Clindamycin_mock.DNAreads_2_metaG.all.norm.remove.annotated.txt'
+strep_630_metagenome <- 'data/read_mapping/metagenome/Streptomycin_630.DNAreads_2_metaG.all.norm.remove.annotated.txt'
+strep_mock_metagenome <- 'data/read_mapping/metagenome/Streptomycin_mock.DNAreads_2_metaG.all.norm.remove.annotated.txt'
+conv_metagenome <- 'data/read_mapping/metagenome/Conventional.DNAreads_2_metaG.all.norm.remove.annotated.txt'
 # Metatranscriptomes
-cef_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/cefoperazone_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-cef_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/cefoperazone_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/clindamycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-clinda_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/clindamycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_630.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-strep_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_mock.RNA_reads2pangenome.all.norm.remove.annotated.txt'
-conv_metatranscriptome <- 'data/read_mapping/metatranscriptome/conventional.RNA_reads2pangenome.all.norm.remove.annotated.txt'
+cef_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/cefoperazone_630.RNAreads_2_metaG.all.norm.remove.annotated.txt'
+cef_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/cefoperazone_mock.RNAreads_2_metaG.all.norm.remove.annotated.txt'
+clinda_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/clindamycin_630.RNAreads_2_metaG.all.norm.remove.annotated.txt'
+clinda_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/clindamycin_mock.RNAreads_2_metaG.all.norm.remove.annotated.txt'
+strep_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_630.RNAreads_2_metaG.all.norm.remove.annotated.txt'
+strep_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_mock.RNAreads_2_metaG.all.norm.remove.annotated.txt'
+conv_metatranscriptome <- 'data/read_mapping/metatranscriptome/conventional.RNAreads_2_metaG.all.norm.remove.annotated.txt'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -97,58 +98,60 @@ rm(cef_metagenome, clinda_metagenome, strep_metagenome,
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Remove residual C. difficile mappings
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CD630', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdc:CD196', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP07', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP02', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP06', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP03', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_08660', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_06165', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_09680', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_02800', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_13505', rownames(cef_raw_reads)),]), ]
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdl:CDR20291_1755', rownames(cef_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CD630', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdc:CD196', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP07', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP02', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP06', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP03', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_08660', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_06165', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_09680', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_02800', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_13505', rownames(clinda_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdl:CDR20291_1755', rownames(clinda_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CD630', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdc:CD196', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CD630', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdc:CD196', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP07', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP02', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP06', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP03', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_08660', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_06165', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_09680', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_02800', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_13505', rownames(strep_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdl:CDR20291_1755', rownames(strep_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CD630', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdc:CD196', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CD630', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdc:CD196', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP07', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP02', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP06', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP03', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_08660', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_06165', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_09680', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_02800', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_13505', rownames(conv_raw_reads)),]), ]
-conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdl:CDR20291_1755', rownames(conv_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CD630', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdc:CD196', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP07', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP02', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP06', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CDP03', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_08660', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_06165', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_09680', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_02800', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CDBI1_13505', rownames(cef_raw_reads)),]), ]
+#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdl:CDR20291_1755', rownames(cef_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CD630', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdc:CD196', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP07', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP02', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP06', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CDP03', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_08660', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_06165', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_09680', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_02800', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CDBI1_13505', rownames(clinda_raw_reads)),]), ]
+#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdl:CDR20291_1755', rownames(clinda_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CD630', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdc:CD196', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CD630', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdc:CD196', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP07', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP02', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP06', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CDP03', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_08660', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_06165', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_09680', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_02800', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CDBI1_13505', rownames(strep_raw_reads)),]), ]
+#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdl:CDR20291_1755', rownames(strep_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CD630', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdc:CD196', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CD630', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdc:CD196', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP07', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP02', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP06', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdf:CDP03', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_08660', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_06165', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_09680', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_02800', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdg:CDBI1_13505', rownames(conv_raw_reads)),]), ]
+#conv_raw_reads <- conv_raw_reads[!rownames(conv_raw_reads) %in% rownames(conv_raw_reads[grep('cdl:CDR20291_1755', rownames(conv_raw_reads)),]), ]
+
+#-------------------------------------------------------------------------------------------------------------------------#
 
 # Remove genes with no metagenomic coverage
 cef_raw_reads <- subset(cef_raw_reads, cef_metaG_reads != 0)

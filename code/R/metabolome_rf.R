@@ -103,10 +103,10 @@ susceptibility_importances$label <- rownames(susceptibility_importances)
 susceptibility_accuracy <- paste('Accuracy = ',as.character((100-round((median(susceptibility_rf$err.rate[,1])*100), 2))),'%',sep='')
 rm(susceptibility_rf)
 
-# Subset to the most important OTUs and sort, subset to top 10
+# Subset to the most important OTUs and sort, subset to top 15
 susceptibility_importances <- subset(susceptibility_importances, susceptibility_importances$MeanDecreaseAccuracy > abs(min(susceptibility_importances$MeanDecreaseAccuracy)))
 susceptibility_importances <- as.data.frame(susceptibility_importances[order(-susceptibility_importances$MeanDecreaseAccuracy),])
-susceptibility_importances <- susceptibility_importances[1:10,]
+susceptibility_importances <- susceptibility_importances[1:15,]
 
 # Reassociate metabolite names - importances
 susceptibility_importances <- merge(metabolites, susceptibility_importances, by='label')
@@ -151,7 +151,7 @@ rm(infection_rf)
 # Subset to the most important OTUs and sort
 infection_importances <- subset(infection_importances, infection_importances$MeanDecreaseAccuracy > abs(min(infection_importances$MeanDecreaseAccuracy)))
 infection_importances <- as.data.frame(infection_importances[order(-infection_importances$MeanDecreaseAccuracy),])
-infection_importances <- infection_importances[1:10,]
+infection_importances <- infection_importances[1:15,]
 
 # Reassociate metabolite names - importances
 infection_importances <- merge(metabolites, infection_importances, by='label')
@@ -291,15 +291,29 @@ layout(matrix(c(1,2,2), nrow=1, ncol=3, byrow=TRUE))
 
 
 
-pdf(file='results/supplement/figures/figure_rf.pdf', width=9, height=5)
-par(mar=c(1.8,3,1,1), xaxs='i', xaxt='n', xpd=FALSE, mgp=c(2.5,0.5,0))
+pdf(file='~/Desktop/resistant_vs_susceptible.rf.pdf', width=9, height=5)
+par(mar=c(1.8,3,1,1), xaxs='i', xaxt='n', xpd=FALSE, mgp=c(2.5,0.25,0))
+dotchart(susceptibility_importances$MeanDecreaseAccuracy, labels=rownames(susceptibility_importances),
+         lcolor=NA, cex=1.2, color='black', 
+         xlab='', xlim=c(2,5), pch=19, lwd=3)
+segments(x0=rep(2, 10), y0=c(1:10), x1=rep(5, 10), y1=c(1:10), lty=2)
+legend('bottomright', legend=susceptibility_accuracy, pt.cex=0, cex=1.2, bty='n')
+par(xaxt='s')
+axis(side=1, at=c(2:5), labels=c(2,3:5), cex.axis=1.2, tck=-0.02)
+axis.break(1, 2.2, style='slash')
+mtext('Mean Decrease Accuracy', side=1, padj=1.8, cex=0.9)
+dev.off()
+
+
+pdf(file='~/Desktop/mock_vs_infected.rf.pdf', width=9, height=5)
+par(mar=c(1.8,3,1,1), xaxs='i', xaxt='n', xpd=FALSE, mgp=c(2.5,0.25,0))
 dotchart(infection_importances$MeanDecreaseAccuracy, labels=rownames(infection_importances),
          lcolor=NA, cex=1.2, color='black', 
          xlab='', xlim=c(7,14), pch=19, lwd=3)
 segments(x0=rep(7, 10), y0=c(1:10), x1=rep(14, 10), y1=c(1:10), lty=2)
 legend('bottomright', legend=infection_accuracy, pt.cex=0, cex=1.2, bty='n')
 par(xaxt='s')
-axis(side=1, at=c(7:14), labels=c(0,8:14), cex.axis=1.2, tck=-0.05)
+axis(side=1, at=c(7:14), labels=c(0,8:14), cex.axis=1.2, tck=-0.02)
 axis.break(1, 7.5, style='slash')
 mtext('Mean Decrease Accuracy', side=1, padj=1.8, cex=0.9)
 dev.off()

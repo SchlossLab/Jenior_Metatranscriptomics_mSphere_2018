@@ -1,0 +1,47 @@
+#!/bin/sh
+#PBS -N DNA_duplicates
+#PBS -q fluxod
+#PBS -l qos=flux
+#PBS -l nodes=1:ppn=4,mem=32GB
+#PBS -l walltime=300:00:00
+#PBS -j oe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -A pschloss_fluxod
+
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+
+cd $PBS_O_WORKDIR
+
+NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
+
+
+# Load samtools
+module load samtools
+
+# Remove PCR duplicates and sort
+java -Xmx2g -jar /nfs/turbo/pschloss/matt/bin/picard-tools-1.119/MarkDuplicates.jar \
+        INPUT=${metagenome}.${metagenomeDB}.metaG.merge.sort.bam \
+        OUTPUT=${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.bam \
+        METRICS_FILE=${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.metrics \
+        AS=TRUE \
+        VALIDATION_STRINGENCY=LENIENT \
+        MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 \
+        REMOVE_DUPLICATES=TRUE
+samtools sort ${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.bam ${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.sort.bam
+samtools index ${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.sort.bam
+
+# Convert to human-readable format
+samtools idxstats ${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.sort.bam > ${metagenome}.${metagenomeDB}.metaG.final.txt
+
+# Format and normalize idxstats files
+/nfs/turbo/pschloss/matt/home/scripts/idxstats/pool_unmapped_idxstats.py ${metagenome}.${metagenomeDB}.metaG.final.txt
+/nfs/turbo/pschloss/matt/home/scripts/idxstats/normalize_idxstats.py ${metagenome}.${metagenomeDB}.metaG.final.pool.txt 250
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit
