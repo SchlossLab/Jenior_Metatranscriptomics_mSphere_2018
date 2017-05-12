@@ -7,8 +7,7 @@ starting_dir <- getwd()
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
 # Output plot name
-plot_file1 <- 'results/supplement/figures/figure_S5.pdf'
-plot_file2 <- 'results/supplement/figures/figure_S6.pdf'
+plot_file <- 'results/supplement/figures/figure_S5.pdf'
 
 # Input Metabolomes
 metabolome_file <- 'data/metabolome/metabolomics.tsv'
@@ -270,84 +269,72 @@ rm(metabolites)
 #--------------------------------------------------------------------#
 
 # Set up plotting environment
-pdf(file=plot_file1, width=11, height=6)
-layout(matrix(c(1,2,2), nrow=1, ncol=3, byrow=TRUE))
+pdf(file=plot_file, width=10, height=10)
+layout(matrix(c(1,2,
+                3,4), nrow=2, ncol=2, byrow=TRUE))
 
 #---------------------#
 
-# Susceptibility
 # RF mean decrease accuracy
-#par(mar=c(1.8,3,1,1), xaxs='i', xaxt='n', xpd=FALSE, mgp=c(2,0.2,0))
-#dotchart(susceptibility_importances$MeanDecreaseAccuracy, labels=rownames(susceptibility_importances),
-#         lcolor=NA, cex=1.2, color='black', 
-#         xlab='', xlim=c(3,5), pch=19, lwd=3)
-#segments(x0=rep(3, 15), y0=c(1:10), x1=rep(5, 15), y1=c(1:10), lty=2) # Dotted lines
-#legend('bottomright', legend=susceptibility_accuracy, pt.cex=0, cex=1.2, bty='n')
-#par(xaxt='s')
-#axis(side=1, at=c(3:5), labels=c(0,4,5), cex.axis=1.2, tck=-0.025)
-#axis.break(1, 3.2, style='slash')
-#mtext('Mean Decrease Accuracy', side=1, padj=1.8, cex=0.9)
-#mtext('A', side=2, line=2, las=2, adj=1, padj=-13.2, cex=1.7)
-
-
-
-pdf(file='~/Desktop/resistant_vs_susceptible.rf.pdf', width=9, height=5)
-par(mar=c(1.8,3,1,1), xaxs='i', xaxt='n', xpd=FALSE, mgp=c(2.5,0.25,0))
+# Susceptibility
+par(mar=c(1.8,3,1,1), xaxs='i', xpd=FALSE, mgp=c(2.5,0.25,0))
 dotchart(susceptibility_importances$MeanDecreaseAccuracy, labels=rownames(susceptibility_importances),
          lcolor=NA, cex=1.2, color='black', 
-         xlab='', xlim=c(2,5), pch=19, lwd=3)
-segments(x0=rep(2, 10), y0=c(1:10), x1=rep(5, 10), y1=c(1:10), lty=2)
+         xlab='', xlim=c(0,5), pch=19, lwd=3)
+segments(x0=rep(0, 15), y0=c(1:15), x1=rep(5, 15), y1=c(1:15), lty=2)
 legend('bottomright', legend=susceptibility_accuracy, pt.cex=0, cex=1.2, bty='n')
-par(xaxt='s')
-axis(side=1, at=c(2:5), labels=c(2,3:5), cex.axis=1.2, tck=-0.02)
-axis.break(1, 2.2, style='slash')
 mtext('Mean Decrease Accuracy', side=1, padj=1.8, cex=0.9)
-dev.off()
+mtext('a', side=2, line=2, las=2, adj=1, padj=-13.2, cex=1.7, font=2)
 
-
-pdf(file='~/Desktop/mock_vs_infected.rf.pdf', width=9, height=5)
-par(mar=c(1.8,3,1,1), xaxs='i', xaxt='n', xpd=FALSE, mgp=c(2.5,0.25,0))
+# Infection
 dotchart(infection_importances$MeanDecreaseAccuracy, labels=rownames(infection_importances),
          lcolor=NA, cex=1.2, color='black', 
-         xlab='', xlim=c(7,14), pch=19, lwd=3)
-segments(x0=rep(7, 10), y0=c(1:10), x1=rep(14, 10), y1=c(1:10), lty=2)
+         xlab='', xlim=c(0,14), pch=19, lwd=3)
+segments(x0=rep(0, 10), y0=c(1:15), x1=rep(14, 10), y1=c(1:15), lty=2)
 legend('bottomright', legend=infection_accuracy, pt.cex=0, cex=1.2, bty='n')
-par(xaxt='s')
-axis(side=1, at=c(7:14), labels=c(0,8:14), cex.axis=1.2, tck=-0.02)
-axis.break(1, 7.5, style='slash')
 mtext('Mean Decrease Accuracy', side=1, padj=1.8, cex=0.9)
+mtext('b', side=2, line=2, las=2, adj=1, padj=-13.2, cex=1.7, font=2)
+
+#---------------------#
+
+
+
+# Metabolite concentration differences
+par(mar=c(3,19,1,1), xaxs='r', mgp=c(2,1,0))
+
+plot(1, type='n', ylim=c(0.8, (ncol(metabolome_susceptible)*2)-0.8), xlim=c(0,3), 
+     ylab='', xlab='Abundance', xaxt='n', yaxt='n', cex.lab=1.4)
+index <- 1
+for(i in colnames(metabolome_susceptible)){
+  stripchart(at=index+0.35, metabolome_susceptible[,i], 
+             pch=21, bg='firebrick1', method='jitter', jitter=0.15, cex=1.7, lwd=0.5, add=TRUE)
+  stripchart(at=index-0.35, colonized_preabx_shared[,i], 
+             pch=21, bg='dodgerblue1', method='jitter', jitter=0.15, cex=1.7, lwd=0.5, add=TRUE)
+  if (i != colnames(metabolome_susceptible)[length(colnames(metabolome_susceptible))]){
+    abline(h=index+1, lty=2)
+  }
+  segments(median(metabolome_susceptible[,i]), index+0.6, median(metabolome_susceptible[,i]), index+0.1, lwd=2.5) #adds line for median
+  segments(median(colonized_preabx_shared[,i]), index-0.6, median(colonized_preabx_shared[,i]), index-0.1, lwd=2.5)
+  index <- index + 2
+}
+axis(side=1, at=c(0:3), label=c('0','10','100','1000'), cex.axis=1.2, tck=-0.02)
+minors <- c(0.1,0.28,0.44,0.58,0.7,0.8,0.88,0.94,0.98)
+axis(side=1, at=minors, label=rep('',length(minors)), tck=-0.01)
+axis(side=1, at=minors+1, label=rep('',length(minors)), tck=-0.01)
+axis(side=1, at=minors+2, label=rep('',length(minors)), tck=-0.01)
+legend('topright', legend=c('Cleared', 'Colonized'),
+       pch=c(21, 21), pt.bg=c('firebrick1','dodgerblue1'), bg='white', pt.cex=1.7, cex=1.2)
+axis(2, at=seq(1,index-2,2)+0.6, labels=colnames(metabolome_susceptible), las=1, line=-0.5, tick=F, cex.axis=1.4)
+
+
+
+
+
+
+
+
+
 dev.off()
-
-
-
-
-# OTU abundance differences
-#par(mar=c(3,19,1,1), xaxs='r', mgp=c(2,1,0))
-#plot(1, type='n', ylim=c(0.8, (ncol(metabolome_susceptible)*2)-0.8), xlim=c(0,3), 
-#     ylab='', xlab='Abundance', xaxt='n', yaxt='n', cex.lab=1.4)
-#index <- 1
-#for(i in colnames(metabolome_susceptible)){
-#  stripchart(at=index+0.35, metabolome_susceptible[,i], 
-#             pch=21, bg='firebrick1', method='jitter', jitter=0.15, cex=1.7, lwd=0.5, add=TRUE)
-#  stripchart(at=index-0.35, colonized_preabx_shared[,i], 
-#             pch=21, bg='dodgerblue1', method='jitter', jitter=0.15, cex=1.7, lwd=0.5, add=TRUE)
-#  if (i != colnames(metabolome_susceptible)[length(colnames(metabolome_susceptible))]){
-#    abline(h=index+1, lty=2)
-#  }
-#  segments(median(metabolome_susceptible[,i]), index+0.6, median(metabolome_susceptible[,i]), index+0.1, lwd=2.5) #adds line for median
-#  segments(median(colonized_preabx_shared[,i]), index-0.6, median(colonized_preabx_shared[,i]), index-0.1, lwd=2.5)
-#  index <- index + 2
-#}
-#axis(side=1, at=c(0:3), label=c('0','10','100','1000'), cex.axis=1.2, tck=-0.02)
-#minors <- c(0.1,0.28,0.44,0.58,0.7,0.8,0.88,0.94,0.98)
-#axis(side=1, at=minors, label=rep('',length(minors)), tck=-0.01)
-#axis(side=1, at=minors+1, label=rep('',length(minors)), tck=-0.01)
-#axis(side=1, at=minors+2, label=rep('',length(minors)), tck=-0.01)
-#legend('topright', legend=c('Cleared', 'Colonized'),
-#       pch=c(21, 21), pt.bg=c('firebrick1','dodgerblue1'), bg='white', pt.cex=1.7, cex=1.2)
-#axis(2, at=seq(1,index-2,2)+0.6, labels=colnames(metabolome_susceptible), las=1, line=-0.5, tick=F, cex.axis=1.4)
-
-#dev.off()
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
@@ -358,6 +345,4 @@ for (dep in deps){
 }
 rm(list=ls())
 gc()
-
-
 

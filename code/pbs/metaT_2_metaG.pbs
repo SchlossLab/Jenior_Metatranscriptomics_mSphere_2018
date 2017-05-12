@@ -1,0 +1,64 @@
+#!/bin/sh
+#PBS -N metaG_RNA_mapping
+#PBS -q fluxod
+#PBS -l qos=flux
+#PBS -l nodes=1:ppn=4,mem=32GB
+#PBS -l walltime=300:00:00
+#PBS -j oe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -A pschloss_fluxod
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+
+cd $PBS_O_WORKDIR
+
+NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
+
+
+# Align paired-end reads to respective metaTenome
+/nfs/turbo/pschloss/bin/bowtie2 -f --fr -p 8 -x /nfs/turbo/pschloss/matt/metagenomes_HiSeq/gene_dbs/${metagenomeDB}_metaG_db \
+        -1 /nfs/turbo/pschloss/matt/metatranscriptomes_HiSeq/final_reads/${metatranscriptome}.read1.pool.cut.trim.silva_filter.mus_filter.fasta \
+        -2 /nfs/turbo/pschloss/matt/metatranscriptomes_HiSeq/final_reads/${metatranscriptome}.read2.pool.cut.trim.silva_filter.mus_filter.fasta \
+        -S ${metatranscriptome}.${metagenomeDB}.metaT.pair.sam
+samtools view -bS ${metatranscriptome}.${metagenomeDB}.metaT.pair.sam > ${metatranscriptome}.${metagenomeDB}.metaT.pair.bam
+samtools sort ${metatranscriptome}.${metagenomeDB}.metaT.pair.bam ${metatranscriptome}.${metagenomeDB}.metaT.pair.sort
+rm ${metatranscriptome}.${metagenomeDB}.metaT.pair.sam
+
+# Align orphaned reads to respective metaTenome
+/nfs/turbo/pschloss/bin/bowtie2 -f -p 8 -x /nfs/turbo/pschloss/matt/metagenomes_HiSeq/gene_dbs/${metagenomeDB}_metaG_db \
+        -U /nfs/turbo/pschloss/matt/metatranscriptomes_HiSeq/final_reads/${metatranscriptome}.orphan.pool.cut.trim.silva_filter.mus_filter.fasta \
+        -S ${metatranscriptome}.${metagenomeDB}.metaT.orphan.sam
+samtools view -bS ${metatranscriptome}.${metagenomeDB}.metaT.orphan.sam > ${metatranscriptome}.${metagenomeDB}.metaT.orphan.bam
+samtools sort ${metatranscriptome}.${metagenomeDB}.metaT.orphan.bam ${metatranscriptome}.${metagenomeDB}.metaT.orphan.sort
+rm ${metatranscriptome}.${metagenomeDB}.metaT.orphan.sam
+
+# Merge alignments and convert to idxstats format
+samtools merge ${metatranscriptome}.${metagenomeDB}.metaT.merge.bam ${metatranscriptome}.${metagenomeDB}.metaT.pair.sort.bam ${metatranscriptome}.${metagenomeDB}.metaT.orphan.sort.bam
+samtools sort ${metatranscriptome}.${metagenomeDB}.metaT.merge.bam ${metatranscriptome}.${metagenomeDB}.metaT.merge.sort
+
+# Remove PCR duplicates and sort
+java -Xmx2g -jar /nfs/turbo/pschloss/matt/bin/picard-tools-1.119/MarkDuplicates.jar \
+        INPUT=${metatranscriptome}.${metagenomeDB}.metaT.merge.sort.bam \
+        OUTPUT=${metatranscriptome}.${metagenomeDB}.metaT.merge.sort.rmdup.bam \
+        METRICS_FILE=${metatranscriptome}.${metagenomeDB}.metaT.merge.sort.rmdup.metrics \
+        AS=TRUE \
+        VALIDATION_STRINGENCY=LENIENT \
+        MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 \
+        REMOVE_DUPLICATES=TRUE
+samtools sort ${metatranscriptome}.${metagenomeDB}.metaT.merge.sort.rmdup.bam ${metatranscriptome}.${metagenomeDB}.metaT.merge.sort.rmdup.sort
+samtools index ${metatranscriptome}.${metagenomeDB}.metaT.merge.sort.rmdup.sort.bam
+
+# Convert to human-readable format
+samtools idxstats ${metatranscriptome}.${metagenomeDB}.metaT.merge.sort.rmdup.sort.bam > ${metatranscriptome}.${metagenomeDB}.metaT.final.txt
+
+# Format and normalize idxstats files
+python /nfs/turbo/pschloss/matt/home/scripts/idxstats/pool_unmapped_idxstats.py ${metatranscriptome}.${metagenomeDB}.metaT.final.txt
+python /nfs/turbo/pschloss/matt/home/scripts/idxstats/normalize_idxstats.py ${metatranscriptome}.${metagenomeDB}.metaT.final.pool.txt 50
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit

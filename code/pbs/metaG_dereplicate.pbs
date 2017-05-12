@@ -31,7 +31,7 @@ java -Xmx2g -jar /nfs/turbo/pschloss/matt/bin/picard-tools-1.119/MarkDuplicates.
         VALIDATION_STRINGENCY=LENIENT \
         MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 \
         REMOVE_DUPLICATES=TRUE
-samtools sort ${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.bam ${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.sort.bam
+samtools sort ${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.bam ${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.sort
 samtools index ${metagenome}.${metagenomeDB}.metaG.merge.sort.rmdup.sort.bam
 
 # Convert to human-readable format

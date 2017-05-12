@@ -8,16 +8,25 @@ with open(sys.argv[1],'r') as idxstats:
 
         ko_dictionary = {}
         for line in idxstats:
-
                 line = line.strip().split('|')
-                if line[2] == 'none':
+                if len(line) < 4: continue
+
+                reads = float(line[-1].split()[1])
+
+                if line[2][0] == 'K':
+                        if not line[2] in ko_dictionary.keys():
+                                ko_dictionary[line[2]] = reads
+                        else:
+                                ko_dictionary[line[2]] = ko_dictionary[line[2]] + reads
+                        continue
+                elif line[3][0] == 'K':
+                        if not line[3] in ko_dictionary.keys():
+                                ko_dictionary[line[3]] = reads
+                        else:
+                                ko_dictionary[line[3]] = ko_dictionary[line[3]] + reads
                         continue
                 else:
-                        if not line[2] in ko_dictionary.keys():
-                                ko_dictionary[line[2]] = float(line[4])
-                        else:
-                                ko_dictionary[line[2]] = ko_dictionary[line[2]] + float(line[4])
-
+                        continue
 
 output_name = str(sys.argv[1]).rstrip('txt') + 'ko.txt'
 with open(output_name, 'w') as output_file:
