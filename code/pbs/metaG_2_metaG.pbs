@@ -18,6 +18,9 @@ cd $PBS_O_WORKDIR
 NCPUS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
 
 
+# Load samtools
+module load samtools
+
 # Align paired-end reads to respective metagenome
 /nfs/turbo/pschloss/bin/bowtie2 -f --fr -p 8 -x /nfs/turbo/pschloss/matt/metagenomes_HiSeq/gene_dbs/${metagenomeDB}_metaG_db \
         -1 /nfs/turbo/pschloss/matt/metagenomes_HiSeq/curation/${metagenome}/${metagenome}.read1.pool.cut.trim.fasta \

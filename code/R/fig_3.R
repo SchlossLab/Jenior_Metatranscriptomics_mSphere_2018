@@ -225,77 +225,11 @@ clinda_mock_actino <- rbind(subset(clinda_mock_outliers, color == '#009900'), su
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Format pathway info
-
-# KEGG pathway annotations for genes
-cef_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/cef_pathways.tsv'
-clinda_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/clinda_pathways.tsv'
-strep_pathways <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/data/read_mapping/strep_pathways.tsv'
-
-# Pooled pathway mappings
-cef_pathways <- read.delim(cef_pathways, sep='\t', header=TRUE, row.names=3)
-clinda_pathways <- read.delim(clinda_pathways, sep='\t', header=TRUE, row.names=3)
-strep_pathways <- read.delim(strep_pathways, sep='\t', header=TRUE, row.names=3)
-
-# Renames columns
-colnames(cef_pathways) <- c('cef_630','cef_mock')
-colnames(clinda_pathways) <- c('clinda_630','clinda_mock')
-colnames(strep_pathways) <- c('strep_630','strep_mock')
-
-# Calculate differences
-cef_pathways$difference <- abs(cef_pathways$cef_630 - cef_pathways$cef_mock)
-clinda_pathways$difference <- abs(clinda_pathways$clinda_630 - clinda_pathways$clinda_mock)
-strep_pathways$difference <- abs(strep_pathways$strep_630 - strep_pathways$strep_mock)
-
-# Calculate confidence interval
-diffs <- c(cef_pathways$difference, clinda_pathways$difference, strep_pathways$difference)
-confidence <- as.numeric(quantile(diffs, probs=0.05))
-rm(diffs)
-
-# Find the largest changes, take top 5
-cef_pathways <- cef_pathways[order(-cef_pathways$difference),][1:6,]
-clinda_pathways <- clinda_pathways[order(-clinda_pathways$difference),][1:6,]
-strep_pathways <- strep_pathways[order(-strep_pathways$difference),][1:6,]
-
-# Remove Global pathways (always top since its the largest)
-cef_pathways <- cef_pathways[-1, ]
-clinda_pathways <- clinda_pathways[-1, ]
-strep_pathways <- strep_pathways[-1, ]
-
-# Recalculate differences for plotting
-cef_pathways$difference <- cef_pathways$cef_630 - cef_pathways$cef_mock
-cef_pathways$cef_630 <- NULL
-cef_pathways$cef_mock <- NULL
-clinda_pathways$difference <- clinda_pathways$clinda_630 - clinda_pathways$clinda_mock
-clinda_pathways$clinda_630 <- NULL
-clinda_pathways$clinda_mock <- NULL
-strep_pathways$difference <- strep_pathways$strep_630 - strep_pathways$strep_mock
-strep_pathways$strep_630 <- NULL
-strep_pathways$strep_mock <- NULL
-
-# Transform data and format for plotting
-cef_pathways <- -log2(abs(cef_pathways))
-clinda_pathways <- log2(clinda_pathways)
-strep_pathways <- log2(strep_pathways)
-
-# Format pathway names
-pathway_names <- c(gsub('_', ' ', rownames(strep_pathways)), gsub('_', ' ', rownames(cef_pathways)), gsub('_', ' ', rownames(clinda_pathways)))
-cef_pathways <- cef_pathways$difference
-clinda_pathways <- clinda_pathways$difference
-strep_pathways <- strep_pathways$difference
-
-# Add blank rows for proper barplotting
-cef_pathways <- c(rep(0,6), cef_pathways)
-clinda_pathways <- c(rep(0,12), clinda_pathways)
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
 # Plot the figure
-pdf(file=plot_file, width=9, height=12)
+pdf(file=plot_file, width=9, height=9)
 layout(matrix(c(1,2,
-                3,4,
-                5,5), 
-              nrow=3, ncol=2, byrow = TRUE))
+                3,4), 
+              nrow=2, ncol=2, byrow = TRUE))
 par(mar=c(4, 5, 1, 1), mgp=c(3,0.7,0))
 
 #-------------------#
@@ -406,26 +340,6 @@ points(x=2.85, y=1.7, pch=22, cex=2.1, col='black', bg='#990099') # purple
 points(x=2.85, y=0, pch=22, cex=2.1, col='black', bg='white') # Other Bacteria - white
 text(x=1.35, y=-3.1, labels='Methanobrevibacter', cex=0.9) # Archeae
 points(x=2.85, y=-3.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
-
-#-------------------#
-
-# Overrepresented pathways
-par(mar=c(15,4,1,2), las=1, mgp=c(1.6,0.7,0))
-plot(0, type='n', xlab='', xaxt='n', yaxt='n', ylab=as.expression(bquote(paste(Delta,' Fold Abundance (',log[2],')'))), xlim=c(0.5,20), ylim=c(-12,12))
-abline(h=0, lwd=1.5)
-abline(h=c(-confidence,confidence), lwd=1.2, lty=5, col='gray30')
-axis(side=2, at=seq(-12,12,3), labels=c(12,9,6,3,0,3,6,9,12))
-text(x=c(2.6,2.39), y=c(12,-12), cex=0.9,
-     labels=c(as.expression(bquote(paste('Greater in ',italic('C. difficile'),'-infected Metatranscriptome'))), 'Greater in Mock-infected Metatranscriptome'))
-legend('topright', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
-       pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.7, col='black', bty='n')
-text(cex=1, x=c(seq(1.2,6,1.2),seq(8.4,13.2,1.2),seq(15.6,20.4,1.2)), y=-14, pathway_names, xpd=TRUE, srt=60, pos=2)
-mtext('d', side=2, line=2, las=2, adj=1.5, padj=-6, cex=1.2, font=2)
-
-# Add groups
-barplot(strep_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=adjustcolor(strep_col, alpha.f=0.75), yaxt='n', add=TRUE) # Streptomycin
-barplot(cef_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=adjustcolor(cef_col, alpha.f=0.75), yaxt='n', add=TRUE) # Cefoperazone
-barplot(clinda_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=adjustcolor(clinda_col, alpha.f=0.75), yaxt='n', add=TRUE) # Clindamycin
 
 dev.off()
 
