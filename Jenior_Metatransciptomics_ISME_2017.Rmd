@@ -113,7 +113,7 @@ In order to more closely examine the response of ... we performed metatranscript
 
 **Modeling competition for nutrients across the microbiome**
 
-To more clearly integrate community-level transcriptomic data, we chose to leverage methods for genome-scale metabolic modeling previouslt developed in our laboratory [@Jenior2017]. To generate annotated genomes for discrete bacterial taxa on which to map transcriptomic reads, we implemented clustering of our assembled contigs based on abundance and composition [CONCOCT reference]. Strongly clustered groups of sequences were treated as individual species and a separate metabolic model with metabolite importance scores were calculated for each (Fig. S____ CONCOCT clusters in supplement for this section). Within each community, we then compared pair-wise ratios of metabolite importance scores for each possible interspecies interaction utilizing evenly rarified transcriptomic abundances between the models (Fig. 4A). This provided a metric that reflected the level of competition for a given metabolite existed between particular pairs of bacterial taxa. We then went on to perform cumulative calculation of importance for each metabolite across all species in a given community (Fig. 4B). Values from this analysis give and estimation of the most highly sought after metabolites in the communities tested. Combined, this approach allowed for predicition of nutrient niche segregation between species in the cecal bacterial community and how *C. difficile* altered this landscape to establish its own metabolic strategy.
+To more clearly integrate community-level transcriptomic data, we chose to leverage methods for genome-scale metabolic modeling previously described by our group [@Jenior2017]. To generate annotated genomes for discrete bacterial taxa on which to map transcriptomic reads, we implemented clustering of our assembled contigs based on abundance and composition [CONCOCT reference]. Strongly clustered groups of sequences were treated as individual species and a separate metabolic model with metabolite importance scores were calculated for each (Fig. S____ CONCOCT clusters in supplement for this section). Within each community, we then compared pair-wise ratios of metabolite importance scores for each possible interspecies interaction utilizing evenly rarified transcriptomic abundances between the models (Fig. 4A). This provided a metric that reflected the level of competition for a given metabolite existed between particular pairs of bacterial taxa. We then went on to perform cumulative calculation of importance for each metabolite across all species in a given community (Fig. 4B). Values from this analysis give and estimation of the most highly sought after metabolites in the communities tested. Combined, this approach allowed for predicition of nutrient niche segregation between species in the cecal bacterial community and how *C. difficile* altered this landscape to establish its own metabolic strategy.
 
 
 Add panels to fig 4 about individual species importances and high demand metabolites.
@@ -277,8 +277,14 @@ corr_p_combined <- corr_p[5]
 
 ```
 
+**Modeling competition for nutrients between discreet taxanomic groups in the metagenome.**
 
-**Multi-omic integration supports predictive value of network platform for predict changes in metabolite concentrations**
+
+In previous work from Jenior et. al. (2017), the authors established a simple computational framework to impute those metabolites which a bacterium is most likely to obtain from its environment based transcriptome-informed genome-enabled metabolic models. In the current study, we have extended these methods to analyze the putative competition for nutrients between bacteria in the perturbed cecal microbiota, including *C. difficile*. In our approach, the level of possible competition for a substrate is imputed based on the transcription of enzymes that utilize it within a pair of organisms, then this process is repeated iteratively for all shared metabolites between the pair. For each comparison, the absolute value of the difference between the inverse-log~2~ of metabolite importance scores for a given metabolite shared between the metabolic models is calculated. This value is then re-transformed for comparability and ultimately reflects the magnitude in which the organisms of interest compete for a pool of metabolites. These calculations are then extended to each possible pairing of taxa in the provided community in an effort to determine those metabolites that are highly sought after as well as identifying potentially vacant nutrient niches that *C. difficile* could exploit following infection.
+
+
+
+**Community-level metabolic network results are predictive of cecal metabolite concentrations**
 
 More effective way to integrate metatranscriptome with metabolome - unified global correlation of gene expression and change in metabolite concentrations neglects the activity of individual species
 
@@ -291,6 +297,11 @@ We applied this approach first to a pooled analysis of all groups to maximize ou
 We then directed the analysis toward each individual infection condition tested. In streptomycin-pretreatment (Fig. 6B) and cefoperazone-pretreatment (Fig. 6C) the correlations did not achieve significance (*P* = `r corr_p_strep` & `r corr_p_cef`), but remained positive. Analysis of outliers revealed that in streptomycin-pretreatment both the host-derived aminoglycan N-acetyl-D-glucosamine and L-proline were implicated as most likely to be utilized by *C. difficile* while L-proline was the only growth substrate outlier in this way in cefoperazone-pretreated mice. Both clindamycin-pretreatment (Fig. 6D) and ex-GF mice (Fig. 6E) instead demonstrated a significant correlation between importance scores and delta median scaled intensity (*P* = `r corr_p_clinda` & `r corr_p_gf`). Although clindamycin-pretreatment was associated with most outlier metabolites, both groups also shared a similar trend of carbohydrates and Stickland fermentation substrates being important and decreased in infected conditions. Proline specifically was found to be both highly important and decreased in concentration across all infections. In combination with the previously mentioned patterns, this further supports Stickland fermentation as a core metabolic strategy of *C. difficile* in the gut which agrees with previous *in vitro* findings [@Jackson2006]. Together, these data supported network-derived importance scores as well as our hypothesis that *C. difficile* adapted portions of its carbon source metabolism in distinct susceptible environments in addition to certain highly consistent strategies.
 
 ###Discussion
+
+
+
+
+
 
 
 
@@ -307,6 +318,7 @@ We then directed the analysis toward each individual infection condition tested.
 **16S rRNA gene sequencing and curation** DNA was extracted from approximately 50 mg of cecal content from each mouse using the PowerSoil-htp 96 Well Soil DNA isolation kit (MO BIO Laboratories) and an epMotion 5075 automated pipetting system (Eppendorf). The V4 region of the bacterial 16S rRNA gene was amplified using custom barcoded primers and sequenced as described previously using an Illumina MiSeq sequencer [@Kozich2013]. All 63 samples were sequenced on a single sequencing run. The 16S rRNA gene sequences were curated using the mothur software package (v1.36), as described previously [@Kozich2013]. In short, paired-end reads were merged into contigs, screened for quality, aligned to SILVA 16S rRNA sequence database, and screened for chimeras. Sequences were classified using a naive Bayesian classifier trained against a 16S rRNA gene training set provided by the Ribosomal Database Project (RDP) [@Wang2007]. Curated sequences were clustered into operational taxonomic units (OTUs) using a 97% similarity cutoff with the average neighbor clustering algorithm. The number of sequences in each sample was rarefied to 2,500 per sample to minimize the effects of uneven sampling.
 
 **DNA extraction, shotgun library preparation, and sequencing** 
+
 
 
 **Metagenomic read curation, contig assembly, and gene annotation.**
@@ -335,7 +347,7 @@ Algorithm
 This work was supported by funding from the National Institutes of Health to PDS (R01GM099514, P30DK034933, U19AI09087, and U01AI124255), VBY (P30DK034933, U19AI09087, and U01AI124255), a Translational Research Education Certificate grant to JLL (MICHR; UL1TR000433), and was partially supported by a predoctoral fellowship from the Cellular Biotechnology Training Program to MLJ (T32GM008353).
 
 
-###Acknowledgements
+###Acknowledgments
 
 The authors would like to acknowledge Charles Koumpouras for assistance with DNA extractions and metabolomic sample preparation. We would also like to acknowledge members of the University of Michigan Germfree Mouse Center, University of Michigan Sequencing Core, and Metabolon for their assistance in experimental design, execution, and data collection. Pooled and quality trimmed transcriptomic read data and experiment metadata are available through the NCBI Sequence Read Archive (SRA; PRJNA354635 and ). Data processing steps for beginning from raw sequence data to the final manuscript are hosted at 
 
