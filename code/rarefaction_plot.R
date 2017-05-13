@@ -1,5 +1,8 @@
 
 
+# Need to run in the middle of format_metatranscriptomes.R...
+
+
 # Generate some rarefactoin curves for supplement
 pdf(file='results/supplement/figures/figure_S3.pdf', width=11, height=6)
 layout(matrix(c(1,2,3,

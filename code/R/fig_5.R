@@ -19,7 +19,7 @@ supptable_S5A_file <'results/supplement/tables/table_S5strep.tsv'
 supptable_S5B_file <'results/supplement/tables/table_S5cef.tsv'
 supptable_S5C_file <'results/supplement/tables/table_S5clinda.tsv'
 supptable_S5D_file <'results/supplement/tables/table_S5all.tsv'
-plot_file <- 'results/figures/figure_6.pdf'
+plot_file <- 'results/figures/figure_5.pdf'
 
 
 # Metabolomic data
