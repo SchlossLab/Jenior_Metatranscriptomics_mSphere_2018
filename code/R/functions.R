@@ -124,11 +124,79 @@ featureselect_RF <- function(training_data, feature){
   return(final_features_RF)
 }
 
-# get KEGG organism codes from gene annotation row names
+# Get KEGG organism codes from gene annotation row names
 get_kegg_org <- function(mappings){
   genes <- strsplit(rownames(mappings), ':')
   orgs <- lapply(genes, `[[`, 1)
   mappings$org_code <- orgs
   return(mappings)
 }
+
+
+# Reads and formats network data for plotting
+format_network <- function(community_importances, color_pallette){
+  community_importances <- community_importances[!community_importances$importance == 0.0,]
+  community <- community_importances[,1:2]
+  
+  # Format metabolic network data
+  raw_graph <- graph.data.frame(community, directed=TRUE)
+  simple_graph <- simplify(raw_graph)
+  
+  # Break importances into categorical variable that corresponds to 1-10 rgb scale
+  color_increment <- max(community_importances$importances) / 10
+  edge_colors <- c()
+  col_index <- 1
+  for (index in community_importances$importances){
+    if (index < color_increment) {
+      edge_colors[col_index] <- '#001AE5'
+      col_index <- col_index + 1
+    }
+    else if (index < (2 * color_increment)) {
+      edge_colors[col_index] <- '#1317CE'
+      col_index <- col_index + 1
+    }
+    else if (index < (3 * color_increment)) {
+      edge_colors[col_index] <- '#2614B7'
+        col_index <- col_index + 1
+    }
+    else if (index < (4 * color_increment)) {
+      edge_colors[col_index] <- '#3912A0'
+        col_index <- col_index + 1
+    }
+    else if (index < (5 * color_increment)) {
+      edge_colors[col_index] <- '#4C0F89'
+        col_index <- col_index + 1
+    }
+    else if (index < (6 * color_increment)) {
+      edge_colors[col_index] <- '#5F0D72'
+        col_index <- col_index + 1
+    }
+    else if (index < (7 * color_increment)) {
+      edge_colors[col_index] <- '#720A5B'
+        col_index <- col_index + 1
+    }
+    else if (index < (8 * color_increment)) {
+      edge_colors[col_index] <- '#850744'
+        col_index <- col_index + 1
+    }
+    else if (index < (9 * color_increment)) {
+      edge_colors[col_index] <- '#98052D'
+      col_index <- col_index + 1
+    }
+    else {
+      edge_colors[col_index] <- '#AB0216'
+        col_index <- col_index + 1
+    }
+  }
+  
+  # Color the graph
+  V(simple_graph)$color <- color_pallette
+  E(simple_graph)$color <- edge_colors
+  
+  
+  # format node names???
+  
+  return(simple_graph)
+}
+
 

@@ -159,13 +159,10 @@ metabolome <- metabolome[match(rownames(metabolome_nmds), rownames(metabolome)),
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
-pdf(file=plot_file, width=4.5, height=20)
-layout(matrix(c(1,
-                2,
-                3,
-                4,
-                5),
-              nrow=5, ncol=1, byrow=TRUE))
+pdf(file=plot_file, width=12, height=8)
+layout(matrix(c(1,2,3,
+                4,5,6),
+              nrow=2, ncol=3, byrow=TRUE))
 par(mar=c(4,4,1,1), las=1, mgp=c(2.5,0.75,0))
 
 #-------------------#
@@ -173,11 +170,8 @@ par(mar=c(4,4,1,1), las=1, mgp=c(2.5,0.75,0))
 # All conventional mice
 plot(x=metabolome_nmds$MDS1, y=metabolome_nmds$MDS2, xlim=c(-0.25,0.25), ylim=c(-0.15,0.15),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
+legend('topleft', legend='All groups', pch=1, cex=1.4, pt.cex=0, bty='n')
 mtext('a', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
-legend('topright', legend=c('Streptomycin-pretreated','Cefoperzone-pretreated','Clindamycin-pretreated','No Antibiotics'), 
-       pt.bg=c(strep_col,cef_col,clinda_col,noabx_col), pch=22, cex=1.2, pt.cex=2.4)
-legend('bottomleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
-       col='black', pch=c(16,17), cex=1.2, pt.cex=c(2.2,2))
 points(x=metabolome_cefoperazone_630$MDS1, y=metabolome_cefoperazone_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_clindamycin_630$MDS1, y=metabolome_clindamycin_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_streptomycin_630$MDS1, y=metabolome_streptomycin_630$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
@@ -185,7 +179,8 @@ points(x=metabolome_cefoperazone_mock$MDS1, y=metabolome_cefoperazone_mock$MDS2,
 points(x=metabolome_clindamycin_mock$MDS1, y=metabolome_clindamycin_mock$MDS2, bg=clinda_col, pch=24, cex=1.8, lwd=1.2)
 points(x=metabolome_streptomycin_mock$MDS1, y=metabolome_streptomycin_mock$MDS2, bg=strep_col, pch=24, cex=1.8, lwd=1.2)
 points(x=metabolome_noantibiotics$MDS1, y=metabolome_noantibiotics$MDS2, bg=noabx_col, pch=24, cex=1.8, lwd=1.2)
-legend('bottomright', legend=c(as.expression(bquote(paste(italic('R'),' = ',.(metabolome_r)))),
+legend('bottomright', legend=c('Resistant vs Susceptible:',
+                               as.expression(bquote(paste(italic('R'),' = ',.(metabolome_r)))),
                                as.expression(bquote(paste(italic('p'),' = ',.(metabolome_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')
 
 #-------------------------------------------------------------#
@@ -193,16 +188,14 @@ legend('bottomright', legend=c(as.expression(bquote(paste(italic('R'),' = ',.(me
 # Antibiotics only
 plot(x=abx_metabolome_nmds$MDS1, y=abx_metabolome_nmds$MDS2, xlim=c(-0.075,0.075), ylim=c(-0.075,0.075),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
+legend('topleft', legend='Antibiotic pretreatments only', pch=1, cex=1.4, pt.cex=0, bty='n')
 mtext('b', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
-legend('topright', legend=c('Streptomycin-pretreated','Cefoperzone-pretreated','Clindamycin-pretreated'), 
-       pt.bg=c(strep_col,cef_col,clinda_col), pch=22, cex=1.2, pt.cex=2.4)
-legend('bottomleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
-       col='black', pch=c(16,17), cex=1.2, pt.cex=c(2.2,2))
 segments(x0=abx_metabolome_nmds_630$MDS1, y0=abx_metabolome_nmds_630$MDS2, x1=abx_metabolome_centoids[1,2], y1=abx_metabolome_centoids[1,3], col='gray30')
 segments(x0=abx_metabolome_nmds_mock$MDS1, y0=abx_metabolome_nmds_mock$MDS2, x1=abx_metabolome_centoids[2,2], y1=abx_metabolome_centoids[2,3], col='gray30')
 points(x=abx_metabolome_nmds_630$MDS1, y=abx_metabolome_nmds_630$MDS2, bg=abx_col, pch=21, cex=2, lwd=1.2)
 points(x=abx_metabolome_nmds_mock$MDS1, y=abx_metabolome_nmds_mock$MDS2, bg=abx_col, pch=24, cex=2, lwd=1.2)
-legend('bottomright', legend=c(as.expression(bquote(paste(italic('R'),' = ',.(abx_metabolome_r)))),
+legend('bottomright', legend=c('Strep vs Cef vs Clinda:',
+                               as.expression(bquote(paste(italic('R'),' = ',.(abx_metabolome_r)))),
                                as.expression(bquote(paste(italic('p'),' = ',.(abx_metabolome_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')
 points(x=metabolome_abx_cef_630$MDS1, y=metabolome_abx_cef_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_abx_cef_mock$MDS1, y=metabolome_abx_cef_mock$MDS2, bg=cef_col, pch=24, cex=2, lwd=1.2)
@@ -217,14 +210,13 @@ points(x=metabolome_abx_strep_mock$MDS1, y=metabolome_abx_strep_mock$MDS2, bg=st
 plot(x=strep_metabolome_nmds$MDS1, y=strep_metabolome_nmds$MDS2, xlim=c(-0.25,0.25), ylim=c(-0.25,0.25),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
 mtext('c', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
-legend('topright', legend='Streptomycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
-legend('bottomleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
-       col='black', pch=c(16,17), cex=1.2, pt.cex=c(2.2,2))
+legend('topleft', legend='Streptomycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
 segments(x0=strep_metabolome_nmds_630$MDS1, y0=strep_metabolome_nmds_630$MDS2, x1=strep_metabolome_centoids[1,2], y1=strep_metabolome_centoids[1,3], col='gray30')
 segments(x0=strep_metabolome_nmds_mock$MDS1, y0=strep_metabolome_nmds_mock$MDS2, x1=strep_metabolome_centoids[2,2], y1=strep_metabolome_centoids[2,3], col='gray30')
 points(x=strep_metabolome_nmds_630$MDS1, y=strep_metabolome_nmds_630$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
 points(x=strep_metabolome_nmds_mock$MDS1, y=strep_metabolome_nmds_mock$MDS2, bg=strep_col, pch=24, cex=2, lwd=1.2)
-legend('bottomright', legend=c(as.expression(bquote(paste(italic('R'),' = ',.(strep_metabolome_r)))),
+legend('bottomright', legend=c('Mock vs Infected:',
+                               as.expression(bquote(paste(italic('R'),' = ',.(strep_metabolome_r)))),
                                as.expression(bquote(paste(italic('p'),' = ',.(strep_metabolome_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')
 
 #-------------------#
@@ -233,14 +225,13 @@ legend('bottomright', legend=c(as.expression(bquote(paste(italic('R'),' = ',.(st
 plot(x=cef_metabolome_nmds$MDS1, y=cef_metabolome_nmds$MDS2, xlim=c(-0.15,0.15), ylim=c(-0.1,0.1),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
 mtext('d', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
-legend('topright', legend='Cefoperazone-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
-legend('bottomleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
-       col='black', pch=c(16,17), cex=1.2, pt.cex=c(2.2,2))
+legend('topleft', legend='Cefoperazone-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
 segments(x0=cef_metabolome_nmds_630$MDS1, y0=cef_metabolome_nmds_630$MDS2, x1=cef_metabolome_centoids[1,2], y1=cef_metabolome_centoids[1,3], col='gray30')
 segments(x0=cef_metabolome_nmds_mock$MDS1, y0=cef_metabolome_nmds_mock$MDS2, x1=cef_metabolome_centoids[2,2], y1=cef_metabolome_centoids[2,3], col='gray30')
 points(x=cef_metabolome_nmds_630$MDS1, y=cef_metabolome_nmds_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
 points(x=cef_metabolome_nmds_mock$MDS1, y=cef_metabolome_nmds_mock$MDS2, bg=cef_col, pch=24, cex=2, lwd=1.2)
-legend('bottomright', legend=c(as.expression(bquote(paste(italic('R'),' = ',.(cef_metabolome_r)))),
+legend('bottomright', legend=c('Mock vs Infected:',
+                               as.expression(bquote(paste(italic('R'),' = ',.(cef_metabolome_r)))),
                                as.expression(bquote(paste(italic('p'),' = ',.(cef_metabolome_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')
 
 #-------------------#
@@ -249,15 +240,24 @@ legend('bottomright', legend=c(as.expression(bquote(paste(italic('R'),' = ',.(ce
 plot(x=clinda_metabolome_nmds$MDS1, y=clinda_metabolome_nmds$MDS2, xlim=c(-0.2,0.1), ylim=c(-0.1,0.1),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
 mtext('e', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
-legend('topright', legend='Clindamycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
-legend('bottomleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
-       col='black', pch=c(16,17), cex=1.2, pt.cex=c(2.2,2))
+legend('topleft', legend='Clindamycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
 segments(x0=clinda_metabolome_nmds_630$MDS1, y0=clinda_metabolome_nmds_630$MDS2, x1=clinda_metabolome_centoids[1,2], y1=clinda_metabolome_centoids[1,3], col='gray30')
 segments(x0=clinda_metabolome_nmds_mock$MDS1, y0=clinda_metabolome_nmds_mock$MDS2, x1=clinda_metabolome_centoids[2,2], y1=clinda_metabolome_centoids[2,3], col='gray30')
 points(x=clinda_metabolome_nmds_630$MDS1, y=clinda_metabolome_nmds_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
 points(x=clinda_metabolome_nmds_mock$MDS1, y=clinda_metabolome_nmds_mock$MDS2, bg=clinda_col, pch=24, cex=2, lwd=1.2)
-legend('bottomright', legend=c(as.expression(bquote(paste(italic('R'),' = ',.(clinda_metabolome_r)))),
+legend('bottomright', legend=c('Mock vs Infected:',
+                               as.expression(bquote(paste(italic('R'),' = ',.(clinda_metabolome_r)))),
                                as.expression(bquote(paste(italic('p'),' = ',.(clinda_metabolome_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')
+
+#-------------------#
+
+# Legends
+par(mar=c(8,1,6,1))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-5,5))
+legend('top', legend=c('Streptomycin-pretreated','Cefoperzone-pretreated','Clindamycin-pretreated','No Antibiotics'), 
+       pt.bg=c(strep_col,cef_col,clinda_col, noabx_col), pch=22, cex=1.5, pt.cex=2.7)
+legend('bottom', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
+       col='black', pch=c(16,17), cex=1.5, pt.cex=c(2.5,2.2))
 
 dev.off()
 

@@ -116,23 +116,12 @@ rm(cef_630_metagenome, clinda_630_metagenome, strep_630_metagenome,
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Remove residual C. difficile mappings
-#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:CD', rownames(cef_raw_reads)),]), ]
-#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdc:CD', rownames(cef_raw_reads)),]), ]
-#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdg:CD', rownames(cef_raw_reads)),]), ]
-#cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdl:CD', rownames(cef_raw_reads)),]), ]
-#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:CD', rownames(clinda_raw_reads)),]), ]
-#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdc:CD', rownames(clinda_raw_reads)),]), ]
-#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdg:CD', rownames(clinda_raw_reads)),]), ]
-#clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdl:CD', rownames(clinda_raw_reads)),]), ]
-#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:CD', rownames(strep_raw_reads)),]), ]
-#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdc:CD', rownames(strep_raw_reads)),]), ]
-#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdg:CD', rownames(strep_raw_reads)),]), ]
-#strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdl:CD', rownames(strep_raw_reads)),]), ]
-#noabx_raw_reads <- noabx_raw_reads[!rownames(noabx_raw_reads) %in% rownames(noabx_raw_reads[grep('cdf:CD', rownames(noabx_raw_reads)),]), ]
-#noabx_raw_reads <- noabx_raw_reads[!rownames(noabx_raw_reads) %in% rownames(noabx_raw_reads[grep('cdc:CD', rownames(noabx_raw_reads)),]), ]
-#noabx_raw_reads <- noabx_raw_reads[!rownames(noabx_raw_reads) %in% rownames(noabx_raw_reads[grep('cdg:CD', rownames(noabx_raw_reads)),]), ]
-#noabx_raw_reads <- noabx_raw_reads[!rownames(noabx_raw_reads) %in% rownames(noabx_raw_reads[grep('cdl:CD', rownames(noabx_raw_reads)),]), ]
+# Remove residual C. difficile 630 mappings
+#c('cdf:CD', 'cdc:CD', 'cdg:CD', 'cdl:CD') # All C. diff strains
+cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:', rownames(cef_raw_reads)),]), ]
+clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:', rownames(clinda_raw_reads)),]), ]
+strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:', rownames(strep_raw_reads)),]), ]
+noabx_raw_reads <- noabx_raw_reads[!rownames(noabx_raw_reads) %in% rownames(noabx_raw_reads[grep('cdf:', rownames(noabx_raw_reads)),]), ]
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -143,72 +132,65 @@ strep_raw_reads <- subset(strep_raw_reads, strep_630_metaG_reads != 0 & strep_mo
 noabx_raw_reads <- subset(noabx_raw_reads, noabx_metaG_reads != 0)
 
 # Rarefy read abundances for metagenomes + metatranscriptomes
-cef_size <- round(min(colSums(cef_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
+cef_size <- round(min(colSums(cef_raw_reads[,c(1:4)]))*0.95) # Determine subsample level
 cef_raw_reads$cef_630_metaG_reads <- t(rrarefy(cef_raw_reads$cef_630_metaG_reads, sample=cef_size)) + 1
 cef_raw_reads$cef_mock_metaG_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaG_reads, sample=cef_size)) + 1
 cef_raw_reads$cef_630_metaT_reads <- t(rrarefy(cef_raw_reads$cef_630_metaT_reads, sample=cef_size)) + 1
 cef_raw_reads$cef_mock_metaT_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaT_reads, sample=cef_size)) + 1
-cef_normalized_reads <- cef_raw_reads
-rm(cef_raw_reads)
-clinda_size <- round(min(colSums(clinda_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
+clinda_size <- round(min(colSums(clinda_raw_reads[,c(1:4)]))*0.95) # Determine subsample level
 clinda_raw_reads$clinda_630_metaG_reads <- t(rrarefy(clinda_raw_reads$clinda_630_metaG_reads, sample=clinda_size)) + 1
 clinda_raw_reads$clinda_mock_metaG_reads <- t(rrarefy(clinda_raw_reads$clinda_mock_metaG_reads, sample=clinda_size)) + 1
 clinda_raw_reads$clinda_630_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_630_metaT_reads, sample=clinda_size)) + 1
 clinda_raw_reads$clinda_mock_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_mock_metaT_reads, sample=clinda_size)) + 1
-clinda_normalized_reads <- clinda_raw_reads
-rm(clinda_raw_reads)
-strep_size <- round(min(colSums(strep_raw_reads[,c(1:3)]))*0.9) # Determine subsample level
+strep_size <- round(min(colSums(strep_raw_reads[,c(1:4)]))*0.95) # Determine subsample level
 strep_raw_reads$strep_630_metaG_reads <- t(rrarefy(strep_raw_reads$strep_630_metaG_reads, sample=strep_size)) + 1
 strep_raw_reads$strep_mock_metaG_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaG_reads, sample=strep_size)) + 1
 strep_raw_reads$strep_630_metaT_reads <- t(rrarefy(strep_raw_reads$strep_630_metaT_reads, sample=strep_size)) + 1
 strep_raw_reads$strep_mock_metaT_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaT_reads, sample=strep_size)) + 1
-strep_normalized_reads <- strep_raw_reads
-rm(strep_raw_reads)
-noabx_size <- round(min(colSums(noabx_raw_reads[,c(1:2)]))*0.9) # Determine subsample level
+noabx_size <- round(min(colSums(noabx_raw_reads[,c(1:2)]))*0.95) # Determine subsample level
 noabx_raw_reads$noabx_metaG_reads <- t(rrarefy(noabx_raw_reads$noabx_metaG_reads, sample=noabx_size)) + 1
 noabx_raw_reads$noabx_metaT_reads <- t(rrarefy(noabx_raw_reads$noabx_metaT_reads, sample=noabx_size)) + 1
-noabx_normalized_reads <- noabx_raw_reads
-rm(noabx_raw_reads)
 
 # Normalize metatranscriptomes to metagenomic coverage
-cef_normalized_reads$cef_630_metaT_reads <- cef_normalized_reads$cef_630_metaT_reads / cef_normalized_reads$cef_630_metaG_reads
-cef_normalized_reads$cef_mock_metaT_reads <- cef_normalized_reads$cef_mock_metaT_reads / cef_normalized_reads$cef_mock_metaG_reads
-cef_normalized_reads$cef_630_metaG_reads <- NULL
-cef_normalized_reads$cef_mock_metaG_reads <- NULL
-clinda_normalized_reads$clinda_630_metaT_reads <- clinda_normalized_reads$clinda_630_metaT_reads / clinda_normalized_reads$clinda_630_metaG_reads
-clinda_normalized_reads$clinda_mock_metaT_reads <- clinda_normalized_reads$clinda_mock_metaT_reads / clinda_normalized_reads$clinda_mock_metaG_reads
-clinda_normalized_reads$clinda_630_metaG_reads <- NULL
-clinda_normalized_reads$clinda_mock_metaG_reads <- NULL
-strep_normalized_reads$strep_630_metaT_reads <- strep_normalized_reads$strep_630_metaT_reads / strep_normalized_reads$strep_630_metaG_reads
-strep_normalized_reads$strep_mock_metaT_reads <- strep_normalized_reads$strep_mock_metaT_reads / strep_normalized_reads$strep_mock_metaG_reads
-strep_normalized_reads$strep_630_metaG_reads <- NULL
-strep_normalized_reads$strep_mock_metaG_reads <- NULL
-noabx_normalized_reads$noabx_metaT_reads <- noabx_normalized_reads$noabx_metaT_reads / noabx_normalized_reads$noabx_metaG_reads
-noabx_normalized_reads$noabx_metaG_reads <- NULL
+cef_raw_reads$cef_630_metaT_reads <- cef_raw_reads$cef_630_metaT_reads / cef_raw_reads$cef_630_metaG_reads
+cef_raw_reads$cef_mock_metaT_reads <- cef_raw_reads$cef_mock_metaT_reads / cef_raw_reads$cef_mock_metaG_reads
+cef_raw_reads$cef_630_metaG_reads <- NULL
+cef_raw_reads$cef_mock_metaG_reads <- NULL
+clinda_raw_reads$clinda_630_metaT_reads <- clinda_raw_reads$clinda_630_metaT_reads / clinda_raw_reads$clinda_630_metaG_reads
+clinda_raw_reads$clinda_mock_metaT_reads <- clinda_raw_reads$clinda_mock_metaT_reads / clinda_raw_reads$clinda_mock_metaG_reads
+clinda_raw_reads$clinda_630_metaG_reads <- NULL
+clinda_raw_reads$clinda_mock_metaG_reads <- NULL
+strep_raw_reads$strep_630_metaT_reads <- strep_raw_reads$strep_630_metaT_reads / strep_raw_reads$strep_630_metaG_reads
+strep_raw_reads$strep_mock_metaT_reads <- strep_raw_reads$strep_mock_metaT_reads / strep_raw_reads$strep_mock_metaG_reads
+strep_raw_reads$strep_630_metaG_reads <- NULL
+strep_raw_reads$strep_mock_metaG_reads <- NULL
+noabx_raw_reads$noabx_metaT_reads <- noabx_raw_reads$noabx_metaT_reads / noabx_raw_reads$noabx_metaG_reads
+noabx_raw_reads$noabx_metaG_reads <- NULL
 
 # Log2 transform the data
-cef_normalized_reads[,c(1,2)] <- log2(cef_normalized_reads[,c(1,2)])
-clinda_normalized_reads[,c(1,2)] <- log2(clinda_normalized_reads[,c(1,2)])
-strep_normalized_reads[,c(1,2)] <- log2(strep_normalized_reads[,c(1,2)])
-noabx_normalized_reads[,1] <- log2(noabx_normalized_reads[,1])
+cef_raw_reads[,c(1,2)] <- log2(cef_raw_reads[,c(1,2)])
+clinda_raw_reads[,c(1,2)] <- log2(clinda_raw_reads[,c(1,2)])
+strep_raw_reads[,c(1,2)] <- log2(strep_raw_reads[,c(1,2)])
+noabx_raw_reads[,1] <- log2(noabx_raw_reads[,1])
 
 # Screen for active transcription in either condition
-cef_normalized_reads <- subset(cef_normalized_reads, cef_normalized_reads$cef_630_metaT_reads > 0 | cef_normalized_reads$cef_mock_metaT_reads > 0)
-clinda_normalized_reads <- subset(clinda_normalized_reads, clinda_normalized_reads$clinda_630_metaT_reads > 0 | clinda_normalized_reads$clinda_mock_metaT_reads > 0)
-strep_normalized_reads <- subset(strep_normalized_reads, strep_normalized_reads$strep_630_metaT_reads > 0 | strep_normalized_reads$strep_mock_metaT_reads > 0)
-noabx_normalized_reads <- subset(noabx_normalized_reads, noabx_normalized_reads$noabx_metaT_reads > 0)
+cef_final_reads <- subset(cef_raw_reads, cef_raw_reads$cef_630_metaT_reads > 0 | cef_raw_reads$cef_mock_metaT_reads > 0)
+clinda_final_reads <- subset(clinda_raw_reads, clinda_raw_reads$clinda_630_metaT_reads > 0 | clinda_raw_reads$clinda_mock_metaT_reads > 0)
+strep_final_reads <- subset(strep_raw_reads, strep_raw_reads$strep_630_metaT_reads > 0 | strep_raw_reads$strep_mock_metaT_reads > 0)
+noabx_final_reads <- subset(noabx_raw_reads, noabx_raw_reads$noabx_metaT_reads > 0)
+rm(cef_raw_reads, clinda_raw_reads, strep_raw_reads, noabx_raw_reads)
 
 # Move row names to column
-cef_normalized_reads$kegg_id <- rownames(cef_normalized_reads)
-clinda_normalized_reads$kegg_id <- rownames(clinda_normalized_reads)
-strep_normalized_reads$kegg_id <- rownames(strep_normalized_reads)
-noabx_normalized_reads$kegg_id <- rownames(noabx_normalized_reads)
+cef_final_reads$kegg_id <- rownames(cef_final_reads)
+clinda_final_reads$kegg_id <- rownames(clinda_final_reads)
+strep_final_reads$kegg_id <- rownames(strep_final_reads)
+noabx_final_reads$kegg_id <- rownames(noabx_final_reads)
 
-# Write normalized reads to files
-write.table(cef_normalized_reads, file='data/read_mapping/cef_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-write.table(clinda_normalized_reads, file='data/read_mapping/clinda_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-write.table(strep_normalized_reads, file='data/read_mapping/strep_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-write.table(noabx_normalized_reads, file='data/read_mapping/noabx_normalized.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+# Write raw reads to files
+write.table(cef_final_reads, file='data/read_mapping/cef_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(clinda_final_reads, file='data/read_mapping/clinda_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(strep_final_reads, file='data/read_mapping/strep_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(noabx_final_reads, file='data/read_mapping/noabx_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
 
 # Clean up
 setwd(starting_dir)
