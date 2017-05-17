@@ -145,54 +145,65 @@ format_network <- function(community_importances, color_pallette){
   # Break importances into categorical variable that corresponds to 1-10 rgb scale
   color_increment <- max(community_importances$importances) / 10
   edge_colors <- c()
+  edge_sizes <- c()
   col_index <- 1
   for (index in community_importances$importances){
     if (index < color_increment) {
       edge_colors[col_index] <- '#001AE5'
+      sizes[col_index] <- 0.05
       col_index <- col_index + 1
     }
     else if (index < (2 * color_increment)) {
       edge_colors[col_index] <- '#1317CE'
+      sizes[col_index] <- 0.15
       col_index <- col_index + 1
     }
     else if (index < (3 * color_increment)) {
       edge_colors[col_index] <- '#2614B7'
-        col_index <- col_index + 1
+      sizes[col_index] <- 0.25
+      col_index <- col_index + 1
     }
     else if (index < (4 * color_increment)) {
       edge_colors[col_index] <- '#3912A0'
-        col_index <- col_index + 1
+      sizes[col_index] <- 0.35
+      col_index <- col_index + 1
     }
     else if (index < (5 * color_increment)) {
       edge_colors[col_index] <- '#4C0F89'
-        col_index <- col_index + 1
+      sizes[col_index] <- 0.45
+      col_index <- col_index + 1
     }
     else if (index < (6 * color_increment)) {
       edge_colors[col_index] <- '#5F0D72'
-        col_index <- col_index + 1
+      sizes[col_index] <- 0.55
+      col_index <- col_index + 1
     }
     else if (index < (7 * color_increment)) {
       edge_colors[col_index] <- '#720A5B'
-        col_index <- col_index + 1
+      sizes[col_index] <- 0.65
+      col_index <- col_index + 1
     }
     else if (index < (8 * color_increment)) {
       edge_colors[col_index] <- '#850744'
-        col_index <- col_index + 1
+      sizes[col_index] <- 0.75
+      col_index <- col_index + 1
     }
     else if (index < (9 * color_increment)) {
       edge_colors[col_index] <- '#98052D'
+      sizes[col_index] <- 0.85
       col_index <- col_index + 1
     }
     else {
       edge_colors[col_index] <- '#AB0216'
-        col_index <- col_index + 1
+      sizes[col_index] <- 0.95
+      col_index <- col_index + 1
     }
   }
   
   # Color the graph
   V(simple_graph)$color <- color_pallette
   E(simple_graph)$color <- edge_colors
-  
+  # increase edge size - corresponding with color
   
   # format node names???
   

@@ -29,7 +29,8 @@ python /nfs/turbo/pschloss/bin/seq_stats.py ${reads}.read1.pool.fastq > ${reads}
 python /nfs/turbo/pschloss/bin/seq_stats.py ${reads}.read2.pool.fastq >> ${reads}.trimming.summary
 
 # Cut residual Illumina adapters
-python2.7 /nfs/turbo/pschloss/bin/cutadapt-1.9.1/bin/cutadapt --error-rate=0.1 --overlap=10 -a ${forward} -A ${reverse} -o ${reads}.read1.pool.cut.fastq -p ${reads}.read2.pool.cut.fastq ${reads}.read1.pool.fastq ${reads}.read2.pool.fastq
+module load python-anaconda2/latest
+cutadapt --error-rate=0.1 --overlap=10 -a ${forward} -A ${reverse} -o ${reads}.read1.pool.cut.fastq -p ${reads}.read2.pool.cut.fastq ${reads}.read1.pool.fastq ${reads}.read2.pool.fastq
 python /nfs/turbo/pschloss/bin/seq_stats.py ${reads}.read1.pool.cut.fastq >> ${reads}.trimming.summary
 python /nfs/turbo/pschloss/bin/seq_stats.py ${reads}.read2.pool.cut.fastq >> ${reads}.trimming.summary
 rm *.pool.fastq
