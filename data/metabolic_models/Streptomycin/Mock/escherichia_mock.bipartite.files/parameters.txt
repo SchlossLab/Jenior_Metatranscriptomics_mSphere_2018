@@ -1,0 +1,8 @@
+User Defined Parameters
+KO expression file: escherichia_DNA.streptomycin_mock_RNA.final.pool.norm.ko.txt
+Graph name: escherichia_mock
+KEGG ortholog nodes: 49
+Substrate nodes: 160
+Probability distribution generated: yes
+Permutations: 1000
+Duration: 0 seconds
