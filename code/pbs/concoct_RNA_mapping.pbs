@@ -47,6 +47,7 @@ module load samtools
 samtools view -h -o ${cluster}_DNA.${metatranscriptome}_RNA.sort.merge.sort.sam ${cluster}_DNA.${metatranscriptome}_RNA.sort.merge.sort.bam
 python /nfs/turbo/pschloss/matt/home/scripts/rmdup_SQ.py ${cluster}_DNA.${metatranscriptome}_RNA.sort.merge.sort.sam ${cluster}_DNA.${metatranscriptome}_RNA.sort.merge.sort.rmsq.sam
 samtools view -bS ${cluster}_DNA.${metatranscriptome}_RNA.sort.merge.sort.rmsq.sam > ${cluster}_DNA.${metatranscriptome}_RNA.sort.merge.sort.rmsq.bam
+rm ${cluster}_DNA.${metatranscriptome}_RNA.sort.merge.sort.sam ${cluster}_DNA.${metatranscriptome}_RNA.sort.merge.sort.rmsq.sam
 
 # Remove PCR duplicates and sort
 java -Xmx2g -jar /nfs/turbo/pschloss/matt/bin/picard-tools-1.119/MarkDuplicates.jar \
