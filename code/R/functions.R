@@ -3,7 +3,7 @@
 setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/')
 
 # Load dependencies
-deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'igraph')
+deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);

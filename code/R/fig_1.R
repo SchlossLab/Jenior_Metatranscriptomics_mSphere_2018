@@ -52,6 +52,7 @@ size <- ceiling(min(rowSums(shared_otu)) * 0.9)
 #size <- 10000
 #shared_otu <- shared_otu[rowSums(shared_otu) >= size,]
 shared_otu <- rrarefy(shared_otu, size)
+shared_otu <- filter_table(shared_otu) # filter shared
 metadata_shared_otu <- clean_merge(metadata, shared_otu)
 cef_shared_otu <- subset(metadata_shared_otu, abx == 'cefoperazone')
 cef_shared_otu$abx <- NULL
@@ -64,11 +65,6 @@ clinda_shared_otu$abx <- NULL
 clinda_shared_otu$susceptibility <- NULL
 rm(metadata_shared_otu, shared_otu)
 
-# Filter OTUs and convert to relative abundance
-cef_shared_otu <- filter_table(cef_shared_otu)
-strep_shared_otu <- filter_table(strep_shared_otu)
-clinda_shared_otu <- filter_table(clinda_shared_otu)
-
 # Transform abundances
 #cef_shared_otu[,2:ncol(cef_shared_otu)] <- (cef_shared_otu[,2:ncol(cef_shared_otu)] / rowSums(cef_shared_otu[,2:ncol(cef_shared_otu)])) * 100
 #strep_shared_otu[,2:ncol(strep_shared_otu)] <- (strep_shared_otu[,2:ncol(strep_shared_otu)] / rowSums(strep_shared_otu[,2:ncol(strep_shared_otu)])) * 100
@@ -77,7 +73,7 @@ cef_shared_otu[,2:ncol(cef_shared_otu)] <- log10(cef_shared_otu[,2:ncol(cef_shar
 strep_shared_otu[,2:ncol(strep_shared_otu)] <- log10(strep_shared_otu[,2:ncol(strep_shared_otu)] + 1) 
 clinda_shared_otu[,2:ncol(clinda_shared_otu)] <- log10(clinda_shared_otu[,2:ncol(clinda_shared_otu)] + 1) 
 
-# Filter for significant OTUs by Wilcoxon
+# Subset and filter for significant OTUs by Wilcoxon
 # Cef
 cef_infected_otu <- subset(cef_shared_otu, infection == '630')
 cef_infected_otu$infection <- NULL

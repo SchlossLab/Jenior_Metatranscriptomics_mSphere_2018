@@ -54,7 +54,6 @@ rm(sub_sample)
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Calculate axes
-
 # Community structure - all
 otu_nmds <- metaMDS(shared_otu, k=2, trymax=100, distance='bray')$points
 otu_nmds <- clean_merge(metadata, otu_nmds)
@@ -97,14 +96,37 @@ strep_otu <- shared_otu[rownames(shared_otu) %in% c('StrepC1M1','StrepC1M2','Str
                                                     'StrepC2M1','StrepC2M2','StrepC2M3',
                                                     'StrepC3M1','StrepC3M2','StrepC3M3',
                                                     'StrepC4M1','StrepC4M2','StrepC4M3',
-                                                    'StrepC5M1','ClindaC5M2','ClindaC5M3',
+                                                    'StrepC5M1','StrepC5M2','StrepC5M3',
                                                     'StrepC6M1','StrepC6M2','StrepC6M3'), ]
 
-# Filter out 0 sum columns
-abx_otu <- filter_table(abx_otu)
-cef_otu <- filter_table(cef_otu)
-clinda_otu <- filter_table(clinda_otu)
-strep_otu <- filter_table(strep_otu)
+# Calculate inv-Simpson diversity
+cef_infected <- shared_otu[rownames(cef_otu) %in% c('CefC1M1','CefC1M2','CefC1M3',
+                                                    'CefC2M1','CefC2M2','CefC2M3',
+                                                    'CefC3M1','CefC3M2','CefC3M3'), ]
+cef_mock <- shared_otu[rownames(cef_otu) %in% c('CefC4M1','CefC4M2','CefC4M3',
+                                                'CefC5M1','CefC5M2','CefC5M3',
+                                                'CefC6M1','CefC6M2','CefC6M3'), ]
+cef_infected_diversity <- diversity(cef_infected, 'invsimpson') 
+cef_mock_diversity <- diversity(cef_mock, 'invsimpson')
+clinda_infected <- shared_otu[rownames(clinda_otu) %in% c('ClindaC1M1','ClindaC1M2','ClindaC1M3',
+                                                          'ClindaC2M1','ClindaC2M2','ClindaC2M3',
+                                                          'ClindaC3M1','ClindaC3M2','ClindaC3M3'), ]
+clinda_mock <- shared_otu[rownames(clinda_otu) %in% c('ClindaC4M1','ClindaC4M2','ClindaC4M3',
+                                                      'ClindaC5M1','ClindaC5M2','ClindaC5M3',
+                                                      'ClindaC6M1','ClindaC6M2','ClindaC6M3'), ]
+clinda_infected_diversity <- diversity(clinda_infected, 'invsimpson')
+clinda_mock_diversity <- diversity(clinda_mock, 'invsimpson')
+strep_infected <- shared_otu[rownames(strep_otu) %in% c('StrepC1M1','StrepC1M2','StrepC1M3',
+                                                        'StrepC2M1','StrepC2M2','StrepC2M3',
+                                                        'StrepC3M1','StrepC3M2','StrepC3M3'), ]
+strep_mock <- shared_otu[rownames(strep_otu) %in% c('StrepC4M1','StrepC4M2','StrepC4M3',
+                                                    'StrepC5M1','StrepC5M2','StrepC5M3',
+                                                    'StrepC6M1','StrepC6M2','StrepC6M3'), ]
+strep_infected_diversity <- diversity(strep_infected, 'invsimpson')
+strep_mock_diversity <- diversity(strep_mock, 'invsimpson')
+noabx_otu <- shared_otu[rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
+                                                    'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ]
+noabx_diversity <- diversity(noabx_otu, 'invsimpson')
 
 # Calculate axes and merge with metadata
 abx_otu_nmds <- metaMDS(abx_otu, k=2, trymax=100)$points
@@ -161,10 +183,11 @@ strep_otu_centoids <- aggregate(cbind(strep_otu_nmds$MDS1,strep_otu_nmds$MDS2)~s
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
-pdf(file=plot_file, width=12, height=8)
+pdf(file=plot_file, width=12, height=12)
 layout(matrix(c(1,2,3,
-                4,5,6),
-              nrow=2, ncol=3, byrow=TRUE))
+                4,5,6,
+                7,7,7),
+              nrow=3, ncol=3, byrow=TRUE))
 par(mar=c(4,4,1,1), las=1, mgp=c(2.5,0.75,0), xaxs='i', yaxs='i')
 
 #-------------------#
@@ -258,6 +281,16 @@ legend('top', legend=c('Streptomycin-pretreated','Cefoperzone-pretreated','Clind
        pt.bg=c(strep_col,cef_col,clinda_col, noabx_col), pch=22, cex=1.5, pt.cex=2.7)
 legend('bottom', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
        col='black', pch=c(16,17), cex=1.5, pt.cex=c(2.5,2.2))
+
+#-------------------#
+
+# Diversity
+
+
+# Strip chart of diversity
+
+mtext('f', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
+
 
 dev.off()
 
