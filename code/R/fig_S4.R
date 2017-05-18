@@ -100,7 +100,7 @@ strep_metabolome <- metabolome[rownames(metabolome) %in% c('StrepC1M1','StrepC1M
                                                     'StrepC2M1','StrepC2M2','StrepC2M3',
                                                     'StrepC3M1','StrepC3M2','StrepC3M3',
                                                     'StrepC4M1','StrepC4M2','StrepC4M3',
-                                                    'StrepC5M1','ClindaC5M2','ClindaC5M3',
+                                                    'StrepC5M1','StrepC5M2','StrepC5M3',
                                                     'StrepC6M1','StrepC6M2','StrepC6M3'), ]
 
 # Calculate axes and merge with metadata
@@ -237,14 +237,14 @@ legend('bottomright', legend=c('Mock vs Infected:',
 #-------------------#
 
 # Clindamycin
-plot(x=clinda_metabolome_nmds$MDS1, y=clinda_metabolome_nmds$MDS2, xlim=c(-0.2,0.1), ylim=c(-0.1,0.1),
+plot(x=clinda_metabolome_nmds$MDS1-0.075, y=clinda_metabolome_nmds$MDS2, xlim=c(-0.15,0.15), ylim=c(-0.1,0.1),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
 mtext('e', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='Clindamycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
-segments(x0=clinda_metabolome_nmds_630$MDS1, y0=clinda_metabolome_nmds_630$MDS2, x1=clinda_metabolome_centoids[1,2], y1=clinda_metabolome_centoids[1,3], col='gray30')
-segments(x0=clinda_metabolome_nmds_mock$MDS1, y0=clinda_metabolome_nmds_mock$MDS2, x1=clinda_metabolome_centoids[2,2], y1=clinda_metabolome_centoids[2,3], col='gray30')
-points(x=clinda_metabolome_nmds_630$MDS1, y=clinda_metabolome_nmds_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
-points(x=clinda_metabolome_nmds_mock$MDS1, y=clinda_metabolome_nmds_mock$MDS2, bg=clinda_col, pch=24, cex=2, lwd=1.2)
+segments(x0=clinda_metabolome_nmds_630$MDS1-0.075, y0=clinda_metabolome_nmds_630$MDS2, x1=clinda_metabolome_centoids[1,2]-0.075, y1=clinda_metabolome_centoids[1,3], col='gray30')
+segments(x0=clinda_metabolome_nmds_mock$MDS1-0.0751, y0=clinda_metabolome_nmds_mock$MDS2, x1=clinda_metabolome_centoids[2,2]-0.075, y1=clinda_metabolome_centoids[2,3], col='gray30')
+points(x=clinda_metabolome_nmds_630$MDS1-0.075, y=clinda_metabolome_nmds_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
+points(x=clinda_metabolome_nmds_mock$MDS1-0.075, y=clinda_metabolome_nmds_mock$MDS2, bg=clinda_col, pch=24, cex=2, lwd=1.2)
 legend('bottomright', legend=c('Mock vs Infected:',
                                as.expression(bquote(paste(italic('R'),' = ',.(clinda_metabolome_r)))),
                                as.expression(bquote(paste(italic('p'),' = ',.(clinda_metabolome_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')

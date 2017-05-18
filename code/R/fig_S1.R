@@ -100,33 +100,42 @@ strep_otu <- shared_otu[rownames(shared_otu) %in% c('StrepC1M1','StrepC1M2','Str
                                                     'StrepC6M1','StrepC6M2','StrepC6M3'), ]
 
 # Calculate inv-Simpson diversity
-cef_infected <- shared_otu[rownames(cef_otu) %in% c('CefC1M1','CefC1M2','CefC1M3',
+cef_infected_diversity <- diversity(cef_otu[rownames(cef_otu) %in% c('CefC1M1','CefC1M2','CefC1M3',
                                                     'CefC2M1','CefC2M2','CefC2M3',
-                                                    'CefC3M1','CefC3M2','CefC3M3'), ]
-cef_mock <- shared_otu[rownames(cef_otu) %in% c('CefC4M1','CefC4M2','CefC4M3',
+                                                    'CefC3M1','CefC3M2','CefC3M3'), ], 'invsimpson')
+cef_mock_diversity <- diversity(cef_otu[rownames(cef_otu) %in% c('CefC4M1','CefC4M2','CefC4M3',
                                                 'CefC5M1','CefC5M2','CefC5M3',
-                                                'CefC6M1','CefC6M2','CefC6M3'), ]
-cef_infected_diversity <- diversity(cef_infected, 'invsimpson') 
-cef_mock_diversity <- diversity(cef_mock, 'invsimpson')
-clinda_infected <- shared_otu[rownames(clinda_otu) %in% c('ClindaC1M1','ClindaC1M2','ClindaC1M3',
+                                                'CefC6M1','CefC6M2','CefC6M3'), ], 'invsimpson')
+clinda_infected_diversity <- diversity(clinda_otu[rownames(clinda_otu) %in% c('ClindaC1M1','ClindaC1M2','ClindaC1M3',
                                                           'ClindaC2M1','ClindaC2M2','ClindaC2M3',
-                                                          'ClindaC3M1','ClindaC3M2','ClindaC3M3'), ]
-clinda_mock <- shared_otu[rownames(clinda_otu) %in% c('ClindaC4M1','ClindaC4M2','ClindaC4M3',
+                                                          'ClindaC3M1','ClindaC3M2','ClindaC3M3'), ], 'invsimpson')
+clinda_mock_diversity <- diversity(clinda_otu[rownames(clinda_otu) %in% c('ClindaC4M1','ClindaC4M2','ClindaC4M3',
                                                       'ClindaC5M1','ClindaC5M2','ClindaC5M3',
-                                                      'ClindaC6M1','ClindaC6M2','ClindaC6M3'), ]
-clinda_infected_diversity <- diversity(clinda_infected, 'invsimpson')
-clinda_mock_diversity <- diversity(clinda_mock, 'invsimpson')
-strep_infected <- shared_otu[rownames(strep_otu) %in% c('StrepC1M1','StrepC1M2','StrepC1M3',
+                                                      'ClindaC6M1','ClindaC6M2','ClindaC6M3'), ], 'invsimpson')
+strep_infected_diversity <- diversity(strep_otu[rownames(strep_otu) %in% c('StrepC1M1','StrepC1M2','StrepC1M3',
                                                         'StrepC2M1','StrepC2M2','StrepC2M3',
-                                                        'StrepC3M1','StrepC3M2','StrepC3M3'), ]
-strep_mock <- shared_otu[rownames(strep_otu) %in% c('StrepC4M1','StrepC4M2','StrepC4M3',
+                                                        'StrepC3M1','StrepC3M2','StrepC3M3'), ], 'invsimpson')
+strep_mock_diversity <- diversity(strep_otu[rownames(strep_otu) %in% c('StrepC4M1','StrepC4M2','StrepC4M3',
                                                     'StrepC5M1','StrepC5M2','StrepC5M3',
-                                                    'StrepC6M1','StrepC6M2','StrepC6M3'), ]
-strep_infected_diversity <- diversity(strep_infected, 'invsimpson')
-strep_mock_diversity <- diversity(strep_mock, 'invsimpson')
-noabx_otu <- shared_otu[rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-                                                    'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ]
-noabx_diversity <- diversity(noabx_otu, 'invsimpson')
+                                                    'StrepC6M1','StrepC6M2','StrepC6M3'), ], 'invsimpson')
+noabx_diversity <- diversity(shared_otu[rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
+                                                    'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ], 'invsimpson')
+
+# Test differences in diversity
+# Untreated vs abx
+p.adjust(c(wilcox.test(noabx_diversity, cef_infected_diversity, exact=F)$p.value,
+           wilcox.test(noabx_diversity, cef_mock_diversity, exact=F)$p.value,
+           wilcox.test(noabx_diversity, clinda_infected_diversity, exact=F)$p.value,
+           wilcox.test(noabx_diversity, clinda_mock_diversity, exact=F)$p.value,
+           wilcox.test(noabx_diversity, strep_infected_diversity, exact=F)$p.value,
+           wilcox.test(noabx_diversity, strep_mock_diversity, exact=F)$p.value), method='BH')
+# Strep
+wilcox.test(strep_infected_diversity, strep_mock_diversity, exact=F)$p.value
+# Cef
+wilcox.test(cef_infected_diversity, cef_mock_diversity, exact=F)$p.value
+# Clinda
+wilcox.test(clinda_infected_diversity, clinda_mock_diversity, exact=F)$p.value
+
 
 # Calculate axes and merge with metadata
 abx_otu_nmds <- metaMDS(abx_otu, k=2, trymax=100)$points
@@ -184,20 +193,58 @@ strep_otu_centoids <- aggregate(cbind(strep_otu_nmds$MDS1,strep_otu_nmds$MDS2)~s
 
 # Plot the figure
 pdf(file=plot_file, width=12, height=12)
-layout(matrix(c(1,2,3,
-                4,5,6,
-                7,7,7),
+layout(matrix(c(1,1,1,
+                2,3,4,
+                5,6,7),
               nrow=3, ncol=3, byrow=TRUE))
-par(mar=c(4,4,1,1), las=1, mgp=c(2.5,0.75,0), xaxs='i', yaxs='i')
 
 #-------------------#
 
-# All groups
+# Diversity
+par(mar=c(3,4,1,1), mgp=c(2.6,1,0), las=1, yaxs='i', xaxs='r')
+# No abx
+stripchart(at=0.5, noabx_diversity, xlim=c(0,10), ylim=c(0,20), vertical=TRUE, cex.axis=1.4, cex.lab=1.5,
+           pch=21, bg=noabx_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, ylab='Inv. Simpson Diversity')
+segments(x0=0.2, y0=median(noabx_diversity), x1=0.8, y1=median(noabx_diversity), lwd=2.5)
+#Strep
+stripchart(at=2.5, strep_infected_diversity, vertical=TRUE, 
+           pch=21, bg=strep_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
+segments(x0=2.2, y0=median(strep_infected_diversity), x1=2.8, y1=median(strep_infected_diversity), lwd=2.5)
+stripchart(at=3.5, strep_mock_diversity, vertical=TRUE, 
+           pch=21, bg=strep_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
+segments(x0=3.2, y0=median(strep_mock_diversity), x1=3.8, y1=median(strep_mock_diversity), lwd=2.5)
+# Cef
+stripchart(at=5.5, cef_infected_diversity, vertical=TRUE, 
+           pch=21, bg=cef_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
+segments(x0=5.2, y0=median(cef_infected_diversity), x1=5.8, y1=median(cef_infected_diversity), lwd=2.5)
+stripchart(at=6.5, cef_mock_diversity, vertical=TRUE, 
+           pch=21, bg=cef_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
+segments(x0=6.2, y0=median(cef_mock_diversity), x1=6.8, y1=median(cef_mock_diversity), lwd=2.5)
+# Clinda
+stripchart(at=8.5, clinda_infected_diversity, vertical=TRUE, 
+           pch=21, bg=clinda_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
+segments(x0=8.2, y0=median(clinda_infected_diversity), x1=8.8, y1=median(clinda_infected_diversity), lwd=2.5)
+stripchart(at=9.5, clinda_mock_diversity, vertical=TRUE, 
+           pch=21, bg=clinda_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
+segments(x0=9.2, y0=median(clinda_mock_diversity), x1=9.8, y1=median(clinda_mock_diversity), lwd=2.5)
+mtext('CDI:', side=1, at=-0.5, padj=1, cex=1.1)
+mtext(c('-','+','-','+','-','+','-'), side=1, 
+      at=c(0.5, 2.5,3.5, 5.5,6.5, 8.5,9.5), padj=1, cex=1.3)
+abline(v=c(1.5,4.5,7.5), lty=5)
+mtext('a', side=2, line=2, las=2, adj=2, padj=-10, cex=1.4, font=2)
+text(x=c(0.5, 2.5,3.5, 5.5,6.5, 8.5,9.5), y=19.5, labels='*', col=noabx_col, cex=2.5, font=2) # Significant difference fromm untreated
+segments(x0=c(5.5,8.5), y0=5, x1=c(6.5,9.5), y1=5, lwd=2.5)
+text(x=c(6,9), y=6, labels='*', cex=2.5, font=2) # Significant difference within groups
+
+#-------------------#
+
+# All groups - NMDS
+par(mar=c(4,4,1,1), las=1, mgp=c(2.5,0.75,0), xaxs='i', yaxs='i')
 plot(x=otu_nmds$MDS1, y=otu_nmds$MDS2, xlim=c(-1.5,2), ylim=c(-1.5,1.5),
      xlab='NMDS axis 1', ylab='NMDS axis 2', xaxt='n', yaxt='n', pch=19, cex=0.2)
 axis(side=1, at=seq(-1.5,2.0,0.5), labels=seq(-1.5,2.0,0.5))
 axis(side=2, at=seq(-2.0,1.5,0.5), labels=seq(-2.0,1.5,0.5))
-mtext('a', side=2, line=2, las=2, adj=2, padj=-9, cex=1.4, font=2)
+mtext('b', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='All groups', pch=1, cex=1.4, pt.cex=0, bty='n')
 points(x=otu_cefoperazone_630$MDS1, y=otu_cefoperazone_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
 points(x=otu_clindamycin_630$MDS1, y=otu_clindamycin_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
@@ -215,7 +262,7 @@ legend('bottomright', legend=c('Resistant vs Susceptible:',
 # Abx only
 plot(x=abx_otu_nmds$MDS1-0.25, y=abx_otu_nmds$MDS2, xlim=c(-1.3,1.3), ylim=c(-1.8,1.8),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('b', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
+mtext('c', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='Antibiotic pretreatments only', pch=1, cex=1.4, pt.cex=0, bty='n')
 points(x=otu_abx_cef_630$MDS1-0.25, y=otu_abx_cef_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
 points(x=otu_abx_cef_mock$MDS1-0.25, y=otu_abx_cef_mock$MDS2, bg=cef_col, pch=24, cex=2, lwd=1.2)
@@ -232,7 +279,7 @@ legend('bottomright', legend=c('Strep vs Cef vs Clinda:',
 # Streptomycin
 plot(x=strep_otu_nmds$MDS1, y=strep_otu_nmds$MDS2, xlim=c(-1.3,1.3), ylim=c(-1.8,1.8),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('c', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
+mtext('d', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='Streptomycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
 segments(x0=strep_otu_nmds_630$MDS1, y0=strep_otu_nmds_630$MDS2, x1=strep_otu_centoids[1,2], y1=strep_otu_centoids[1,3], col='gray30')
 segments(x0=strep_otu_nmds_mock$MDS1, y0=strep_otu_nmds_mock$MDS2, x1=strep_otu_centoids[2,2], y1=strep_otu_centoids[2,3], col='gray30')
@@ -247,7 +294,7 @@ legend('bottomright', legend=c('Mock vs Infected:',
 # Cefoperazone
 plot(x=cef_otu_nmds$MDS1, y=cef_otu_nmds$MDS2, xlim=c(-1.2,1.2), ylim=c(-0.8,0.8),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('d', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
+mtext('e', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='Cefoperazone-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
 segments(x0=cef_otu_nmds_630$MDS1, y0=cef_otu_nmds_630$MDS2, x1=cef_otu_centoids[1,2], y1=cef_otu_centoids[1,3], col='gray30')
 segments(x0=cef_otu_nmds_mock$MDS1, y0=cef_otu_nmds_mock$MDS2, x1=cef_otu_centoids[2,2], y1=cef_otu_centoids[2,3], col='gray30')
@@ -262,7 +309,7 @@ legend('bottomright', legend=c('Mock vs Infected:',
 # Clindamycin
 plot(x=clinda_otu_nmds$MDS1, y=clinda_otu_nmds$MDS2, xlim=c(-1.1,1.1), ylim=c(-1.2,1.2),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('e', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
+mtext('f', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='Clindamycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
 segments(x0=clinda_otu_nmds_630$MDS1, y0=clinda_otu_nmds_630$MDS2, x1=clinda_otu_centoids[1,2], y1=clinda_otu_centoids[1,3], col='gray30')
 segments(x0=clinda_otu_nmds_mock$MDS1, y0=clinda_otu_nmds_mock$MDS2, x1=clinda_otu_centoids[2,2], y1=clinda_otu_centoids[2,3], col='gray30')
@@ -275,22 +322,12 @@ legend('bottomright', legend=c('Mock vs Infected:',
 #-------------------#
 
 # Legends
-par(mar=c(8,1,6,1))
+par(mar=c(1,1,1,1))
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-5,5))
-legend('top', legend=c('Streptomycin-pretreated','Cefoperzone-pretreated','Clindamycin-pretreated','No Antibiotics'), 
-       pt.bg=c(strep_col,cef_col,clinda_col, noabx_col), pch=22, cex=1.5, pt.cex=2.7)
-legend('bottom', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
+legend(x=-3, y=3, legend=c('No Antibiotics','Streptomycin-pretreated','Cefoperzone-pretreated','Clindamycin-pretreated'), 
+       pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=22, cex=1.5, pt.cex=2.7)
+legend(x=-2.5, y=0, legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
        col='black', pch=c(16,17), cex=1.5, pt.cex=c(2.5,2.2))
-
-#-------------------#
-
-# Diversity
-
-
-# Strip chart of diversity
-
-mtext('f', side=2, line=2, las=2, adj=1.5, padj=-9, cex=1.4, font=2)
-
 
 dev.off()
 
