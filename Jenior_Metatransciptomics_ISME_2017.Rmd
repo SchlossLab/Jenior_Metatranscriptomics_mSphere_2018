@@ -390,15 +390,14 @@ Correspondence to [Patrick D. Schloss](pdschloss@umich.edu)
 
 Abx table
 
-**Figure 1 | ** Description of animal models and changes to community from abx
+**Figure 1 | Experimental models of *C. difficile* infection and their impact on bacterial populations in the gut microbiota.** **(a)** Experimental timelines of antibiotic pretreatment and infection mouse models. **(b)** Quantification of *C. difficile* cfu and toxin titer across antibiotic pretreatment models. Gray stars indicate significant difference from no antibiotic controls by Wilcoxon rank-sum test (all *p* < 0.001). **(c)** Relative abundance of family-level taxonomic classification for OTUs in each treatment group. Pair-wise Wilcoxon tests were performed for each OTU between mock and *C. difficile*-infected conditions within antibiotic pretreatment group; **(d)** streptomycin, **(e)** cefoperazone, and **(f)** clindamycin. All p-values have been corrected with the Benjamini-Hochberg procedure.
 
 
+**Figure 2 | Community-level gene expression** 
 
-**Figure 2 | ** Correlation of 16S and metabolome (species level) A) 16s nmds B) metabolome nmds C) combined analysis
+**Figure 3 | *C. difficile* colonization alters community-level gene expression differently between antibiotic pretreatements.** All points represent unique genes from metagenomic assembly and each metatranscriptome is normalized to their respective metganomic coverage. Point position is determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Points are colored based on the annotated genus of origin. **(a)** Streptomycin-pretreated, **(b)** Cefoperazone-pretreated, and **(c)** Clindamycin-pretreated. Outliers were defined by least-squared residuals analysis. **(d)** Top 5 expression of KEGG pathways in each condition.
 
-**Figure 3 | *C. difficile* colonization alters community-level gene expression differently between antibiotic pretreatements.** All points represent unique genes from metagenomic assembly and each metatranscriptome is normalized to their respective metganomic coverage. Point position is determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Points are colored based on the annotated genus of origin. **(a)** Streptomycin-pretreatment, **(b)** Cefoperazone-pretreatment, and **(c)** Clindamycon-pretreatment. Outliers were defined by least-squared residuals analysis. **(d)** Top 5 expression of KEGG pathways in each condition.
-
-**Figure 4 | ** Community-level modeling schematic
+**Figure 4 | ** Community-level modeling schematic and example interaction scores
 
 **Figure 5 | ** 
 - Most important metabolites at community level
@@ -407,9 +406,13 @@ Abx table
 
 
 
-**Supplementary Figure 1 | Rarefaction curves for reads?**
 
-**Supplementary Figure 2 | NMDS including untreated controls and within group ordinations**
+**Supplementary Figure 1 | Impact of antibiotic pretreatment and *C. difficile* infection on cecal community structure** **(a)** Inverse-Simpson diversity of cecal communities from all treatment groups. Gray stars indicate significant difference from no antibiotic controls (all *p* < 0.001). Black stars denote within treatment group significant difference between mock and *C. difficile*-infected communities. Differences were calculated using Wilcoxon rank-sum test with Benjamini-Hochberg correction. NMDS ordinations of Bray-Curtis distances comparing the groups labeled in the bottom left of each plotting area. **(b)** Antibiotic-pretreated compared to Untreated controls and **(c)** comparison between only antibiotic pretreatment groups. **(d-f)** Within antibiotic pretreatment comparisons for the effect of *C. difficile* colonization on community structure. Significant differences and correlation coefficients for ordination analyses were found using ANOSIM.
+
+
+
+**Supplementary Figure ? | Rarefaction curves for reads?**
+
 
 **Supplementary Figure 3 | **
 
