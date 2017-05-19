@@ -1,0 +1,8 @@
+User Defined Parameters
+KO expression file: escherichia_DNA.cefoperazone_mock_RNA.final.pool.norm.ko.txt
+Graph name: escherichia_mock
+KEGG ortholog nodes: 416
+Substrate nodes: 878
+Probability distribution generated: yes
+Permutations: 1000
+Duration: 4 seconds
