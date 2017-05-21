@@ -15,7 +15,7 @@ clinda_630_metagenome <- 'data/read_mapping/metagenome/clindamycin_630.Clindamyc
 clinda_mock_metagenome <- 'data/read_mapping/metagenome/clindamycin_mock.Clindamycin.metaG.final.pool.norm.txt'
 strep_630_metagenome <- 'data/read_mapping/metagenome/streptomycin_630.Streptomycin.metaG.final.pool.norm.txt'
 strep_mock_metagenome <- 'data/read_mapping/metagenome/streptomycin_mock.Streptomycin.metaG.final.pool.norm.txt'
-noabx_mock_metagenome <- 'data/read_mapping/metagenome/conventional.Conventional.metaG.final.pool.norm.txt'
+noabx_mock_metagenome <- 'data/read_mapping/metagenome/conventional_mock.Conventional.metaG.final.pool.norm.txt'
 # Metatranscriptomes
 cef_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/cefoperazone_630.Cefoperazone.metaT.final.pool.norm.txt'
 cef_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/cefoperazone_mock.Cefoperazone.metaT.final.pool.norm.txt'
@@ -31,71 +31,37 @@ noabx_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/conventiona
 
 # Metagenomes
 cef_630_metagenome <- read.delim(cef_630_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(cef_630_metagenome) <- c('cef_630_metaG_reads', 'ko', 'gene', 'pathway')
+colnames(cef_630_metagenome) <- c('cef_630_metaG_reads')
 cef_mock_metagenome <- read.delim(cef_mock_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(cef_mock_metagenome) <- c('cef_mock_metaG_reads', 'ko', 'gene', 'pathway')
+colnames(cef_mock_metagenome) <- c('cef_mock_metaG_reads')
 clinda_630_metagenome <- read.delim(clinda_630_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(clinda_630_metagenome) <- c('clinda_630_metaG_reads', 'ko', 'gene', 'pathway')
+colnames(clinda_630_metagenome) <- c('clinda_630_metaG_reads')
 clinda_mock_metagenome <- read.delim(clinda_mock_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(clinda_mock_metagenome) <- c('clinda_mock_metaG_reads', 'ko', 'gene', 'pathway')
+colnames(clinda_mock_metagenome) <- c('clinda_mock_metaG_reads')
 strep_630_metagenome <- read.delim(strep_630_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(strep_630_metagenome) <- c('strep_630_metaG_reads', 'ko', 'gene', 'pathway')
+colnames(strep_630_metagenome) <- c('strep_630_metaG_reads')
 strep_mock_metagenome <- read.delim(strep_mock_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(strep_mock_metagenome) <- c('strep_mock_metaG_reads', 'ko', 'gene', 'pathway')
+colnames(strep_mock_metagenome) <- c('strep_mock_metaG_reads')
 noabx_mock_metagenome <- read.delim(noabx_mock_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(noabx_mock_metagenome) <- c('noabx_mock_metaG_reads', 'ko', 'gene', 'pathway')
+colnames(noabx_mock_metagenome) <- c('noabx_mock_metaG_reads')
 
 # Metatranscriptomes
 cef_630_metatranscriptome <- read.delim(cef_630_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(cef_630_metatranscriptome) <- c('cef_630_metaT_reads', 'ko', 'gene', 'pathway')
+colnames(cef_630_metatranscriptome) <- c('cef_630_metaT_reads')
 cef_mock_metatranscriptome <- read.delim(cef_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(cef_mock_metatranscriptome) <- c('cef_mock_metaT_reads', 'ko', 'gene', 'pathway')
+colnames(cef_mock_metatranscriptome) <- c('cef_mock_metaT_reads')
 clinda_630_metatranscriptome <- read.delim(clinda_630_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(clinda_630_metatranscriptome) <- c('clinda_630_metaT_reads', 'ko', 'gene', 'pathway')
+colnames(clinda_630_metatranscriptome) <- c('clinda_630_metaT_reads')
 clinda_mock_metatranscriptome <- read.delim(clinda_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(clinda_mock_metatranscriptome) <- c('clinda_mock_metaT_reads', 'ko', 'gene', 'pathway')
+colnames(clinda_mock_metatranscriptome) <- c('clinda_mock_metaT_reads')
 strep_630_metatranscriptome <- read.delim(strep_630_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(strep_630_metatranscriptome) <- c('strep_630_metaT_reads', 'ko', 'gene', 'pathway')
+colnames(strep_630_metatranscriptome) <- c('strep_630_metaT_reads')
 strep_mock_metatranscriptome <- read.delim(strep_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(strep_mock_metatranscriptome) <- c('strep_mock_metaT_reads', 'ko', 'gene', 'pathway')
-noabx_metatranscriptome <- read.delim(noabx_metatranscriptome, sep='\t', header=FALSE, row.names=1)
-colnames(noabx_metatranscriptome) <- c('noabx_metaT_reads', 'ko', 'gene', 'pathway')
+colnames(strep_mock_metatranscriptome) <- c('strep_mock_metaT_reads')
+noabx_mock_metatranscriptome <- read.delim(noabx_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1)
+colnames(noabx_mock_metatranscriptome) <- c('noabx_mock_metaT_reads')
 
 #-------------------------------------------------------------------------------------------------------------------------#
-
-# Format metagenomic data for merging
-cef_630_metagenome$ko <- NULL
-cef_630_metagenome$gene <- NULL
-cef_630_metagenome$pathway <- NULL
-cef_mock_metagenome$ko <- NULL
-cef_mock_metagenome$gene <- NULL
-cef_mock_metagenome$pathway <- NULL
-clinda_630_metagenome$ko <- NULL
-clinda_630_metagenome$gene <- NULL
-clinda_630_metagenome$pathway <- NULL
-clinda_mock_metagenome$ko <- NULL
-clinda_mock_metagenome$gene <- NULL
-clinda_mock_metagenome$pathway <- NULL
-strep_630_metagenome$ko <- NULL
-strep_630_metagenome$gene <- NULL
-strep_630_metagenome$pathway <- NULL
-strep_mock_metagenome$ko <- NULL
-strep_mock_metagenome$gene <- NULL
-strep_mock_metagenome$pathway <- NULL
-noabx_mock_metagenome$ko <- NULL
-noabx_mock_metagenome$gene <- NULL
-noabx_mock_metagenome$pathway <- NULL
-
-# Format metatranscriptomic data for merging
-cef_630_metatranscriptome$ko <- NULL
-cef_630_metatranscriptome$gene <- NULL
-cef_630_metatranscriptome$pathway <- NULL
-clinda_630_metatranscriptome$ko <- NULL
-clinda_630_metatranscriptome$gene <- NULL
-clinda_630_metatranscriptome$pathway <- NULL
-strep_630_metatranscriptome$ko <- NULL
-strep_630_metatranscriptome$gene <- NULL
-strep_630_metatranscriptome$pathway <- NULL
 
 # Merge metagenomic and metatranscriptomic data
 cef_raw_reads <- clean_merge(cef_630_metagenome, cef_mock_metagenome)
@@ -112,16 +78,8 @@ noabx_raw_reads <- clean_merge(noabx_mock_metagenome, noabx_mock_metatranscripto
 rm(cef_630_metagenome, clinda_630_metagenome, strep_630_metagenome, 
    cef_mock_metagenome, clinda_mock_metagenome, strep_mock_metagenome,
    cef_630_metatranscriptome, cef_mock_metatranscriptome, clinda_630_metatranscriptome, 
-   clinda_mock_metatranscriptome, strep_630_metatranscriptome, strep_mock_metatranscriptome)
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Remove residual C. difficile 630 mappings
-#c('cdf:CD', 'cdc:CD', 'cdg:CD', 'cdl:CD') # All C. diff strains
-cef_raw_reads <- cef_raw_reads[!rownames(cef_raw_reads) %in% rownames(cef_raw_reads[grep('cdf:', rownames(cef_raw_reads)),]), ]
-clinda_raw_reads <- clinda_raw_reads[!rownames(clinda_raw_reads) %in% rownames(clinda_raw_reads[grep('cdf:', rownames(clinda_raw_reads)),]), ]
-strep_raw_reads <- strep_raw_reads[!rownames(strep_raw_reads) %in% rownames(strep_raw_reads[grep('cdf:', rownames(strep_raw_reads)),]), ]
-noabx_raw_reads <- noabx_raw_reads[!rownames(noabx_raw_reads) %in% rownames(noabx_raw_reads[grep('cdf:', rownames(noabx_raw_reads)),]), ]
+   clinda_mock_metatranscriptome, strep_630_metatranscriptome, strep_mock_metatranscriptome,
+   noabx_mock_metagenome, noabx_mock_metatranscriptome)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -129,7 +87,7 @@ noabx_raw_reads <- noabx_raw_reads[!rownames(noabx_raw_reads) %in% rownames(noab
 cef_raw_reads <- subset(cef_raw_reads, cef_630_metaG_reads != 0 & cef_mock_metaG_reads != 0)
 clinda_raw_reads <- subset(clinda_raw_reads, clinda_630_metaG_reads != 0 & clinda_mock_metaG_reads != 0)
 strep_raw_reads <- subset(strep_raw_reads, strep_630_metaG_reads != 0 & strep_mock_metaG_reads != 0)
-noabx_raw_reads <- subset(noabx_raw_reads, noabx_metaG_reads != 0)
+noabx_raw_reads <- subset(noabx_raw_reads, noabx_mock_metaG_reads != 0)
 
 # Rarefy read abundances for metagenomes + metatranscriptomes
 cef_size <- round(min(colSums(cef_raw_reads[,c(1:4)]))*0.95) # Determine subsample level
@@ -148,8 +106,8 @@ strep_raw_reads$strep_mock_metaG_reads <- t(rrarefy(strep_raw_reads$strep_mock_m
 strep_raw_reads$strep_630_metaT_reads <- t(rrarefy(strep_raw_reads$strep_630_metaT_reads, sample=strep_size)) + 1
 strep_raw_reads$strep_mock_metaT_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaT_reads, sample=strep_size)) + 1
 noabx_size <- round(min(colSums(noabx_raw_reads[,c(1:2)]))*0.95) # Determine subsample level
-noabx_raw_reads$noabx_metaG_reads <- t(rrarefy(noabx_raw_reads$noabx_metaG_reads, sample=noabx_size)) + 1
-noabx_raw_reads$noabx_metaT_reads <- t(rrarefy(noabx_raw_reads$noabx_metaT_reads, sample=noabx_size)) + 1
+noabx_raw_reads$noabx_mock_metaG_reads <- t(rrarefy(noabx_raw_reads$noabx_mock_metaG_reads, sample=noabx_size)) + 1
+noabx_raw_reads$noabx_mock_metaT_reads <- t(rrarefy(noabx_raw_reads$noabx_mock_metaT_reads, sample=noabx_size)) + 1
 
 # Normalize metatranscriptomes to metagenomic coverage
 cef_raw_reads$cef_630_metaT_reads <- cef_raw_reads$cef_630_metaT_reads / cef_raw_reads$cef_630_metaG_reads
@@ -164,33 +122,26 @@ strep_raw_reads$strep_630_metaT_reads <- strep_raw_reads$strep_630_metaT_reads /
 strep_raw_reads$strep_mock_metaT_reads <- strep_raw_reads$strep_mock_metaT_reads / strep_raw_reads$strep_mock_metaG_reads
 strep_raw_reads$strep_630_metaG_reads <- NULL
 strep_raw_reads$strep_mock_metaG_reads <- NULL
-noabx_raw_reads$noabx_metaT_reads <- noabx_raw_reads$noabx_metaT_reads / noabx_raw_reads$noabx_metaG_reads
-noabx_raw_reads$noabx_metaG_reads <- NULL
+noabx_raw_reads$noabx_mock_metaT_reads <- noabx_raw_reads$noabx_mock_metaT_reads / noabx_raw_reads$noabx_mock_metaG_reads
+noabx_raw_reads$noabx_mock_metaG_reads <- NULL
 
 # Log2 transform the data
-cef_raw_reads[,c(1,2)] <- log2(cef_raw_reads[,c(1,2)])
-clinda_raw_reads[,c(1,2)] <- log2(clinda_raw_reads[,c(1,2)])
-strep_raw_reads[,c(1,2)] <- log2(strep_raw_reads[,c(1,2)])
-noabx_raw_reads[,1] <- log2(noabx_raw_reads[,1])
-
-# Screen for active transcription in either condition
-cef_final_reads <- subset(cef_raw_reads, cef_raw_reads$cef_630_metaT_reads > 0 | cef_raw_reads$cef_mock_metaT_reads > 0)
-clinda_final_reads <- subset(clinda_raw_reads, clinda_raw_reads$clinda_630_metaT_reads > 0 | clinda_raw_reads$clinda_mock_metaT_reads > 0)
-strep_final_reads <- subset(strep_raw_reads, strep_raw_reads$strep_630_metaT_reads > 0 | strep_raw_reads$strep_mock_metaT_reads > 0)
-noabx_final_reads <- subset(noabx_raw_reads, noabx_raw_reads$noabx_metaT_reads > 0)
-rm(cef_raw_reads, clinda_raw_reads, strep_raw_reads, noabx_raw_reads)
+cef_raw_reads[,c(1,2)] <- log2(cef_raw_reads[,c(1,2)] + 1)
+clinda_raw_reads[,c(1,2)] <- log2(clinda_raw_reads[,c(1,2)] + 1)
+strep_raw_reads[,c(1,2)] <- log2(strep_raw_reads[,c(1,2)] + 1)
+noabx_raw_reads[,1] <- log2(noabx_raw_reads[,1] + 1)
 
 # Move row names to column
-cef_final_reads$kegg_id <- rownames(cef_final_reads)
-clinda_final_reads$kegg_id <- rownames(clinda_final_reads)
-strep_final_reads$kegg_id <- rownames(strep_final_reads)
-noabx_final_reads$kegg_id <- rownames(noabx_final_reads)
+cef_raw_reads$kegg_hit <- rownames(cef_raw_reads)
+clinda_raw_reads$kegg_hit <- rownames(clinda_raw_reads)
+strep_raw_reads$kegg_hit <- rownames(strep_raw_reads)
+noabx_raw_reads$kegg_hit <- rownames(noabx_raw_reads)
 
 # Write raw reads to files
-write.table(cef_final_reads, file='data/read_mapping/cef_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-write.table(clinda_final_reads, file='data/read_mapping/clinda_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-write.table(strep_final_reads, file='data/read_mapping/strep_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-write.table(noabx_final_reads, file='data/read_mapping/noabx_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(cef_raw_reads, file='data/read_mapping/cef_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(clinda_raw_reads, file='data/read_mapping/clinda_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(strep_raw_reads, file='data/read_mapping/strep_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+write.table(noabx_raw_reads, file='data/read_mapping/noabx_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)
 
 # Clean up
 setwd(starting_dir)
