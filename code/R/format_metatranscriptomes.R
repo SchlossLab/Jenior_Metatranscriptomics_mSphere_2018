@@ -25,6 +25,13 @@ strep_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin
 strep_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_mock.Streptomycin.metaT.final.pool.norm.txt'
 noabx_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/conventional.Conventional.metaT.final.pool.norm.txt'
 
+# KEGG infomation
+
+
+
+
+
+
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Read in data
