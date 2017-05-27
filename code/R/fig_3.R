@@ -10,9 +10,9 @@ source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.
 # Define files
 
 # Normalized Metatranscriptomes
-cef_normalized_reads <- 'data/read_mapping/cef_normalized.tsv'
-clinda_normalized_reads <- 'data/read_mapping/clinda_normalized.tsv'
-strep_normalized_reads <- 'data/read_mapping/strep_normalized.tsv'
+cef_normalized_reads <- 'data/read_mapping/cef_normalized_metaT.tsv'
+clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
+strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
 
 # KEGG taxonomy IDs
 kegg_tax <- 'data/kegg_taxonomy.tsv'
@@ -21,16 +21,16 @@ kegg_tax <- 'data/kegg_taxonomy.tsv'
 tax_colors <- 'data/taxonomy_color.tsv'
 
 # Output plot
-plot_file <- 'results/figures/figure_3.pdf'
+plot_file <- 'results/figures/figure_3.tiff'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Read in data
 
 # Normalized Metatranscriptomes
-cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, row.names=6)
-clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, row.names=6)
-strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, row.names=6)
+cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, row.names=7)
+clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, row.names=7)
+strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, row.names=7)
 
 # KEGG organism file
 kegg_tax <- read.delim(kegg_tax, sep='\t', header=TRUE)
@@ -68,36 +68,9 @@ cef_annotated <- cef_annotated[!row.names(cef_annotated) %in% row.names(cef_mock
 clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_630_outliers), ]
 clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_mock_outliers), ]
 
-# Combine groups of outliers for pathway analysis
-strep_pathways <- rbind(strep_630_outliers, strep_mock_outliers)
-cef_pathways <- rbind(cef_630_outliers, cef_mock_outliers)
-clinda_pathways <- rbind(clinda_630_outliers, clinda_mock_outliers)
-
-# Grab those genes with pathway annotations
-strep_pathways <- subset(strep_pathways, pathway != 'none')
-cef_pathways <- subset(cef_pathways, pathway != 'none')
-clinda_pathways <- subset(clinda_pathways, pathway != 'none')
-
-# Save KEGG ID names
-strep_pathways$kegg_id <- rownames(strep_pathways)
-cef_pathways$kegg_id <- rownames(cef_pathways)
-clinda_pathways$kegg_id <- rownames(clinda_pathways)
-rm(strep_pathways, cef_pathways, clinda_pathways)
-
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Break down outliers into taxonomic groups
-
-# Split out origin organism code - outliers
-strep_630_outliers <- get_kegg_org(strep_630_outliers)
-strep_mock_outliers <- get_kegg_org(strep_mock_outliers)
-cef_630_outliers <- get_kegg_org(cef_630_outliers)
-cef_mock_outliers <- get_kegg_org(cef_mock_outliers)
-clinda_630_outliers <- get_kegg_org(clinda_630_outliers)
-clinda_mock_outliers <- get_kegg_org(clinda_mock_outliers)
-strep_annotated <- get_kegg_org(strep_annotated)
-cef_annotated <- get_kegg_org(cef_annotated)
-clinda_annotated <- get_kegg_org(clinda_annotated)
 
 # Drop levels
 strep_630_outliers[] <- lapply(strep_630_outliers, as.character)
@@ -110,19 +83,33 @@ strep_annotated[] <- lapply(strep_annotated, as.character)
 cef_annotated[] <- lapply(cef_annotated, as.character)
 clinda_annotated[] <- lapply(clinda_annotated, as.character)
 
-# Remove all possible animal genes
-org_omit <- c('fab','cfa','ggo','hgl','hsa','mcc','mdo','pon','aml',
+# Remove all possible mammalian genes
+mamm_omit <- c('fab','cfa','ggo','hgl','hsa','mcc','mdo','pon','aml',
               'ptr','rno','shr','ssc','aml','bta','cge','ecb',
               'pps','fca','mmu','oaa','gga','ola','acs','aga')
-strep_630_outliers <- subset(strep_630_outliers, !(org_code %in% org_omit))
-strep_mock_outliers <- subset(strep_mock_outliers, !(org_code %in% org_omit))
-cef_630_outliers <- subset(cef_630_outliers, !(org_code %in% org_omit))
-cef_mock_outliers <- subset(cef_mock_outliers, !(org_code %in% org_omit))
-clinda_630_outliers <- subset(clinda_630_outliers, !(org_code %in% org_omit))
-clinda_mock_outliers <- subset(clinda_mock_outliers, !(org_code %in% org_omit))
-strep_annotated <- subset(strep_annotated, !(org_code %in% org_omit))
-cef_annotated <- subset(cef_annotated, !(org_code %in% org_omit))
-clinda_annotated <- subset(clinda_annotated, !(org_code %in% org_omit))
+strep_630_outliers <- subset(strep_630_outliers, !(strep_630_outliers$organism %in% mamm_omit))
+strep_mock_outliers <- subset(strep_mock_outliers, !(strep_mock_outliers$organism %in% mamm_omit))
+cef_630_outliers <- subset(cef_630_outliers, !(cef_630_outliers$organism %in% mamm_omit))
+cef_mock_outliers <- subset(cef_mock_outliers, !(cef_mock_outliers$organism %in% mamm_omit))
+clinda_630_outliers <- subset(clinda_630_outliers, !(clinda_630_outliers$organism %in% mamm_omit))
+clinda_mock_outliers <- subset(clinda_mock_outliers, !(clinda_mock_outliers$organism %in% mamm_omit))
+strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% mamm_omit))
+cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% mamm_omit))
+clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% mamm_omit))
+rm(mamm_omit)
+
+# Remove any C. difficile genes with transcription only in infected
+cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
+strep_630_outliers <- subset(strep_630_outliers, !(strep_630_outliers$organism %in% cdiff_omit))
+strep_mock_outliers <- subset(strep_mock_outliers, !(strep_mock_outliers$organism %in% cdiff_omit))
+cef_630_outliers <- subset(cef_630_outliers, !(cef_630_outliers$organism %in% cdiff_omit))
+cef_mock_outliers <- subset(cef_mock_outliers, !(cef_mock_outliers$organism %in% cdiff_omit))
+clinda_630_outliers <- subset(clinda_630_outliers, !(clinda_630_outliers$organism %in% cdiff_omit))
+clinda_mock_outliers <- subset(clinda_mock_outliers, !(clinda_mock_outliers$organism %in% cdiff_omit))
+strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% cdiff_omit))
+cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% cdiff_omit))
+clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% cdiff_omit))
+rm(cdiff_omit)
 
 # Save KEGG ID names
 strep_630_outliers$kegg_id <- rownames(strep_630_outliers)
@@ -136,39 +123,39 @@ cef_annotated$kegg_id <- rownames(cef_annotated)
 clinda_annotated$kegg_id <- rownames(clinda_annotated)
 
 # Merge with KEGG taxonomy
-strep_630_outliers <- merge(x=strep_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
+strep_630_outliers <- merge(x=strep_630_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
 strep_630_outliers$org_code <- NULL
 strep_630_outliers$strep_630_metaT_reads <- as.numeric(strep_630_outliers$strep_630_metaT_reads)
 strep_630_outliers$strep_mock_metaT_reads <- as.numeric(strep_630_outliers$strep_mock_metaT_reads)
-strep_mock_outliers <- merge(x=strep_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
+strep_mock_outliers <- merge(x=strep_mock_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
 strep_mock_outliers$org_code <- NULL
 strep_mock_outliers$strep_630_metaT_reads <- as.numeric(strep_mock_outliers$strep_630_metaT_reads)
 strep_mock_outliers$strep_mock_metaT_reads <- as.numeric(strep_mock_outliers$strep_mock_metaT_reads)
-cef_630_outliers <- merge(x=cef_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
+cef_630_outliers <- merge(x=cef_630_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
 cef_630_outliers$org_code <- NULL
 cef_630_outliers$cef_630_metaT_reads <- as.numeric(cef_630_outliers$cef_630_metaT_reads)
 cef_630_outliers$cef_mock_metaT_reads <- as.numeric(cef_630_outliers$cef_mock_metaT_reads)
-cef_mock_outliers <- merge(x=cef_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
+cef_mock_outliers <- merge(x=cef_mock_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
 cef_mock_outliers$org_code <- NULL
 cef_mock_outliers$cef_630_metaT_reads <- as.numeric(cef_mock_outliers$cef_630_metaT_reads)
 cef_mock_outliers$cef_mock_metaT_reads <- as.numeric(cef_mock_outliers$cef_mock_metaT_reads)
-clinda_630_outliers <- merge(x=clinda_630_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
+clinda_630_outliers <- merge(x=clinda_630_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
 clinda_630_outliers$org_code <- NULL
 clinda_630_outliers$clinda_630_metaT_reads <- as.numeric(clinda_630_outliers$clinda_630_metaT_reads)
 clinda_630_outliers$clinda_mock_metaT_reads <- as.numeric(clinda_630_outliers$clinda_mock_metaT_reads)
-clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
+clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
 clinda_mock_outliers$org_code <- NULL
 clinda_mock_outliers$clinda_630_metaT_reads <- as.numeric(clinda_mock_outliers$clinda_630_metaT_reads)
 clinda_mock_outliers$clinda_mock_metaT_reads <- as.numeric(clinda_mock_outliers$clinda_mock_metaT_reads)
-strep_annotated <- merge(x=strep_annotated, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
+strep_annotated <- merge(x=strep_annotated, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
 strep_annotated$org_code <- NULL
 strep_annotated$strep_630_metaT_reads <- as.numeric(strep_annotated$strep_630_metaT_reads)
 strep_annotated$strep_mock_metaT_reads <- as.numeric(strep_annotated$strep_mock_metaT_reads)
-cef_annotated <- merge(x=cef_annotated, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
+cef_annotated <- merge(x=cef_annotated, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
 cef_annotated$org_code <- NULL
 cef_annotated$cef_630_metaT_reads <- as.numeric(cef_annotated$cef_630_metaT_reads)
 cef_annotated$cef_mock_metaT_reads <- as.numeric(cef_annotated$cef_mock_metaT_reads)
-clinda_annotated <- merge(x=clinda_annotated, y=kegg_tax, by.x='org_code', by.y='org_code', all.x=TRUE)
+clinda_annotated <- merge(x=clinda_annotated, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
 clinda_annotated$org_code <- NULL
 clinda_annotated$clinda_630_metaT_reads <- as.numeric(clinda_annotated$clinda_630_metaT_reads)
 clinda_annotated$clinda_mock_metaT_reads <- as.numeric(clinda_annotated$clinda_mock_metaT_reads)
@@ -226,7 +213,8 @@ clinda_mock_actino <- rbind(subset(clinda_mock_outliers, color == '#009900'), su
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
-pdf(file=plot_file, width=9, height=9)
+tiff(filename=plot_file, width=10, height=10, units='in', 
+     res=200, pointsize=12, compression='none')
 layout(matrix(c(1,2,
                 3,4), 
               nrow=2, ncol=2, byrow = TRUE))
@@ -244,21 +232,21 @@ axis(1, at=seq(0,12,2), label=seq(0,12,2))
 axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
 minor.ticks.axis(1, 10, mn=0, mx=12)
 minor.ticks.axis(2, 10, mn=0, mx=12)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.6, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2.5, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(strep_col,'black'))
-mtext('a', side=2, line=2, las=2, adj=2.5, padj=-11, cex=1.2, font=2)
+mtext('a', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
 
-points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
-points(x=strep_mock_outliers_other$strep_mock_metaT_reads, y=strep_mock_outliers_other$strep_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
-points(x=strep_630_outliers$strep_mock_metaT_reads, y=strep_630_outliers$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_630_outliers$color, col='black')
-points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_mock_outliers$color, col='black')
-points(x=strep_630_actino$strep_mock_metaT_reads, y=strep_630_actino$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_630_actino$color, col='black')
-points(x=strep_mock_actino$strep_mock_metaT_reads, y=strep_mock_actino$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_mock_actino$color, col='black')
-points(x=strep_630_archeae$strep_mock_metaT_reads, y=strep_630_archeae$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_630_archeae$color, col='black')
-points(x=strep_mock_archeae$strep_mock_metaT_reads, y=strep_mock_archeae$strep_630_metaT_reads, cex=1.9, pch=21, bg=strep_mock_archeae$color, col='black')
+points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
+points(x=strep_mock_outliers_other$strep_mock_metaT_reads, y=strep_mock_outliers_other$strep_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
+points(x=strep_630_outliers$strep_mock_metaT_reads, y=strep_630_outliers$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_outliers$color, col='gray20')
+points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_outliers$color, col='gray20')
+points(x=strep_630_actino$strep_mock_metaT_reads, y=strep_630_actino$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_actino$color, col='gray20')
+points(x=strep_mock_actino$strep_mock_metaT_reads, y=strep_mock_actino$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_actino$color, col='gray20')
+points(x=strep_630_archeae$strep_mock_metaT_reads, y=strep_630_archeae$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_archeae$color, col='gray20')
+points(x=strep_mock_archeae$strep_mock_metaT_reads, y=strep_mock_archeae$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_archeae$color, col='gray20')
 
 #-------------------#
 
@@ -272,21 +260,21 @@ axis(1, at=seq(0,12,2), label=seq(0,12,2))
 axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
 minor.ticks.axis(1, 10, mn=0, mx=12)
 minor.ticks.axis(2, 10, mn=0, mx=12)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.6, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2.5, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(cef_col,'black'))
-mtext('b', side=2, line=2, las=2, adj=2.5, padj=-11, cex=1.2, font=2)
+mtext('b', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
 
-points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$cef_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
-points(x=cef_mock_outliers_other$cef_mock_metaT_reads, y=cef_mock_outliers_other$cef_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
-points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_630_outliers$color, col='black')
-points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_mock_outliers$color, col='black')
-points(x=cef_630_actino$cef_mock_metaT_reads, y=cef_630_actino$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_630_actino$color, col='black')
-points(x=cef_mock_actino$cef_mock_metaT_reads, y=cef_mock_actino$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_mock_actino$color, col='black')
-points(x=cef_630_archeae$cef_mock_metaT_reads, y=cef_630_archeae$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_630_archeae$color, col='black')
-points(x=cef_mock_archeae$cef_mock_metaT_reads, y=cef_mock_archeae$cef_630_metaT_reads, cex=1.9, pch=21, bg=cef_mock_archeae$color, col='black')
+points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$cef_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
+points(x=cef_mock_outliers_other$cef_mock_metaT_reads, y=cef_mock_outliers_other$cef_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
+points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_outliers$color, col='gray20')
+points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_outliers$color, col='gray20')
+points(x=cef_630_actino$cef_mock_metaT_reads, y=cef_630_actino$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_actino$color, col='gray20')
+points(x=cef_mock_actino$cef_mock_metaT_reads, y=cef_mock_actino$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_actino$color, col='gray20')
+points(x=cef_630_archeae$cef_mock_metaT_reads, y=cef_630_archeae$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_archeae$color, col='gray20')
+points(x=cef_mock_archeae$cef_mock_metaT_reads, y=cef_mock_archeae$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_archeae$color, col='gray20')
 
 #-------------------#
 
@@ -300,21 +288,21 @@ axis(1, at=seq(0,12,2), label=seq(0,12,2))
 axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
 minor.ticks.axis(1, 10, mn=0, mx=12)
 minor.ticks.axis(2, 10, mn=0, mx=12)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.6, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2.5, cex=0.7)
+mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(clinda_col,'black'))
-mtext('c', side=2, line=2, las=2, adj=2.5, padj=-11, cex=1.2, font=2)
+mtext('c', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
 
-points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
-points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.9, pch=1, col='black', lwd=1.5)
-points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_outliers$color, col='black')
-points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_outliers$color, col='black')
-points(x=clinda_630_actino$clinda_mock_metaT_reads, y=clinda_630_actino$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_actino$color, col='black')
-points(x=clinda_mock_actino$clinda_mock_metaT_reads, y=clinda_mock_actino$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_actino$color, col='black')
-points(x=clinda_630_archeae$clinda_mock_metaT_reads, y=clinda_630_archeae$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_archeae$color, col='black')
-points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clinda_630_metaT_reads, cex=1.9, pch=21, bg=clinda_630_archeae$color, col='black')
+points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
+points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
+points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_outliers$color, col='gray20')
+points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_outliers$color, col='gray20')
+points(x=clinda_630_actino$clinda_mock_metaT_reads, y=clinda_630_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_actino$color, col='gray20')
+points(x=clinda_mock_actino$clinda_mock_metaT_reads, y=clinda_mock_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_actino$color, col='gray20')
+points(x=clinda_630_archeae$clinda_mock_metaT_reads, y=clinda_630_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_archeae$color, col='gray20')
+points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_archeae$color, col='gray20')
 
 #-------------------#
 
@@ -346,9 +334,9 @@ dev.off()
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clean up
-for (dep in deps){
-  pkg <- paste('package:', dep, sep='')
-  detach(pkg, character.only = TRUE)}
-setwd(starting_dir)
-rm(list=ls())
-gc()
+#for (dep in deps){
+#  pkg <- paste('package:', dep, sep='')
+#  detach(pkg, character.only = TRUE)}
+#setwd(starting_dir)
+#rm(list=ls())
+#gc()

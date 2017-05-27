@@ -25,13 +25,6 @@ strep_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin
 strep_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_mock.Streptomycin.metaT.final.pool.norm.txt'
 noabx_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/conventional.Conventional.metaT.final.pool.norm.txt'
 
-# KEGG infomation
-
-
-
-
-
-
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Read in data
@@ -138,6 +131,17 @@ clinda_raw_reads[,c(1,2)] <- log2(clinda_raw_reads[,c(1,2)] + 1)
 strep_raw_reads[,c(1,2)] <- log2(strep_raw_reads[,c(1,2)] + 1)
 noabx_raw_reads[,1] <- log2(noabx_raw_reads[,1] + 1)
 
+# Add KEGG annotations
+cef_kegg <- read.delim('~/Desktop/rows/cef_formatted.txt', sep='\t', header=TRUE, row.names=1)
+clinda_kegg <- read.delim('~/Desktop/rows/clinda_formatted.txt', sep='\t', header=TRUE, row.names=1)
+strep_kegg <- read.delim('~/Desktop/rows/strep_formatted.txt', sep='\t', header=TRUE, row.names=1)
+noabx_kegg <- read.delim('~/Desktop/rows/noabx_formatted.txt', sep='\t', header=TRUE, row.names=1)
+cef_raw_reads <- clean_merge(cef_raw_reads, cef_kegg)
+clinda_raw_reads <- clean_merge(clinda_raw_reads, clinda_kegg)
+strep_raw_reads <- clean_merge(strep_raw_reads, strep_kegg)
+noabx_raw_reads <- clean_merge(noabx_raw_reads, noabx_kegg)
+rm(cef_kegg,clinda_kegg,strep_kegg,noabx_kegg)
+
 # Move row names to column
 cef_raw_reads$kegg_hit <- rownames(cef_raw_reads)
 clinda_raw_reads$kegg_hit <- rownames(clinda_raw_reads)
@@ -153,4 +157,3 @@ write.table(noabx_raw_reads, file='data/read_mapping/noabx_normalized_metaT.tsv'
 # Clean up
 setwd(starting_dir)
 rm(list=ls())
-gc()
