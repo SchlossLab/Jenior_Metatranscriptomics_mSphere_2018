@@ -9,10 +9,10 @@ source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.
 
 # Define files
 # Normalized Metatranscriptomes
-noabx_normalized_reads <- 'data/read_mapping/conv_normalized.tsv'
-cef_normalized_reads <- 'data/read_mapping/cef_normalized.tsv'
-clinda_normalized_reads <- 'data/read_mapping/clinda_normalized.tsv'
-strep_normalized_reads <- 'data/read_mapping/strep_normalized.tsv'
+noabx_normalized_reads <- 'data/read_mapping/conv_normalized_metaT.tsv'
+cef_normalized_reads <- 'data/read_mapping/cef_normalized_metaT.tsv'
+clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
+strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
 
 # Gene look up table
 genes <- 'data/gene_names.tsv'
