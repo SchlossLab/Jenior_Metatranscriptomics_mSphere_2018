@@ -395,7 +395,7 @@ Abx table
 
 **Figure 2 | Community-level gene expression** 
 
-**Figure 3 | *C. difficile* colonization alters community-level gene expression differently between antibiotic pretreatements.** All points represent unique genes from metagenomic assembly and each metatranscriptome is normalized to their respective metganomic coverage. Point position is determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Points are colored based on the annotated genus of origin. **(a)** Streptomycin-pretreated, **(b)** Cefoperazone-pretreated, and **(c)** Clindamycin-pretreated. Outliers were defined by least-squared residuals analysis. **(d)** Top 5 expression of KEGG pathways in each condition.
+**Figure 3 | *C. difficile* colonization alters community-level gene expression differently between antibiotic pretreatements.** Each point represents a unique gene from the respective metagenomic assembly. Coordinates determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Metatranscriptomic read abundances are normalized to their associated metganomic coverage. Colored indicate genus of origin. Gray bars were determined utilizing least squares regression analysis with a minimum residual value of 2. Expreimental groups are shown as follows; **(a)** Streptomycin-pretreated, **(b)** Cefoperazone-pretreated, and **(c)** Clindamycin-pretreated. 
 
 **Figure 4 | ** Community-level modeling schematic and example interaction scores
 
