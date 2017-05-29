@@ -31,7 +31,7 @@ plot_file <- 'results/figures/figure_3.tiff'
 cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, row.names=7)
 clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, row.names=7)
 strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, row.names=7)
-
+  
 # KEGG organism file
 kegg_tax <- read.delim(kegg_tax, sep='\t', header=TRUE)
 kegg_tax[] <- lapply(kegg_tax, as.character)
@@ -41,6 +41,14 @@ tax_colors <- read.delim(tax_colors, sep='\t', header=TRUE)
 tax_colors[] <- lapply(tax_colors, as.character)
 
 #-------------------------------------------------------------------------------------------------------------------------#
+
+# Format transcription
+cef_normalized_reads$gene <- NULL
+cef_normalized_reads[,1] <- log2(cef_normalized_reads[,1])
+clinda_normalized_reads$gene <- NULL
+clinda_normalized_reads[,1] <- log2(clinda_normalized_reads[,1])
+strep_normalized_reads$gene <- NULL
+strep_normalized_reads[,1] <- log2(strep_normalized_reads[,1])
 
 # Screen for those genes that were able to be annotated
 cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', cef_normalized_reads$gene),]), ]

@@ -125,12 +125,6 @@ strep_raw_reads$strep_mock_metaG_reads <- NULL
 noabx_raw_reads$noabx_mock_metaT_reads <- noabx_raw_reads$noabx_mock_metaT_reads / noabx_raw_reads$noabx_mock_metaG_reads
 noabx_raw_reads$noabx_mock_metaG_reads <- NULL
 
-# Log2 transform the data
-cef_raw_reads[,c(1,2)] <- log2(cef_raw_reads[,c(1,2)] + 1)
-clinda_raw_reads[,c(1,2)] <- log2(clinda_raw_reads[,c(1,2)] + 1)
-strep_raw_reads[,c(1,2)] <- log2(strep_raw_reads[,c(1,2)] + 1)
-noabx_raw_reads[,1] <- log2(noabx_raw_reads[,1] + 1)
-
 # Add KEGG annotations
 cef_kegg <- read.delim('~/Desktop/rows/cef_formatted.txt', sep='\t', header=TRUE, row.names=1)
 clinda_kegg <- read.delim('~/Desktop/rows/clinda_formatted.txt', sep='\t', header=TRUE, row.names=1)
@@ -147,6 +141,20 @@ cef_raw_reads$kegg_hit <- rownames(cef_raw_reads)
 clinda_raw_reads$kegg_hit <- rownames(clinda_raw_reads)
 strep_raw_reads$kegg_hit <- rownames(strep_raw_reads)
 noabx_raw_reads$kegg_hit <- rownames(noabx_raw_reads)
+
+# Add KEGG pathways
+pathways <- read.delim('~/Desktop/kegg_path/gene_paths.tsv', sep='\t', header=TRUE)
+cef_raw_reads <- merge(cef_raw_reads, pathways, by='gene', all.x=TRUE, all.y=FALSE)
+clinda_raw_reads <- merge(clinda_raw_reads, pathways, by='gene', all.x=TRUE, all.y=FALSE)
+strep_raw_reads <- merge(strep_raw_reads, pathways, by='gene', all.x=TRUE, all.y=FALSE)
+noabx_raw_reads <- merge(noabx_raw_reads, pathways, by='gene', all.x=TRUE, all.y=FALSE)
+rm(pathways)
+
+# Remove introduced duplicates
+cef_raw_reads <- cef_raw_reads[!duplicated(cef_raw_reads$kegg_hit),]
+clinda_raw_reads <- clinda_raw_reads[!duplicated(clinda_raw_reads$kegg_hit),]
+strep_raw_reads <- strep_raw_reads[!duplicated(strep_raw_reads$kegg_hit),]
+noabx_raw_reads <- noabx_raw_reads[!duplicated(noabx_raw_reads$kegg_hit),]
 
 # Write raw reads to files
 write.table(cef_raw_reads, file='data/read_mapping/cef_normalized_metaT.tsv', sep='\t', row.names=FALSE, quote=FALSE)

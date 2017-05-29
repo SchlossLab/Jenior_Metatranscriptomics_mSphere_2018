@@ -14,9 +14,9 @@ clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
 strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
 
 # KEGG pathway annotations for genes
-cef_pathways <- 'data/read_mapping/cef_pathways.tsv'
-clinda_pathways <- 'data/read_mapping/clinda_pathways.tsv'
-strep_pathways <- 'data/read_mapping/strep_pathways.tsv'
+cef_pathways <- 'data/read_mapping/pathway_expression/cef_pathways.tsv'
+clinda_pathways <- 'data/read_mapping/pathway_expression/clinda_pathways.tsv'
+strep_pathways <- 'data/read_mapping/pathway_expression/strep_pathways.tsv'
 
 # Gene look up table
 genes <- 'data/gene_names.tsv'
@@ -28,9 +28,9 @@ plot_file <- 'results/figures/figure_2.pdf'
 
 # Read in data
 # Normalized Metatranscriptomes
-cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
-clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
-strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
+cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
+clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
+strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
 
 # Pooled pathway mappings
 cef_pathways <- read.delim(cef_pathways, sep='\t', header=TRUE, row.names=3)
@@ -43,39 +43,30 @@ genes <- read.delim(genes, sep='\t', header=TRUE, stringsAsFactors=FALSE)
 #--------------------------------------------------------------------------------------------------#
 
 # Format data
-# Remove excess column
-cef_normalized_reads$ko <- NULL
-clinda_normalized_reads$ko <- NULL
-strep_normalized_reads$ko <- NULL
 
 # Screen for those genes that have a gene annotation
-cef_annotated <- subset(cef_normalized_reads, gene != '')
-cef_annotated <- cef_annotated[!rownames(cef_annotated) %in% rownames(cef_annotated[grep('unknown_\\d', cef_annotated$gene),]), ]
-clinda_annotated <- subset(clinda_normalized_reads, gene != '')
-clinda_annotated <- clinda_annotated[!rownames(clinda_annotated) %in% rownames(clinda_annotated[grep('unknown_\\d', clinda_annotated$gene),]), ]
-strep_annotated <- subset(strep_normalized_reads, gene != '')
-strep_annotated <- strep_annotated[!rownames(strep_annotated) %in% rownames(strep_annotated[grep('unknown_\\d', strep_annotated$gene),]), ]
+cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', rownames(cef_normalized_reads)),]), ]
+clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', rownames(clinda_normalized_reads)),]), ]
+strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', rownames(strep_normalized_reads)),]), ]
 rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
 
 # Screen out ribosomal genes
-cef_annotated <- rbind(subset(cef_annotated, !grepl('rps.', cef_annotated$gene)),
-                       subset(cef_annotated, !grepl('rpl.', cef_annotated$gene)))
-clinda_annotated <- rbind(subset(clinda_annotated, !grepl('rps.', clinda_annotated$gene)),
-                          subset(clinda_annotated, !grepl('rpl.', clinda_annotated$gene)))
-strep_annotated <- rbind(subset(strep_annotated, !grepl('rps.', strep_annotated$gene)),
-                         subset(strep_annotated, !grepl('rpl.', strep_annotated$gene)))
+cef_annotated <- subset(cef_annotated, !grepl('Ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_RNA*', cef_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('Ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_RNA*', clinda_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('Ribosomal_RNA*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('ribosomal_RNA*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_RNA*', strep_annotated$description))
 
-# Save pathway information
-all_pathways <- rbind(cef_annotated[,3:4],clinda_annotated[,3:4],strep_annotated[,3:4])
-all_pathways <- all_pathways[!duplicated(all_pathways$gene), ]
-
-# Reverse log2 transformation temporarily
-cef_annotated$cef_630_metaT_reads <- 2 ^ cef_annotated$cef_630_metaT_reads
-cef_annotated$cef_mock_metaT_reads <- 2 ^ cef_annotated$cef_mock_metaT_reads
-clinda_annotated$clinda_630_metaT_reads <- 2 ^ clinda_annotated$clinda_630_metaT_reads
-clinda_annotated$clinda_mock_metaT_reads <- 2 ^ clinda_annotated$clinda_mock_metaT_reads
-strep_annotated$strep_630_metaT_reads <- 2 ^ strep_annotated$strep_630_metaT_reads
-strep_annotated$strep_mock_metaT_reads <- 2 ^ strep_annotated$strep_mock_metaT_reads
+# Remove C. difficile genes
+cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
+cef_annotated <- cef_annotated[!cef_annotated$organism %in% cdiff_omit,]
+clinda_annotated <- clinda_annotated[!clinda_annotated$organism %in% cdiff_omit,]
+strep_annotated <- strep_annotated[!strep_annotated$organism %in% cdiff_omit,]
+rm(cdiff_omit)
 
 # Subset to treatment groups
 cef_630_annotated <- cef_annotated
