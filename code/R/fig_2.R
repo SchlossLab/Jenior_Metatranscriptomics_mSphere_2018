@@ -68,48 +68,34 @@ clinda_annotated <- clinda_annotated[!clinda_annotated$organism %in% cdiff_omit,
 strep_annotated <- strep_annotated[!strep_annotated$organism %in% cdiff_omit,]
 rm(cdiff_omit)
 
-# Subset to treatment groups
-cef_630_annotated <- cef_annotated
-cef_630_annotated$cef_630_metaT_reads <- as.numeric(cef_630_annotated$cef_630_metaT_reads)
-cef_630_annotated$cef_mock_metaT_reads <- NULL
-cef_mock_annotated <- cef_annotated
-cef_mock_annotated$cef_mock_metaT_reads <- as.numeric(cef_mock_annotated$cef_mock_metaT_reads)
-cef_mock_annotated$cef_630_metaT_reads <- NULL
-clinda_630_annotated <- clinda_annotated
-clinda_630_annotated$clinda_630_metaT_reads <- as.numeric(clinda_630_annotated$clinda_630_metaT_reads)
-clinda_630_annotated$clinda_mock_metaT_reads <- NULL
-clinda_mock_annotated <- clinda_annotated
-clinda_mock_annotated$clinda_mock_metaT_reads <- as.numeric(clinda_mock_annotated$clinda_mock_metaT_reads)
-clinda_mock_annotated$clinda_630_metaT_reads <- NULL
-strep_630_annotated <- strep_annotated
-strep_630_annotated$strep_630_metaT_reads <- as.numeric(strep_630_annotated$strep_630_metaT_reads)
-strep_630_annotated$strep_mock_metaT_reads <- NULL
-strep_mock_annotated <- strep_annotated
-strep_mock_annotated$strep_mock_metaT_reads <- as.numeric(strep_mock_annotated$strep_mock_metaT_reads)
-strep_mock_annotated$strep_630_metaT_reads <- NULL
-rm(cef_annotated, clinda_annotated, strep_annotated)
+# Remove hypothetical and uncharacterized annotations
+cef_annotated <- subset(cef_annotated, description != 'hypothetical_protein')
+cef_annotated <- subset(cef_annotated, description != 'uncharacterized_*')
+clinda_annotated <- subset(clinda_annotated, description != 'hypothetical_protein')
+clinda_annotated <- subset(clinda_annotated, description != 'uncharacterized_*')
+strep_annotated <- subset(strep_annotated, description != 'hypothetical_protein')
+strep_annotated <- subset(strep_annotated, description != 'uncharacterized_*')
+
+# Save pathway information
+cef_pathways <- cef_annotated[complete.cases(cef_annotated),]
+clinda_pathways <- clinda_annotated[complete.cases(clinda_annotated),]
+strep_pathways <- strep_annotated[complete.cases(strep_annotated),]
 
 # Aggregate identical genes, regardless of organism
-cef_630_annotated <- aggregate(cef_630_annotated$cef_630_metaT_reads, by=list(cef_630_annotated$gene), FUN=sum)
-colnames(cef_630_annotated) <- c('gene', 'cef_630_reads')
-cef_mock_annotated <- aggregate(cef_mock_annotated$cef_mock_metaT_reads, by=list(cef_mock_annotated$gene), FUN=sum)
-colnames(cef_mock_annotated) <- c('gene', 'cef_mock_reads')
-clinda_630_annotated <- aggregate(clinda_630_annotated$clinda_630_metaT_reads, by=list(clinda_630_annotated$gene), FUN=sum)
-colnames(clinda_630_annotated) <- c('gene', 'clinda_630_reads')
-clinda_mock_annotated <- aggregate(clinda_mock_annotated$clinda_mock_metaT_reads, by=list(clinda_mock_annotated$gene), FUN=sum)
-colnames(clinda_mock_annotated) <- c('gene', 'clinda_mock_reads')
-strep_630_annotated <- aggregate(strep_630_annotated$strep_630_metaT_reads, by=list(strep_630_annotated$gene), FUN=sum)
-colnames(strep_630_annotated) <- c('gene', 'strep_630_reads')
-strep_mock_annotated <- aggregate(strep_mock_annotated$strep_mock_metaT_reads, by=list(strep_mock_annotated$gene), FUN=sum)
-colnames(strep_mock_annotated) <- c('gene', 'strep_mock_reads')
+cef_annotated <- aggregate(cbind(cef_annotated$cef_630_metaT_reads, cef_annotated$cef_mock_metaT_reads), by=list(cef_annotated$description), FUN=sum)
+colnames(cef_annotated) <- c('gene', 'cef_630_reads', 'cef_mock_reads')
+clinda_annotated <- aggregate(cbind(clinda_annotated$clinda_630_metaT_reads, clinda_annotated$clinda_mock_metaT_reads), by=list(clinda_annotated$description), FUN=sum)
+colnames(clinda_annotated) <- c('gene', 'clinda_630_reads', 'clinda_mock_reads')
+strep_annotated <- aggregate(cbind(strep_annotated$strep_630_metaT_reads, strep_annotated$strep_mock_metaT_reads), by=list(strep_annotated$description), FUN=sum)
+colnames(strep_annotated) <- c('gene', 'strep_630_reads', 'strep_mock_reads')
 
-# Merge mock and infected within pretreatment groups
-cef_annotated <- merge(cef_630_annotated, cef_mock_annotated, by='gene')
-rm(cef_630_annotated, cef_mock_annotated)
-clinda_annotated <- merge(clinda_630_annotated, clinda_mock_annotated, by='gene')
-rm(clinda_630_annotated, clinda_mock_annotated)
-strep_annotated <- merge(strep_630_annotated, strep_mock_annotated, by='gene')
-rm(strep_630_annotated, strep_mock_annotated)
+# Aggregate pathways
+cef_pathways <- aggregate(cbind(cef_pathways$cef_630_metaT_reads, cef_pathways$cef_mock_metaT_reads), by=list(cef_pathways$pathways), FUN=sum)
+colnames(cef_pathways) <- c('pathway', 'cef_630_reads', 'cef_mock_reads')
+clinda_pathways <- aggregate(cbind(clinda_pathways$clinda_630_metaT_reads, clinda_pathways$clinda_mock_metaT_reads), by=list(clinda_pathways$pathways), FUN=sum)
+colnames(clinda_pathways) <- c('pathway', 'clinda_630_reads', 'clinda_mock_reads')
+strep_pathways <- aggregate(cbind(strep_pathways$strep_630_metaT_reads, strep_pathways$strep_mock_metaT_reads), by=list(strep_pathways$pathways), FUN=sum)
+colnames(strep_pathways) <- c('pathway', 'strep_630_reads', 'strep_mock_reads')
 
 #--------------------------------------------------------------------------------------------------#
 
