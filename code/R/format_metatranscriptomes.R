@@ -91,23 +91,23 @@ noabx_raw_reads <- subset(noabx_raw_reads, noabx_mock_metaG_reads != 0)
 
 # Rarefy read abundances for metagenomes + metatranscriptomes
 cef_size <- round(min(colSums(cef_raw_reads[,c(1:4)]))*0.95) # Determine subsample level
-cef_raw_reads$cef_630_metaG_reads <- t(rrarefy(cef_raw_reads$cef_630_metaG_reads, sample=cef_size)) + 1
-cef_raw_reads$cef_mock_metaG_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaG_reads, sample=cef_size)) + 1
-cef_raw_reads$cef_630_metaT_reads <- t(rrarefy(cef_raw_reads$cef_630_metaT_reads, sample=cef_size)) + 1
-cef_raw_reads$cef_mock_metaT_reads <- t(rrarefy(cef_raw_reads$cef_mock_metaT_reads, sample=cef_size)) + 1
+cef_raw_reads$cef_630_metaG_reads <- as.vector(rrarefy(cef_raw_reads$cef_630_metaG_reads, sample=cef_size)) + 1
+cef_raw_reads$cef_mock_metaG_reads <- as.vector(rrarefy(cef_raw_reads$cef_mock_metaG_reads, sample=cef_size)) + 1
+cef_raw_reads$cef_630_metaT_reads <- as.vector(rrarefy(cef_raw_reads$cef_630_metaT_reads, sample=cef_size)) + 1
+cef_raw_reads$cef_mock_metaT_reads <- as.vector(rrarefy(cef_raw_reads$cef_mock_metaT_reads, sample=cef_size)) + 1
 clinda_size <- round(min(colSums(clinda_raw_reads[,c(1:4)]))*0.95) # Determine subsample level
-clinda_raw_reads$clinda_630_metaG_reads <- t(rrarefy(clinda_raw_reads$clinda_630_metaG_reads, sample=clinda_size)) + 1
-clinda_raw_reads$clinda_mock_metaG_reads <- t(rrarefy(clinda_raw_reads$clinda_mock_metaG_reads, sample=clinda_size)) + 1
-clinda_raw_reads$clinda_630_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_630_metaT_reads, sample=clinda_size)) + 1
-clinda_raw_reads$clinda_mock_metaT_reads <- t(rrarefy(clinda_raw_reads$clinda_mock_metaT_reads, sample=clinda_size)) + 1
+clinda_raw_reads$clinda_630_metaG_reads <- as.vector(rrarefy(clinda_raw_reads$clinda_630_metaG_reads, sample=clinda_size)) + 1
+clinda_raw_reads$clinda_mock_metaG_reads <- as.vector(rrarefy(clinda_raw_reads$clinda_mock_metaG_reads, sample=clinda_size)) + 1
+clinda_raw_reads$clinda_630_metaT_reads <- as.vector(rrarefy(clinda_raw_reads$clinda_630_metaT_reads, sample=clinda_size)) + 1
+clinda_raw_reads$clinda_mock_metaT_reads <- as.vector(rrarefy(clinda_raw_reads$clinda_mock_metaT_reads, sample=clinda_size)) + 1
 strep_size <- round(min(colSums(strep_raw_reads[,c(1:4)]))*0.95) # Determine subsample level
-strep_raw_reads$strep_630_metaG_reads <- t(rrarefy(strep_raw_reads$strep_630_metaG_reads, sample=strep_size)) + 1
-strep_raw_reads$strep_mock_metaG_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaG_reads, sample=strep_size)) + 1
-strep_raw_reads$strep_630_metaT_reads <- t(rrarefy(strep_raw_reads$strep_630_metaT_reads, sample=strep_size)) + 1
-strep_raw_reads$strep_mock_metaT_reads <- t(rrarefy(strep_raw_reads$strep_mock_metaT_reads, sample=strep_size)) + 1
+strep_raw_reads$strep_630_metaG_reads <- as.vector(rrarefy(strep_raw_reads$strep_630_metaG_reads, sample=strep_size)) + 1
+strep_raw_reads$strep_mock_metaG_reads <- as.vector(rrarefy(strep_raw_reads$strep_mock_metaG_reads, sample=strep_size)) + 1
+strep_raw_reads$strep_630_metaT_reads <- as.vector(rrarefy(strep_raw_reads$strep_630_metaT_reads, sample=strep_size)) + 1
+strep_raw_reads$strep_mock_metaT_reads <- as.vector(rrarefy(strep_raw_reads$strep_mock_metaT_reads, sample=strep_size)) + 1
 noabx_size <- round(min(colSums(noabx_raw_reads[,c(1:2)]))*0.95) # Determine subsample level
-noabx_raw_reads$noabx_mock_metaG_reads <- t(rrarefy(noabx_raw_reads$noabx_mock_metaG_reads, sample=noabx_size)) + 1
-noabx_raw_reads$noabx_mock_metaT_reads <- t(rrarefy(noabx_raw_reads$noabx_mock_metaT_reads, sample=noabx_size)) + 1
+noabx_raw_reads$noabx_mock_metaG_reads <- as.vector(rrarefy(noabx_raw_reads$noabx_mock_metaG_reads, sample=noabx_size)) + 1
+noabx_raw_reads$noabx_mock_metaT_reads <- as.vector(rrarefy(noabx_raw_reads$noabx_mock_metaT_reads, sample=noabx_size)) + 1
 
 # Normalize metatranscriptomes to metagenomic coverage
 cef_raw_reads$cef_630_metaT_reads <- cef_raw_reads$cef_630_metaT_reads / cef_raw_reads$cef_630_metaG_reads

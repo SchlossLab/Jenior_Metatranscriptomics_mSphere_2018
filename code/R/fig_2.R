@@ -101,21 +101,29 @@ cef_pathways$diff <- abs(cef_pathways$cef_630_reads - cef_pathways$cef_mock_read
 clinda_pathways$diff <- abs(clinda_pathways$clinda_630_reads - clinda_pathways$clinda_mock_reads)
 strep_pathways$diff <- abs(strep_pathways$strep_630_reads - strep_pathways$strep_mock_reads)
 
-# Rank differences and subset to top differences
+# Log transform expression
+cef_annotated[,c(2:4)] <- log2(cef_annotated[,c(2:4)] + 1)
+clinda_annotated[,c(2:4)] <- log2(clinda_annotated[,c(2:4)] + 1)
+strep_annotated[,c(2:4)] <- log2(strep_annotated[,c(2:4)] + 1)
+cef_pathways[,c(2:4)] <- log2(cef_pathways[,c(2:4)] + 1)
+clinda_pathways[,c(2:4)] <- log2(clinda_pathways[,c(2:4)] + 1)
+strep_pathways[,c(2:4)] <- log2(strep_pathways[,c(2:4)] + 1)
+
+# Rank differences and subset to top differences (genes)
 cef_annotated <- cef_annotated[order(-cef_annotated$diff),][1:20,]
 clinda_annotated <- clinda_annotated[order(-clinda_annotated$diff),][1:20,]
 strep_annotated <- strep_annotated[order(-strep_annotated$diff),][1:20,]
+cef_annotated$diff <- NULL
+clinda_annotated$diff <- NULL
+strep_annotated$diff <- NULL
+
+# Find direction of change for pathways
 cef_pathways <- cef_pathways[order(-cef_pathways$diff),][1:10,]
 clinda_pathways <- clinda_pathways[order(-clinda_pathways$diff),][1:10,]
 strep_pathways <- strep_pathways[order(-strep_pathways$diff),][1:10,]
-
-# Log transform expression
-cef_annotated[,c(2:4)] <- log2(cef_annotated[,c(2:4)])
-clinda_annotated[,c(2:4)] <- log2(clinda_annotated[,c(2:4)])
-strep_annotated[,c(2:4)] <- log2(strep_annotated[,c(2:4)])
-cef_pathways[,c(2:4)] <- log2(cef_pathways[,c(2:4)])
-clinda_pathways[,c(2:4)] <- log2(clinda_pathways[,c(2:4)])
-strep_pathways[,c(2:4)] <- log2(strep_pathways[,c(2:4)])
+cef_pathways$diff[cef_pathways$cef_630_reads < cef_pathways$cef_mock_reads] <- cef_pathways$diff * -1
+clinda_pathways$diff[clinda_pathways$clinda_630_reads < clinda_pathways$clinda_mock_reads] <- clinda_pathways$diff * -1
+strep_pathways$diff[strep_pathways$strep_630_reads < strep_pathways$strep_mock_reads] <- strep_pathways$diff * -1
 
 # Format names for plotting
 cef_annotated$gene <- gsub('_', ' ', cef_annotated$gene)
@@ -173,6 +181,9 @@ strep_annotated$gene <- NULL
 cef_pathways$pathway <- gsub('_', ' ', cef_pathways$pathway)
 cef_pathways <- cef_pathways[cef_pathways$pathway != 'Ribosome:Translation',]
 cef_pathways <- cef_pathways[cef_pathways$pathway != 'Metabolic pathways',]
+cef_pathways$pathway <- gsub(':Translation', '', cef_pathways$pathway)
+cef_pathways$pathway <- gsub('Microbial metabolism in diverse environments', 'Microb. metabolism in diverse environ.', cef_pathways$pathway)
+Microbial_metabolism_in_diverse_environments
 cef_pathways$pathway <- gsub(':', ': ', cef_pathways$pathway)
 cef_pathways <- cef_pathways[c(1:5),]
 rownames(cef_pathways) <- cef_pathways$pathway
@@ -195,146 +206,111 @@ strep_pathways$pathway <- gsub(':Translation', '', strep_pathways$pathway)
 strep_pathways$pathway <- gsub(':Energy metabolism', '', strep_pathways$pathway)
 strep_pathways$pathway <- gsub(':Carbohydrate metabolism', '', strep_pathways$pathway)
 strep_pathways$pathway <- gsub(':Membrane transport', '', strep_pathways$pathway)
+strep_pathways$pathway <- gsub('Amino sugar and nucleotide sugar metabolism', 'Amino sugar and nucleotide sugar metab.', strep_pathways$pathway)
+strep_pathways$pathway <- gsub('Microbial metabolism in diverse environments', 'Microb. metab. in diverse environ.', strep_pathways$pathway)
 strep_pathways <- strep_pathways[c(1:5),]
 rownames(strep_pathways) <- strep_pathways$pathway
 strep_pathways$pathway <- NULL
 
 # Reorder to plot correctly
-cef_annotated <- cef_annotated[order(cef_annotated$diff),]
-clinda_annotated <- clinda_annotated[order(clinda_annotated$diff),]
-strep_annotated <- strep_annotated[order(strep_annotated$diff),]
+cef_annotated <- cef_annotated[order(cef_annotated$cef_630_reads),]
+clinda_annotated <- clinda_annotated[order(clinda_annotated$clinda_630_reads),]
+strep_annotated <- strep_annotated[order(strep_annotated$strep_630_reads),]
 cef_pathways <- cef_pathways[order(cef_pathways$diff),]
 clinda_pathways <- clinda_pathways[order(clinda_pathways$diff),]
 strep_pathways <- strep_pathways[order(strep_pathways$diff),]
 
-# Convert to matrices for barplots
-cef_annotated <- as.matrix(t(cef_annotated))
-cef_pathways <- as.matrix(t(cef_pathways))
-clinda_annotated <- as.matrix(t(clinda_annotated))
-clinda_pathways <- as.matrix(t(clinda_pathways))
+# Convert to matrices for grouped barplots
 strep_annotated <- as.matrix(t(strep_annotated))
-strep_pathways <- as.matrix(t(strep_pathways))
+cef_annotated <- as.matrix(t(cef_annotated))
+clinda_annotated <- as.matrix(t(clinda_annotated))
+
+# Format pathways for plotting
+pathway_names <- c(rev(rownames(strep_pathways)),rownames(cef_pathways),rev(rownames(clinda_pathways)))
+strep_pathways <- c(rev(as.vector(strep_pathways$diff)),0,rep(0,5),0,rep(0,5))
+cef_pathways <- c(rep(0,5),0,as.vector(cef_pathways$diff),0,rep(0,5))
+clinda_pathways <- c(rep(0,5),0,rep(0,5),0,rev(as.vector(clinda_pathways$diff)))
 
 #--------------------------------------------------------------------------------------------------#
 
 # Generate figure
-pdf(file=plot_file, width=8, height=12)
-layout(matrix(c(1,2,3,
-                4,4,4),
-              nrow=2, ncol=3, byrow = TRUE))
+pdf(file=plot_file, width=5, height=14)
+layout(matrix(c(1,1,
+                2,2,
+                3,3,
+                4,4),
+              nrow=4, ncol=2, byrow = TRUE))
 
 #------------------#
 
 # Streptomycin
-# Mock-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(strep_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, strep_col), cex.names=1) 
+par(mar=c(3,15,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(strep_annotated, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c('black', 'white'), cex.names=0.9)
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
-mtext('a', side=2, padj=-11, adj=18, cex=1.2, font=2)
-
-# 630-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(strep_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE,
-        xlab='', ylab='', col=c(noabx_col, strep_col), cex.names=1) 
-box()
-axis(1, at=seq(0,14,2), label=seq(0,14,2))
-minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
-mtext('b', side=2, padj=-11, adj=17, cex=1.2, font=2)
-
-# Legend
-par(mar=c(0,0,0,1))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Streptomycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(strep_col,noabx_col), 
-       pch=22, pt.cex=2.4, cex=1.3)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
+title('Streptomycin-pretreated', line=0.5, cex.main=1.2, col.main=strep_col, font.main=1)
+mtext('a', side=2, padj=-10, adj=17.5, cex=1.2, font=2)
+text(x=12.5, y=8, 'Infection', cex=1.1)
+legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg=c('white','black'), 
+       pch=22, pt.cex=1.5, cex=0.9)
 
 #------------------#
 
 # Cefoperazone
-# Mock-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(cef_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, cef_col), cex.names=1) 
+par(mar=c(3,15,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(cef_annotated, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c('black', 'white'), cex.names=0.9)
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
-mtext('c', side=2, padj=-11, adj=18, cex=1.2, font=2)
-
-# 630-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(cef_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, cef_col), cex.names=1) 
-box()
-axis(1, at=seq(0,14,2), label=seq(0,14,2))
-minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
-mtext('d', side=2, padj=-11, adj=17, cex=1.2, font=2)
-
-# Legend
-par(mar=c(0,0,0,1))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Cefoperazone-pretreated','No Antibiotics (No CDI)'), pt.bg=c(cef_col,noabx_col), 
-       pch=22, pt.cex=2.4, cex=1.3)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
+title('Cefoperazone-pretreated', line=0.5, cex.main=1.2, col.main=cef_col, font.main=1)
+mtext('b', side=2, padj=-10, adj=16, cex=1.2, font=2)
+text(x=12.5, y=8, 'Infection', cex=1.1)
+legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg=c('white','black'), 
+       pch=22, pt.cex=1.5, cex=0.9)
 
 #------------------#
 
 # Clindamycin
-# Mock-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(clinda_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, clinda_col), cex.names=1) 
+par(mar=c(3,15,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(clinda_annotated, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c('black', 'white'), cex.names=0.9)
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
-mtext('d', side=2, padj=-11, adj=18, cex=1.2, font=2)
-
-# 630-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(clinda_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, clinda_col), cex.names=1) 
-box()
-axis(1, at=seq(0,14,2), label=seq(0,14,2))
-minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
-mtext('f', side=2, padj=-11, adj=30, cex=1.2, font=2)
-
-# Legend
-par(mar=c(0,0,0,1))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Clindamycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(clinda_col,noabx_col), 
-       pch=22, pt.cex=2.4, cex=1.3)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
+title('Clindamycin-pretreated', line=0.5, cex.main=1.2, col.main=clinda_col, font.main=1)
+mtext('c', side=2, padj=-10, adj=17.5, cex=1.2, font=2)
+text(x=12.5, y=8, 'Infection', cex=1.1)
+legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg=c('white','black'), 
+       pch=22, pt.cex=1.5, cex=0.9)
 
 #-------------------#
 
 # Overrepresented pathways
 par(mar=c(15,4,1,2), las=1, mgp=c(1.6,0.7,0))
-plot(0, type='n', xlab='', xaxt='n', yaxt='n', ylab=as.expression(bquote(paste(Delta,' Fold Abundance (',log[2],')'))), xlim=c(0.5,20), ylim=c(-12,12))
+plot(0, type='n', xlab='', xaxt='n', yaxt='n', 
+     ylab=as.expression(bquote(paste(Delta,' Fold Abundance (',log[2],')'))), xlim=c(-0.4,21), ylim=c(-16,16))
 abline(h=0, lwd=1.5)
-abline(h=c(-confidence,confidence), lwd=1.2, lty=5, col='gray30')
-axis(side=2, at=seq(-12,12,3), labels=c(12,9,6,3,0,3,6,9,12))
-text(x=c(2.6,2.39), y=c(12,-12), cex=0.9,
-     labels=c(as.expression(bquote(paste('Greater in ',italic('C. difficile'),'-infected Metatranscriptome'))), 'Greater in Mock-infected Metatranscriptome'))
-legend('topright', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
+axis(side=2, at=seq(-16,16,4), labels=c(16,12,8,4,0,4,8,12,16))
+text(x=c(2.2,1.9), y=c(15.7,-15.7), cex=0.9, labels=c('Infection-associated', 'Mock-associated'))
+legend('top', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
        pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.7, col='black', bty='n')
-text(cex=1, x=c(seq(1.2,6,1.2),seq(8.4,13.2,1.2),seq(15.6,20.4,1.2)), y=-14, pathway_names, xpd=TRUE, srt=60, pos=2)
-mtext('d', side=2, line=2, las=2, adj=1.5, padj=-6, cex=1.2, font=2)
+mtext('d', side=2, line=2, las=2, adj=1.5, padj=-5, cex=1.2, font=2)
 
 # Add groups
-barplot(strep_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=adjustcolor(strep_col, alpha.f=0.75), yaxt='n', add=TRUE) # Streptomycin
-barplot(cef_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=adjustcolor(cef_col, alpha.f=0.75), yaxt='n', add=TRUE) # Cefoperazone
-barplot(clinda_pathways, xlim=c(0.5,20), ylim=c(-12,12), col=adjustcolor(clinda_col, alpha.f=0.75), yaxt='n', add=TRUE) # Clindamycin
+barplot(strep_pathways, xlim=c(-0.4,21), ylim=c(-16,16), col=strep_col, yaxt='n', add=TRUE, xpd=F) # Streptomycin
+barplot(cef_pathways, xlim=c(-0.4,21), ylim=c(-16,16), col=cef_col, yaxt='n', add=TRUE, xpd=F) # Cefoperazone
+barplot(clinda_pathways, xlim=c(-0.4,21), ylim=c(-16,16), col=clinda_col, yaxt='n', add=TRUE, xpd=F) # Clindamycin
+
+# Add pathway names
+text(cex=0.9, x=c(1.2,2.3,3.5,4.7,5.9,  8.4,9.5,10.7,11.9,13.1,   15.6,16.7,17.9,19.2,20.5), 
+     y=-18, pathway_names, xpd=TRUE, srt=60, pos=2)
+
 
 dev.off()
 
