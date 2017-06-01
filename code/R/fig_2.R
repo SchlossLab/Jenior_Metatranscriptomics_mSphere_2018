@@ -128,6 +128,21 @@ cef_pathways$diff[cef_pathways$cef_630_reads < cef_pathways$cef_mock_reads] <- c
 clinda_pathways$diff[clinda_pathways$clinda_630_reads < clinda_pathways$clinda_mock_reads] <- clinda_pathways$diff * -1
 strep_pathways$diff[strep_pathways$strep_630_reads < strep_pathways$strep_mock_reads] <- strep_pathways$diff * -1
 
+
+
+# exclude the overly broad catagories
+Metabolic pathways
+Biosynthesis of secondary metabolites
+Microbial metabolism in diverse environments
+Biosynthesis of antibiotics
+Carbon metabolism
+2-Oxocarboxylic acid metabolism
+Fatty acid metabolism
+Biosynthesis of amino acids
+Degradation of aromatic compounds
+
+
+
 # Format names for plotting
 cef_annotated$gene <- gsub('translation_elongation_factor_P_\\(EF\\-P\\)', 'Translation elongation factor P', cef_annotated$gene)
 cef_annotated$gene <- gsub('_', ' ', cef_annotated$gene)

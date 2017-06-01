@@ -16,9 +16,9 @@ wetlab_file <- 'data/wetlab_assays.tsv'
 metadata_file <- 'data/metadata.tsv'
 
 # LEfSe results
-cef_lefse <- 'data/16S_analysis/lefse/cef.0.03.lefse_summary'
-clinda_lefse <- 'data/16S_analysis/lefse/clinda.0.03.lefse_summary'
-strep_lefse <- 'data/16S_analysis/lefse/strep.0.03.lefse_summary'
+cef_lefse <- 'data/16S_analysis/lefse/cef.0.03.filter.0.03.lefse_summary'
+clinda_lefse <- 'data/16S_analysis/lefse/clinda.0.03.filter.0.03.lefse_summary'
+strep_lefse <- 'data/16S_analysis/lefse/strep.0.03.filter.0.03.lefse_summary'
 
 # Define output files
 plot_file <- 'results/figures/figure_1.pdf'
@@ -69,8 +69,8 @@ clinda_shared_otu$susceptibility <- NULL
 rm(metadata_shared_otu, shared_otu)
 
 # OTU names
-otu_tax$genus_OTU <- gsub('_', ' ', otu_tax$genus_OTU)
-otu_tax$genus_OTU <- gsub('Ruminococcus2', 'Ruminococcus', otu_tax$genus_OTU)
+otu_tax$genus <- gsub('_', ' ', otu_tax$genus)
+otu_tax$genus <- gsub('Ruminococcus2', 'Ruminococcus', otu_tax$genus)
 
 # Normalize reads
 cef_size <- ceiling(min(rowSums(cef_shared_otu[,2:ncol(cef_shared_otu)])) * 0.9)
@@ -128,35 +128,6 @@ strep_mock_otu <- subset(strep_shared_otu, infection == 'mock')
 strep_mock_otu <- strep_mock_otu[, rownames(strep_lefse)]
 strep_mock_otu$infection <- NULL
 rm(strep_shared_otu)
-
-# Screen for identical medians
-remove <- c()
-for (i in colnames(cef_infected_otu)){
-  if (median(cef_infected_otu[,i]) == median(cef_mock_otu[,i])){
-    remove <- c(remove, i)
-  }
-}
-cef_infected_otu <- cef_infected_otu[,!colnames(cef_infected_otu) %in% remove]
-cef_mock_otu <- cef_mock_otu[,!colnames(cef_mock_otu) %in% remove]
-cef_lefse <- cef_lefse[!rownames(cef_lefse) %in% remove,]
-remove <- c()
-for (i in colnames(strep_infected_otu)){
-  if (median(strep_infected_otu[,i]) == median(strep_mock_otu[,i])){
-    remove <- c(remove, i)
-  }
-}
-strep_infected_otu <- strep_infected_otu[,!colnames(strep_infected_otu) %in% remove]
-strep_mock_otu <- strep_mock_otu[,!colnames(strep_mock_otu) %in% remove]
-strep_lefse <- strep_lefse[!rownames(strep_lefse) %in% remove,]
-remove <- c()
-for (i in colnames(clinda_infected_otu)){
-  if (median(clinda_infected_otu[,i]) == median(clinda_mock_otu[,i])){
-    remove <- c(remove, i)
-  }
-}
-clinda_infected_otu <- clinda_infected_otu[,!colnames(clinda_infected_otu) %in% remove]
-clinda_mock_otu <- clinda_mock_otu[,!colnames(clinda_mock_otu) %in% remove]
-clinda_lefse <- clinda_lefse[!rownames(clinda_lefse) %in% remove,]
 
 # Transform abundances
 cef_infected_otu <- log10(cef_infected_otu + 1)
@@ -302,7 +273,7 @@ abline(v=c(5,11,17), lwd=1.5) # dividers
 axis(side=2, at=seq(0,9,1), labels=c(0, parse(text=paste(rep(10,9), '^', seq(1,9,1), sep=''))), las=1)
 
 mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), col=c('black',strep_col, cef_col, clinda_col), 
-      at=c(2,8,14,20), side=1, cex=0.75, padj=0.75)
+      at=c(2,8,14,20), side=1, cex=0.85, padj=0.75)
 
 # Median lines
 segments(x0=c(0.5, 6.5, 12.5, 18.5)-0.6, y0=c(
@@ -383,7 +354,7 @@ arrows(55.3, -2, 63.7, -2, angle=0, length=0, lwd=2, xpd=TRUE) # clinda - mock
 mtext(rep('CDI',3), side=1, at=c(13.5,32,50.5), adj=0.5, padj=1, cex=0.7)
 mtext(rep('Mock',4), side=1, at=c(4,22.5,40.5,59.5), adj=0.5, padj=1, cex=0.7)
 mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
-      side=1, at=c(4,18,36,55), adj=0.5, padj=2.5, cex=0.75, col=c('black',strep_col, cef_col, clinda_col))
+      side=1, at=c(4,18,36,55), adj=0.5, padj=2.5, cex=0.85, col=c('black',strep_col, cef_col, clinda_col))
 mtext('c', side=2, line=2, las=2, adj=3, padj=-11, cex=1.0, font=2)
 
 # Create a figure legend in empty plot
@@ -407,10 +378,10 @@ text(x=c(3.75,3.75,3.75,3.75,3.75), y=c(4.8,3.125,-0.275,-2.8,-3.7), cex=1.2,
 # Significant OTUs and relative abundance changes
 
 # Streptomycin plot
-par(mar=c(4, 14, 2, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
+par(mar=c(4, 13, 2, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
 plot(1, type='n', ylim=c(0,nrow(strep_lefse)*2), xlim=c(0,log10(strep_size)), 
      ylab='', xlab='Relative Abundance %', xaxt='n', yaxt='n')
-title('Streptomycin-pretreated', line=0.5, cex.main=1.1, col.main=strep_col, font.main=1)
+title('Streptomycin-pretreated', line=0.5, cex.main=1.3, col.main=strep_col, font.main=1)
 index <- 1
 for(i in c(1:ncol(strep_mock_otu))){
   stripchart(at=index-0.35, jitter(strep_mock_otu[,i], amount=1e-5), 
@@ -420,14 +391,17 @@ for(i in c(1:ncol(strep_mock_otu))){
   if (i != ncol(strep_mock_otu)){
     abline(h=index+1, lty=2)
   }
-  segments(median(strep_mock_otu[,i]), index-0.4, median(strep_mock_otu[,i]), index, lwd=2) #adds line for median
-  segments(median(strep_infected_otu[,i]), index+0.4, median(strep_infected_otu[,i]), index, lwd=2)
+  segments(median(strep_mock_otu[,i]), index-0.6, median(strep_mock_otu[,i]), index, lwd=2) #adds line for median
+  segments(median(strep_infected_otu[,i]), index+0.6, median(strep_infected_otu[,i]), index, lwd=2)
+  if (wilcox.test(strep_mock_otu[,i], strep_infected_otu[,i], exact=FALSE)$p.value <= 0.05){
+    text(x=log10(strep_size)+0.25, y=index, labels='*', font=2, cex=1.8, xpd=TRUE)
+  }
   index <- index + 2
 }
 axis(1, at=c(0,(log10(strep_size/1000)),(log10(strep_size/100)),(log10(strep_size/10)),log10(strep_size)), labels=c('0','0.1','1','10','100')) 
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
        pch=c(21, 21), pt.bg=c('mediumorchid3','mediumseagreen'), bg='white', pt.cex=1.4, cex=0.9)
-formatted_names <- lapply(1:nrow(strep_lefse), function(i) bquote(italic(.(strep_lefse$genus_OTU[i]))))
+formatted_names <- lapply(1:nrow(strep_lefse), function(i) bquote(paste(italic(.(strep_lefse$genus[i])), ' ', .(as.vector(strep_lefse$OTU)[i]), sep='')))
 axis(2, at=seq(1,index-2,2)+0.4, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 formatted_p <- lapply(1:nrow(strep_lefse), function(i) bquote(paste(.(as.vector(strep_lefse$phylum)[i]), '; ', italic('p'), ' = ', .(strep_lefse$pValue[i]), sep='')))
 axis(2, at=seq(1,index-2,2)-0.4, labels=do.call(expression, formatted_p), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
@@ -436,14 +410,14 @@ axis(side=1, at=minor_ticks+0.42, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.42, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.42, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('d', side=2, line=2, las=2, adj=14, padj=-11, cex=1.0, font=2)
+mtext('d', side=2, line=2, las=2, adj=13, padj=-11, cex=1.0, font=2)
 
 #-----------------#
 
 # Cefoperazone plot
 plot(1, type='n', ylim=c(0,nrow(cef_lefse)*2), xlim=c(0,log10(cef_size)), 
      ylab='', xlab='Relative Abundance %', xaxt='n', yaxt='n')
-title('Cefoperazone-pretreated', line=0.5, cex.main=1.1, col.main=cef_col, font.main=1)
+title('Cefoperazone-pretreated', line=0.5, cex.main=1.3, col.main=cef_col, font.main=1)
 index <- 1
 for(i in c(1:ncol(cef_mock_otu))){
   stripchart(at=index-0.35, jitter(cef_mock_otu[,i], amount=1e-5), 
@@ -453,17 +427,20 @@ for(i in c(1:ncol(cef_mock_otu))){
   if (i != ncol(cef_mock_otu)){
     abline(h=index+1, lty=2)
   }
-  segments(median(cef_mock_otu[,i]), index-0.4, median(cef_mock_otu[,i]), index, lwd=2) #adds line for median
-  segments(median(cef_infected_otu[,i]), index+0.4, median(cef_infected_otu[,i]), index, lwd=2)
+  segments(median(cef_mock_otu[,i]), index-0.6, median(cef_mock_otu[,i]), index, lwd=2) #adds line for median
+  segments(median(cef_infected_otu[,i]), index+0.6, median(cef_infected_otu[,i]), index, lwd=2)
+  if (wilcox.test(cef_mock_otu[,i], cef_infected_otu[,i], exact=FALSE)$p.value <= 0.05){
+    text(x=log10(cef_size)+0.25, y=index, labels='*', font=2, cex=1.8, xpd=TRUE)
+  }
   index <- index + 2
 }
 axis(1, at=c(0,(log10(cef_size/1000)),(log10(cef_size/100)),(log10(cef_size/10)),log10(cef_size)), labels=c('0','0.1','1','10','100')) 
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
        pch=c(21, 21), pt.bg=c('mediumorchid3','mediumseagreen'), bg='white', pt.cex=1.4, cex=0.9)
-formatted_names <- lapply(1:nrow(cef_lefse), function(i) bquote(italic(.(cef_lefse$genus_OTU[i]))))
-axis(2, at=seq(1,index-2,2)+0.25, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
+formatted_names <- lapply(1:nrow(cef_lefse), function(i) bquote(paste(italic(.(cef_lefse$genus[i])), ' ', .(as.vector(cef_lefse$OTU)[i]), sep='')))
+axis(2, at=seq(1,index-2,2)+0.4, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 formatted_p <- lapply(1:nrow(cef_lefse), function(i) bquote(paste(.(as.vector(cef_lefse$phylum)[i]), '; ', italic('p'), ' = ', .(cef_lefse$pValue[i]), sep='')))
-axis(2, at=seq(1,index-2,2)-0.25, labels=do.call(expression, formatted_p), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
+axis(2, at=seq(1,index-2,2)-0.4, labels=do.call(expression, formatted_p), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 cef_ticks <- c(log10(cef_size/1000)-0.55,log10(cef_size/1000)-0.35,log10(cef_size/1000)-0.2,log10(cef_size/1000)-0.1,log10(cef_size/1000)-0.05)
 axis(side=1, at=cef_ticks+0.02, label=rep('',length(cef_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+0.74, label=rep('',length(minor_ticks)), tck=-0.01)
@@ -477,27 +454,30 @@ mtext('e', side=2, line=2, las=2, adj=15, padj=-11, cex=1.0, font=2)
 # Clindamycin plot
 plot(1, type='n', ylim=c(0,nrow(clinda_lefse)*2), xlim=c(0,log10(clinda_size)), 
      ylab='', xlab='Relative Abundance %', xaxt='n', yaxt='n')
-title('Clindamycin-pretreated', line=0.5, cex.main=1.1, col.main=clinda_col, font.main=1)
+title('Clindamycin-pretreated', line=0.5, cex.main=1.3, col.main=clinda_col, font.main=1)
 index <- 1
 for(i in c(1:ncol(clinda_mock_otu))){
-  stripchart(at=index-0.35, jitter(clinda_mock_otu[,i], amount=1e-5), 
+  stripchart(at=index-0.25, jitter(clinda_mock_otu[,i], amount=1e-5), 
              pch=21, bg='mediumseagreen', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
-  stripchart(at=index+0.35, jitter(clinda_infected_otu[,i], amount=1e-5), 
+  stripchart(at=index+0.25, jitter(clinda_infected_otu[,i], amount=1e-5), 
              pch=21, bg='mediumorchid3', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   if (i != ncol(clinda_mock_otu)){
     abline(h=index+1, lty=2)
   }
-  segments(median(clinda_mock_otu[,i]), index-0.4, median(clinda_mock_otu[,i]), index, lwd=2) #adds line for median
-  segments(median(clinda_infected_otu[,i]), index+0.4, median(clinda_infected_otu[,i]), index, lwd=2)
+  segments(median(clinda_mock_otu[,i]), index-0.6, median(clinda_mock_otu[,i]), index, lwd=2) #adds line for median
+  segments(median(clinda_infected_otu[,i]), index+0.6, median(clinda_infected_otu[,i]), index, lwd=2)
+  if (wilcox.test(clinda_mock_otu[,i], clinda_infected_otu[,i], exact=FALSE)$p.value <= 0.05){
+    text(x=log10(clinda_size)+0.25, y=index, labels='*', font=2, cex=1.8, xpd=TRUE)
+  }
   index <- index + 2
 }
 axis(1, at=c(0,(log10(clinda_size/1000)),(log10(clinda_size/100)),(log10(clinda_size/10)),log10(clinda_size)), labels=c('0','0.1','1','10','100')) 
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
        pch=c(21, 21), pt.bg=c('mediumorchid3','mediumseagreen'), bg='white', pt.cex=1.4, cex=0.9)
-formatted_names <- lapply(1:nrow(clinda_lefse), function(i) bquote(italic(.(clinda_lefse$genus_OTU[i]))))
-axis(2, at=seq(1,index-2,2)+0.3, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
+formatted_names <- lapply(1:nrow(clinda_lefse), function(i) bquote(paste(italic(.(clinda_lefse$genus[i])), ' ', .(as.vector(clinda_lefse$OTU)[i]), sep='')))
+axis(2, at=seq(1,index-2,2)+0.25, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 formatted_p <- lapply(1:nrow(clinda_lefse), function(i) bquote(paste(.(as.vector(clinda_lefse$phylum)[i]), '; ', italic('p'), ' = ', .(clinda_lefse$pValue[i]), sep='')))
-axis(2, at=seq(1,index-2,2)-0.3, labels=do.call(expression, formatted_p), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
+axis(2, at=seq(1,index-2,2)-0.25, labels=do.call(expression, formatted_p), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 axis(side=1, at=short_ticks, label=rep('',length(short_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+0.4, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.4, label=rep('',length(minor_ticks)), tck=-0.01)
