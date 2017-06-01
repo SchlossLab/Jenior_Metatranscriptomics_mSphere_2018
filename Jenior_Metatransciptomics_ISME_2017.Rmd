@@ -375,11 +375,9 @@ The authors would like to acknowledge Charles Koumpouras for assistance with DNA
 **Department of Microbiology and Immunology, University of Michigan, Ann Arbor, Michigan.**
 Matthew L. Jenior, Jhansi L. Leslie, & Patrick D. Schloss Ph.D.
 
-**Department of Internal Medicine & Infectious Diseases, University of Michigan Medical Center, Ann Arbor, Michigan.**
-Vincent B. Young M.D. Ph.D.
-
 **Author Contributions**
-M.L.J. conceived, designed and performed experiments, analyzed data, and drafted the manuscript. J.L.L. performed experiments and analyzed data. V.B.Y. contributed to the manuscript. P.D.S. interpreted data and contributed the manuscript.
+M.L.J. conceived, designed and performed experiments, analyzed data, and drafted the manuscript. J.L.L. performed experiments and analyzed data. P.D.S. interpreted data and contributed the manuscript.
+
 The authors declare no conflicts of interest.
 
 **Corresponding author**
@@ -390,14 +388,17 @@ Correspondence to [Patrick D. Schloss](pdschloss@umich.edu)
 
 Abx table
 
-**Figure 1 | Experimental models of *C. difficile* infection and their impact on bacterial populations in the gut microbiota.** **(a)** Experimental timelines of antibiotic pretreatment and infection mouse models. **(b)** Quantification of *C. difficile* cfu and toxin titer across antibiotic pretreatment models. Gray stars indicate significant difference from no antibiotic controls by Wilcoxon rank-sum test (all *p* < 0.001). **(c)** Relative abundance of family-level taxonomic classification for OTUs in each treatment group. Pair-wise Wilcoxon tests were performed for each OTU between mock and *C. difficile*-infected conditions within antibiotic pretreatment group; **(d)** streptomycin, **(e)** cefoperazone, and **(f)** clindamycin. All p-values have been corrected with the Benjamini-Hochberg procedure.
+**Figure 1 | Experimental models of *C. difficile* infection and their impact on bacterial populations in the gut microbiota.** **(a)** Experimental timelines of antibiotic pretreatment and infection mouse models. **(b)** Quantification of *C. difficile* cfu and toxin titer across antibiotic pretreatment models. Gray asterisks indicate significant difference from no antibiotic controls by Wilcoxon rank-sum test with the Benjamini-Hochberg correction (all *p* < 0.001). **(c)** Relative abundance of family-level taxonomic classification for OTUs in each treatment group. Specific OTUs and genus-level classifications from LEfSe analysis that distinguish Mock and *C. difficile*-infected communities within each pretreatment group (all *p* < 0.05). Relative abundance of the respective OTUs in each mouse along with group medians are shown; **(d)** streptomycin, **(e)** cefoperazone, and **(f)** clindamycin. 
+
+**Figure 2 | *C. difficile* infection alters specific pathway and gene expression of the gut microbiota across perturbed communities** Metatranscriptomic (cDNA) read abundances associated with each gene were normalized to their associated metganomic (DNA) coverage, resulting in values that reflect upregulation and not basal expression levels of highly abundant genes. **(a)** Differences in read abundance for top 5 KEGG pathways with the largest amount of change between Mock and *C. difficile*-infected states within each antibiotic pretreatment. Values above the center line were expressed more during *C. difficile* infection, and those below the line were expressed more in Mock-infected animals. **(b-d)** cDNA read abundances of the top 15 genes with the largest differences in expression within each indicated antibiotic pretreatment group. Shown are the actual expression levels for the genes displayed on the left during Mock (white) or *C. difficile* (black) infection. Abundances for each annotated pathway or gene were reported at the community-level and were agnostic to individual taxonomic group contributions to transcript pool.
+
+**Figure 3 | *C. difficile* colonization alters gene expression of taxonomic groups differentially between antibiotic pretreatements.** Each point represents a unique gene from the respective metagenomic assembly. Coordinates determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Metatranscriptomic read abundances are normalized to their associated metganomic coverage. Colored indicate genus of origin, and gray areas denote genes with consistent expression between conditions determined by least squares regression analysis with a minimum residual value of 2. Experimental groups are shown as follows; **(a)** Streptomycin-pretreated, **(b)** Cefoperazone-pretreated, and **(c)** Clindamycin-pretreated. 
 
 
-**Figure 2 | Community-level gene expression** 
-
-**Figure 3 | *C. difficile* colonization alters community-level gene expression differently between antibiotic pretreatements.** Each point represents a unique gene from the respective metagenomic assembly. Coordinates determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Metatranscriptomic read abundances are normalized to their associated metganomic coverage. Colored indicate genus of origin. Gray bars were determined utilizing least squares regression analysis with a minimum residual value of 2. Expreimental groups are shown as follows; **(a)** Streptomycin-pretreated, **(b)** Cefoperazone-pretreated, and **(c)** Clindamycin-pretreated. 
 
 **Figure 4 | ** Community-level modeling schematic and example interaction scores
+a-b Schematic of algorithm
+
 
 **Figure 5 | ** 
 - Most important metabolites at community level

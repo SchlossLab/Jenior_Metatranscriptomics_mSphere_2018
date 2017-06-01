@@ -113,6 +113,9 @@ strep_pathways[,c(2:4)] <- log2(strep_pathways[,c(2:4)] + 1)
 cef_annotated <- cef_annotated[order(-cef_annotated$diff),][1:20,]
 clinda_annotated <- clinda_annotated[order(-clinda_annotated$diff),][1:20,]
 strep_annotated <- strep_annotated[order(-strep_annotated$diff),][1:20,]
+cef_annotated <- cef_annotated[order(cef_annotated$diff),]
+clinda_annotated <- clinda_annotated[order(clinda_annotated$diff),]
+strep_annotated <- strep_annotated[order(strep_annotated$diff),]
 cef_annotated$diff <- NULL
 clinda_annotated$diff <- NULL
 strep_annotated$diff <- NULL
@@ -126,8 +129,10 @@ clinda_pathways$diff[clinda_pathways$clinda_630_reads < clinda_pathways$clinda_m
 strep_pathways$diff[strep_pathways$strep_630_reads < strep_pathways$strep_mock_reads] <- strep_pathways$diff * -1
 
 # Format names for plotting
+cef_annotated$gene <- gsub('translation_elongation_factor_P_\\(EF\\-P\\)', 'Translation elongation factor P', cef_annotated$gene)
 cef_annotated$gene <- gsub('_', ' ', cef_annotated$gene)
 cef_annotated$gene <- gsub('mostly Fe transport', 'Iron transport', cef_annotated$gene)
+cef_annotated$gene <- gsub('pyruvate kinase \\(EC\\:2.7\\.1\\.40\\)', 'Pyruvate kinase', cef_annotated$gene)
 cef_annotated$gene <- gsub('phosphopyruvate hydratase', 'Phosphopyruvate hydratase', cef_annotated$gene)
 cef_annotated$gene <- gsub('outer membrane receptor protein', 'Outer membrane receptor protein', cef_annotated$gene)
 cef_annotated$gene <- gsub('Predicted dehydrogenases and related proteins', 'Predicted dehydrogenases', cef_annotated$gene)
@@ -153,6 +158,8 @@ clinda_annotated$gene <- gsub('phosphoenolpyruvate-protein phosphotransferase', 
 clinda_annotated$gene <- gsub('phosphoglycerate mutase', 'Phosphoglycerate mutase', clinda_annotated$gene)
 clinda_annotated$gene <- gsub('phosphopyruvate hydratase', 'Phosphopyruvate hydratase', clinda_annotated$gene)
 clinda_annotated$gene <- gsub('ribosome-associated factor Y', 'Ribosome-associated factor Y', clinda_annotated$gene)
+clinda_annotated$gene <- gsub('acetyltransferase', 'Acetyltransferase', clinda_annotated$gene)
+clinda_annotated$gene <- gsub('thioredoxin', 'Thioredoxin', clinda_annotated$gene)
 clinda_annotated <- clinda_annotated[clinda_annotated$gene != 'uncharacterized LOC100521496',]
 clinda_annotated <- clinda_annotated[clinda_annotated$gene != '30S ribosomal protein S16',]
 clinda_annotated <- clinda_annotated[c(1:15),]
@@ -167,6 +174,7 @@ strep_annotated$gene <- gsub('fructose-bisphosphate aldolase', 'Fructose-bisphos
 strep_annotated$gene <- gsub('elongation factor Tu \\(EC\\:3\\.6\\.5\\.3)', 'Elongation factor Tu', strep_annotated$gene)
 strep_annotated$gene <- gsub('alkyl hydroperoxide reductase', 'Alkyl hydroperoxide reductase', strep_annotated$gene)
 strep_annotated$gene <- gsub('acetyltransferase', 'Acetyltransferase', strep_annotated$gene)
+strep_annotated$gene <- gsub('cell division initiation protein', 'Cell division initiation protein', strep_annotated$gene)
 strep_annotated$gene <- gsub('phosphoenolpyruvate-protein phosphotransferase', 'Phosphoenolpyruvate phosphotransferase', strep_annotated$gene)
 strep_annotated$gene <- gsub('phosphoglycerate kinase \\(EC\\:2\\.7\\.2\\.3)', 'Phosphoglycerate kinase', strep_annotated$gene)
 strep_annotated$gene <- gsub('phosphoglycerate mutase', 'Phosphoglycerate mutase', strep_annotated$gene)
@@ -179,6 +187,8 @@ rownames(strep_annotated) <- strep_annotated$gene
 strep_annotated$gene <- NULL
 
 cef_pathways$pathway <- gsub('_', ' ', cef_pathways$pathway)
+cef_pathways$pathway <- gsub(' and ', ' \\& ', cef_pathways$pathway)
+cef_pathways$pathway <- gsub('RNA degradation\\:F', ' RNA f', cef_pathways$pathway)
 cef_pathways <- cef_pathways[cef_pathways$pathway != 'Ribosome:Translation',]
 cef_pathways <- cef_pathways[cef_pathways$pathway != 'Metabolic pathways',]
 cef_pathways$pathway <- gsub(':Translation', '', cef_pathways$pathway)
@@ -190,6 +200,8 @@ rownames(cef_pathways) <- cef_pathways$pathway
 cef_pathways$pathway <- NULL
 
 clinda_pathways$pathway <- gsub('_', ' ', clinda_pathways$pathway)
+clinda_pathways$pathway <- gsub(' and ', ' \\& ', clinda_pathways$pathway)
+clinda_pathways$pathway <- gsub('RNA degradation\\:F', ' RNA f', clinda_pathways$pathway)
 clinda_pathways <- clinda_pathways[clinda_pathways$pathway != 'Ribosome:Translation',]
 clinda_pathways <- clinda_pathways[clinda_pathways$pathway != 'Metabolic pathways',]
 clinda_pathways$pathway <- gsub(':Membrane transport', '', clinda_pathways$pathway)
@@ -200,13 +212,15 @@ rownames(clinda_pathways) <- clinda_pathways$pathway
 clinda_pathways$pathway <- NULL
 
 strep_pathways$pathway <- gsub('_', ' ', strep_pathways$pathway)
+strep_pathways$pathway <- gsub(' and ', ' \\& ', strep_pathways$pathway)
+strep_pathways$pathway <- gsub('RNA degradation\\:', ' RNA ', strep_pathways$pathway)
 strep_pathways <- strep_pathways[strep_pathways$pathway != 'Ribosome:Translation',]
 strep_pathways <- strep_pathways[strep_pathways$pathway != 'Metabolic pathways',]
 strep_pathways$pathway <- gsub(':Translation', '', strep_pathways$pathway)
 strep_pathways$pathway <- gsub(':Energy metabolism', '', strep_pathways$pathway)
 strep_pathways$pathway <- gsub(':Carbohydrate metabolism', '', strep_pathways$pathway)
 strep_pathways$pathway <- gsub(':Membrane transport', '', strep_pathways$pathway)
-strep_pathways$pathway <- gsub('Amino sugar and nucleotide sugar metabolism', 'Amino sugar and nucleotide sugar metab.', strep_pathways$pathway)
+strep_pathways$pathway <- gsub('Amino sugar & nucleotide sugar metabolism', 'Amino sugar & nucleotide sugar metab.', strep_pathways$pathway)
 strep_pathways$pathway <- gsub('Microbial metabolism in diverse environments', 'Microb. metab. in diverse environ.', strep_pathways$pathway)
 strep_pathways <- strep_pathways[c(1:5),]
 rownames(strep_pathways) <- strep_pathways$pathway
@@ -243,6 +257,28 @@ layout(matrix(c(1,1,
 
 #------------------#
 
+# Overrepresented pathways
+par(mar=c(12,4,1,2), las=1, mgp=c(1.6,0.7,0))
+plot(0, type='n', xlab='', xaxt='n', yaxt='n', 
+     ylab=as.expression(bquote(paste(Delta,' Fold Abundance (',log[2],')'))), xlim=c(0,20.5), ylim=c(-16,16))
+abline(h=0, lwd=1.5)
+axis(side=2, at=seq(-16,16,4), labels=c(16,12,8,4,0,4,8,12,16))
+text(x=c(2.2,1.9), y=c(15.7,-15.7), cex=0.9, labels=c('Infection-associated', 'Mock-associated'))
+legend('top', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
+       pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.7, col='black', bty='n')
+mtext('a', side=2, line=2, las=2, adj=1.7, padj=-6, cex=1.2, font=2)
+
+# Add groups
+barplot(strep_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=strep_col, yaxt='n', add=TRUE, xpd=F) # Streptomycin
+barplot(cef_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=cef_col, yaxt='n', add=TRUE, xpd=F) # Cefoperazone
+barplot(clinda_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=clinda_col, yaxt='n', add=TRUE, xpd=F) # Clindamycin
+
+# Add pathway names
+text(cex=0.9, x=c(1.2,2.3,3.5,4.7,5.9,  8.4,9.5,10.7,11.9,13.1,   15.6,16.7,17.9,19.2,20.5), 
+     y=-18, pathway_names, xpd=TRUE, srt=60, pos=2)
+
+#------------------#
+
 # Streptomycin
 par(mar=c(3,15,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
 barplot(strep_annotated, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
@@ -251,9 +287,9 @@ box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
-title('Streptomycin-pretreated', line=0.5, cex.main=1.2, col.main=strep_col, font.main=1)
-mtext('a', side=2, padj=-10, adj=17.5, cex=1.2, font=2)
-text(x=12.5, y=8, 'Infection', cex=1.1)
+title('Streptomycin-pretreated', line=0.5, cex.main=1.2, col.main=strep_col, font.main=2)
+mtext('b', side=2, padj=-10, adj=16, cex=1.2, font=2)
+text(x=12.5, y=7, 'Infection', cex=1.1)
 legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg=c('white','black'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
@@ -267,9 +303,9 @@ box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
-title('Cefoperazone-pretreated', line=0.5, cex.main=1.2, col.main=cef_col, font.main=1)
-mtext('b', side=2, padj=-10, adj=16, cex=1.2, font=2)
-text(x=12.5, y=8, 'Infection', cex=1.1)
+title('Cefoperazone-pretreated', line=0.5, cex.main=1.2, col.main=cef_col, font.main=2)
+mtext('c', side=2, padj=-10, adj=17.5, cex=1.2, font=2)
+text(x=12.5, y=7, 'Infection', cex=1.1)
 legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg=c('white','black'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
@@ -283,34 +319,11 @@ box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
-title('Clindamycin-pretreated', line=0.5, cex.main=1.2, col.main=clinda_col, font.main=1)
-mtext('c', side=2, padj=-10, adj=17.5, cex=1.2, font=2)
-text(x=12.5, y=8, 'Infection', cex=1.1)
+title('Clindamycin-pretreated', line=0.5, cex.main=1.2, col.main=clinda_col, font.main=2)
+mtext('d', side=2, padj=-10, adj=16, cex=1.2, font=2)
+text(x=12.5, y=7, 'Infection', cex=1.1)
 legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg=c('white','black'), 
        pch=22, pt.cex=1.5, cex=0.9)
-
-#-------------------#
-
-# Overrepresented pathways
-par(mar=c(15,4,1,2), las=1, mgp=c(1.6,0.7,0))
-plot(0, type='n', xlab='', xaxt='n', yaxt='n', 
-     ylab=as.expression(bquote(paste(Delta,' Fold Abundance (',log[2],')'))), xlim=c(-0.4,21), ylim=c(-16,16))
-abline(h=0, lwd=1.5)
-axis(side=2, at=seq(-16,16,4), labels=c(16,12,8,4,0,4,8,12,16))
-text(x=c(2.2,1.9), y=c(15.7,-15.7), cex=0.9, labels=c('Infection-associated', 'Mock-associated'))
-legend('top', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
-       pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.7, col='black', bty='n')
-mtext('d', side=2, line=2, las=2, adj=1.5, padj=-5, cex=1.2, font=2)
-
-# Add groups
-barplot(strep_pathways, xlim=c(-0.4,21), ylim=c(-16,16), col=strep_col, yaxt='n', add=TRUE, xpd=F) # Streptomycin
-barplot(cef_pathways, xlim=c(-0.4,21), ylim=c(-16,16), col=cef_col, yaxt='n', add=TRUE, xpd=F) # Cefoperazone
-barplot(clinda_pathways, xlim=c(-0.4,21), ylim=c(-16,16), col=clinda_col, yaxt='n', add=TRUE, xpd=F) # Clindamycin
-
-# Add pathway names
-text(cex=0.9, x=c(1.2,2.3,3.5,4.7,5.9,  8.4,9.5,10.7,11.9,13.1,   15.6,16.7,17.9,19.2,20.5), 
-     y=-18, pathway_names, xpd=TRUE, srt=60, pos=2)
-
 
 dev.off()
 
