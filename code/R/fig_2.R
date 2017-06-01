@@ -109,10 +109,10 @@ cef_pathways[,c(2:4)] <- log2(cef_pathways[,c(2:4)] + 1)
 clinda_pathways[,c(2:4)] <- log2(clinda_pathways[,c(2:4)] + 1)
 strep_pathways[,c(2:4)] <- log2(strep_pathways[,c(2:4)] + 1)
 
-# Rank differences and subset to top differences (genes)
-cef_annotated <- cef_annotated[order(-cef_annotated$diff),][1:20,]
-clinda_annotated <- clinda_annotated[order(-clinda_annotated$diff),][1:20,]
-strep_annotated <- strep_annotated[order(-strep_annotated$diff),][1:20,]
+# Rank differences (genes)
+cef_annotated <- cef_annotated[order(-cef_annotated$diff),][c(1:20),]
+clinda_annotated <- clinda_annotated[order(-clinda_annotated$diff),][c(1:20),]
+strep_annotated <- strep_annotated[order(-strep_annotated$diff),][c(1:20),]
 cef_annotated <- cef_annotated[order(cef_annotated$diff),]
 clinda_annotated <- clinda_annotated[order(clinda_annotated$diff),]
 strep_annotated <- strep_annotated[order(strep_annotated$diff),]
@@ -120,28 +120,25 @@ cef_annotated$diff <- NULL
 clinda_annotated$diff <- NULL
 strep_annotated$diff <- NULL
 
+# Exclude the overly broad catagories
+broad <- c('Metabolic_pathways','Biosynthesis_of_secondary_metabolites','Microbial_metabolism_in_diverse_environments',
+           'Biosynthesis_of_antibiotics','Carbon_metabolism','2\\-Oxocarboxylic_acid_metabolism','Fatty_acid_metabolism',
+           'Biosynthesis_of_amino_acids','Degradation_of_aromatic_compounds')
+cef_pathways <- cef_pathways[!cef_pathways$pathway %in% broad,]
+clinda_pathways <- clinda_pathways[!clinda_pathways$pathway %in% broad,]
+strep_pathways <- strep_pathways[!strep_pathways$pathway %in% broad,]
+
+# Calculate average pathway expression
+ave_630 <- mean(c(cef_pathways$cef_630_reads, clinda_pathways$clinda_630_reads, strep_pathways$strep_630_reads))
+ave_mock <- mean(c(cef_pathways$cef_mock_reads, clinda_pathways$clinda_mock_reads, strep_pathways$strep_mock_reads))
+
 # Find direction of change for pathways
-cef_pathways <- cef_pathways[order(-cef_pathways$diff),][1:10,]
-clinda_pathways <- clinda_pathways[order(-clinda_pathways$diff),][1:10,]
-strep_pathways <- strep_pathways[order(-strep_pathways$diff),][1:10,]
+cef_pathways <- cef_pathways[order(-cef_pathways$diff),]
+clinda_pathways <- clinda_pathways[order(-clinda_pathways$diff),]
+strep_pathways <- strep_pathways[order(-strep_pathways$diff),]
 cef_pathways$diff[cef_pathways$cef_630_reads < cef_pathways$cef_mock_reads] <- cef_pathways$diff * -1
 clinda_pathways$diff[clinda_pathways$clinda_630_reads < clinda_pathways$clinda_mock_reads] <- clinda_pathways$diff * -1
 strep_pathways$diff[strep_pathways$strep_630_reads < strep_pathways$strep_mock_reads] <- strep_pathways$diff * -1
-
-
-
-# exclude the overly broad catagories
-Metabolic pathways
-Biosynthesis of secondary metabolites
-Microbial metabolism in diverse environments
-Biosynthesis of antibiotics
-Carbon metabolism
-2-Oxocarboxylic acid metabolism
-Fatty acid metabolism
-Biosynthesis of amino acids
-Degradation of aromatic compounds
-
-
 
 # Format names for plotting
 cef_annotated$gene <- gsub('translation_elongation_factor_P_\\(EF\\-P\\)', 'Translation elongation factor P', cef_annotated$gene)
@@ -205,11 +202,9 @@ cef_pathways$pathway <- gsub('_', ' ', cef_pathways$pathway)
 cef_pathways$pathway <- gsub(' and ', ' \\& ', cef_pathways$pathway)
 cef_pathways$pathway <- gsub('RNA degradation\\:F', ' RNA f', cef_pathways$pathway)
 cef_pathways <- cef_pathways[cef_pathways$pathway != 'Ribosome:Translation',]
-cef_pathways <- cef_pathways[cef_pathways$pathway != 'Metabolic pathways',]
 cef_pathways$pathway <- gsub(':Translation', '', cef_pathways$pathway)
-cef_pathways$pathway <- gsub('Microbial metabolism in diverse environments', 'Microb. metabolism in diverse environ.', cef_pathways$pathway)
-Microbial_metabolism_in_diverse_environments
-cef_pathways$pathway <- gsub(':', ': ', cef_pathways$pathway)
+cef_pathways$pathway <- gsub(':Carbohydrate metabolism', '', cef_pathways$pathway)
+cef_pathways$pathway <- gsub(':Replication & repair', '', cef_pathways$pathway)
 cef_pathways <- cef_pathways[c(1:5),]
 rownames(cef_pathways) <- cef_pathways$pathway
 cef_pathways$pathway <- NULL
@@ -221,7 +216,9 @@ clinda_pathways <- clinda_pathways[clinda_pathways$pathway != 'Ribosome:Translat
 clinda_pathways <- clinda_pathways[clinda_pathways$pathway != 'Metabolic pathways',]
 clinda_pathways$pathway <- gsub(':Membrane transport', '', clinda_pathways$pathway)
 clinda_pathways$pathway <- gsub(' \\(PTS\\)', '', clinda_pathways$pathway)
+clinda_pathways$pathway <- gsub(':Carbohydrate metabolism', '', clinda_pathways$pathway)
 clinda_pathways$pathway <- gsub(':Energy metabolism:Energy metabolism', '', clinda_pathways$pathway)
+clinda_pathways$pathway <- gsub('Amino sugar & nucleotide sugar metabolism', 'Amino sugar & nucleotide sugar metab.', clinda_pathways$pathway)
 clinda_pathways <- clinda_pathways[c(1:5),]
 rownames(clinda_pathways) <- clinda_pathways$pathway
 clinda_pathways$pathway <- NULL
@@ -236,7 +233,6 @@ strep_pathways$pathway <- gsub(':Energy metabolism', '', strep_pathways$pathway)
 strep_pathways$pathway <- gsub(':Carbohydrate metabolism', '', strep_pathways$pathway)
 strep_pathways$pathway <- gsub(':Membrane transport', '', strep_pathways$pathway)
 strep_pathways$pathway <- gsub('Amino sugar & nucleotide sugar metabolism', 'Amino sugar & nucleotide sugar metab.', strep_pathways$pathway)
-strep_pathways$pathway <- gsub('Microbial metabolism in diverse environments', 'Microb. metab. in diverse environ.', strep_pathways$pathway)
 strep_pathways <- strep_pathways[c(1:5),]
 rownames(strep_pathways) <- strep_pathways$pathway
 strep_pathways$pathway <- NULL
@@ -287,6 +283,12 @@ mtext('a', side=2, line=2, las=2, adj=1.7, padj=-6, cex=1.2, font=2)
 barplot(strep_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=strep_col, yaxt='n', add=TRUE, xpd=F) # Streptomycin
 barplot(cef_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=cef_col, yaxt='n', add=TRUE, xpd=F) # Cefoperazone
 barplot(clinda_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=clinda_col, yaxt='n', add=TRUE, xpd=F) # Clindamycin
+
+# Add average expression lines
+abline(h=ave_630, lwd=1.2, lty=5)
+abline(h=-ave_mock, lwd=1.2, lty=5)
+legend('bottomright', 'Ave. cDNA Abundance', lty=5,lwd=1.2, cex=0.9)
+
 
 # Add pathway names
 text(cex=0.9, x=c(1.2,2.3,3.5,4.7,5.9,  8.4,9.5,10.7,11.9,13.1,   15.6,16.7,17.9,19.2,20.5), 
