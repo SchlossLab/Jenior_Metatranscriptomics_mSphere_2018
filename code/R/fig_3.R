@@ -55,18 +55,34 @@ cef_annotated <- cef_normalized_reads[!is.na(cef_normalized_reads$organism),]
 clinda_annotated <- clinda_normalized_reads[!is.na(clinda_normalized_reads$organism),]
 strep_annotated <- strep_normalized_reads[!is.na(strep_normalized_reads$organism),]
 
+# Remove any C. difficile genes with transcription only in infected
+cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
+cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% cdiff_omit))
+clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% cdiff_omit))
+strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% cdiff_omit))
+rm(cdiff_omit)
+
 # Calculate correlation coefficients
-strep_corr <- as.character(round(cor.test(strep_annotated[,1], strep_annotated[,2], method='spearman', exact=FALSE)$estimate, digits=3))
-cef_corr <- as.character(round(cor.test(cef_annotated[,1], cef_annotated[,2], method='spearman', exact=FALSE)$estimate, digits=3))
-clinda_corr <- as.character(round(cor.test(clinda_annotated[,1], clinda_annotated[,2], method='spearman', exact=FALSE)$estimate, digits=3))
+strep_corr <- as.character(round(cor.test(strep_annotated[,2], strep_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
+cef_corr <- as.character(round(cor.test(cef_annotated[,2], cef_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
+clinda_corr <- as.character(round(cor.test(clinda_annotated[,2], clinda_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
 
 # Using previously defined lines, find outliers to y = x
-strep_630_outliers <- subset(strep_annotated, strep_annotated$strep_mock_metaT_reads > strep_annotated$strep_630_metaT_reads + 2)
-strep_mock_outliers <- subset(strep_annotated, strep_annotated$strep_mock_metaT_reads < strep_annotated$strep_630_metaT_reads - 2)
-cef_630_outliers <- subset(cef_annotated, cef_annotated$cef_mock_metaT_reads > cef_annotated$cef_630_metaT_reads + 2)
-cef_mock_outliers <- subset(cef_annotated, cef_annotated$cef_mock_metaT_reads < cef_annotated$cef_630_metaT_reads - 2)
-clinda_630_outliers <- subset(clinda_annotated, clinda_annotated$clinda_mock_metaT_reads > clinda_annotated$clinda_630_metaT_reads + 2)
-clinda_mock_outliers <- subset(clinda_annotated, clinda_annotated$clinda_mock_metaT_reads < clinda_annotated$clinda_630_metaT_reads - 2)
+strep_630_outliers <- subset(strep_annotated, strep_annotated$strep_630_metaT_reads > strep_annotated$strep_mock_metaT_reads + 2)
+strep_mock_outliers <- subset(strep_annotated, strep_annotated$strep_mock_metaT_reads > strep_annotated$strep_630_metaT_reads + 2)
+cef_630_outliers <- subset(cef_annotated, cef_annotated$cef_630_metaT_reads > cef_annotated$cef_mock_metaT_reads + 2)
+cef_mock_outliers <- subset(cef_annotated, cef_annotated$cef_mock_metaT_reads > cef_annotated$cef_630_metaT_reads + 2)
+#clinda_630_outliers <- clinda_annotated[(clinda_annotated$clinda_630_metaT_reads > clinda_annotated$clinda_mock_metaT_reads + 2),]
+#clinda_mock_outliers <- clinda_annotated[(clinda_annotated$clinda_mock_metaT_reads > clinda_annotated$clinda_630_metaT_reads + 2),]
+
+clinda_630_outliers <- subset(clinda_annotated, clinda_annotated$clinda_mock_metaT_reads > clinda_annotated$clinda_630_metaT_reads + 2) 
+clinda_mock_outliers <- subset(clinda_annotated, clinda_annotated$clinda_mock_metaT_reads < clinda_annotated$clinda_630_metaT_reads - 2) 
+
+
+
+
+
+
 
 # Remove outliers from the rest of the genes
 strep_annotated <- strep_annotated[!row.names(strep_annotated) %in% row.names(strep_630_outliers), ]
@@ -105,19 +121,6 @@ strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% mamm_
 cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% mamm_omit))
 clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% mamm_omit))
 rm(mamm_omit)
-
-# Remove any C. difficile genes with transcription only in infected
-cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
-strep_630_outliers <- subset(strep_630_outliers, !(strep_630_outliers$organism %in% cdiff_omit))
-strep_mock_outliers <- subset(strep_mock_outliers, !(strep_mock_outliers$organism %in% cdiff_omit))
-cef_630_outliers <- subset(cef_630_outliers, !(cef_630_outliers$organism %in% cdiff_omit))
-cef_mock_outliers <- subset(cef_mock_outliers, !(cef_mock_outliers$organism %in% cdiff_omit))
-clinda_630_outliers <- subset(clinda_630_outliers, !(clinda_630_outliers$organism %in% cdiff_omit))
-clinda_mock_outliers <- subset(clinda_mock_outliers, !(clinda_mock_outliers$organism %in% cdiff_omit))
-strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% cdiff_omit))
-cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% cdiff_omit))
-clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% cdiff_omit))
-rm(cdiff_omit)
 
 # Save KEGG ID names
 strep_630_outliers$kegg_id <- rownames(strep_630_outliers)
@@ -235,6 +238,8 @@ clinda_mock_actino <- rbind(subset(clinda_mock_outliers, color == '#009900'),
 # Retrieve abundances of genes for each taxonomic group in all conditions
 
 # strep - cdiff outliers - lactobacillus
+#nrow(subset(strep_630_outliers, strep_630_outliers$genus == 'Lactobacillus'))
+
 
 # cef - mock outliers - allistipes
 
