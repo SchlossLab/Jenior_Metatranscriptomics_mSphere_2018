@@ -226,7 +226,7 @@ tiff(filename=plot_file, width=10, height=10, units='in',
 layout(matrix(c(1,2,
                 3,4), 
               nrow=2, ncol=2, byrow = TRUE))
-par(mar=c(4, 5, 1, 1), mgp=c(3,0.7,0))
+par(mar=c(4, 4, 1, 1), mgp=c(3,0.7,0))
 
 #-------------------#
 
@@ -240,9 +240,9 @@ axis(1, at=seq(0,12,2), label=seq(0,12,2))
 axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
 minor.ticks.axis(1, 10, mn=0, mx=12)
 minor.ticks.axis(2, 10, mn=0, mx=12)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(strep_col,'black'))
 mtext('a', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
@@ -268,9 +268,9 @@ axis(1, at=seq(0,12,2), label=seq(0,12,2))
 axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
 minor.ticks.axis(1, 10, mn=0, mx=12)
 minor.ticks.axis(2, 10, mn=0, mx=12)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(cef_col,'black'))
 mtext('b', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
@@ -296,9 +296,9 @@ axis(1, at=seq(0,12,2), label=seq(0,12,2))
 axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
 minor.ticks.axis(1, 10, mn=0, mx=12)
 minor.ticks.axis(2, 10, mn=0, mx=12)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
-mtext(expression(paste('Fold Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('630-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(clinda_col,'black'))
 mtext('c', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
@@ -315,26 +315,27 @@ points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clin
 #-------------------#
 
 # Taxonomic group legend
-par(mar=c(0,2,3,0))
+par(mar=c(0,1,3,0))
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
 rect(xleft=-4.5, ybottom=10, xright=3.5, ytop=-5.5, border='black')
 
 # Left side
 text(x=c(-3,-3,1,1,1,1,0.5), y=c(9,2.4,9,5.5,2.4,0,-2.4), labels=c('Bacteroidetes', 'Firmicutes','Actinobacteria','Proteobacteria','Verrucomicrobia','Other Bacteria', 'Archeae'), cex=1.2) # Phyla
-text(x=-2.5, y=c(8.3,7.6,6.9,6.2,5.5,4.8), labels=c('Allistipes','Bacteroides','Odoribacter','Parabacteroides','Prevotella','Porphymonas'), cex=0.9) # Bacteroietes
+text(x=-2.5, y=c(8.3,7.6,6.9,6.2,5.5,4.8), labels=c('Allistipes','Bacteroides','Odoribacter','Parabacteroides','Prevotella','Porphymonas'), cex=0.9, font=3) # Bacteroietes
 points(x=rep(-1.2,6), y=c(8.3,7.6,6.9,6.2,5.5,4.8), pch=22, cex=2.1, col='black', bg=c('#000099','#0000CC','#0000FF','#3333FF','#6666FF','#9999FF')) # blues
-text(x=-2.5, y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), labels=c('Clostridium','Enterococcus','Eubacterium','Lactobacillus','Lactococcus','Roseburia','Ruminococcus','Staphylococcus','Streptococcus'), cex=0.9) # Firmicutes
+text(x=-2.5, y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), labels=c('Clostridium','Enterococcus','Eubacterium','Lactobacillus','Lactococcus','Roseburia','Ruminococcus','Staphylococcus','Streptococcus'), cex=0.9, font=3) # Firmicutes
 points(x=rep(-1.2,9), y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), pch=22, cex=2.1, col='black', bg=c('#330000','#660000','#990000','#CC0000','#FF0000','#FF3333','#FF6666','#FF9999','#FFCCCC')) # reds
 
 # Right side
-text(x=1.5, y=c(8.3,7.6,6.9), labels=c('Bifidobacterium','Corynebacterium','Olsenella'), cex=0.9) # Actinobacteria
+text(x=1.5, y=c(8.3,7.6,6.9), labels=c('Bifidobacterium','Corynebacterium','Olsenella'), cex=0.9, font=3) # Actinobacteria
 points(x=rep(2.85,3), y=c(8.3,7.6,6.9), pch=22, cex=2.1, col='black', bg=c('#006600','#009900','#33FF33')) # greens
-text(x=1.5, y=4.8, labels='Escherichia', cex=0.9) # Proteobacteria
+text(x=1.5, y=4.8, labels='Escherichia', cex=0.9, font=3) # Proteobacteria
 points(x=2.85, y=4.8, pch=22, cex=2.1, col='black', bg='#CCCC00') # yellow
-text(x=1.5, y=1.7, labels='Akkermansia', cex=0.9) # Verrucomicrobia
+text(x=1.5, y=1.7, labels='Akkermansia', cex=0.9, font=3) # Verrucomicrobia
 points(x=2.85, y=1.7, pch=22, cex=2.1, col='black', bg='#990099') # purple
-points(x=2.85, y=0, pch=22, cex=2.1, col='black', bg='white') # Other Bacteria - white
-text(x=1.35, y=-3.1, labels='Methanobrevibacter', cex=0.9) # Archeae
+text(x=1.5, y=-0.85, labels='<0.1% Each', cex=0.9) # Other bacteria
+points(x=2.85, y=-0.85, pch=22, cex=2.1, col='black', bg='white') # Other Bacteria - white
+text(x=1.35, y=-3.1, labels='Methanobrevibacter', cex=0.9, font=3) # Archeae
 points(x=2.85, y=-3.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
 
 dev.off()

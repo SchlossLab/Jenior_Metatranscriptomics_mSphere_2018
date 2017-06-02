@@ -38,6 +38,21 @@ strep_pathways <- read.delim(strep_pathways, sep='\t', header=TRUE, row.names=3)
 
 # Format data
 
+# Remove C. difficile genes
+cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
+cef_normalized_reads <- cef_normalized_reads[!cef_normalized_reads$organism %in% cdiff_omit,]
+clinda_normalized_reads <- clinda_normalized_reads[!clinda_normalized_reads$organism %in% cdiff_omit,]
+strep_normalized_reads <- strep_normalized_reads[!strep_normalized_reads$organism %in% cdiff_omit,]
+rm(cdiff_omit)
+
+# Find number of genes with organism annotation
+cef_orgs <- as.numeric(length(which(!is.na(cef_normalized_reads$organism))))
+clinda_orgs <- as.numeric(length(which(!is.na(clinda_normalized_reads$organism))))
+strep_orgs <- as.numeric(length(which(!is.na(strep_normalized_reads$organism))))
+all_cef <- as.numeric(nrow(cef_normalized_reads))
+all_clinda <- as.numeric(nrow(clinda_normalized_reads))
+all_strep <- as.numeric(nrow(strep_normalized_reads))
+
 # Screen for those genes that have a gene annotation
 cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', rownames(cef_normalized_reads)),]), ]
 clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', rownames(clinda_normalized_reads)),]), ]
@@ -55,13 +70,6 @@ strep_annotated <- subset(strep_annotated, !grepl('Ribosomal_RNA*', strep_annota
 strep_annotated <- subset(strep_annotated, !grepl('ribosomal_RNA*', strep_annotated$description))
 strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_RNA*', strep_annotated$description))
 
-# Remove C. difficile genes
-cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
-cef_annotated <- cef_annotated[!cef_annotated$organism %in% cdiff_omit,]
-clinda_annotated <- clinda_annotated[!clinda_annotated$organism %in% cdiff_omit,]
-strep_annotated <- strep_annotated[!strep_annotated$organism %in% cdiff_omit,]
-rm(cdiff_omit)
-
 # Remove hypothetical and uncharacterized annotations
 cef_annotated <- subset(cef_annotated, description != 'hypothetical_protein')
 cef_annotated <- subset(cef_annotated, description != 'uncharacterized_*')
@@ -69,6 +77,19 @@ clinda_annotated <- subset(clinda_annotated, description != 'hypothetical_protei
 clinda_annotated <- subset(clinda_annotated, description != 'uncharacterized_*')
 strep_annotated <- subset(strep_annotated, description != 'hypothetical_protein')
 strep_annotated <- subset(strep_annotated, description != 'uncharacterized_*')
+
+# Find annotated gene counts
+cef_genes <- as.numeric(length(cef_annotated$gene))
+clinda_genes <- as.numeric(length(clinda_annotated$gene))
+strep_genes <- as.numeric(length(strep_annotated$gene))
+
+# Find percent of each annotation type (genes vs organisms)
+cef_gene_percent <- (cef_genes / all_cef) * 100
+cef_org_percent <- (cef_orgs / all_cef) * 100
+clinda_gene_percent <- (clinda_genes / all_clinda) * 100
+clinda_org_percent <- (clinda_orgs / all_clinda) * 100
+strep_gene_percent <- (strep_genes / all_strep) * 100
+strep_org_percent <- (strep_orgs / all_strep) * 100  
 
 # Save pathway information
 cef_pathways <- cef_annotated[complete.cases(cef_annotated),]
@@ -129,8 +150,8 @@ clinda_pathways <- clinda_pathways[!clinda_pathways$pathway %in% broad,]
 strep_pathways <- strep_pathways[!strep_pathways$pathway %in% broad,]
 
 # Calculate average pathway expression
-ave_630 <- mean(c(cef_pathways$cef_630_reads, clinda_pathways$clinda_630_reads, strep_pathways$strep_630_reads))
-ave_mock <- mean(c(cef_pathways$cef_mock_reads, clinda_pathways$clinda_mock_reads, strep_pathways$strep_mock_reads))
+ave_630 <- round(mean(c(cef_pathways$cef_630_reads, clinda_pathways$clinda_630_reads, strep_pathways$strep_630_reads)), 3)
+ave_mock <- round(mean(c(cef_pathways$cef_mock_reads, clinda_pathways$clinda_mock_reads, strep_pathways$strep_mock_reads)), 3)
 
 # Find direction of change for pathways
 cef_pathways <- cef_pathways[order(-cef_pathways$diff),]
@@ -245,7 +266,10 @@ cef_pathways <- cef_pathways[order(cef_pathways$diff),]
 clinda_pathways <- clinda_pathways[order(clinda_pathways$diff),]
 strep_pathways <- strep_pathways[order(strep_pathways$diff),]
 
-# Convert to matrices for grouped barplots
+# Format genes for plotting
+strep_annotated <- strep_annotated[,c(2,1)]
+cef_annotated <- cef_annotated[,c(2,1)]
+clinda_annotated <- clinda_annotated[,c(2,1)]
 strep_annotated <- as.matrix(t(strep_annotated))
 cef_annotated <- as.matrix(t(cef_annotated))
 clinda_annotated <- as.matrix(t(clinda_annotated))
@@ -271,7 +295,7 @@ layout(matrix(c(1,1,
 # Overrepresented pathways
 par(mar=c(12,4,1,2), las=1, mgp=c(1.6,0.7,0))
 plot(0, type='n', xlab='', xaxt='n', yaxt='n', 
-     ylab=as.expression(bquote(paste(Delta,' Fold Abundance (',log[2],')'))), xlim=c(0,20.5), ylim=c(-16,16))
+     ylab=as.expression(bquote(paste(Delta,' cDNA Abundance (',log[2],')'))), xlim=c(0,20.5), ylim=c(-16,16))
 abline(h=0, lwd=1.5)
 axis(side=2, at=seq(-16,16,4), labels=c(16,12,8,4,0,4,8,12,16))
 text(x=c(2.2,1.9), y=c(15.7,-15.7), cex=0.9, labels=c('Infection-associated', 'Mock-associated'))
@@ -299,7 +323,7 @@ text(cex=0.9, x=c(1.2,2.3,3.5,4.7,5.9,  8.4,9.5,10.7,11.9,13.1,   15.6,16.7,17.9
 # Streptomycin
 par(mar=c(3,15,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
 barplot(strep_annotated, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c('black', 'white'), cex.names=0.9)
+        xlab='', ylab='', col=c('white','black'), cex.names=0.9)
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
@@ -307,7 +331,7 @@ mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1
 title('Streptomycin-pretreated', line=0.5, cex.main=1.2, col.main=strep_col, font.main=2)
 mtext('b', side=2, padj=-10, adj=16, cex=1.2, font=2)
 text(x=12.5, y=7, 'Infection', cex=1.1)
-legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg=c('white','black'), 
+legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
 #------------------#
@@ -315,7 +339,7 @@ legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg
 # Cefoperazone
 par(mar=c(3,15,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
 barplot(cef_annotated, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c('black', 'white'), cex.names=0.9)
+        xlab='', ylab='', col=c('white','black'), cex.names=0.9)
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
@@ -323,7 +347,7 @@ mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1
 title('Cefoperazone-pretreated', line=0.5, cex.main=1.2, col.main=cef_col, font.main=2)
 mtext('c', side=2, padj=-10, adj=17.5, cex=1.2, font=2)
 text(x=12.5, y=7, 'Infection', cex=1.1)
-legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg=c('white','black'), 
+legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
 #------------------#
@@ -331,7 +355,7 @@ legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg
 # Clindamycin
 par(mar=c(3,15,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
 barplot(clinda_annotated, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c('black', 'white'), cex.names=0.9)
+        xlab='', ylab='', col=c('white','black'), cex.names=0.9)
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
@@ -339,7 +363,7 @@ mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1
 title('Clindamycin-pretreated', line=0.5, cex.main=1.2, col.main=clinda_col, font.main=2)
 mtext('d', side=2, padj=-10, adj=16, cex=1.2, font=2)
 text(x=12.5, y=7, 'Infection', cex=1.1)
-legend('bottomright', legend=c('Mock',expression(italic('C. difficile'))), pt.bg=c('white','black'), 
+legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
 dev.off()
