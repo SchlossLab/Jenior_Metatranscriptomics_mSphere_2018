@@ -50,10 +50,10 @@ clinda_normalized_reads[,c(1:2)] <- log2(clinda_normalized_reads[,c(1:2)] + 1)
 strep_normalized_reads$gene <- NULL
 strep_normalized_reads[,c(1:2)] <- log2(strep_normalized_reads[,c(1:2)] + 1)
 
-# Screen for those genes that were able to be annotated
-cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', cef_normalized_reads$gene),]), ]
-clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', clinda_normalized_reads$gene),]), ]
-strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', strep_normalized_reads$gene),]), ]
+# Remove those genes without an organism annotation
+cef_annotated <- cef_normalized_reads[!is.na(cef_normalized_reads$organism),]
+clinda_annotated <- clinda_normalized_reads[!is.na(clinda_normalized_reads$organism),]
+strep_annotated <- strep_normalized_reads[!is.na(strep_normalized_reads$organism),]
 
 # Calculate correlation coefficients
 strep_corr <- as.character(round(cor.test(strep_annotated[,1], strep_annotated[,2], method='spearman', exact=FALSE)$estimate, digits=3))
@@ -211,12 +211,36 @@ clinda_630_archeae <- subset(clinda_630_outliers, color == '#FF8000')
 clinda_mock_archeae <- subset(clinda_mock_outliers, color == '#FF8000')
 
 # Make sure Actinobacteria points are visible
-strep_630_actino <- rbind(subset(strep_630_outliers, color == '#009900'), subset(strep_630_outliers, color == '#006600'), subset(strep_630_outliers, color == '#33FF33'))
-strep_mock_actino <- rbind(subset(strep_mock_outliers, color == '#009900'), subset(strep_mock_outliers, color == '#006600'), subset(strep_mock_outliers, color == '#33FF33'))
-cef_630_actino <- rbind(subset(cef_630_outliers, color == '#009900'), subset(cef_630_outliers, color == '#006600'), subset(cef_630_outliers, color == '#33FF33'))
-cef_mock_actino <- rbind(subset(cef_mock_outliers, color == '#009900'), subset(cef_mock_outliers, color == '#006600'), subset(cef_mock_outliers, color == '#33FF33'))
-clinda_630_actino <- rbind(subset(clinda_630_outliers, color == '#009900'), subset(clinda_630_outliers, color == '#006600'), subset(clinda_630_outliers, color == '#33FF33'))
-clinda_mock_actino <- rbind(subset(clinda_mock_outliers, color == '#009900'), subset(clinda_mock_outliers, color == '#006600'), subset(clinda_mock_outliers, color == '#33FF33'))
+strep_630_actino <- rbind(subset(strep_630_outliers, color == '#009900'), 
+                          subset(strep_630_outliers, color == '#006600'), 
+                          subset(strep_630_outliers, color == '#33FF33'))
+strep_mock_actino <- rbind(subset(strep_mock_outliers, color == '#009900'), 
+                           subset(strep_mock_outliers, color == '#006600'), 
+                           subset(strep_mock_outliers, color == '#33FF33'))
+cef_630_actino <- rbind(subset(cef_630_outliers, color == '#009900'), 
+                        subset(cef_630_outliers, color == '#006600'), 
+                        subset(cef_630_outliers, color == '#33FF33'))
+cef_mock_actino <- rbind(subset(cef_mock_outliers, color == '#009900'), 
+                         subset(cef_mock_outliers, color == '#006600'), 
+                         subset(cef_mock_outliers, color == '#33FF33'))
+clinda_630_actino <- rbind(subset(clinda_630_outliers, color == '#009900'), 
+                           subset(clinda_630_outliers, color == '#006600'), 
+                           subset(clinda_630_outliers, color == '#33FF33'))
+clinda_mock_actino <- rbind(subset(clinda_mock_outliers, color == '#009900'), 
+                            subset(clinda_mock_outliers, color == '#006600'), 
+                            subset(clinda_mock_outliers, color == '#33FF33'))
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Retrieve abundances of genes for each taxonomic group in all conditions
+
+# strep - cdiff outliers - lactobacillus
+
+# cef - mock outliers - allistipes
+
+# clinda - both groups of outliers - escherichia
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -247,14 +271,14 @@ mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.
 legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(strep_col,'black'))
 mtext('a', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
 
-points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
-points(x=strep_mock_outliers_other$strep_mock_metaT_reads, y=strep_mock_outliers_other$strep_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
-points(x=strep_630_outliers$strep_mock_metaT_reads, y=strep_630_outliers$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_outliers$color, col='gray20')
-points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_outliers$color, col='gray20')
-points(x=strep_630_actino$strep_mock_metaT_reads, y=strep_630_actino$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_actino$color, col='gray20')
-points(x=strep_mock_actino$strep_mock_metaT_reads, y=strep_mock_actino$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_actino$color, col='gray20')
-points(x=strep_630_archeae$strep_mock_metaT_reads, y=strep_630_archeae$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_archeae$color, col='gray20')
-points(x=strep_mock_archeae$strep_mock_metaT_reads, y=strep_mock_archeae$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_archeae$color, col='gray20')
+points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_630_outliers_other$color)
+points(x=strep_mock_outliers_other$strep_mock_metaT_reads, y=strep_mock_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_mock_outliers_other$color)
+points(x=strep_630_outliers$strep_mock_metaT_reads, y=strep_630_outliers$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_outliers$color, col='gray10')
+points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_outliers$color, col='gray10')
+points(x=strep_630_actino$strep_mock_metaT_reads, y=strep_630_actino$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_actino$color, col='gray10')
+points(x=strep_mock_actino$strep_mock_metaT_reads, y=strep_mock_actino$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_actino$color, col='gray10')
+points(x=strep_630_archeae$strep_mock_metaT_reads, y=strep_630_archeae$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_archeae$color, col='gray10')
+points(x=strep_mock_archeae$strep_mock_metaT_reads, y=strep_mock_archeae$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_archeae$color, col='gray10')
 
 #-------------------#
 
@@ -275,14 +299,14 @@ mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.
 legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(cef_col,'black'))
 mtext('b', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
 
-points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$cef_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
-points(x=cef_mock_outliers_other$cef_mock_metaT_reads, y=cef_mock_outliers_other$cef_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
-points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_outliers$color, col='gray20')
-points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_outliers$color, col='gray20')
-points(x=cef_630_actino$cef_mock_metaT_reads, y=cef_630_actino$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_actino$color, col='gray20')
-points(x=cef_mock_actino$cef_mock_metaT_reads, y=cef_mock_actino$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_actino$color, col='gray20')
-points(x=cef_630_archeae$cef_mock_metaT_reads, y=cef_630_archeae$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_archeae$color, col='gray20')
-points(x=cef_mock_archeae$cef_mock_metaT_reads, y=cef_mock_archeae$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_archeae$color, col='gray20')
+points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$cef_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=cef_630_outliers_other$color)
+points(x=cef_mock_outliers_other$cef_mock_metaT_reads, y=cef_mock_outliers_other$cef_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=cef_mock_outliers_other$color)
+points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_outliers$color, col='gray10')
+points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_outliers$color, col='gray10')
+points(x=cef_630_actino$cef_mock_metaT_reads, y=cef_630_actino$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_actino$color, col='gray10')
+points(x=cef_mock_actino$cef_mock_metaT_reads, y=cef_mock_actino$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_actino$color, col='gray10')
+points(x=cef_630_archeae$cef_mock_metaT_reads, y=cef_630_archeae$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_archeae$color, col='gray10')
+points(x=cef_mock_archeae$cef_mock_metaT_reads, y=cef_mock_archeae$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_archeae$color, col='gray10')
 
 #-------------------#
 
@@ -303,14 +327,14 @@ mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.
 legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(clinda_col,'black'))
 mtext('c', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
 
-points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
-points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=1, col='gray20', lwd=1.5)
-points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_outliers$color, col='gray20')
-points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_outliers$color, col='gray20')
-points(x=clinda_630_actino$clinda_mock_metaT_reads, y=clinda_630_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_actino$color, col='gray20')
-points(x=clinda_mock_actino$clinda_mock_metaT_reads, y=clinda_mock_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_actino$color, col='gray20')
-points(x=clinda_630_archeae$clinda_mock_metaT_reads, y=clinda_630_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_archeae$color, col='gray20')
-points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_archeae$color, col='gray20')
+points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_630_outliers_other$color)
+points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_mock_outliers_other$color)
+points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_outliers$color, col='gray10')
+points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_outliers$color, col='gray10')
+points(x=clinda_630_actino$clinda_mock_metaT_reads, y=clinda_630_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_actino$color, col='gray10')
+points(x=clinda_mock_actino$clinda_mock_metaT_reads, y=clinda_mock_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_actino$color, col='gray10')
+points(x=clinda_630_archeae$clinda_mock_metaT_reads, y=clinda_630_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_archeae$color, col='gray10')
+points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_archeae$color, col='gray10')
 
 #-------------------#
 
