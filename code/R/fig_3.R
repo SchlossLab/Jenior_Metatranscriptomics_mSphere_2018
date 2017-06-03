@@ -62,6 +62,15 @@ clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% cd
 strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% cdiff_omit))
 rm(cdiff_omit)
 
+# Remove all possible mammalian genes
+mamm_omit <- c('fab','cfa','ggo','hgl','hsa','mcc','mdo','pon','aml',
+               'ptr','rno','shr','ssc','aml','bta','cge','ecb',
+               'pps','fca','mmu','oaa','gga','ola','acs','aga')
+strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% mamm_omit))
+cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% mamm_omit))
+clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% mamm_omit))
+rm(mamm_omit)
+
 # Calculate correlation coefficients
 strep_corr <- as.character(round(cor.test(strep_annotated[,2], strep_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
 cef_corr <- as.character(round(cor.test(cef_annotated[,2], cef_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
@@ -72,17 +81,8 @@ strep_630_outliers <- subset(strep_annotated, strep_annotated$strep_630_metaT_re
 strep_mock_outliers <- subset(strep_annotated, strep_annotated$strep_mock_metaT_reads > strep_annotated$strep_630_metaT_reads + 2)
 cef_630_outliers <- subset(cef_annotated, cef_annotated$cef_630_metaT_reads > cef_annotated$cef_mock_metaT_reads + 2)
 cef_mock_outliers <- subset(cef_annotated, cef_annotated$cef_mock_metaT_reads > cef_annotated$cef_630_metaT_reads + 2)
-#clinda_630_outliers <- clinda_annotated[(clinda_annotated$clinda_630_metaT_reads > clinda_annotated$clinda_mock_metaT_reads + 2),]
-#clinda_mock_outliers <- clinda_annotated[(clinda_annotated$clinda_mock_metaT_reads > clinda_annotated$clinda_630_metaT_reads + 2),]
-
-clinda_630_outliers <- subset(clinda_annotated, clinda_annotated$clinda_mock_metaT_reads > clinda_annotated$clinda_630_metaT_reads + 2) 
-clinda_mock_outliers <- subset(clinda_annotated, clinda_annotated$clinda_mock_metaT_reads < clinda_annotated$clinda_630_metaT_reads - 2) 
-
-
-
-
-
-
+clinda_630_outliers <- clinda_annotated[(clinda_annotated$clinda_630_metaT_reads > clinda_annotated$clinda_mock_metaT_reads + 2),]
+clinda_mock_outliers <- clinda_annotated[(clinda_annotated$clinda_mock_metaT_reads > clinda_annotated$clinda_630_metaT_reads + 2),]
 
 # Remove outliers from the rest of the genes
 strep_annotated <- strep_annotated[!row.names(strep_annotated) %in% row.names(strep_630_outliers), ]
@@ -106,21 +106,6 @@ clinda_mock_outliers[] <- lapply(clinda_mock_outliers, as.character)
 strep_annotated[] <- lapply(strep_annotated, as.character)
 cef_annotated[] <- lapply(cef_annotated, as.character)
 clinda_annotated[] <- lapply(clinda_annotated, as.character)
-
-# Remove all possible mammalian genes
-mamm_omit <- c('fab','cfa','ggo','hgl','hsa','mcc','mdo','pon','aml',
-              'ptr','rno','shr','ssc','aml','bta','cge','ecb',
-              'pps','fca','mmu','oaa','gga','ola','acs','aga')
-strep_630_outliers <- subset(strep_630_outliers, !(strep_630_outliers$organism %in% mamm_omit))
-strep_mock_outliers <- subset(strep_mock_outliers, !(strep_mock_outliers$organism %in% mamm_omit))
-cef_630_outliers <- subset(cef_630_outliers, !(cef_630_outliers$organism %in% mamm_omit))
-cef_mock_outliers <- subset(cef_mock_outliers, !(cef_mock_outliers$organism %in% mamm_omit))
-clinda_630_outliers <- subset(clinda_630_outliers, !(clinda_630_outliers$organism %in% mamm_omit))
-clinda_mock_outliers <- subset(clinda_mock_outliers, !(clinda_mock_outliers$organism %in% mamm_omit))
-strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% mamm_omit))
-cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% mamm_omit))
-clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% mamm_omit))
-rm(mamm_omit)
 
 # Save KEGG ID names
 strep_630_outliers$kegg_id <- rownames(strep_630_outliers)
@@ -232,20 +217,22 @@ clinda_630_actino <- rbind(subset(clinda_630_outliers, color == '#009900'),
 clinda_mock_actino <- rbind(subset(clinda_mock_outliers, color == '#009900'), 
                             subset(clinda_mock_outliers, color == '#006600'), 
                             subset(clinda_mock_outliers, color == '#33FF33'))
+clinda_mock_ecoli <- subset(clinda_mock_outliers, color == '#CCCC00')
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Retrieve abundances of genes for each taxonomic group in all conditions
+# Check the count of genes for each genus in outlier groups
+table(strep_630_outliers$genus) # upper
+table(strep_mock_outliers$genus) # lower
+table(cef_630_outliers$genus) # upper
+table(cef_mock_outliers$genus) # lower
+table(clinda_630_outliers$genus) # upper
+table(clinda_mock_outliers$genus) # lower
 
-# strep - cdiff outliers - lactobacillus
-#nrow(subset(strep_630_outliers, strep_630_outliers$genus == 'Lactobacillus'))
-
-
-# cef - mock outliers - allistipes
-
-# clinda - both groups of outliers - escherichia
-
-
+# Do the same for those in the gray area
+table(strep_annotated$genus)
+table(cef_annotated$genus)
+table(clinda_annotated$genus)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -335,11 +322,11 @@ mtext('c', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
 points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_630_outliers_other$color)
 points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_mock_outliers_other$color)
 points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_outliers$color, col='gray10')
-points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_outliers$color, col='gray10')
+points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_mock_outliers$color, col='gray10')
 points(x=clinda_630_actino$clinda_mock_metaT_reads, y=clinda_630_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_actino$color, col='gray10')
-points(x=clinda_mock_actino$clinda_mock_metaT_reads, y=clinda_mock_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_actino$color, col='gray10')
+points(x=clinda_mock_actino$clinda_mock_metaT_reads, y=clinda_mock_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_mock_actino$color, col='gray10')
 points(x=clinda_630_archeae$clinda_mock_metaT_reads, y=clinda_630_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_archeae$color, col='gray10')
-points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_archeae$color, col='gray10')
+points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_mock_archeae$color, col='gray10')
 
 #-------------------#
 
