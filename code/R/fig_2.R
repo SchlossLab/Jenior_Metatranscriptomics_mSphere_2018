@@ -194,6 +194,7 @@ clinda_annotated$gene <- gsub('acetyltransferase', 'Acetyltransferase', clinda_a
 clinda_annotated$gene <- gsub('thioredoxin', 'Thioredoxin', clinda_annotated$gene)
 clinda_annotated <- clinda_annotated[clinda_annotated$gene != 'uncharacterized LOC100521496',]
 clinda_annotated <- clinda_annotated[clinda_annotated$gene != '30S ribosomal protein S16',]
+clinda_annotated <- clinda_annotated[clinda_annotated$gene != 'HD superfamily hydrolase',]
 clinda_annotated <- clinda_annotated[c(1:10),]
 rownames(clinda_annotated) <- clinda_annotated$gene
 clinda_annotated$gene <- NULL
@@ -270,21 +271,36 @@ cef_annotated <- as.matrix(t(cef_annotated))
 clinda_annotated <- as.matrix(t(clinda_annotated))
 
 # Final name changes to add pathways
-colnames(strep_annotated) <- c('A: ATP synthase subunit B','A: F0F1 ATP synthase subunit A',
-                               'Cell division initiation protein','EG: L-lactate dehydrogenase',
-                               'F: Transcriptional regulator','K: Phosphoenolpyruvate phosphotransferase',
-                               'E: Phosphoglycerate kinase','M: Alkyl hydroperoxide reductase',
-                               'G: Acetyltransferase','EJO: Phosphoglycerate mutase')
-colnames(cef_annotated) <- c('GN: 2-isopropylmalate synthase','Superfamily II DNA and RNA helicases',
-                             'F: Translation elongation factor P','Na+/glucose cotransporter',
-                             'Outer membrane receptor protein','GN: Methylmalonyl-CoA mutase',
-                             'DnaK suppressor protein','Two-component histidine sensor regulator',
-                             'L: SusD family protein','EG: Pyruvate kinase')
-colnames(clinda_annotated) <- c('A: ATP synthase subunit B','Thioredoxin',
-                                'G: Acetyltransferase','K: Phosphoenolpyruvate phosphotransferase',
-                                'F: Formate Acetyltransferase','EJO: Phosphoglycerate mutase',
-                                'G: Pyruvate formate-lyase activating enzyme','EJ: Phosphopyruvate hydratase',
-                                'F: Ribosome-associated factor Y','F: HD superfamily hydrolase')
+colnames(strep_annotated) <- c('(A) ATP synthase subunit B',
+                               '(A) F0F1 ATP synthase subunit A',
+                               'Cell division initiation protein',
+                               '(B,D) L-lactate dehydrogenase',
+                               '(C) Transcriptional regulator',
+                               '(G) Phosphoenolpyruvate phosphotransferase',
+                               '(B) Phosphoglycerate kinase',
+                               '(I) Alkyl hydroperoxide reductase',
+                               '(D) Acetyltransferase',
+                               '(B,F,K) Phosphoglycerate mutase')
+colnames(cef_annotated) <- c('(D,J) 2-isopropylmalate synthase',
+                             '(C,E) Superfamily II DNA and RNA helicases',
+                             '(C) Translation elongation factor P',
+                             'Na+/glucose cotransporter',
+                             'Outer membrane receptor protein',
+                             '(J) Methylmalonyl-CoA mutase',
+                             'DnaK suppressor protein',
+                             'Two-component histidine sensor regulator',
+                             '(H) SusD family protein',
+                             '(B,D) Pyruvate kinase')
+colnames(clinda_annotated) <- c('(A) ATP synthase subunit B',
+                                'Thioredoxin',
+                                '(D) Acetyltransferase',
+                                '(G) Phosphoenolpyruvate phosphotransferase',
+                                '(D) Formate Acetyltransferase',
+                                '(B,F,K) Phosphoglycerate mutase',
+                                'Cell division protein GpsB',
+                                '(D) Pyruvate formate-lyase activating enzyme',
+                                '(B,F) Phosphopyruvate hydratase',
+                                '(C) Ribosome-associated factor Y')
 
 # Format pathways for plotting
 pathway_names <- c(rev(rownames(strep_pathways)),rownames(cef_pathways),rev(rownames(clinda_pathways)))
@@ -318,7 +334,7 @@ axis(side=2, at=seq(-16,16,4), labels=c(16,12,8,4,0,4,8,12,16))
 text(x=c(2.2,1.9), y=c(15.7,-15.7), cex=0.7, labels=c('Infection-associated', 'Mock-associated'))
 legend('top', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
        pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.5, col='black', bty='n')
-mtext('a', side=2, line=2, las=2, adj=1.7, padj=-4.5, cex=1.2, font=2)
+mtext('a', side=2, line=2, las=2, adj=1.7, padj=-6, font=2)
 
 # Add groups
 barplot(strep_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=strep_col, yaxt='n', add=TRUE, xpd=F) # Streptomycin
@@ -345,8 +361,8 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Streptomycin-pretreated', line=0.5, cex.main=1.2, col.main=strep_col, font.main=2)
-mtext('b', side=2, padj=-8, adj=16, cex=1.2, font=2)
-text(x=12.5, y=6, 'Infection', cex=1.1)
+mtext('b', side=2, padj=-10, adj=18, font=2)
+text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
@@ -361,8 +377,8 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Cefoperazone-pretreated', line=0.5, cex.main=1.2, col.main=cef_col, font.main=2)
-mtext('c', side=2, padj=-8, adj=17.5, cex=1.2, font=2)
-text(x=12.5, y=6, 'Infection', cex=1.1)
+mtext('c', side=2, padj=-10, adj=19.5, font=2)
+text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
@@ -377,23 +393,24 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Clindamycin-pretreated', line=0.5, cex.main=1.2, col.main=clinda_col, font.main=2)
-mtext('d', side=2, padj=-8, adj=16, cex=1.2, font=2)
-text(x=12.5, y=6, 'Infection', cex=1.1)
+mtext('d', side=2, padj=-10, adj=18, font=2)
+text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
 #------------------#
 
 # Pathway legend
-par(mar=c(5,0,0,0))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-1,1), ylim=c(-12,12))
-legend('center', ncol=3, cex=0.75,
-       pch=c('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O'),
-       c('Oxidative phosphorylation','Amino sugar & nucleotide sugar metab.','ABC transporters',
-         'Aminoacyl-tRNA biosynthesis','Glycolysis / Gluconeogenesis','RNA folding, sorting & degradation',
-         'Pyruvate metabolism','Pentose & glucuronate interconv.','Homologous recombination',
+par(mar=c(5,0,1,0))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-12,12), ylim=c(-2,2))
+legend('center', ncol=3, cex=0.75, pt.cex=0.9,
+       pch=c('A','B','C','D','E','F','G','H','I','J','K'),
+       c('Oxidative phosphorylation','Glycolysis / Gluconeogenesis','RNA folding, sorting & degradation',
+         'Pyruvate metabolism','Homologous recombination',
          'Methane metabolism','Phosphotransferase system','Starch & sucrose metabolism',
          'Glutathione metabolism','Valine, leucine, and isoleucine biosyn.','Glycine, serine, and threonine metab.'))
+
+text(x=-6.5, y=1.8, expression(paste('Most frequent pathways among genes in ', bold('b-d'), ':')), cex=0.9, xpd=TRUE)
 
 dev.off()
 

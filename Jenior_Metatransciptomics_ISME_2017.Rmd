@@ -57,6 +57,37 @@ table_1 <- as.data.frame(lapply(table_1, function(x) {gsub('_', ' ', x)}))
 
 ###Introduction
 
+*Clostridium difficile* is a 
+
+
+What c. difficile is and its associated infection are
+
+Associations with multiple antibiotics in the clinic
+
+different clinical outcomes
+
+able to colonize different mouse models - cite alyx
+
+differences in virulence factor expression
+
+differences in gene expression - cite last paper
+
+leading into possible nutrient niche differences - also last paper
+
+
+leads to questions about differential responses on the commuinity to infection
+  - ratios of competition or synergy could have downstream effects on infection outcome
+
+our approach utilizing metagenome-enabled metatranscritpomics
+  - to analyse potentially active processes in members of the microbiota
+  - binning contigs to get discreet genomes to analyse transcriptomes of individual taxa
+
+modeling the metabolism of complex communities of bacteria using next-generation sequencing data
+
+initial metatranscriptomic analysis revealed that *C. difficile* colonization indeed altered community-level gene expression, particularly for pathways involved in the acquisition and catabolism of certain nutrient sources.
+
+
+a little bit about modeling results
 
 
 ###Results
@@ -93,7 +124,8 @@ Utilizing the fully normalized metatranscriptomes, we first focused on expressio
 ***C. difficile* colonization correlates with large-scale changes in expression of different bacterial taxa between perturbed cecal environments**
 In light of large-scale differences in expression across the microbiota concomitant with *C. difficile* colonization, we desired to identify those bacterial groups responsible for the shift in each pretreatment condition. To accomplish this we utilized the genus level taxonomic information associated with each KEGG annotation to identify which group likely contributed a given gene to the metagenome. Many genes in the KEGG database are annotated as hypothetical or uncharacterized but still possess a taxonomic annotation. This resulted in substantially more genes from the total  being conserved for analysis in each group; 19.15% (streptomycin), 25.1% (cefoperazone), and 44.45% (clindamycin). With these data, we narrowed the focus onto transcription for genera that represented >0.01% of genes receiving taxonomic annotations in any of the three metagenomic assemblies. We then directly compared the normalized cDNA abundances for each gene between infected & uninfected states for each antibiotic pretreatment and colored points based on genus classifications (Fig. 3a-3c). Coordinates were determined by the relative expression of each gene in mock and *C. difficile* infection for x and y axes respectively. This causes genes with equal transcription in both conditions being compared to be strongly correlated and positioned proximal to the central diagonal line. As such, we then applied linear correlation and a squared residual cutoff to define those genes that are most strongly upregulated in either condition.
 
-These data revealed distinct changes in expression for underrepresented genera for each antibiotic pretreatment between infections conditions. First, in streptomycin-pretreated mice, the most prominent differences were in 937 genes belonging to *Lactobacillus* were upregulated in *C. difficile* infection (Fig. 3a). Next, in cefoperazone pretreatment 2290 genes belonging to *Bacteroides* were more upregulated in mock infection (Fig. 3b). A consistent trend in streptomycin and cefoperazone pretreatments was an overrepresentation of expression from genera belonging to Bacteroidetes during mock infection. The metatransciptomes for both of these pretreatment poorly correlated with one another, indicating a high degree of change induced by *C. difficile* colonization (*r* = 0.0334 & *r* = 0.031). Finally, in clindamycin pretreatment the largest difference in transcription was for 510 *Lactobacillus* genes during *C. difficile* infection (Fig. 3c). Infected and uninfected metatranscriptomes associated with this antibiotic correlated the more strongly than either other pretreatment (*r* = 0.862), supporting that *C. difficile* colonization had a low impact on transcription of the cecal microbiota. This infection model has been shown to go on to clear *C. difficile* infection witin 7 days, as opposed to long-term colonization, which suggests that communities where *C. difficile* is less able to impact resident members' activity regain colonization resistance more quickly (Fig. S5....). Interestingly, taxonomic groups most highly represented as outliers in the normalized metatranscriptomes of all tested antibiotic pretretreatments were actually minority members of the respective cecal communities as determined 16S rRNA gene abundance (Fig. 1c). As a side note, the presence of Archeael sequences in our shotgun sequencing data was not surprising as the universal 16S rRNA gene V4 region primers we used do not reliably amplify Archeae. Together, our metatranscriptomic results support that *C. difficile* may differentially modify the transcriptional activity of separate microbial taxa based on the context of the community in which it is colonizing. 
+These data revealed distinct changes in expression for underrepresented genera for each antibiotic pretreatment between infections conditions. First, in streptomycin-pretreated mice, the most prominent differences were in 937 genes belonging to *Lactobacillus* were upregulated in *C. difficile* infection (Fig. 3a). Next, in cefoperazone pretreatment 2290 genes belonging to *Bacteroides* were more upregulated in mock infection (Fig. 3b). A consistent trend in streptomycin and cefoperazone pretreatments was an overrepresentation of expression from genera belonging to Bacteroidetes during mock infection. The metatransciptomes for both of these pretreatment poorly correlated with one another, indicating a high degree of change induced by *C. difficile* colonization (*r* = 0.0334 & *r* = 0.031). Finally, in clindamycin pretreatment the largest difference in transcription was for 510 *Lactobacillus* genes during *C. difficile* infection (Fig. 3c). Infected and uninfected metatranscriptomes associated with this antibiotic correlated the more strongly than either other pretreatment (*r* = 0.862), supporting that *C. difficile* colonization had a low impact on transcription of the cecal microbiota. This infection model has been shown to go on to clear *C. difficile* infection witin 7 days, as opposed to long-term colonization, which suggests that communities where *C. difficile* is less able to impact resident members' activity regain colonization resistance more quickly (Fig. S5....). Interestingly, taxonomic groups most highly represented as outliers in the normalized metatranscriptomes of all tested antibiotic pretretreatments were actually minority members of the respective cecal communities as determined 16S rRNA gene abundance (Fig. 1c). On average, *Bacteroides* was the most commonly altered taxa during infection with mean of 441 genes appearing as expression outliers across the three pretreatment goups. As a side note, the presence of Archeael sequences in our shotgun sequencing data was not surprising as the universal 16S rRNA gene V4 region primers we used do not reliably amplify Archeae. Together, our results support that *C. difficile* may differentially modify the transcriptional activity of separate microbial taxa based on the context of the community in which it is colonizing. 
+
 
 **Modeling competition for nutrients across the microbiome**
 
@@ -265,8 +297,7 @@ corr_p_combined <- corr_p[5]
 
 **Modeling competition for nutrients between discreet taxanomic groups in the metagenome.**
 
-
-In previous work from Jenior et. al. (2017), the authors established a simple computational framework to impute those metabolites which a bacterium is most likely to obtain from its environment based transcriptome-informed genome-enabled metabolic models. In the current study, we have extended these methods to analyze the putative competition for nutrients between bacteria in the perturbed cecal microbiota. This approach is especially informative when assessing which groups are most competitive with *C. difficile* for growth nutrients and may prevent its colonization in healthy communities. In this new method, the level of possible competition for a substrate is imputed based on the transcription of enzymes that utilize it within a pair of organisms, then this process is repeated iteratively for all shared metabolites between the pair. For each comparison, the absolute value of the difference between the inverse-log~2~ of metabolite importance scores for a given metabolite shared between the metabolic models is calculated. This value is then re-transformed for comparability and ultimately reflects the magnitude in which the organisms of interest compete for a pool of metabolites. These calculations are then extended to each possible pairing of taxa in the provided community in an effort to determine those metabolites that are highly sought after as well as identifying potentially vacant nutrient niches that *C. difficile* could exploit following infection.
+In previous work from our group [@Jenior2017], we established a simple computational framework to impute those metabolites which a bacterium is most likely to obtain from its environment based transcriptome-informed genome-enabled metabolic models. In the current study, we have extended these methods to analyze the putative competition for nutrients between bacteria in the perturbed cecal microbiota. This approach is especially informative when assessing which groups are most competitive with *C. difficile* for growth nutrients and may prevent its colonization in healthy communities. In this new method, the level of possible competition for a substrate is imputed based on the transcription of enzymes that utilize it within a pair of organisms, then this process is repeated iteratively for all shared metabolites between the pair. For each comparison, the absolute value of the difference between the inverse-log~2~ of metabolite importance scores for a given metabolite shared between the metabolic models is calculated. This value is then re-transformed for comparability and ultimately reflects the magnitude in which the organisms of interest compete for a pool of metabolites. These calculations are then extended to each possible pairing of taxa in the provided community in an effort to determine those metabolites that are highly sought after as well as identifying potentially vacant nutrient niches that *C. difficile* could exploit following infection.
 
 
 
@@ -289,6 +320,20 @@ changes in metabolome not due to antibiotic treatment alone, c diff colonization
 
 
 ###Discussion
+
+What c. difficile and its associated infection are
+
+Associations with multiple antibiotics in the clinic
+
+different clinical outcomes
+
+able to colonize different mouse models - cite alyx
+
+differences in virulence factor expression
+
+differences in gene expression - cite last paper
+
+leading into possible nutrient niche differences - also last paper
 
 
 
