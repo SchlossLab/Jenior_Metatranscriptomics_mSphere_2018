@@ -1,8 +1,0 @@
-User Defined Parameters
-KO expression file: lactobacillus_DNA.clindamycin_630_RNA.final.pool.norm.ko.txt
-Graph name: lactobacillus_630
-KEGG ortholog nodes: 320
-Substrate nodes: 576
-Probability distribution generated: yes
-Permutations: 1000
-Duration: 3 seconds
