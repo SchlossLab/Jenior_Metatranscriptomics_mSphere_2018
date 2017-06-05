@@ -1,16 +1,16 @@
-compound_code	compound_name	score_1	score_2	ratio	magnitude	interaction_score	percentile
-C06188	Salicin_6-phosphate	1.0	2.0	0.5	6.0	70.0
-C00024	Acetyl-CoA	5.752	1.677	0.292	57.09	70.0
-C00123	L-Leucine	3.939	0.415	0.105	16.671	60.0
-C00022	Pyruvate	-1.052	-2.353	0.406	7.182	50.0
-C05892	UDP-N-acetylmuramoyl-L-alanyl-gamma-D-glutamyl-L-lysine	5.129	4.907	0.957	64.995	80.0
-C01172	beta-D-Glucose_6-phosphate	-1.184	-1.0	0.88	4.272	70.0
-C00011	CO2	-1.7	4.624	0.132	27.907	70.0
-C04882	UDP-N-acetylmuramoyl-L-alanyl-D-glutamyl-6-carboxy-L-lysyl-D-alanyl-D-alanine	-5.129	-4.907	0.857	64.995	90.0
-C00035	GDP	3.907	-0.322	0.083	16.251	50.0
-C04702	UDPMurAc(oyl-L-Ala-D-gamma-Glu-L-Lys-D-Ala-D-Ala)	-5.129	-4.907	0.857	64.995	90.0
-C00993	D-Alanyl-D-alanine	5.129	4.907	0.957	64.995	80.0
-C04877	UDP-N-acetylmuramoyl-L-alanyl-D-gamma-glutamyl-meso-2,6-diaminopimelate	5.129	4.907	0.957	64.995	80.0
-C00197	3-Phospho-D-glycerate	-2.055	-2.115	0.959	8.487	80.0
-C00049	L-Aspartate	-0.562	-0.203	0.78	2.627	50.0
-C02047	L-Leucyl-tRNA	-6.443	-1.585	0.034	90.003	60.0
+compound_code	compound_name	clostridium_630_score	escherichia_630_score	ratio	magnitude	interaction_score	percentile
+C06188	Salicin_6-phosphate	1.0	2.0	0.5	6.0	1.585	70.0
+C00024	Acetyl-CoA	5.752	1.677	0.292	57.09	4.057	70.0
+C00123	L-Leucine	3.939	0.415	0.105	16.671	0.813	60.0
+C00022	Pyruvate	-1.052	-2.353	0.406	7.182	-1.543	50.0
+C05892	UDP-N-acetylmuramoyl-L-alanyl-gamma-D-glutamyl-L-lysine	5.129	4.907	0.957	64.995	5.958	80.0
+C01172	beta-D-Glucose_6-phosphate	-1.184	-1.0	0.88	4.272	-1.911	70.0
+C00011	CO2	-1.7	4.624	0.132	27.907	-1.879	70.0
+C04882	UDP-N-acetylmuramoyl-L-alanyl-D-glutamyl-6-carboxy-L-lysyl-D-alanyl-D-alanine	-5.129	-4.907	0.857	64.995	-5.8	90.0
+C00035	GDP	3.907	-0.322	0.083	16.251	-0.437	50.0
+C04702	UDPMurAc(oyl-L-Ala-D-gamma-Glu-L-Lys-D-Ala-D-Ala)	-5.129	-4.907	0.857	64.995	-5.8	90.0
+C00993	D-Alanyl-D-alanine	5.129	4.907	0.957	64.995	5.958	80.0
+C04877	UDP-N-acetylmuramoyl-L-alanyl-D-gamma-glutamyl-meso-2,6-diaminopimelate	5.129	4.907	0.957	64.995	5.958	80.0
+C00197	3-Phospho-D-glycerate	-2.055	-2.115	0.959	8.487	-3.025	80.0
+C00049	L-Aspartate	-0.562	-0.203	0.78	2.627	-1.035	50.0
+C02047	L-Leucyl-tRNA	-6.443	-1.585	0.034	90.003	-1.634	60.0

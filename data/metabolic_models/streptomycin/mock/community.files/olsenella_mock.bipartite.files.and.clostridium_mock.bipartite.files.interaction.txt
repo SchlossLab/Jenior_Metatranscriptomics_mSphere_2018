@@ -1,28 +1,28 @@
-compound_code	compound_name	score_1	score_2	ratio	magnitude	interaction_score	percentile
-C00025	L-Glutamate	0.485	0.495	0.98	2.809	80.0
-C00024	Acetyl-CoA	-1.902	-0.382	0.349	5.04	60.0
-C00026	2-Oxoglutarate	-0.28	-5.51	0.027	46.784	50.0
-C00103	D-Glucose_1-phosphate	0.55	-0.515	0.976	2.893	80.0
-C00100	Propanoyl-CoA	-0.737	-0.807	0.953	3.416	90.0
-C00022	Pyruvate	-1.846	0.006	0.279	4.599	50.0
-C00063	CTP	1.184	1.222	0.969	4.605	90.0
-C00002	ATP	0.3	1.126	0.266	3.414	60.0
-C00369	Starch	-0.807	0.515	0.817	3.179	70.0
-C00286	dGTP	-0.585	4.152	0.084	19.278	50.0
-C00668	alpha-D-Glucose_6-phosphate	0.587	1.845	0.318	5.095	60.0
-C00197	3-Phospho-D-glycerate	-0.859	2.184	0.399	6.358	70.0
-C00058	Formate	0.585	0.415	0.709	2.833	70.0
-C00097	L-Cysteine	-0.138	1.585	0.367	4.1	50.0
-C00011	CO2	3.442	6.845	0.503	125.829	90.0
-C00073	L-Methionine	0.632	1.0	0.632	3.55	80.0
-C00044	GTP	-1.047	-1.027	0.986	4.104	90.0
-C00118	D-Glyceraldehyde_3-phosphate	1.696	1.369	0.807	5.823	90.0
-C00074	Phosphoenolpyruvate	-1.815	-2.222	0.754	8.184	90.0
-C00075	UTP	1.054	1.441	0.731	4.791	80.0
-C00109	2-Oxobutanoate	0.241	0.322	0.748	2.432	70.0
-C05345	beta-D-Fructose_6-phosphate	0.071	-0.812	0.598	2.806	50.0
-C00631	2-Phospho-D-glycerate	-0.115	-0.138	0.984	2.183	60.0
-C00441	L-Aspartate_4-semialdehyde	-0.152	6.75	0.01	108.746	60.0
-C01172	beta-D-Glucose_6-phosphate	0.541	-0.596	0.963	2.967	80.0
-C00046	RNA	-0.459	-1.1	0.641	3.518	60.0
-C00718	Amylose	0.585	-0.585	1.0	3.0	80.0
+compound_code	compound_name	olsenella_mock_score	clostridium_mock_score	ratio	magnitude	interaction_score	percentile
+C00025	L-Glutamate	0.485	0.495	0.98	2.809	1.461	80.0
+C00024	Acetyl-CoA	-1.902	-0.382	0.349	5.04	-0.814	60.0
+C00026	2-Oxoglutarate	-0.28	-5.51	0.027	46.784	-0.318	50.0
+C00103	D-Glucose_1-phosphate	0.55	-0.515	0.976	2.893	-1.498	80.0
+C00100	Propanoyl-CoA	-0.737	-0.807	0.953	3.416	-1.702	90.0
+C00022	Pyruvate	-1.846	0.006	0.279	4.599	-0.361	50.0
+C00063	CTP	1.184	1.222	0.969	4.605	2.158	90.0
+C00002	ATP	0.3	1.126	0.266	3.414	-0.137	60.0
+C00369	Starch	-0.807	0.515	0.817	3.179	-1.376	70.0
+C00286	dGTP	-0.585	4.152	0.084	19.278	-0.702	50.0
+C00668	alpha-D-Glucose_6-phosphate	0.587	1.845	0.318	5.095	0.697	60.0
+C00197	3-Phospho-D-glycerate	-0.859	2.184	0.399	6.358	-1.344	70.0
+C00058	Formate	0.585	0.415	0.709	2.833	1.007	70.0
+C00097	L-Cysteine	-0.138	1.585	0.367	4.1	-0.589	50.0
+C00011	CO2	3.442	6.845	0.503	125.829	5.984	90.0
+C00073	L-Methionine	0.632	1.0	0.632	3.55	1.166	80.0
+C00044	GTP	-1.047	-1.027	0.986	4.104	-2.017	90.0
+C00118	D-Glyceraldehyde_3-phosphate	1.696	1.369	0.807	5.823	2.233	90.0
+C00074	Phosphoenolpyruvate	-1.815	-2.222	0.754	8.184	-2.626	90.0
+C00075	UTP	1.054	1.441	0.731	4.791	1.809	80.0
+C00109	2-Oxobutanoate	0.241	0.322	0.748	2.432	0.864	70.0
+C05345	beta-D-Fructose_6-phosphate	0.071	-0.812	0.598	2.806	-0.748	50.0
+C00631	2-Phospho-D-glycerate	-0.115	-0.138	0.984	2.183	-1.104	60.0
+C00441	L-Aspartate_4-semialdehyde	-0.152	6.75	0.01	108.746	-0.167	60.0
+C01172	beta-D-Glucose_6-phosphate	0.541	-0.596	0.963	2.967	-1.514	80.0
+C00046	RNA	-0.459	-1.1	0.641	3.518	-1.174	60.0
+C00718	Amylose	0.585	-0.585	1.0	3.0	-1.585	80.0

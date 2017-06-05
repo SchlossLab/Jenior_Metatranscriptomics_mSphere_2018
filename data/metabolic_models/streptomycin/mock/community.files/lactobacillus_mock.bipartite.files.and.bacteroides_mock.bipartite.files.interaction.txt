@@ -1,125 +1,125 @@
-compound_code	compound_name	score_1	score_2	ratio	magnitude	interaction_score	percentile
-C00025	L-Glutamate	5.296	-4.981	0.804	70.869	80.0
-C00024	Acetyl-CoA	-9.954	2.362	0.005	997.006	50.0
-C00026	2-Oxoglutarate	4.063	6.324	0.642	96.829	80.0
-C06481	L-Seryl-tRNA(Sec)	-6.728	-2.0	0.038	110.006	50.0
-C00352	D-Glucosamine_6-phosphate	-6.083	-0.515	0.021	69.219	60.0
-C00022	Pyruvate	-6.968	-1.817	0.028	128.716	50.0
-C00141	3-Methyl-2-oxobutanoic_acid	3.048	-1.254	0.288	10.656	50.0
-C00029	UDP-glucose	-8.169	-0.788	0.006	289.542	60.0
-C00147	Adenine	5.131	-5.459	0.797	79.029	90.0
-C01101	L-Ribulose_5-phosphate	3.259	1.0	0.307	11.573	70.0
-C00149	(S)-Malate	4.585	-2.259	0.199	28.787	60.0
-C00021	S-Adenosyl-L-homocysteine	6.262	-7.801	0.344	299.76	90.0
-C02430	L-Methionyl-tRNA	1.0	-4.907	0.067	32.002	50.0
-C00345	6-Phospho-D-gluconate	7.768	-2.907	0.034	225.473	60.0
-C00620	alpha-D-Ribose_1-phosphate	8.039	2.0	0.249	267.015	80.0
-C00438	N-Carbamoyl-L-aspartate	-2.585	1.737	0.556	9.334	60.0
-C01228	Guanosine_3',5'-bis(diphosphate)	-5.358	-3.459	0.268	52.009	60.0
-C06250	Holo-[carboxylase]	-5.406	4.248	0.448	61.401	70.0
-C00231	D-Xylulose_5-phosphate	4.682	-0.669	0.062	27.26	60.0
-C00011	CO2	-4.687	2.385	0.203	30.982	60.0
-C00014	Ammonia	3.83	-4.751	0.528	41.149	70.0
-C00019	S-Adenosyl-L-methionine	-0.322	7.539	0.007	187.23	60.0
-C05796	Galactan	6.966	11.107	0.627	2330.687	90.0
-C00152	L-Asparagine	-2.97	-1.688	0.411	11.057	50.0
-C00886	L-Alanyl-tRNA	-5.248	-3.7	0.342	50.998	70.0
-C05345	beta-D-Fructose_6-phosphate	7.462	5.103	0.684	210.682	90.0
-C02051	Lipoylprotein	-7.755	-10.217	0.181	1406.226	90.0
-C03511	L-Phenylalanyl-tRNA(Phe)	-5.248	-1.0	0.053	40.002	50.0
-C05382	Sedoheptulose_7-phosphate	-0.547	-0.047	0.707	2.494	60.0
-C00385	Xanthine	-3.327	-4.891	0.338	39.707	60.0
-C00387	Guanosine	5.129	5.866	0.874	93.316	80.0
-C00229	Acyl-carrier_protein	-2.0	9.506	0.006	731.095	50.0
-C00118	D-Glyceraldehyde_3-phosphate	-10.989	5.095	0.017	2066.622	80.0
-C03125	L-Cysteinyl-tRNA(Cys)	-5.285	-1.0	0.051	40.989	50.0
-C03127	L-Isoleucyl-tRNA(Ile)	-5.248	-5.248	1.0	76.004	90.0
-C00365	dUMP	-5.749	-2.222	0.087	58.445	50.0
-C00002	ATP	-7.095	5.231	0.275	174.269	80.0
-C00369	Starch	7.134	7.746	0.921	355.132	90.0
-C00256	(R)-Lactate	6.57	3.322	0.506	105.01	80.0
-C05336	Selenomethionyl-tRNA(Met)	-5.781	-4.907	0.546	84.989	80.0
-C05335	L-Selenomethionine	5.781	4.907	0.849	84.989	80.0
-C00099	beta-Alanine	4.248	1.0	0.235	21.001	70.0
-C01931	L-Lysyl-tRNA	-6.17	-5.615	0.681	121.014	90.0
-C00091	Succinyl-CoA	-7.755	-5.9	0.276	275.731	90.0
-C00092	D-Glucose_6-phosphate	-7.303	1.17	0.014	160.165	50.0
-C03939	Acetyl-[acyl-carrier_protein]	-3.496	-8.77	0.026	447.831	60.0
-C00095	D-Fructose	6.7	-5.845	0.553	161.449	90.0
-C00097	L-Cysteine	-6.83	0.222	0.01	114.938	60.0
-C00079	L-Phenylalanine	3.358	0.322	0.096	11.503	60.0
-C00073	L-Methionine	-2.977	3.044	0.955	16.121	70.0
-C00074	Phosphoenolpyruvate	-9.688	-3.833	0.017	839.108	70.0
-C00075	UTP	6.114	5.518	0.903	115.085	80.0
-C04006	1D-myo-Inositol_3-phosphate	6.714	7.5	0.895	286.001	90.0
-C00243	Lactose	6.007	12.088	0.497	4417.932	90.0
-C00242	Guanine	5.793	-5.146	0.639	90.853	80.0
-C00407	L-Isoleucine	-2.632	3.07	0.738	14.597	60.0
-C00183	L-Valine	-2.115	0.585	0.346	5.832	50.0
-C00671	(S)-3-Methyl-2-oxopentanoic_acid	5.17	-1.415	0.074	38.668	50.0
-C01094	D-Fructose_1-phosphate	12.178	2.0	0.164	4637.864	90.0
-C00169	Carbamoyl_phosphate	-4.664	2.358	0.202	30.478	60.0
-C00106	Uracil	4.379	5.413	0.809	63.413	80.0
-C00105	UMP	2.217	0.784	0.354	6.371	70.0
-C00103	D-Glucose_1-phosphate	-6.768	1.233	0.022	111.337	50.0
-C00063	CTP	7.516	4.207	0.56	201.507	80.0
-C00065	L-Serine	-4.972	0.348	0.041	32.658	60.0
-C00064	L-Glutamine	-3.226	3.737	0.702	22.69	70.0
-C00864	Pantothenate	5.109	-1.0	0.058	36.511	50.0
-C00577	D-Glyceraldehyde	-12.766	-2.0	0.001	6969.446	50.0
-C00279	D-Erythrose_4-phosphate	12.679	1.637	0.129	6560.928	90.0
-C04421	N-Succinyl-LL-2,6-diaminoheptanedioate	5.0	2.585	0.517	38.0	70.0
-C00668	alpha-D-Glucose_6-phosphate	7.425	1.714	0.231	175.13	70.0
-C00666	LL-2,6-Diaminoheptanedioate	-4.743	-2.115	0.162	31.11	50.0
-C12215	Iminoerythrose_4-phosphate	-1.0	-1.0	1.0	4.0	50.0
-C12214	Aminofructose_6-phosphate	1.0	1.0	1.0	4.0	70.0
-C00294	Inosine	3.7	5.866	0.631	71.319	70.0
-C00111	Glycerone_phosphate	9.234	-0.628	0.003	603.704	60.0
-C04349	(4S)-4,6-Dihydroxy-2,5-dioxohexanoate	-1.0	-1.585	0.667	5.0	50.0
-C00354	D-Fructose_1,6-bisphosphate	-10.182	4.228	0.016	1180.422	70.0
-C00085	D-Fructose_6-phosphate	5.712	-6.484	0.586	141.93	90.0
-C02972	Dihydrolipoylprotein	7.755	10.217	0.759	1406.226	90.0
-C00262	Hypoxanthine	-4.716	-4.891	0.886	55.953	80.0
-C01172	beta-D-Glucose_6-phosphate	-5.899	-0.429	0.023	61.019	60.0
-C00267	alpha-D-Glucose	5.755	-9.484	0.075	770.096	90.0
-C01177	Inositol_1-phosphate	6.714	7.516	0.893	288.02	90.0
-C04494	Guanosine_3'-diphosphate_5'-triphosphate	-3.807	3.459	0.786	24.993	70.0
-C00460	dUTP	6.259	2.433	0.389	81.986	70.0
-C03794	N6-(1,2-Dicarboxyethyl)-AMP	-2.939	-3.222	0.822	17.0	60.0
-C00120	Biotin	4.755	6.229	0.763	102.012	80.0
-C00122	Fumarate	-4.531	5.165	0.644	58.996	80.0
-C00124	D-Galactose	7.931	-10.095	0.223	1337.743	90.0
-C00117	D-Ribose_5-phosphate	8.215	-1.094	0.007	299.275	50.0
-C02412	Glycyl-tRNA(Gly)	-4.807	-10.538	0.019	1514.798	70.0
-C02553	L-Seryl-tRNA(Ser)	-6.728	-2.0	0.038	110.006	50.0
-C05378	beta-D-Fructose_1,6-bisphosphate	11.998	-5.839	0.014	4147.568	80.0
-C02554	L-Valyl-tRNA(Val)	-5.459	-2.0	0.091	47.987	50.0
-C05744	Acetoacetyl-[acp]	6.098	-7.637	0.344	267.55	90.0
-C03150	Nicotinamide-beta-riboside	5.0	6.443	0.776	119.003	80.0
-C01209	Malonyl-[acyl-carrier_protein]	2.97	5.595	0.531	56.17	70.0
-C03546	myo-Inositol_4-phosphate	6.714	7.516	0.893	288.02	90.0
-C00197	3-Phospho-D-glycerate	-9.546	-1.164	0.003	749.777	50.0
-C00212	Adenosine	4.895	6.443	0.76	116.757	80.0
-C00153	Nicotinamide	-5.0	-6.443	0.368	119.003	80.0
-C00036	Oxaloacetate	-3.291	3.499	0.866	21.094	70.0
-C00037	Glycine	5.571	6.385	0.873	131.113	90.0
-C15973	Enzyme_N6-(dihydrolipoyl)lysine	7.749	10.217	0.758	1405.33	90.0
-C15972	Enzyme_N6-(lipoyl)lysine	-5.615	-10.217	0.041	1239.22	80.0
-C00031	D-Glucose	-8.228	0.737	0.006	301.497	60.0
-C00137	myo-Inositol	-7.333	-7.379	0.969	327.689	90.0
-C00332	Acetoacetyl-CoA	3.188	3.17	0.994	18.114	70.0
-C00130	IMP	-5.562	-2.45	0.116	52.706	60.0
-C01290	beta-D-Galactosyl-(1->4)-beta-D-glucosyl-(1<->1)-ceramide	6.304	12.088	0.522	4432.633	90.0
-C01050	UDP-N-acetylmuramate	-5.712	4.373	0.395	73.139	70.0
-C01190	beta-D-Glucosyl-(1<->1)-ceramide	-6.304	-11.503	0.027	2981.35	90.0
-C01762	Xanthosine	5.181	5.459	0.949	80.264	80.0
-C00631	2-Phospho-D-glycerate	-6.698	-0.445	0.013	105.186	60.0
-C00043	UDP-N-acetyl-alpha-D-glucosamine	-0.807	-2.807	0.25	8.748	50.0
-C00042	Succinate	4.248	1.388	0.327	21.618	70.0
-C00041	L-Alanine	-1.874	1.585	0.818	6.666	60.0
-C00047	L-Lysine	4.392	4.644	0.946	45.998	70.0
-C00046	RNA	-6.767	-5.296	0.361	148.198	80.0
-C00044	GTP	-6.974	-4.15	0.141	143.467	70.0
-C00204	2-Dehydro-3-deoxy-D-gluconate	-0.478	2.907	0.186	8.893	60.0
-C00049	L-Aspartate	-2.521	-3.336	0.568	15.838	60.0
-C01212	UDP-N-acetylmuramoyl-L-alanine	4.728	-4.19	0.689	44.754	80.0
+compound_code	compound_name	lactobacillus_mock_score	bacteroides_mock_score	ratio	magnitude	interaction_score	percentile
+C00025	L-Glutamate	5.296	-4.981	0.804	70.869	-5.832	80.0
+C00024	Acetyl-CoA	-9.954	2.362	0.005	997.006	-2.369	50.0
+C00026	2-Oxoglutarate	4.063	6.324	0.642	96.829	5.959	80.0
+C06481	L-Seryl-tRNA(Sec)	-6.728	-2.0	0.038	110.006	-2.053	50.0
+C00352	D-Glucosamine_6-phosphate	-6.083	-0.515	0.021	69.219	-0.545	60.0
+C00022	Pyruvate	-6.968	-1.817	0.028	128.716	-1.857	50.0
+C00141	3-Methyl-2-oxobutanoic_acid	3.048	-1.254	0.288	10.656	-1.62	50.0
+C00029	UDP-glucose	-8.169	-0.788	0.006	289.542	-0.797	60.0
+C00147	Adenine	5.131	-5.459	0.797	79.029	-5.976	90.0
+C01101	L-Ribulose_5-phosphate	3.259	1.0	0.307	11.573	1.828	70.0
+C00149	(S)-Malate	4.585	-2.259	0.199	28.787	-2.521	60.0
+C00021	S-Adenosyl-L-homocysteine	6.262	-7.801	0.344	299.76	-6.689	90.0
+C02430	L-Methionyl-tRNA	1.0	-4.907	0.067	32.002	-1.093	50.0
+C00345	6-Phospho-D-gluconate	7.768	-2.907	0.034	225.473	-2.956	60.0
+C00620	alpha-D-Ribose_1-phosphate	8.039	2.0	0.249	267.015	6.054	80.0
+C00438	N-Carbamoyl-L-aspartate	-2.585	1.737	0.556	9.334	-2.374	60.0
+C01228	Guanosine_3',5'-bis(diphosphate)	-5.358	-3.459	0.268	52.009	-3.802	60.0
+C06250	Holo-[carboxylase]	-5.406	4.248	0.448	61.401	-4.782	70.0
+C00231	D-Xylulose_5-phosphate	4.682	-0.669	0.062	27.26	-0.756	60.0
+C00011	CO2	-4.687	2.385	0.203	30.982	-2.651	60.0
+C00014	Ammonia	3.83	-4.751	0.528	41.149	-4.442	70.0
+C00019	S-Adenosyl-L-methionine	-0.322	7.539	0.007	187.23	-0.332	60.0
+C05796	Galactan	6.966	11.107	0.627	2330.687	10.513	90.0
+C00152	L-Asparagine	-2.97	-1.688	0.411	11.057	-2.185	50.0
+C00886	L-Alanyl-tRNA	-5.248	-3.7	0.342	50.998	-4.124	70.0
+C05345	beta-D-Fructose_6-phosphate	7.462	5.103	0.684	210.682	7.171	90.0
+C02051	Lipoylprotein	-7.755	-10.217	0.181	1406.226	-7.996	90.0
+C03511	L-Phenylalanyl-tRNA(Phe)	-5.248	-1.0	0.053	40.002	-1.074	50.0
+C05382	Sedoheptulose_7-phosphate	-0.547	-0.047	0.707	2.494	-0.819	60.0
+C00385	Xanthine	-3.327	-4.891	0.338	39.707	-3.747	60.0
+C00387	Guanosine	5.129	5.866	0.874	93.316	6.35	80.0
+C00229	Acyl-carrier_protein	-2.0	9.506	0.006	731.095	-2.008	50.0
+C00118	D-Glyceraldehyde_3-phosphate	-10.989	5.095	0.017	2066.622	-5.119	80.0
+C03125	L-Cysteinyl-tRNA(Cys)	-5.285	-1.0	0.051	40.989	-1.072	50.0
+C03127	L-Isoleucyl-tRNA(Ile)	-5.248	-5.248	1.0	76.004	-6.248	90.0
+C00365	dUMP	-5.749	-2.222	0.087	58.445	-2.342	50.0
+C00002	ATP	-7.095	5.231	0.275	174.269	-5.581	80.0
+C00369	Starch	7.134	7.746	0.921	355.132	8.353	90.0
+C00256	(R)-Lactate	6.57	3.322	0.506	105.01	5.731	80.0
+C05336	Selenomethionyl-tRNA(Met)	-5.781	-4.907	0.546	84.989	-5.535	80.0
+C05335	L-Selenomethionine	5.781	4.907	0.849	84.989	6.173	80.0
+C00099	beta-Alanine	4.248	1.0	0.235	21.001	2.306	70.0
+C01931	L-Lysyl-tRNA	-6.17	-5.615	0.681	121.014	-6.364	90.0
+C00091	Succinyl-CoA	-7.755	-5.9	0.276	275.731	-6.252	90.0
+C00092	D-Glucose_6-phosphate	-7.303	1.17	0.014	160.165	-1.19	50.0
+C03939	Acetyl-[acyl-carrier_protein]	-3.496	-8.77	0.026	447.831	-3.533	60.0
+C00095	D-Fructose	6.7	-5.845	0.553	161.449	-6.48	90.0
+C00097	L-Cysteine	-6.83	0.222	0.01	114.938	-0.237	60.0
+C00079	L-Phenylalanine	3.358	0.322	0.096	11.503	0.141	60.0
+C00073	L-Methionine	-2.977	3.044	0.955	16.121	-3.944	70.0
+C00074	Phosphoenolpyruvate	-9.688	-3.833	0.017	839.108	-3.858	70.0
+C00075	UTP	6.114	5.518	0.903	115.085	6.699	80.0
+C04006	1D-myo-Inositol_3-phosphate	6.714	7.5	0.895	286.001	8.0	90.0
+C00243	Lactose	6.007	12.088	0.497	4417.932	11.1	90.0
+C00242	Guanine	5.793	-5.146	0.639	90.853	-5.858	80.0
+C00407	L-Isoleucine	-2.632	3.07	0.738	14.597	-3.43	60.0
+C00183	L-Valine	-2.115	0.585	0.346	5.832	-1.014	50.0
+C00671	(S)-3-Methyl-2-oxopentanoic_acid	5.17	-1.415	0.074	38.668	-1.518	50.0
+C01094	D-Fructose_1-phosphate	12.178	2.0	0.164	4637.864	9.573	90.0
+C00169	Carbamoyl_phosphate	-4.664	2.358	0.202	30.478	-2.624	60.0
+C00106	Uracil	4.379	5.413	0.809	63.413	5.681	80.0
+C00105	UMP	2.217	0.784	0.354	6.371	1.172	70.0
+C00103	D-Glucose_1-phosphate	-6.768	1.233	0.022	111.337	-1.264	50.0
+C00063	CTP	7.516	4.207	0.56	201.507	6.818	80.0
+C00065	L-Serine	-4.972	0.348	0.041	32.658	-0.405	60.0
+C00064	L-Glutamine	-3.226	3.737	0.702	22.69	-3.993	70.0
+C00864	Pantothenate	5.109	-1.0	0.058	36.511	-1.081	50.0
+C00577	D-Glyceraldehyde	-12.766	-2.0	0.001	6969.446	-2.001	50.0
+C00279	D-Erythrose_4-phosphate	12.679	1.637	0.129	6560.928	9.726	90.0
+C04421	N-Succinyl-LL-2,6-diaminoheptanedioate	5.0	2.585	0.517	38.0	4.296	70.0
+C00668	alpha-D-Glucose_6-phosphate	7.425	1.714	0.231	175.13	5.337	70.0
+C00666	LL-2,6-Diaminoheptanedioate	-4.743	-2.115	0.162	31.11	-2.331	50.0
+C12215	Iminoerythrose_4-phosphate	-1.0	-1.0	1.0	4.0	-2.0	50.0
+C12214	Aminofructose_6-phosphate	1.0	1.0	1.0	4.0	2.0	70.0
+C00294	Inosine	3.7	5.866	0.631	71.319	5.491	70.0
+C00111	Glycerone_phosphate	9.234	-0.628	0.003	603.704	-0.632	60.0
+C04349	(4S)-4,6-Dihydroxy-2,5-dioxohexanoate	-1.0	-1.585	0.667	5.0	-1.737	50.0
+C00354	D-Fructose_1,6-bisphosphate	-10.182	4.228	0.016	1180.422	-4.251	70.0
+C00085	D-Fructose_6-phosphate	5.712	-6.484	0.586	141.93	-6.377	90.0
+C02972	Dihydrolipoylprotein	7.755	10.217	0.759	1406.226	10.06	90.0
+C00262	Hypoxanthine	-4.716	-4.891	0.886	55.953	-5.631	80.0
+C01172	beta-D-Glucose_6-phosphate	-5.899	-0.429	0.023	61.019	-0.461	60.0
+C00267	alpha-D-Glucose	5.755	-9.484	0.075	770.096	-5.86	90.0
+C01177	Inositol_1-phosphate	6.714	7.516	0.893	288.02	8.007	90.0
+C04494	Guanosine_3'-diphosphate_5'-triphosphate	-3.807	3.459	0.786	24.993	-4.295	70.0
+C00460	dUTP	6.259	2.433	0.389	81.986	4.994	70.0
+C03794	N6-(1,2-Dicarboxyethyl)-AMP	-2.939	-3.222	0.822	17.0	-3.804	60.0
+C00120	Biotin	4.755	6.229	0.763	102.012	6.283	80.0
+C00122	Fumarate	-4.531	5.165	0.644	58.996	-5.249	80.0
+C00124	D-Galactose	7.931	-10.095	0.223	1337.743	-8.222	90.0
+C00117	D-Ribose_5-phosphate	8.215	-1.094	0.007	299.275	-1.104	50.0
+C02412	Glycyl-tRNA(Gly)	-4.807	-10.538	0.019	1514.798	-4.834	70.0
+C02553	L-Seryl-tRNA(Ser)	-6.728	-2.0	0.038	110.006	-2.053	50.0
+C05378	beta-D-Fructose_1,6-bisphosphate	11.998	-5.839	0.014	4147.568	-5.859	80.0
+C02554	L-Valyl-tRNA(Val)	-5.459	-2.0	0.091	47.987	-2.126	50.0
+C05744	Acetoacetyl-[acp]	6.098	-7.637	0.344	267.55	-6.525	90.0
+C03150	Nicotinamide-beta-riboside	5.0	6.443	0.776	119.003	6.529	80.0
+C01209	Malonyl-[acyl-carrier_protein]	2.97	5.595	0.531	56.17	4.898	70.0
+C03546	myo-Inositol_4-phosphate	6.714	7.516	0.893	288.02	8.007	90.0
+C00197	3-Phospho-D-glycerate	-9.546	-1.164	0.003	749.777	-1.168	50.0
+C00212	Adenosine	4.895	6.443	0.76	116.757	6.471	80.0
+C00153	Nicotinamide	-5.0	-6.443	0.368	119.003	-5.452	80.0
+C00036	Oxaloacetate	-3.291	3.499	0.866	21.094	-4.191	70.0
+C00037	Glycine	5.571	6.385	0.873	131.113	6.838	90.0
+C15973	Enzyme_N6-(dihydrolipoyl)lysine	7.749	10.217	0.758	1405.33	10.058	90.0
+C15972	Enzyme_N6-(lipoyl)lysine	-5.615	-10.217	0.041	1239.22	-5.673	80.0
+C00031	D-Glucose	-8.228	0.737	0.006	301.497	-0.745	60.0
+C00137	myo-Inositol	-7.333	-7.379	0.969	327.689	-8.31	90.0
+C00332	Acetoacetyl-CoA	3.188	3.17	0.994	18.114	4.171	70.0
+C00130	IMP	-5.562	-2.45	0.116	52.706	-2.608	60.0
+C01290	beta-D-Galactosyl-(1->4)-beta-D-glucosyl-(1<->1)-ceramide	6.304	12.088	0.522	4432.633	11.175	90.0
+C01050	UDP-N-acetylmuramate	-5.712	4.373	0.395	73.139	-4.854	70.0
+C01190	beta-D-Glucosyl-(1<->1)-ceramide	-6.304	-11.503	0.027	2981.35	-6.343	90.0
+C01762	Xanthosine	5.181	5.459	0.949	80.264	6.251	80.0
+C00631	2-Phospho-D-glycerate	-6.698	-0.445	0.013	105.186	-0.464	60.0
+C00043	UDP-N-acetyl-alpha-D-glucosamine	-0.807	-2.807	0.25	8.748	-1.129	50.0
+C00042	Succinate	4.248	1.388	0.327	21.618	2.82	70.0
+C00041	L-Alanine	-1.874	1.585	0.818	6.666	-2.448	60.0
+C00047	L-Lysine	4.392	4.644	0.946	45.998	5.443	70.0
+C00046	RNA	-6.767	-5.296	0.361	148.198	-5.74	80.0
+C00044	GTP	-6.974	-4.15	0.141	143.467	-4.341	70.0
+C00204	2-Dehydro-3-deoxy-D-gluconate	-0.478	2.907	0.186	8.893	-0.724	60.0
+C00049	L-Aspartate	-2.521	-3.336	0.568	15.838	-3.17	60.0
+C01212	UDP-N-acetylmuramoyl-L-alanine	4.728	-4.19	0.689	44.754	-4.946	80.0
