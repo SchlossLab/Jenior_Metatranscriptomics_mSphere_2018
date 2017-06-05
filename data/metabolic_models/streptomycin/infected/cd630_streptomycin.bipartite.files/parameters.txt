@@ -1,0 +1,8 @@
+User Defined Parameters
+KO expression file: cd630.streptomycin.RNA.ko.txt
+Graph name: cd630_streptomycin
+KEGG ortholog nodes: 447
+Substrate nodes: 758
+Probability distribution generated: yes
+Permutations: 1000
+Duration: 4 seconds

@@ -1,8 +1,0 @@
-User Defined Parameters
-KO expression file: bifidobacterium_DNA.streptomycin_630_RNA.final.pool.norm.ko.txt
-Graph name: bifidobacterium_630
-KEGG ortholog nodes: 230
-Substrate nodes: 497
-Probability distribution generated: yes
-Permutations: 1000
-Duration: 3 seconds

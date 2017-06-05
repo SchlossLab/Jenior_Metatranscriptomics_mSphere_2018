@@ -307,12 +307,24 @@ In previous work from our group [@Jenior2017], we established a simple computati
 
 This process then extended to each possible pairing of taxa in the community of interest in an effort to determine those metabolites that are highly sought after as well as identifying potentially vacant nutrient niches that *C. difficile* could exploit following infection.
 
+automatically incorporates abundace of species do to the large volume of transcripts for each group, comparisons are at a population-level not at the individual
+
+
+we acknowledge that colonization could be driven more by the increase in relative abundance or activity of synergistic species or processes with *C. difficile*, however previous work_____ supports competition as the most likely primary contributor... (can, but shouldnt look at synergy in these models)
+
 
 Colonization resistance to c difficile may be the result of the contribution by distinct subcommunities of bacteria across each unique community. Conversely, these results also offer support to the nutrient niche plasticity of *C. difficile* as it colonizes differentially sensitized gut ecosystems.
 
 
 
+
+
 **Community-level metabolic network results are predictive of cecal metabolite concentrations**
+
+discuss supp figure here for metabolomics only
+
+
+models included were pruned based on reads recruited, metabolite + enzyme node totals, and network connectivity
 
 More effective way to integrate metatranscriptome with metabolome - unified global correlation of gene expression and change in metabolite concentrations neglects the activity of individual species
 
@@ -380,7 +392,6 @@ A more detailed description of RNA extraction procedure can be found in [@Jenior
 **High-throughput sequencing** 
 
 16S
-
 metaG
 mock - Illumina HiSeq 2500 2x250
 infected - Illumina NextSeq 2x150
@@ -422,6 +433,15 @@ Stranded RNA-Seq libraries were made constructed with the TruSeq Total RNA Libra
 **Metatranscriptomic read curation, mapping, and abundance normalization.** Similar to metagenomic read processing, raw transcript sequencing read curation was performed in a two step process. Residual 5’ and 3’ Illumina adapter sequences were trimmed using CutAdapt [@Martin2013] on a per library basis. Reads were quality trimmed using Sickle (Joshi, 2011) on the default settings. An average of \~300,000,000 total reads (both paired and orphaned) remained after quality trimming. Mapping was accomplished using Bowtie2 [@Langmead2009] and the default stringent settings. \~1,600,000 reads in sample each mapped to the annotated nucleotide gene 
 
 Optical and PCR duplicates were then removed using Picard MarkDuplicates (http://broadinstitute.github.io/picard/), leaving ~150,000 reads per sample for final analysis. The remaining mappings were converted to idxstats format using Samtools [@Li2009] and the read counts per gene were tabulated. Discordant pair mappings were discarded and counts were then normalized to read length and gene length to give a per base report of gene coverage. Unless indicated otherwise, each collection of reads was then 1000-fold iteratively subsampled to 90% of the lowest sequence total within each analysis, and a median expression value for each gene was calculated.
+
+**Definition of Contig Enabled Models (CEMs)**
+
+
+minimum reads to KOs: 1000
+minimum enzyme nodes: 200
+minimum metabolite nodes: 400
+minimum median degree centrality: 15
+
 
 **Metabolic modeling.**
 

@@ -1,8 +1,0 @@
-User Defined Parameters
-KO expression file: bifidobacterium_DNA.conventional_RNA.final.pool.norm.ko.txt
-Graph name: bifidobacterium_mock
-KEGG ortholog nodes: 268
-Substrate nodes: 526
-Probability distribution generated: yes
-Permutations: 1000
-Duration: 2 seconds
