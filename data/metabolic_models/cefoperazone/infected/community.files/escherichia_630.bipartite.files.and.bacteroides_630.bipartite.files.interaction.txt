@@ -1,0 +1,18 @@
+compound_code	compound_name	score_1	score_2	ratio	magnitude	interaction_score	percentile
+C06188	Salicin_6-phosphate	2.0	1.0	0.5	6.0	80.0
+C00024	Acetyl-CoA	1.677	1.987	0.844	7.162	80.0
+C00122	Fumarate	0.93	-5.867	0.033	60.269	60.0
+C00035	GDP	-0.322	0.536	0.862	2.7	50.0
+C00993	D-Alanyl-D-alanine	4.907	-3.585	0.4	42.003	90.0
+C00022	Pyruvate	-2.353	-3.756	0.378	18.619	70.0
+C05892	UDP-N-acetylmuramoyl-L-alanyl-gamma-D-glutamyl-L-lysine	4.907	1.585	0.323	33.002	90.0
+C01172	beta-D-Glucose_6-phosphate	-1.0	-3.836	0.14	16.281	50.0
+C04882	UDP-N-acetylmuramoyl-L-alanyl-D-glutamyl-6-carboxy-L-lysyl-D-alanyl-D-alanine	-4.907	3.0	0.267	38.002	80.0
+C00149	(S)-Malate	-5.588	-5.184	0.756	84.454	90.0
+C02047	L-Leucyl-tRNA	-1.585	-5.7	0.058	54.984	60.0
+C00011	CO2	4.624	6.083	0.76	92.448	90.0
+C00049	L-Aspartate	-0.203	-0.324	0.92	2.403	50.0
+C00048	Glyoxylate	-8.882	0.585	0.003	473.29	60.0
+C00123	L-Leucine	0.415	2.939	0.141	9.002	70.0
+C00197	3-Phospho-D-glycerate	-2.115	5.001	0.135	36.354	60.0
+C04702	UDPMurAc(oyl-L-Ala-D-gamma-Glu-L-Lys-D-Ala-D-Ala)	-4.907	3.0	0.267	38.002	80.0
