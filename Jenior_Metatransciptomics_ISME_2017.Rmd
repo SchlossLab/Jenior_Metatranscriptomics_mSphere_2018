@@ -493,8 +493,19 @@ Abx table
 
 
 
-**Figure 4 | ** Community-level modeling schematic and example interaction scores
-a-b Schematic of algorithm
+**Figure 4 | ** 
+**(a)** Single interaction algorithm diagram
+**(b)** Community-level algorithm diagram
+**(c)** C. difficile and Lactobacillus CEM in cef-pretreatement example
+**(d)** Infected cef-pretreated community for demand and most likely produced metabolites
+
+
+
+
+
+
+
+
 
 
 **Figure 5 | ** 
