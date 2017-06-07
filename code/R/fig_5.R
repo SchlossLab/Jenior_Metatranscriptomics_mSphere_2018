@@ -10,105 +10,98 @@ if ('igraph' %in% installed.packages()[,'Package'] == FALSE) {install.packages('
 library('igraph', verbose=FALSE, character.only=TRUE)
 
 # Define input files
-metabolome <- 'data/wetlab_assays/metabolomics.tsv'
-cef_importances <- 'data/metabolic_models/cefoperazone_630.bipartite.files/importances.tsv'
-strep_importances <- 'data/metabolic_models/streptomycin_630.bipartite.files/importances.tsv'
-clinda_importances <- 'data/metabolic_models/clindamycin_630.bipartite.files/importances.tsv'
+metabolome <- 'data/metabolome/scaled_intensities.tsv'
+strep_630_scores <- 'data/metabolic_models/streptomycin/infected/community.files/community_importance.tsv'
+strep_mock_scores <- 'data/metabolic_models/streptomycin/mock/community.files/community_importance.tsv'
+cef_630_scores <- 'data/metabolic_models/cefoperazone/infected/community.files/community_importance.tsv'
+cef_mock_scores <- 'data/metabolic_models/cefoperazone/mock/community.files/community_importance.tsv'
+clinda_630_scores <- 'data/metabolic_models/clindamycin/infected/community.files/community_importance.tsv'
+clinda_mock_scores <- 'data/metabolic_models/clindamycin/mock/community.files/community_importance.tsv'
+noabx_mock_scores <- 'data/metabolic_models/no_antibiotics/mock/community.files/community_importance.tsv'
 metadata <- 'data/metadata.tsv'
 
 # Define output files
-supptable_S5A_file <'results/supplement/tables/table_S5strep.tsv'
-supptable_S5B_file <'results/supplement/tables/table_S5cef.tsv'
-supptable_S5C_file <'results/supplement/tables/table_S5clinda.tsv'
-supptable_S5D_file <'results/supplement/tables/table_S5all.tsv'
+#supptable_S5A_file <'results/supplement/tables/table_S5strep.tsv'
+#supptable_S5B_file <'results/supplement/tables/table_S5cef.tsv'
+#supptable_S5C_file <'results/supplement/tables/table_S5clinda.tsv'
+#supptable_S5D_file <'results/supplement/tables/table_S5all.tsv'
 plot_file <- 'results/figures/figure_5.pdf'
 
+#--------------------------------------------------------------------------------#
+
+# Read in data
+# Study metadata
+metadata <- read.delim(metadata, sep='\t', header=T, row.names=1)
 
 # Metabolomic data
 metabolome <- read.delim(metabolome, sep='\t', header=T)
 
-# Remove germfree samples
+# Cumulative Metaboloties Scores
+strep_630_scores <- read.delim(strep_630_scores, sep='\t', header=T, row.names=1)
+strep_mock_scores <- read.delim(strep_mock_scores, sep='\t', header=T, row.names=1)
+cef_630_scores <- read.delim(cef_630_scores, sep='\t', header=T, row.names=1)
+cef_mock_scores <- read.delim(cef_mock_scores, sep='\t', header=T, row.names=1)
+clinda_630_scores <- read.delim(clinda_630_scores, sep='\t', header=T, row.names=1)
+clinda_mock_scores <- read.delim(clinda_mock_scores, sep='\t', header=T, row.names=1)
+noabx_mock_scores <- read.delim(noabx_mock_scores, sep='\t', header=T, row.names=1)
 
-annotation <- metabolome[,1:5]
+#--------------------------------------------------------------------------------#
+
+# Format data
+# Metadata
+metadata <- subset(metadata, type != 'germfree')
+metadata$susceptibility <- NULL
+
+# Untargeted metabolomics
+metabolome <- subset(metabolome, KEGG != 'NA')
+metabolome_annotation <- metabolome[,1:5]
 metabolome$SUPER_PATHWAY <- NULL
 metabolome$SUB_PATHWAY <- NULL
 metabolome$PUBCHEM <- NULL
-metabolome <- subset(metabolome, KEGG != 'NA')
+metabolome$BIOCHEMICAL <- NULL
 metabolome <- metabolome[match(unique(metabolome$KEGG), metabolome$KEGG),]
 rownames(metabolome) <- metabolome$KEGG
 metabolome$KEGG <- NULL
-metabolome$BIOCHEMICAL <- NULL
-annotation <- subset(annotation, KEGG != 'NA')
-annotation <- annotation[match(unique(annotation$KEGG), annotation$KEGG),]
-rownames(annotation) <- annotation$KEGG
-annotation$KEGG <- NULL
-annotation$SUB_PATHWAY <- NULL
-annotation$PUBCHEM <- NULL
-annotation$BIOCHEMICAL <- NULL
-annotation$SUPER_PATHWAY <- gsub('_',' ', annotation$SUPER_PATHWAY)
 
-# Combine with metadata
-metadata <- read.delim(metadata, sep='\t', header=T, row.names=1)
-metabolome <- merge(t(metabolome), metadata, by='row.names')
-rm(metadata)
+# Combine with metadata and subset
+metabolome <- merge(metadata, t(metabolome), by='row.names')
 rownames(metabolome) <- metabolome$Row.names
 metabolome$Row.names <- NULL
-metabolome <- subset(metabolome, abx != 'none')
+metabolome$cage <- NULL
+metabolome$mouse <- NULL
+metabolome$gender <- NULL
+metabolome$type <- NULL
+metabolome_noabx_mock <- subset(metabolome, abx == 'none')
+metabolome_noabx_mock$abx <- NULL
+metabolome_noabx_mock$infection <- NULL
 metabolome_630 <- subset(metabolome, infection == '630')
-metabolome_630$cage <- NULL
-metabolome_630$mouse <- NULL
-metabolome_630$gender <- NULL
-metabolome_630$type <- NULL
 metabolome_630$infection <- NULL
-metabolome_630 <- aggregate(metabolome_630[, 1:399], list(metabolome_630$abx), median)
+metabolome_630 <- aggregate(metabolome_630[, 2:ncol(metabolome_630)], list(metabolome_630$abx), median)
 rownames(metabolome_630) <- metabolome_630$Group.1
 metabolome_630$Group.1 <- NULL
 metabolome_630 <- as.data.frame(t(metabolome_630))
-colnames(metabolome_630) <- c('cef_630','clinda_630','strep_630')
 metabolome_mock <- subset(metabolome, infection == 'mock')
-metabolome_mock$cage <- NULL
-metabolome_mock$mouse <- NULL
-metabolome_mock$gender <- NULL
-metabolome_mock$type <- NULL
 metabolome_mock$infection <- NULL
-metabolome_mock <- aggregate(metabolome_mock[, 1:399], list(metabolome_mock$abx), median)
+metabolome_mock <- aggregate(metabolome_mock[, 2:ncol(metabolome_mock)], list(metabolome_mock$abx), median)
 rownames(metabolome_mock) <- metabolome_mock$Group.1
 metabolome_mock$Group.1 <- NULL
 metabolome_mock <- as.data.frame(t(metabolome_mock))
-colnames(metabolome_mock) <- c('cef_mock','clinda_mock','strep_mock')
 
-# Calculate ratio of mock to infected concentrations
-metabolome_mock <- 10 ^ metabolome_mock
-metabolome_630 <- 10 ^ metabolome_630
-metabolome <- metabolome_mock / metabolome_630
-metabolome <- log10(metabolome)
-metabolome <- merge(metabolome, annotation, by='row.names')
-rownames(metabolome) <- metabolome$Row.names
-metabolome$Row.names <- NULL
-colnames(metabolome) <- c('cefoperazone_conc', 'clindamycin_conc', 'streptomycin_conc', 'pathway')
-rm(annotation, metabolome_mock, metabolome_630)
 
-# Merge importances to one table
-cef_importances <- read.delim(cef_importances, sep='\t', header=T, row.names=1)
-cef_importances$p_value <- NULL
-clinda_importances <- read.delim(clinda_importances, sep='\t', header=T, row.names=1)
-clinda_importances$p_value <- NULL
-clinda_importances$Compound_name <- NULL
-strep_importances <- read.delim(strep_importances, sep='\t', header=T, row.names=1)
-strep_importances$p_value <- NULL
-strep_importances$Compound_name <- NULL
-importances <- merge(cef_importances, clinda_importances, by='row.names')
-rownames(importances) <- importances$Row.names
-importances$Row.names <- NULL
-importances <- merge(importances, strep_importances, by='row.names')
-rownames(importances) <- importances$Row.names
-importances$Row.names <- NULL
-colnames(importances) <- c('Compound_name', 'cefoperazone_score', 'clindamycin_score', 'streptomycin_score')
-importances$Compound_name <- gsub('_',' ', importances$Compound_name)
-rm(cef_importances, clinda_importances, strep_importances)
+# Merge metabolome medians and metabolite scores
+combined_strep_630 <- clean_merge(strep_630_scores, metabolome_630$streptomycin)
+combined_strep_mock <- clean_merge(strep_mock_scores, metabolome_mock$streptomycin)
 
-# Merge metabolome medians and importance values
-combined <- merge(importances, metabolome, by='row.names')
+combined_cef_630 <- clean_merge(cef_630_scores, metabolome_630$cefoperazone)
+combined_cef_mock <- clean_merge(cef_mock_scores, metabolome_mock$cefoperazone)
+
+combined_clinda_630 <- clean_merge(clinda_630_scores, metabolome_630$clindamycin)
+combined_clinda_mock <- clean_merge(clinda_mock_scores, metabolome_mock$clindamycin)
+
+combined_noabx_mock <- clean_merge(noabx_mock_scores, metabolome_mock$none)
+
+
+
 rownames(combined) <- combined$Row.names
 combined$Row.names <- NULL
 rm(importances, metabolome)

@@ -103,7 +103,7 @@ axis(side=1, at=seq(-15,15,5), label=seq(-15,15,5))
 mtext(expression(paste('Metabolite Score (',log[2],')')), side=1, padj=2.2, cex=1.1)
 mtext(c('Interaction', 'Score:'), side=4, padj=c(-24,-22.5), adj=c(0,-0.3), cex=0.75, font=2)
 mtext('c', side=2, padj=-13, adj=16, font=2, cex=1.3)
-legend('topleft', legend=c(expression(italic('C. difficile'),italic('Lactobacillus'))), pt.bg=c('firebrick3','steelblue4'), 
+legend('topleft', legend=c(expression(italic('Lactobacillus'),italic('C. difficile'))), pt.bg=c('steelblue4','firebrick3'), 
        pch=22, pt.cex=1.8, cex=1)
 axis(side=2, at=seq(17.6,32.9,1.7), labels=rev(interaction_scores$compound_name[1:10]), 
      tick=FALSE, cex.axis=0.8)
