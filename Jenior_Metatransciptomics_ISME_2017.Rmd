@@ -132,207 +132,19 @@ In light of large-scale differences in expression across the microbiota concomit
 These data revealed distinct changes in expression for underrepresented genera for each antibiotic pretreatment between infections conditions. First, in streptomycin-pretreated mice, the most prominent differences were in 937 genes belonging to *Lactobacillus* were upregulated in *C. difficile* infection (Fig. 3a). Next, in cefoperazone pretreatment 2290 genes belonging to *Bacteroides* were more upregulated in mock infection (Fig. 3b). A consistent trend in streptomycin and cefoperazone pretreatments was an overrepresentation of expression from genera belonging to Bacteroidetes during mock infection. The metatransciptomes for both of these pretreatment poorly correlated with one another, indicating a high degree of change induced by *C. difficile* colonization (*r* = 0.0334 & *r* = 0.031). Finally, in clindamycin pretreatment the largest difference in transcription was for 510 *Lactobacillus* genes during *C. difficile* infection (Fig. 3c). Infected and uninfected metatranscriptomes associated with this antibiotic correlated the more strongly than either other pretreatment (*r* = 0.862), supporting that *C. difficile* colonization had a low impact on transcription of the cecal microbiota. This infection model has been shown to go on to clear *C. difficile* infection witin 7 days, as opposed to long-term colonization, which suggests that communities where *C. difficile* is less able to impact resident members' activity regain colonization resistance more quickly (Fig. S5....). These results from both cefoperazone and clindamycin pretreatments particularly corresponded with LEfSe analysis (Fig. 1e & 1f) where a *Lactobacillus* OTU was shared and significantly altered in abundance by the presence of *C. difficile*. Interestingly, taxonomic groups most highly represented as outliers in the normalized metatranscriptomes of all tested antibiotic pretretreatments were actually minority members of the respective cecal communities as determined 16S rRNA gene abundance (Fig. 1c). On average, *Bacteroides* was the most commonly altered taxa during infection with mean of 441 genes appearing as expression outliers across the three pretreatment goups. As a side note, the presence of Archeael sequences in our shotgun sequencing data was not surprising as the universal 16S rRNA gene V4 region primers we used do not reliably amplify Archeae. Together, our results support that *C. difficile* may differentially modify the transcriptional activity of separate microbial taxa based on the context of the community in which it is colonizing. 
 
 
+***C. difficile* colonization also corresponds to significant changes in the cecal metabolome.**
+
+
+
+
+
+
 **Modeling competition for nutrients across the microbiome**
 
 in order to more closely tie taxonomic groups to gene function and overexpression, we did this modeling bullshit...
 
 
 Using the previously mentioned metagenomic assembly, we clustered contigs into decreet groups based on composition and raw read coverage with CONCOCT [@]. We also performed additional heirarchical clustering implementing paired read information to generate contig clusters with the highest possible confidence. With these individual sequence groups, we identified and annotated genes in a similar fashion to was was done with the entire metagenome. This resulted in distinct collections of annotated genes that each resemble a bacterial genome. Due to the the unreliability of species-level identification of genes, we further groups clusters that shared a genus from which the majority of their gene composition was annotated. These resulting annotated pools of genes with highly similar taxonomic origin we treated as representative genomes for the entire genus. This enabled strict cDNA read mapping to the final clusters to acquire the transcriptional activity of each taxon separately in the complex community. Finally, using all of the combined gene and transcript information we accumulated through the aformentioned steps, we generated contig-enabled models (CEMs), similar to the genome-scale models in [@Jenior2017], for each to identify possible reporter metabolites of competition or cooperation between species in both mock and *C. difficile*-infected conditions across pretreatment groups. 
-
-
-To more clearly integrate community-level transcriptomic data, we chose to leverage methods for genome-scale metabolic modeling previously described by our group [@Jenior2017]. To generate annotated genomes for discrete bacterial taxa on which to map transcriptomic reads, we implemented clustering of our assembled contigs based on abundance and composition [CONCOCT reference]. Strongly clustered groups of sequences were treated as individual species and a separate metabolic model with metabolite importance scores were calculated for each (Fig. S____ CONCOCT clusters in supplement for this section). Within each community, we then compared pair-wise ratios of metabolite importance scores for each possible interspecies interaction utilizing evenly rarified transcriptomic abundances between the models (Fig. 4A). This provided a metric that reflected the level of competition for a given metabolite existed between particular pairs of bacterial taxa. We then went on to perform cumulative calculation of importance for each metabolite across all species in a given community (Fig. 4B). Values from this analysis give and estimation of the most highly sought after metabolites in the communities tested. Combined, this approach allowed for predicition of nutrient niche segregation between species in the cecal bacterial community and how *C. difficile* altered this landscape to establish its own metabolic strategy.
-
-
-Add panels to fig 4 about individual species importances and high demand metabolites.
- - paragraph discussing these results here
-
-**Modeling competition for nutrients between discreet taxanomic groups in the metagenome.**
-
-In previous work from our group [@Jenior2017], we established a simple computational framework to impute those metabolites which a bacterium is most likely to obtain from its environment based transcriptome-informed genome-enabled metabolic models. In the current study, we have extended these methods to analyze the putative competition for nutrients between bacteria in the perturbed cecal microbiota. This approach is especially informative when assessing which groups are most competitive with *C. difficile* for growth nutrients and may prevent its colonization in healthy communities. In this new method, the level of possible competition for a substrate is imputed based on the transcription of enzymes that utilize it within a pair of organisms, then this process is repeated iteratively for all shared metabolites between the pair. For each comparison, the minimum ratio for each shared positive metabolite importance score was calculated to derive a value that reflects the level of competition for a given metabolite between the two species.
-
-
-This process then extended to each possible pairing of taxa in the community of interest in an effort to determine those metabolites that are highly sought after as well as identifying potentially vacant nutrient niches that *C. difficile* could exploit following infection.
-
-automatically incorporates abundace of species do to the large volume of transcripts for each group, comparisons are at a population-level not at the individual
-
-
-
-
-```{r figure_5, echo=F, warning=F, message=F, results='hide', cache=F}
-
-# Metabolomic data
-metabolome <- read.delim('data/wetlab_assays/metabolomics.tsv', sep='\t', header=T)
-annotation <- metabolome[,1:5]
-metabolome$SUPER_PATHWAY <- NULL
-metabolome$SUB_PATHWAY <- NULL
-metabolome$PUBCHEM <- NULL
-metabolome <- subset(metabolome, KEGG != 'NA')
-metabolome <- metabolome[match(unique(metabolome$KEGG), metabolome$KEGG),]
-rownames(metabolome) <- metabolome$KEGG
-metabolome$KEGG <- NULL
-metabolome$BIOCHEMICAL <- NULL
-annotation <- subset(annotation, KEGG != 'NA')
-annotation <- annotation[match(unique(annotation$KEGG), annotation$KEGG),]
-rownames(annotation) <- annotation$KEGG
-annotation$KEGG <- NULL
-annotation$SUB_PATHWAY <- NULL
-annotation$PUBCHEM <- NULL
-annotation$BIOCHEMICAL <- NULL
-annotation$SUPER_PATHWAY <- gsub('_',' ', annotation$SUPER_PATHWAY)
-
-# Combine with metadata
-metadata <- read.delim('data/metadata.tsv', sep='\t', header=T, row.names=1)
-metabolome <- merge(t(metabolome), metadata, by='row.names')
-rm(metadata)
-rownames(metabolome) <- metabolome$Row.names
-metabolome$Row.names <- NULL
-metabolome <- subset(metabolome, abx != 'none')
-metabolome_630 <- subset(metabolome, infection == '630')
-metabolome_630$cage <- NULL
-metabolome_630$mouse <- NULL
-metabolome_630$gender <- NULL
-metabolome_630$type <- NULL
-metabolome_630$infection <- NULL
-metabolome_630 <- aggregate(metabolome_630[, 1:399], list(metabolome_630$abx), median)
-rownames(metabolome_630) <- metabolome_630$Group.1
-metabolome_630$Group.1 <- NULL
-metabolome_630 <- as.data.frame(t(metabolome_630))
-colnames(metabolome_630) <- c('cef_630','clinda_630','gf_630','strep_630')
-metabolome_mock <- subset(metabolome, infection == 'mock')
-metabolome_mock$cage <- NULL
-metabolome_mock$mouse <- NULL
-metabolome_mock$gender <- NULL
-metabolome_mock$type <- NULL
-metabolome_mock$infection <- NULL
-metabolome_mock <- aggregate(metabolome_mock[, 1:399], list(metabolome_mock$abx), median)
-rownames(metabolome_mock) <- metabolome_mock$Group.1
-metabolome_mock$Group.1 <- NULL
-metabolome_mock <- as.data.frame(t(metabolome_mock))
-colnames(metabolome_mock) <- c('cef_mock','clinda_mock','gf_mock','strep_mock')
-
-# Calculate ratio of mock to infected concentrations
-metabolome_mock <- 10 ^ metabolome_mock
-metabolome_630 <- 10 ^ metabolome_630
-metabolome <- metabolome_mock / metabolome_630
-metabolome <- log10(metabolome)
-metabolome <- merge(metabolome, annotation, by='row.names')
-rownames(metabolome) <- metabolome$Row.names
-metabolome$Row.names <- NULL
-colnames(metabolome) <- c('cefoperazone_conc', 'clindamycin_conc', 'streptomycin_conc', 'pathway')
-rm(annotation, metabolome_mock, metabolome_630)
-
-# Merge importances to one table
-cef_importances <- read.delim('data/metabolic_models/cefoperazone_630.bipartite.files/importances.tsv', sep='\t', header=T, row.names=1)
-cef_importances$p_value <- NULL
-clinda_importances <- read.delim('data/metabolic_models/clindamycin_630.bipartite.files/importances.tsv', sep='\t', header=T, row.names=1)
-clinda_importances$p_value <- NULL
-clinda_importances$Compound_name <- NULL
-strep_importances <- read.delim('data/metabolic_models/streptomycin_630.bipartite.files/importances.tsv', sep='\t', header=T, row.names=1)
-strep_importances$p_value <- NULL
-strep_importances$Compound_name <- NULL
-importances <- merge(cef_importances, clinda_importances, by='row.names')
-rownames(importances) <- importances$Row.names
-importances$Row.names <- NULL
-importances <- merge(importances, strep_importances, by='row.names')
-rownames(importances) <- importances$Row.names
-importances$Row.names <- NULL
-colnames(importances) <- c('Compound_name', 'cefoperazone_score', 'clindamycin_score', 'streptomycin_score')
-importances$Compound_name <- gsub('_',' ', importances$Compound_name)
-rm(cef_importances, clinda_importances, strep_importances, gf_importances)
-
-# Merge metabolome medians and importance values
-combined <- merge(importances, metabolome, by='row.names')
-rownames(combined) <- combined$Row.names
-combined$Row.names <- NULL
-rm(importances, metabolome)
-
-# Separate treatment groups
-cef <- as.data.frame(cbind(combined$cefoperazone_score, combined$cefoperazone_conc, combined$pathway))
-rownames(cef) <- rownames(combined)
-colnames(cef) <- c('score', 'conc', 'pathway')
-cef$name <- combined$Compound_name
-cef$score <- as.numeric(as.vector(cef$score))
-cef$conc <- as.numeric(as.vector(cef$conc))
-cef <- subset(cef, cef[,1] != 0) # remove metabolites with 0 importance
-clinda <- as.data.frame(cbind(combined$clindamycin_score, combined$clindamycin_conc, combined$pathway))
-rownames(clinda) <- rownames(combined)
-colnames(clinda) <- c('score', 'conc', 'pathway')
-clinda$name <- combined$Compound_name
-clinda$score <- as.numeric(as.vector(clinda$score))
-clinda$conc <- as.numeric(as.vector(clinda$conc))
-clinda <- subset(clinda, clinda[,1] != 0) # remove metabolites with 0 importance
-strep <- as.data.frame(cbind(combined$streptomycin_score, combined$streptomycin_conc, combined$pathway))
-rownames(strep) <- rownames(combined)
-colnames(strep) <- c('score', 'conc', 'pathway')
-strep$name <- combined$Compound_name
-strep$score <- as.numeric(as.vector(strep$score))
-strep$conc <- as.numeric(as.vector(strep$conc))
-strep <- subset(strep, strep[,1] != 0) # remove metabolites with 0 importance
-combined <- rbind(strep, cef, clinda)
-
-# Fit to general linear models and identify outliers (L1 regression)
-strep_fit <- glm(conc ~ score, data=strep)
-strep$residuals <- residuals(strep_fit)
-strep$residuals <- (strep$residuals / sd(strep$residuals))^2
-strep_outliers <- strep[strep$residuals > 1.5, ]
-cef_fit <- glm(conc ~ score, data=cef)
-cef$residuals <- residuals(cef_fit)
-cef$residuals <- (cef$residuals / sd(cef$residuals))^2
-cef_outliers <- cef[cef$residuals > 1.5, ]
-clinda_fit <- glm(conc ~ score, data=clinda)
-clinda$residuals <- residuals(clinda_fit)
-clinda$residuals <- (clinda$residuals / sd(clinda$residuals))^2
-clinda_outliers <- clinda[clinda$residuals > 1.5, ]
-combined_fit <- glm(conc ~ score, data=combined)
-combined$residuals <- residuals(combined_fit)
-combined$residuals <- (combined$residuals / sd(combined$residuals))^2
-combined_outliers <- combined[combined$residuals > 1.5, ]
-
-# Calculate stats
-corr_m <- round(c(strep_fit$coefficients[[2]],cef_fit$coefficients[[2]],clinda_fit$coefficients[[2]],combined_fit$coefficients[[2]]), digits=3)
-corr_m_strep <- corr_m[1]
-corr_m_cef <- corr_m[2]
-corr_m_clinda <- corr_m[3]
-corr_m_combined <- corr_m[5]
-
-corr_r <- round(c(cor.test(strep[,1], strep[,2], method='spearman', exact=FALSE)$estimate,
-        cor.test(cef[,1], cef[,2], method='spearman', exact=FALSE)$estimate,
-        cor.test(clinda[,1], clinda[,2], method='spearman', exact=FALSE)$estimate,
-        cor.test(combined[,1], combined[,2], method='spearman', exact=FALSE)$estimate), digits=3)
-corr_r_strep <- corr_r[1]
-corr_r_cef <- corr_r[2]
-corr_r_clinda <- corr_r[3]
-corr_r_combined <- corr_r[5]
-
-corr_p <- round(c(cor.test(strep[,1], strep[,2], method='spearman', exact=FALSE)$p.value,
-        cor.test(cef[,1], cef[,2], method='spearman', exact=FALSE)$p.value,
-        cor.test(clinda[,1], clinda[,2], method='spearman', exact=FALSE)$p.value,
-        cor.test(combined[,1], combined[,2], method='spearman', exact=FALSE)$p.value), digits=3)
-corr_p_strep <- corr_p[1]
-corr_p_cef <- corr_p[2]
-corr_p_clinda <- corr_p[3]
-corr_p_combined <- corr_p[5]
-
-```
-
-
-
-**Community-level metabolite scores from modeling analysis are predictive of cecal metabolite concentrations**
-
-discuss supp figure here for metabolomics only
-
-
-models included were pruned based on reads recruited, metabolite + enzyme node totals, and network connectivity
-
-More effective way to integrate metatranscriptome with metabolome - unified global correlation of gene expression and change in metabolite concentrations neglects the activity of individual species
-
-
-Old text from previous paper:
-Moving beyond specific metabolite analysis, we wanted to determine how well metabolite importance scores related to the relative concentration of all metabolites in a given environment. To most effectively combine metabolite importance scores with the affiliated concentration data, we decided to calculate the median change in relative concentration for each metabolite measured between corresponding mock and *C. difficile*-infected conditions. This was accomplished by dividing the median log10-scaled intensity of each metabolite in mock-infected mice by its corresponding intensity in *C. difficile*-infected mice to give the delta median scaled intensity for each metabolite. In this way, larger values indicated those metabolites that decreased in concentration when *C. difficile* colonized. This also resulted in a single value we could combine with importance scores for each metabolite and perform a linear correlation analysis. Positive correlations indicated that the metabolites predicted to be consumed by *C. difficile* through transcript-informed metabolic networks have a concomitant decrease in the metabolome. This relationship would also imply that those metabolites with negative importance scores and increased concentration in infected animals are being produced by *C. difficile*. 
-
-We applied this approach first to a pooled analysis of all groups to maximize our ability to validate the predictive capacity of the modeling algorithm (Fig. 6A). This revealed a significant positive correlation (*P* = `r corr_p_combined`) and supported our method for identifying metabolites that are most likely to be consumed by *C. difficile* based on transcriptional activity. This technique also allowed us to analyze outliers from the generalized linear model to assess if they are explained by other known patterns of *C. difficile* biology. Applying least-squared residuals analysis, we found that 16 metabolites were determined to be outliers and were all classified 1 of 3 separate KEGG annotation categories; amino acids, carbohydrates, and nucleotides (Table S5). We went on to identify the majority subset of 12 outlier metabolites that were important and significantly decreased in their respective condition were annotated as growth substrates or growth enhancers of *C. difficile* [@Karasawa1995]. This included L-proline, L-threonine, N-acetyl-D-glucosamine, D-fructose, and galactitol. These results were interpretted as not a failure of our importance algortihm, but as a possible underestimation of enzyme efficiency for the consumption these metabolites which further supports our approach as a way to determine real *in vivo* metabolic strategies for *C. difficile*. We also explored those metabolites that were more likely to be produced based on importance scores but decreased during infection. These were the nucleotides adenine, deoxyadenosine, and xanthine. *C. difficile* has been shown to possess the capacity for their synthesis [@Karlsson2008], but also may have the ability to catabolize these purines to participate downstream in Stickland reactions [@Hartwich2012]. The findings here may indicate that *C. difficile* utilizes both environmental and synthesized pools of the molecules at a faster rate than they are produced by the bacterium alone and may reinforce the centrality of amino acid fermentation to *C. difficile* *in vivo* metabolism.
-
-We then directed the analysis toward each individual infection condition tested. In streptomycin-pretreatment (Fig. 6B) and cefoperazone-pretreatment (Fig. 6C) the correlations did not achieve significance (*P* = `r corr_p_strep` & `r corr_p_cef`), but remained positive. Analysis of outliers revealed that in streptomycin-pretreatment both the host-derived aminoglycan N-acetyl-D-glucosamine and L-proline were implicated as most likely to be utilized by *C. difficile* while L-proline was the only growth substrate outlier in this way in cefoperazone-pretreated mice. Both clindamycin-pretreatment (Fig. 6D) and ex-GF mice (Fig. 6E) instead demonstrated a significant correlation between importance scores and delta median scaled intensity (*P* = `r corr_p_clinda` & `r corr_p_gf`). Although clindamycin-pretreatment was associated with most outlier metabolites, both groups also shared a similar trend of carbohydrates and Stickland fermentation substrates being important and decreased in infected conditions. Proline specifically was found to be both highly important and decreased in concentration across all infections. In combination with the previously mentioned patterns, this further supports Stickland fermentation as a core metabolic strategy of *C. difficile* in the gut which agrees with previous *in vitro* findings [@Jackson2006]. Together, these data supported network-derived importance scores as well as our hypothesis that *C. difficile* adapted portions of its carbon source metabolism in distinct susceptible environments in addition to certain highly consistent strategies.
 
 
 
@@ -420,7 +232,7 @@ Mapping was accomplished using Bowtie2 [@Langmead2009] and the default stringent
 Unless indicated otherwise, each collection of reads was then 1000-fold iteratively subsampled to 90% of the lowest sequence total within each analysis, and a median expression value for each gene was calculated.
 
 
-**Running CONCOCT and Contig Enabled Models (CEMs) Definition**
+**Running CONCOCT and Bin Size Definition**
 clusters=400
 composition_file='Streptomycin.final.contigs.1k.10k.fa'
 epsilon=1e-06
@@ -432,16 +244,11 @@ read_length=250
 seed=1
 total_percentage_pca=90
 
+
 minimum reads to KOs: 1000
 minimum enzyme nodes: 200
 minimum metabolite nodes: 400
 minimum median degree centrality: 15
-
-
-**Metabolic modeling.**
-
-Algorithm
-
 
 
 **Quantification of *in vivo* metabolite relative concentrations.** For a more detailed description of the procedure, refer to Jenior et al. (2017) [@Jenior2017]. 
@@ -482,28 +289,19 @@ Abx table
 
 **Figure 3 | *C. difficile* colonization alters gene expression of taxonomic groups differentially between antibiotic pretreatements.** Each point represents a unique gene from the respective metagenomic assembly. Coordinates determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Metatranscriptomic read abundances are normalized to their associated metganomic coverage. Colored indicate genus of origin, and gray areas denote genes with consistent expression between conditions determined by least squares regression analysis with a minimum residual value of 2. Experimental groups are shown as follows; **(a)** Streptomycin-pretreated, **(b)** Cefoperazone-pretreated, and **(c)** Clindamycin-pretreated. 
 
-
-
-**Figure 4 | ** 
-**(a)** Single interaction algorithm diagram
-**(b)** Community-level algorithm diagram
-**(c)** C. difficile and Lactobacillus CEM in cef-pretreatement example
-**(d)** Infected cef-pretreated community for demand and most likely produced metabolites
+**Figure 4 | Impact of antibiotic pretreatment and *C. difficile* infection on cecal metabolome** NMDS ordinations of Bray-Curtis distances comparing the dissimilarity of pretreatment and infection groups. **(a)** Antibiotic-pretreated compared to Untreated controls and **(b)** comparison between only antibiotic pretreatment groups. **(c-e)** Within antibiotic pretreatment comparisons for the effect of *C. difficile* colonization on community structure. Significant differences and correlation coefficients for ordination analyses were found using ANOSIM. **(f)** Random Forest feature selection, top 6 mean decrease accuracy for each...
 
 
 
+**Figure 5 | Validation of whole community metabolic modeling algorithm** Change in metabolite score vs change in concentration
+**(a)** Pooled analysis of all groups
+**(b)** Streptomycin pretreatment
+**(c)** Cefoperazone pretreatment
+**(d)** Clindamycin pretreatment
 
 
-
-
-
-
-
-**Figure 5 | ** 
-- Most important metabolites at community level
-- most important to each community member
-- global correlation of importances and metabolomics
-
+**Figure 6 | **
+**(a)** 
 
 
 
@@ -517,7 +315,6 @@ Abx table
 
 
 
-**Supplementary Figure 4 | Impact of antibiotic pretreatment and *C. difficile* infection on cecal metabolome** NMDS ordinations of Bray-Curtis distances comparing the dissimilarity of pretreatment and infection groups. **(a)** Antibiotic-pretreated compared to Untreated controls and **(b)** comparison between only antibiotic pretreatment groups. **(c-e)** Within antibiotic pretreatment comparisons for the effect of *C. difficile* colonization on community structure. Significant differences and correlation coefficients for ordination analyses were found using ANOSIM.
 
 
 **Supplementary Figure 5 | CONCOCT clustering**

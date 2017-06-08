@@ -97,18 +97,18 @@ minor.ticks.axis <- function(ax, n, t.ratio=0.5, mn, mx,...){
 
 
 # Feature selection with Random Forest (requires 'randomForest' package)
-featureselect_RF <- function(training_data, feature){
+featureselect_RF <- function(training_data, classes){
   
   attach(training_data)
-  levels <- as.vector(unique(training_data[,feature]))
-  subfactor_1 <- round(length(rownames(training_data[which(training_data[,feature]==levels[1]),])) * 0.623)
-  subfactor_2 <- round(length(rownames(training_data[which(training_data[,feature]==levels[2]),])) * 0.623)
+  levels <- as.vector(unique(training_data[,classes]))
+  subfactor_1 <- round(length(rownames(training_data[which(training_data[,classes]==levels[1]),])) * 0.623)
+  subfactor_2 <- round(length(rownames(training_data[which(training_data[,classes]==levels[2]),])) * 0.623)
   factor <- max(c(round(subfactor_1 / subfactor_2), round(subfactor_2 / subfactor_1))) * 3
   
   # Breiman (2001). Random Forests. Machine Learning.
   n_trees <- round(length(colnames(training_data)) - 1) * factor
   m_tries <- round(sqrt(length(colnames(training_data)) - 1))
-  data_randomForest <- randomForest(training_data[,feature]~., 
+  data_randomForest <- randomForest(training_data[,classes]~., 
                                     data=training_data, importance=TRUE, replace=FALSE, 
                                     err.rate=TRUE, ntree=n_trees, mtry=m_tries)
   detach(training_data)
@@ -119,8 +119,9 @@ featureselect_RF <- function(training_data, feature){
   # Parse features for significance and sort
   features_RF <- importance(data_randomForest, type=1)
   final_features_RF <- subset(features_RF, features_RF > abs(min(features_RF)))
-  final_features_RF <- final_features_RF[!(rownames(final_features_RF) == feature),]
+  final_features_RF <- final_features_RF[!(rownames(final_features_RF) == classes),]
   final_features_RF <- as.data.frame(final_features_RF)
+  final_features_RF$feature <- rownames(final_features_RF)
   
   return(final_features_RF)
 }
