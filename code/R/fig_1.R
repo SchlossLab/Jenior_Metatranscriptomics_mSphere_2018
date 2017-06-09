@@ -257,7 +257,7 @@ text(x=-2, y=c(-1,-1.4), c('Streptomycin (5.0 mg/ml)','Cefoperazone (0.5 mg/ml)'
 text(x=2, y=-1, 'Clindamycin (10 mg/kg)', cex=1.2, col=clinda_col)
 
 # Plot label
-text(-4.7, 4.88, 'a', cex=1.5, font=2)
+text(-4.7, 4.88, 'a', cex=1.7, font=2)
 
 #-------------------------------------------------------------------#
 
@@ -330,7 +330,7 @@ box()
 # Add significance
 text(x=c(6.5,12.5,18.5,8,14,20,15.5,21.5), y=c(3.4,3.4,3.4,3,3,3,3.2,2.5), labels=rep('*',8), col=noabx_col, font=2, cex=2.2)
 
-mtext('b', side=2, line=2, las=2, adj=3, padj=-11, cex=1.0, font=2)
+mtext('b', side=2, line=2, las=2, adj=3, padj=-11, cex=1.1, font=2)
 
 #-------------------------------------------------------------------#
 
@@ -355,7 +355,7 @@ mtext(rep('CDI',3), side=1, at=c(13.5,32,50.5), adj=0.5, padj=1, cex=0.7)
 mtext(rep('Mock',4), side=1, at=c(4,22.5,40.5,59.5), adj=0.5, padj=1, cex=0.7)
 mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
       side=1, at=c(4,18,36,55), adj=0.5, padj=2.5, cex=0.85, col=c('black',strep_col, cef_col, clinda_col))
-mtext('c', side=2, line=2, las=2, adj=3, padj=-11, cex=1.0, font=2)
+mtext('c', side=2, line=2, las=2, adj=3, padj=-11, cex=1.1, font=2)
 
 # Create a figure legend in empty plot
 par(mar=c(4,0,0.3,5))
@@ -385,9 +385,9 @@ title('Streptomycin-pretreated', line=0.5, cex.main=1.3, col.main=strep_col, fon
 index <- 1
 for(i in c(1:ncol(strep_mock_otu))){
   stripchart(at=index-0.35, jitter(strep_mock_otu[,i], amount=1e-5), 
-             pch=21, bg='mediumseagreen', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='white', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   stripchart(at=index+0.35, jitter(strep_infected_otu[,i], amount=1e-5), 
-             pch=21, bg='mediumorchid3', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='black', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   if (i != ncol(strep_mock_otu)){
     abline(h=index+1, lty=2)
   }
@@ -400,7 +400,7 @@ for(i in c(1:ncol(strep_mock_otu))){
 }
 axis(1, at=c(0,(log10(strep_size/1000)),(log10(strep_size/100)),(log10(strep_size/10)),log10(strep_size)), labels=c('0','0.1','1','10','100')) 
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
-       pch=c(21, 21), pt.bg=c('mediumorchid3','mediumseagreen'), bg='white', pt.cex=1.4, cex=0.9)
+       pch=c(21, 21), pt.bg=c('black','white'), bg='white', pt.cex=1.4, cex=0.9)
 formatted_names <- lapply(1:nrow(strep_lefse), function(i) bquote(paste(italic(.(strep_lefse$genus[i])), ' ', .(as.vector(strep_lefse$OTU)[i]), sep='')))
 axis(2, at=seq(1,index-2,2)+0.4, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 formatted_p <- lapply(1:nrow(strep_lefse), function(i) bquote(paste(.(as.vector(strep_lefse$phylum)[i]), '; ', italic('p'), ' = ', .(strep_lefse$pValue[i]), sep='')))
@@ -410,7 +410,7 @@ axis(side=1, at=minor_ticks+0.42, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.42, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.42, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('d', side=2, line=2, las=2, adj=13, padj=-11, cex=1.0, font=2)
+mtext('d', side=2, line=2, las=2, adj=13, padj=-11, cex=1.1, font=2)
 
 #-----------------#
 
@@ -421,9 +421,9 @@ title('Cefoperazone-pretreated', line=0.5, cex.main=1.3, col.main=cef_col, font.
 index <- 1
 for(i in c(1:ncol(cef_mock_otu))){
   stripchart(at=index-0.35, jitter(cef_mock_otu[,i], amount=1e-5), 
-             pch=21, bg='mediumseagreen', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='white', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   stripchart(at=index+0.35, jitter(cef_infected_otu[,i], amount=1e-5), 
-             pch=21, bg='mediumorchid3', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='black', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   if (i != ncol(cef_mock_otu)){
     abline(h=index+1, lty=2)
   }
@@ -436,7 +436,7 @@ for(i in c(1:ncol(cef_mock_otu))){
 }
 axis(1, at=c(0,(log10(cef_size/1000)),(log10(cef_size/100)),(log10(cef_size/10)),log10(cef_size)), labels=c('0','0.1','1','10','100')) 
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
-       pch=c(21, 21), pt.bg=c('mediumorchid3','mediumseagreen'), bg='white', pt.cex=1.4, cex=0.9)
+       pch=c(21, 21), pt.bg=c('black','white'), bg='white', pt.cex=1.4, cex=0.9)
 formatted_names <- lapply(1:nrow(cef_lefse), function(i) bquote(paste(italic(.(cef_lefse$genus[i])), ' ', .(as.vector(cef_lefse$OTU)[i]), sep='')))
 axis(2, at=seq(1,index-2,2)+0.4, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 formatted_p <- lapply(1:nrow(cef_lefse), function(i) bquote(paste(.(as.vector(cef_lefse$phylum)[i]), '; ', italic('p'), ' = ', .(cef_lefse$pValue[i]), sep='')))
@@ -447,7 +447,7 @@ axis(side=1, at=minor_ticks+0.74, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.74, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.74, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('e', side=2, line=2, las=2, adj=15, padj=-11, cex=1.0, font=2)
+mtext('e', side=2, line=2, las=2, adj=15, padj=-11, cex=1.1, font=2)
   
 #-----------------#
 
@@ -458,9 +458,9 @@ title('Clindamycin-pretreated', line=0.5, cex.main=1.3, col.main=clinda_col, fon
 index <- 1
 for(i in c(1:ncol(clinda_mock_otu))){
   stripchart(at=index-0.25, jitter(clinda_mock_otu[,i], amount=1e-5), 
-             pch=21, bg='mediumseagreen', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='white', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   stripchart(at=index+0.25, jitter(clinda_infected_otu[,i], amount=1e-5), 
-             pch=21, bg='mediumorchid3', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='black', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   if (i != ncol(clinda_mock_otu)){
     abline(h=index+1, lty=2)
   }
@@ -473,7 +473,7 @@ for(i in c(1:ncol(clinda_mock_otu))){
 }
 axis(1, at=c(0,(log10(clinda_size/1000)),(log10(clinda_size/100)),(log10(clinda_size/10)),log10(clinda_size)), labels=c('0','0.1','1','10','100')) 
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
-       pch=c(21, 21), pt.bg=c('mediumorchid3','mediumseagreen'), bg='white', pt.cex=1.4, cex=0.9)
+       pch=c(21, 21), pt.bg=c('black','white'), bg='white', pt.cex=1.4, cex=0.9)
 formatted_names <- lapply(1:nrow(clinda_lefse), function(i) bquote(paste(italic(.(clinda_lefse$genus[i])), ' ', .(as.vector(clinda_lefse$OTU)[i]), sep='')))
 axis(2, at=seq(1,index-2,2)+0.25, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 formatted_p <- lapply(1:nrow(clinda_lefse), function(i) bquote(paste(.(as.vector(clinda_lefse$phylum)[i]), '; ', italic('p'), ' = ', .(clinda_lefse$pValue[i]), sep='')))
@@ -483,7 +483,7 @@ axis(side=1, at=minor_ticks+0.4, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.4, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.4, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('f', side=2, line=2, las=2, adj=23, padj=-11, cex=1.0, font=2)
+mtext('f', side=2, line=2, las=2, adj=23, padj=-11, cex=1.1, font=2)
 
 dev.off()
 
