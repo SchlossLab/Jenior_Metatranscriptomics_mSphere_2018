@@ -282,8 +282,6 @@ Correspondence to [Patrick D. Schloss](pdschloss@umich.edu)
 
 ###Figure Legends
 
-Abx table? not this time
-
 **Figure 1 | Experimental models of *C. difficile* infection and their impact on bacterial populations in the gut microbiota.** **(a)** Experimental timelines of antibiotic pretreatment and infection mouse models. **(b)** Quantification of *C. difficile* cfu and toxin titer across antibiotic pretreatment models. Gray asterisks indicate significant difference from no antibiotic controls by Wilcoxon rank-sum test with the Benjamini-Hochberg correction (all *p* < 0.001). **(c)** Relative abundance of family-level taxonomic classification for OTUs in each treatment group. **(d-f)** Discriminating OTUs with LEfSe analysis between Mock and *C. difficile*-infected communities within each pretreatment group, *p*-values from LEfSe are shown on the left with taxonomic information (all *p* < 0.05). Relative abundance of the respective OTUs from each mouse along with medians are shown for each pretreatment group. Black asterisks indicate significant difference in relative abundance determined by Wilcoxon rank-sum test with Benjamini-Hochberg correction (*p* < 0.05).
 
 **Figure 2 | *C. difficile* infection alters specific pathway and gene expression of the gut microbiota across perturbed communities** Metatranscriptomic (cDNA) read abundances associated with each gene were normalized to their associated metganomic (DNA) coverage, resulting in values that reflect upregulation and not basal expression levels of highly abundant genes. **(a)** Differences in read abundance for top 5 KEGG pathways with the largest amount of change between Mock and *C. difficile*-infected states within each antibiotic pretreatment. Values above the center line were expressed more during *C. difficile* infection, and those below the line were expressed more in Mock-infected animals. Dotted lines indicate average expression of pathways associated with each condition. **(b-d)** cDNA read abundances of the top 10 genes with the largest differences in expression within each indicated antibiotic pretreatment group. Shown are the expression levels for the genes displayed on the left during Mock (white) or *C. difficile* (black) infection. Gene names and member pathways indicated by letter codes along the left axis (pathway legend below). Abundances for each annotated pathway or gene were reported at the community-level and were agnostic to individual taxonomic group contributions to transcript pool.
@@ -294,11 +292,16 @@ Abx table? not this time
 
 
 **Figure 5 | ** specific changes in the metabolome
-**(a)** 
+**(a)** Strep NMDS
+**(c)** Cef NMDS
+**(d)** Clinda NMDS
+**(e)** Strep Random Forest
+**(f)** Cef Random Forest
+**(g)** Clinda Random Forest
 
 
 **Figure 6 | ** metatranscriptome correlation with metabolome
-**(a)** 
+**(a)** heatmap?
 specific pathways turn on/off following infection effecting metabolites and have implications for the nutrient niche space of *C. difficile*.
 
 

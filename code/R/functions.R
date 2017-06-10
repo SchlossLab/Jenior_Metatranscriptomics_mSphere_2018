@@ -122,6 +122,7 @@ featureselect_RF <- function(training_data, classes){
   final_features_RF <- final_features_RF[!(rownames(final_features_RF) == classes),]
   final_features_RF <- as.data.frame(final_features_RF)
   final_features_RF$feature <- rownames(final_features_RF)
+  colnames(final_features_RF) <- c('MDA','feature')
   
   return(final_features_RF)
 }
@@ -204,4 +205,94 @@ format_network <- function(community_importances, color_pallette){
   return(simple_graph)
 }
 
+
+# Generates plot for significant differences in metabolite concentrations
+metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, mda, group1, group2, fig_title, title_col, fig_label){
+  
+  pdf(file=plot_file, width=4, height=ncol(metabolome1)*1.5)
+  layout(matrix(c(1:(ncol(metabolome1)+2)), nrow=(ncol(metabolome1)+2), ncol=1, byrow = TRUE))
+  
+  par(mar=c(0.2, 0, 0, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE)
+  plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
+  text(x=-10.2, y=-3, labels=fig_label, cex=2.4, font=2, xpd=TRUE)
+  legend('bottomright', legend=c(group1, group2), bty='n',
+         pt.bg=c('black','gray80'), pch=21, cex=1.2, pt.cex=2, ncol=2)
+  text(x=-4.5, y=-4.5, labels=fig_title, cex=1.2, font=2, col=title_col)
+  
+  par(mar=c(0.2, 2, 0.2, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
+  xmax <- ceiling(max(c(max(metabolome1[,1]), max(metabolome2[,1]))))
+  while(xmax %% 5 != 0 ){xmax <- xmax + 1}
+  if (xmax > 70){
+    while(xmax %% 10 != 0 ){xmax <- xmax + 1}
+  }
+  plot(0, type='n', xlab='', ylab='', xaxt='n', yaxt='n', xlim=c(0,xmax), ylim=c(0.3,1.8))
+  stripchart(at=1.2, jitter(metabolome1[,1], amount=1e-5),
+             pch=21, bg='black', method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
+  stripchart(at=0.66, jitter(metabolome2[,1], amount=1e-5), 
+             pch=21, bg='gray80', method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
+  metabolite <- paste(colnames(metabolome1)[1], ' [',as.character(round(mda[1],3)),']', sep='')
+  legend('topright', legend=metabolite, pch=1, cex=1.3, pt.cex=0, bty='n')
+  if (xmax <= 10) {
+    text(x=seq(0,xmax,1), y=0.42, labels=seq(0,xmax,1), cex=1)
+    axis(1, at=seq(0,5,1), NA, cex.axis=0.8, tck=0.015)
+  } else if (xmax > 70){
+    text(x=seq(0,xmax,10), y=0.42, labels=seq(0,xmax,10), cex=1)
+    axis(1, at=seq(0,xmax,10), NA, cex.axis=0.8, tck=0.015)
+  } else {
+    text(x=seq(0,xmax,5), y=0.42, labels=seq(0,xmax,5), cex=1)
+    axis(1, at=seq(0,xmax,5), NA, cex.axis=0.8, tck=0.015)
+  }
+  segments(median(metabolome1[,1]), 1.03, median(metabolome1[,1]), 1.37, lwd=2.5)
+  segments(median(metabolome2[,1]), 0.49, median(metabolome2[,1]), 0.83, lwd=2.5)
+  if (pvalues[1] < 0.001){
+    mtext('***', side=4, font=2, cex=1.2, padj=0.5)
+  } else if (pvalues[1] <= 0.01){
+    mtext('**', side=4, font=2, cex=1.2, padj=0.5)
+  } else if (pvalues[1] <= 0.05){
+    mtext('*', side=4, font=2, cex=1.2, padj=0.5)
+  } else {
+    mtext('n.s.', side=4)
+  }
+  for(i in c(2:(ncol(metabolome1)))){
+    xmax <- ceiling(max(c(max(metabolome1[,i]), max(metabolome2[,i]))))
+    while(xmax %% 5 != 0 ){xmax <- xmax + 1}
+    if (xmax > 70){
+      while(xmax %% 10 != 0 ){xmax <- xmax + 1}
+    }
+    plot(0, type='n', xlab='', ylab='', xaxt='n', yaxt='n', xlim=c(0,xmax), ylim=c(0.3,1.8))
+    stripchart(at=1.2, jitter(metabolome1[,i], amount=1e-5), 
+               pch=21, bg='black', method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
+    stripchart(at=0.66, jitter(metabolome2[,i], amount=1e-5), 
+               pch=21, bg='gray80', method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
+    metabolite <- paste(colnames(metabolome1)[i], ' [',as.character(round(mda[i],3)),']', sep='')
+    legend('topright', legend=metabolite, pch=1, cex=1.3, pt.cex=0, bty='n')
+    if (xmax <= 10) {
+      text(x=seq(0,xmax,1), y=0.42, labels=seq(0,xmax,1), cex=1)
+      axis(1, at=seq(0,5,1), NA, cex.axis=0.8, tck=0.015)
+    } else if (xmax > 70){
+      text(x=seq(0,xmax,10), y=0.42, labels=seq(0,xmax,10), cex=1)
+      axis(1, at=seq(0,xmax,10), NA, cex.axis=0.8, tck=0.015)
+    } else {
+      text(x=seq(0,xmax,5), y=0.42, labels=seq(0,xmax,5), cex=1)
+      axis(1, at=seq(0,xmax,5), NA, cex.axis=0.8, tck=0.015)
+    }
+    segments(median(metabolome1[,i]), 1.03, median(metabolome1[,i]), 1.37, lwd=2.5)
+    segments(median(metabolome2[,i]), 0.49, median(metabolome2[,i]), 0.83, lwd=2.5)
+    if (pvalues[i] < 0.001){
+      mtext('***', side=4, font=2, cex=1.2, padj=0.5)
+    } else if (pvalues[i] <= 0.01){
+      mtext('**', side=4, font=2, cex=1.2, padj=0.5)
+    } else if (pvalues[i] <= 0.05){
+      mtext('*', side=4, font=2, cex=1.2, padj=0.5)
+    } else {
+      mtext('n.s.', side=4)
+    }
+  }
+ 
+  par(mar=c(0, 0, 0, 0))
+  plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
+  text(x=0, y=4, labels=expression(paste('Scaled Intensity (',log[10],')')), cex=1.4)
+  
+  dev.off()
+}
 
