@@ -288,19 +288,9 @@ Correspondence to [Patrick D. Schloss](pdschloss@umich.edu)
 
 **Figure 3 | *C. difficile* colonization alters gene expression of taxonomic groups differentially between antibiotic pretreatements.** Each point represents a unique gene from the respective metagenomic assembly. Coordinates determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Metatranscriptomic read abundances are normalized to their associated metganomic coverage. Colored indicate genus of origin, and gray areas denote genes with consistent expression between conditions determined by least squares regression analysis with a minimum residual value of 2. Experimental groups are shown as follows; **(a)** Streptomycin-pretreated, **(b)** Cefoperazone-pretreated, and **(c)** Clindamycin-pretreated. 
 
-**Figure 4 | Impact of antibiotic pretreatment and *C. difficile* infection on cecal metabolome** NMDS ordinations of Bray-Curtis distances comparing the dissimilarity of pretreatment and infection groups. **(a)** Antibiotic-pretreated compared to Untreated controls and **(b)** comparison between only antibiotic pretreatment groups. **(c-e)** Within antibiotic pretreatment comparisons for the effect of *C. difficile* colonization on community structure. Significant differences and correlation coefficients for ordination analyses were calculated by AMOVA. 
+**Figure 4 | Impact of antibiotic pretreatment and *C. difficile* infection on cecal metabolome** NMDS ordinations of Bray-Curtis distances comparing the dissimilarity of infection groups within each antibiotic pretreatment; **(a)** Streptomycin, **(b)** Cefoperazone, and **(c)** Clindamycin. Significant differences were determined by AMOVA. Relative concentrations of metabolites with highest Mean Decrease Accuracy (MDA) from Random Forest feature selection to discriminate between Mock and *C. difficile*-infected conditions within each antibiotic pretreatment; **(d)** Streptomycin, **(e)** Cefoperazone, and **(f)** Clindamycin. Significant differences are labeled along the right axis and were calculated with Wilcoxon rank-sum test with Benjamini-Hochberg correction (\*\*\* < 0.001, \*\* <= 0.01, \* <= 0.05).
 
-
-**Figure 5 | ** specific changes in the metabolome
-**(a)** Strep NMDS
-**(c)** Cef NMDS
-**(d)** Clinda NMDS
-**(e)** Strep Random Forest
-**(f)** Cef Random Forest
-**(g)** Clinda Random Forest
-
-
-**Figure 6 | ** metatranscriptome correlation with metabolome
+**Figure 5 | ** metatranscriptome correlation with metabolome
 **(a)** heatmap?
 specific pathways turn on/off following infection effecting metabolites and have implications for the nutrient niche space of *C. difficile*.
 

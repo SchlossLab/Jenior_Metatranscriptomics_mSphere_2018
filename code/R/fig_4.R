@@ -205,7 +205,7 @@ strep_rf <- featureselect_RF(strep_metabolome, 'infection')
 # Sort and subset top hits
 all_rf <- all_rf[order(-all_rf$MDA),][1:10,]
 abx_rf <- abx_rf[order(-abx_rf$MDA),][1:10,]
-inf_rf <- inf_rf[order(-inf_rf$MDA),][1:10,]
+inf_rf <- inf_rf[order(-inf_rf$MDA),][1:15,]
 cef_rf <- cef_rf[order(-cef_rf$MDA),][1:5,]
 clinda_rf <- clinda_rf[order(-clinda_rf$MDA),][1:5,]
 strep_rf <- strep_rf[order(-strep_rf$MDA),][1:5,]
