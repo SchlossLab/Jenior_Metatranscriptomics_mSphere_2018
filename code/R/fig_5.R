@@ -70,7 +70,30 @@ clinda_normalized_reads <- clinda_normalized_reads[!clinda_normalized_reads$orga
 strep_normalized_reads <- strep_normalized_reads[!strep_normalized_reads$organism %in% cdiff_omit,]
 rm(cdiff_omit)
 
+# Screen for those genes that have a gene annotation
+cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', rownames(cef_normalized_reads)),]), ]
+clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', rownames(clinda_normalized_reads)),]), ]
+strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', rownames(strep_normalized_reads)),]), ]
+rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
 
+# Screen out ribosomal genes
+cef_annotated <- subset(cef_annotated, !grepl('Ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_RNA*', cef_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('Ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_RNA*', clinda_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('Ribosomal_RNA*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('ribosomal_RNA*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_RNA*', strep_annotated$description))
+
+# Remove hypothetical and uncharacterized annotations
+cef_annotated <- subset(cef_annotated, description != 'hypothetical_protein')
+cef_annotated <- subset(cef_annotated, description != 'uncharacterized_*')
+clinda_annotated <- subset(clinda_annotated, description != 'hypothetical_protein')
+clinda_annotated <- subset(clinda_annotated, description != 'uncharacterized_*')
+strep_annotated <- subset(strep_annotated, description != 'hypothetical_protein')
+strep_annotated <- subset(strep_annotated, description != 'uncharacterized_*')
 
 
 

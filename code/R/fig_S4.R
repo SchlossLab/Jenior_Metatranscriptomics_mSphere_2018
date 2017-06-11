@@ -214,20 +214,10 @@ legend('topright', legend=c('No Antibiotic','Streptomycin','Cefoperzone','Clinda
        pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=22, cex=1.4, pt.cex=2.5)
 legend('topleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
        col='black', pch=c(15,17), cex=1.2, pt.cex=2)
-# Infection
-plot(x=abx_metabolome_nmds$MDS1, y=abx_metabolome_nmds$MDS2, xlim=c(-0.075,0.075), ylim=c(-0.075,0.075),
-     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
-mtext('b', side=2, line=2, las=2, adj=1.8, padj=-9.5, cex=1.4, font=2)
-points(x=metabolome_abx_630$MDS1, y=metabolome_abx_630$MDS2, bg='mediumorchid4', pch=21, cex=2, lwd=1.2)
-points(x=metabolome_abx_mock$MDS1, y=metabolome_abx_mock$MDS2, bg='chartreuse2', pch=21, cex=2, lwd=1.2)
-legend('bottomleft', legend=c('Between Antibiotic Groups', as.expression(bquote(paste(italic('p'),' = 0.075 n.s.')))), 
-       pch=1, cex=1.4, pt.cex=0, bty='n')
-legend('topleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
-       col='black', pt.bg=c('mediumorchid4','chartreuse2'), pch=21, cex=1.2, pt.cex=2)
 # Antibiotics individually
 plot(x=abx_metabolome_nmds$MDS1, y=abx_metabolome_nmds$MDS2, xlim=c(-0.075,0.075), ylim=c(-0.075,0.075),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
-mtext('c', side=2, line=2, las=2, adj=1.8, padj=-9.5, cex=1.4, font=2)
+mtext('b', side=2, line=2, las=2, adj=1.8, padj=-9.5, cex=1.4, font=2)
 points(x=metabolome_abx_cef_630$MDS1, y=metabolome_abx_cef_630$MDS2, bg=cef_col, pch=22, cex=2, lwd=1.2)
 points(x=metabolome_abx_cef_mock$MDS1, y=metabolome_abx_cef_mock$MDS2, bg=cef_col, pch=24, cex=2, lwd=1.2)
 points(x=metabolome_abx_clinda_630$MDS1, y=metabolome_abx_clinda_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
@@ -238,6 +228,17 @@ legend('bottomleft', legend=c('Between Antibiotic Groups', as.expression(bquote(
        pch=1, cex=1.4, pt.cex=0, bty='n')
 legend('topleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
        col='black', pch=c(15,17), cex=1.2, pt.cex=2)
+# Infection
+plot(x=abx_metabolome_nmds$MDS1, y=abx_metabolome_nmds$MDS2, xlim=c(-0.075,0.075), ylim=c(-0.075,0.075),
+     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
+mtext('c', side=2, line=2, las=2, adj=1.8, padj=-9.5, cex=1.4, font=2)
+points(x=metabolome_abx_630$MDS1, y=metabolome_abx_630$MDS2, bg='mediumorchid4', pch=21, cex=2, lwd=1.2)
+points(x=metabolome_abx_mock$MDS1, y=metabolome_abx_mock$MDS2, bg='chartreuse2', pch=21, cex=2, lwd=1.2)
+legend('bottomleft', legend=c('Between Antibiotic Groups', as.expression(bquote(paste(italic('p'),' = 0.075 n.s.')))), 
+       pch=1, cex=1.4, pt.cex=0, bty='n')
+legend('topleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
+       col='black', pt.bg=c('mediumorchid4','chartreuse2'), pch=21, cex=1.2, pt.cex=2)
+
 
 dev.off()
 
@@ -285,7 +286,7 @@ for(i in c(1:(ncol(strep_abx_metabolome)))){
     text(x=seq(0,xmax,5), y=0.42, labels=seq(0,xmax,5), cex=1)
     axis(1, at=seq(0,xmax,5), NA, cex.axis=0.8, tck=0.015)
   }
-  segments(median(strep_abx_metabolome[,i]), 1.58, median(strep_abx_metabolome[,i]), 1.72, lwd=2.5)
+  segments(median(strep_abx_metabolome[,i]), 1.58, median(strep_abx_metabolome[,i]), 1.92, lwd=2.5)
   segments(median(cef_abx_metabolome[,i]), 1.03, median(cef_abx_metabolome[,i]), 1.37, lwd=2.5)
   segments(median(clinda_abx_metabolome[,i]), 0.49, median(clinda_abx_metabolome[,i]), 0.83, lwd=2.5)
   
