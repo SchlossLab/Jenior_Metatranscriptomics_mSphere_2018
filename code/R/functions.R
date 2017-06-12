@@ -3,7 +3,7 @@
 setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/')
 
 # Load dependencies
-deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'RColorBrewer', 'gplots')
+deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'RColorBrewer', 'gplots','viridis')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -19,7 +19,7 @@ set.seed(8619)
 strep_col <- '#D37A1F'
 cef_col <- '#3A9CBC'
 clinda_col <- '#A40019'
-noabx_col <- 'gray40'
+noabx_col <- 'gray80'
 gf_col <- 'forestgreen'
 
 # Filter out columns that have values in at least 3 samples (ignores first column if needed)
@@ -207,7 +207,8 @@ format_network <- function(community_importances, color_pallette){
 
 
 # Generates plot for significant differences in metabolite concentrations
-metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, mda, oob, group1, group2, fig_title, title_col, fig_label){
+metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, mda, 
+                                  oob, group1, group2, fig_title, title_col, fig_label, col1, col2){
   
   pdf(file=plot_file, width=4, height=ncol(metabolome1)*1.5)
   layout(matrix(c(1:(ncol(metabolome1)+2)), nrow=(ncol(metabolome1)+2), ncol=1, byrow = TRUE))
@@ -216,27 +217,34 @@ metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
   plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
   text(x=-10.2, y=-3, labels=fig_label, cex=2.4, font=2, xpd=TRUE)
   legend('bottomright', legend=c(group1, group2), bty='n',
-         pt.bg=c('black','gray80'), pch=21, cex=1.2, pt.cex=2, ncol=2)
+         pt.bg=c(col1, col2), pch=21, cex=1.2, pt.cex=2, ncol=2)
   text(x=-4.5, y=-4.5, labels=fig_title, cex=1.2, font=2, col=title_col)
   
   par(mar=c(0.2, 2, 0.2, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
   for(i in c(1:(ncol(metabolome1)))){
     xmax <- ceiling(max(c(max(metabolome1[,i]), max(metabolome2[,i]))))
     while(xmax %% 5 != 0 ){xmax <- xmax + 1}
-    if (xmax > 70){
-      while(xmax %% 10 != 0 ){xmax <- xmax + 1}
-    }
+    if (xmax > 1000) {while(xmax %% 100 != 0 ){xmax <- xmax + 1}} else if (xmax > 70){while(xmax %% 10 != 0 ){xmax <- xmax + 1}}
     plot(0, type='n', xlab='', ylab='', xaxt='n', yaxt='n', xlim=c(0,xmax), ylim=c(0.3,1.8))
     stripchart(at=1.2, jitter(metabolome1[,i], amount=1e-5), 
-               pch=21, bg='black', method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
+               pch=21, bg=col1, method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
     stripchart(at=0.66, jitter(metabolome2[,i], amount=1e-5), 
-               pch=21, bg='gray80', method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
+               pch=21, bg=col2, method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
     metabolite <- paste(colnames(metabolome1)[i], ' [',as.character(round(mda[i],3)),']', sep='')
     legend('topright', legend=metabolite, pch=1, cex=1.3, pt.cex=0, bty='n')
     if (xmax <= 10) {
       text(x=seq(0,xmax,1), y=0.42, labels=seq(0,xmax,1), cex=1)
-      axis(1, at=seq(0,5,1), NA, cex.axis=0.8, tck=0.015)
-    } else if (xmax > 70){
+      axis(1, at=seq(0,xmax,1), NA, cex.axis=0.8, tck=0.015)
+    } else if (xmax > 1000){
+      text(x=seq(0,xmax,200), y=0.42, labels=seq(0,xmax,200), cex=1)
+      axis(1, at=seq(0,xmax,200), NA, cex.axis=0.8, tck=0.015)
+    } else if (xmax > 500){
+      text(x=seq(0,xmax,100), y=0.42, labels=seq(0,xmax,100), cex=1)
+      axis(1, at=seq(0,xmax,100), NA, cex.axis=0.8, tck=0.015)
+    } else if (xmax > 100){
+      text(x=seq(0,xmax,50), y=0.42, labels=seq(0,xmax,50), cex=1)
+      axis(1, at=seq(0,xmax,50), NA, cex.axis=0.8, tck=0.015)
+    } else if (xmax > 50){
       text(x=seq(0,xmax,10), y=0.42, labels=seq(0,xmax,10), cex=1)
       axis(1, at=seq(0,xmax,10), NA, cex.axis=0.8, tck=0.015)
     } else {
