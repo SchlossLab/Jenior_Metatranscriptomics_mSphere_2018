@@ -22,6 +22,15 @@ clinda_col <- '#A40019'
 noabx_col <- 'gray80'
 gf_col <- 'forestgreen'
 
+
+# Remove columns with low variance
+rm_lowVar <- function(data_table) {
+  vars <- apply(data_table, 2, var)
+  keep <- which(vars > as.vector(quantile(vars, na.rm = TRUE))[2])
+  keep_table <- data_table[,keep]
+  return(keep_table)
+}
+
 # Filter out columns that have values in at least 3 samples (ignores first column if needed)
 filter_table <- function(data) {
 
