@@ -51,7 +51,6 @@ metabolome$BIOCHEMICAL <- NULL
 metabolome$KEGG <- NULL
 metabolome_annotation <- metabolome[,c(1:2)]
 metabolome$SUB_PATHWAY <- NULL
-#metabolome <- metabolome[metabolome$SUPER_PATHWAY %in% c('Carbohydrate','Amino_Acid','Lipid'),] # Subset to amino acids and carbohydrates
 metabolome <- metabolome[order(metabolome$SUPER_PATHWAY),]
 metabolome$SUPER_PATHWAY <- NULL
 metabolome <- as.data.frame(t(metabolome))
@@ -76,16 +75,16 @@ metabolome$infection <- NULL
 
 # Find medians within antibiotic groups
 noabx_metabolome <- aggregate(noabx_metabolome[,2:ncol(noabx_metabolome)], by=list(noabx_metabolome$infection), FUN=median)
-rownames(noabx_metabolome) <- 'No_Antibiotics-Mock'
+rownames(noabx_metabolome) <- 'No_Antibiotics-Mock(median)'
 noabx_metabolome$Group.1 <- NULL
 cef_metabolome <- aggregate(cef_metabolome[,2:ncol(cef_metabolome)], by=list(cef_metabolome$infection), FUN=median)
-rownames(cef_metabolome) <- c('Cefoperzone-Infected','Cefoperzone-Mock')
+rownames(cef_metabolome) <- c('Cefoperzone-Infected(median)','Cefoperzone-Mock(median)')
 cef_metabolome$Group.1 <- NULL
 clinda_metabolome <- aggregate(clinda_metabolome[,2:ncol(clinda_metabolome)], by=list(clinda_metabolome$infection), FUN=median)
-rownames(clinda_metabolome) <- c('Clindamycin-Infected','Clindamycin-Mock')
+rownames(clinda_metabolome) <- c('Clindamycin-Infected(median)','Clindamycin-Mock(median)')
 clinda_metabolome$Group.1 <- NULL
 strep_metabolome <- aggregate(strep_metabolome[,2:ncol(strep_metabolome)], by=list(strep_metabolome$infection), FUN=median)
-rownames(strep_metabolome) <- c('Streptomycin-Infected','Streptomycin-Mock')
+rownames(strep_metabolome) <- c('Streptomycin-Infected(median)','Streptomycin-Mock(median)')
 strep_metabolome$Group.1 <- NULL
 abx_metabolome <- rbind(strep_metabolome,cef_metabolome,clinda_metabolome)
 
@@ -96,6 +95,8 @@ colnames(supp_metabolome)[1] <- 'BIOCHEMICAL'
 supp_metabolome$BIOCHEMICAL <- gsub(' ', '_', supp_metabolome$BIOCHEMICAL)
 write.table(supp_metabolome, file=supp_table3, sep='\t', row.names=FALSE, quote=FALSE)
 rm(supp_metabolome)
+rownames(abx_metabolome) <- c('Streptomycin\nInfected','Streptomycin\nMock','Cefoperzone\nInfected',
+                              'Cefoperzone\nMock','Clindamycin\nInfected','Clindamycin\nMock')
 
 # Convert to matrices
 metabolome <- as.matrix(metabolome)
@@ -168,31 +169,89 @@ metabolome <- merge(metabolome_annotation, t(metabolome), by='row.names')
 rownames(metabolome) <- metabolome$Row.names
 metabolome$Row.names <- NULL
 metabolome$SUB_PATHWAY <- NULL
-metabolome <- metabolome[order(metabolome$SUPER_PATHWAY),]
 pathways <- table(metabolome$SUPER_PATHWAY)
-metabolome$SUPER_PATHWAY <- NULL
-metabolome <- as.matrix(t(metabolome))
+metabolome_amino <- subset(metabolome, SUPER_PATHWAY == 'Amino_Acid')
+metabolome_amino$SUPER_PATHWAY <- NULL
+amino <- as.vector(hclust(dist(metabolome_amino))$order)
+metabolome_amino <- t(metabolome_amino[amino,])
+metabolome_carb <- subset(metabolome, SUPER_PATHWAY == 'Carbohydrate')
+metabolome_carb$SUPER_PATHWAY <- NULL
+carb <- as.vector(hclust(dist(metabolome_carb))$order)
+metabolome_carb <- t(metabolome_carb[carb,])
+metabolome_vit <- subset(metabolome, SUPER_PATHWAY == 'Cofactors_and_Vitamins')
+metabolome_vit$SUPER_PATHWAY <- NULL
+vit <- as.vector(hclust(dist(metabolome_vit))$order)
+metabolome_vit <- t(metabolome_vit[vit,])
+metabolome_energy <- subset(metabolome, SUPER_PATHWAY == 'Energy')
+metabolome_energy$SUPER_PATHWAY <- NULL
+energy <- as.vector(hclust(dist(metabolome_energy))$order)
+metabolome_energy <- t(metabolome_energy[energy,])
+metabolome_lipid <- subset(metabolome, SUPER_PATHWAY == 'Lipid')
+metabolome_lipid$SUPER_PATHWAY <- NULL
+lipid <- as.vector(hclust(dist(metabolome_lipid))$order)
+metabolome_lipid <- t(metabolome_lipid[lipid,])
+metabolome_nuc <- subset(metabolome, SUPER_PATHWAY == 'Nucleotide')
+metabolome_nuc$SUPER_PATHWAY <- NULL
+nuc <- as.vector(hclust(dist(metabolome_nuc))$order)
+metabolome_nuc <- t(metabolome_nuc[nuc,])
+metabolome_pep <- subset(metabolome, SUPER_PATHWAY == 'Peptide')
+metabolome_pep$SUPER_PATHWAY <- NULL
+pep <- as.vector(hclust(dist(metabolome_pep))$order)
+metabolome_pep <- t(metabolome_pep[pep,])
+metabolome_xeno <- subset(metabolome, SUPER_PATHWAY == 'Xenobiotics')
+metabolome_xeno$SUPER_PATHWAY <- NULL
+xeno <- as.vector(hclust(dist(metabolome_xeno))$order)
+metabolome_xeno <- t(metabolome_xeno[xeno,])
+metabolome <- as.matrix(cbind(metabolome_amino,metabolome_carb,metabolome_vit,
+                              metabolome_energy,metabolome_lipid,metabolome_nuc,
+                              metabolome_pep,metabolome_xeno))
+rm(metabolome_amino,metabolome_carb,metabolome_vit,
+   metabolome_energy,metabolome_lipid,metabolome_nuc,
+   metabolome_pep,metabolome_xeno)
 
-
-abx_metabolome_path <- merge(metabolome_annotation, t(abx_metabolome), by='row.names')
-rownames(abx_metabolome_path) <- abx_metabolome_path$Row.names
-abx_metabolome_path$Row.names <- NULL
-abx_metabolome_path$SUB_PATHWAY <- NULL
-abx_metabolome_carb <- subset(abx_metabolome_path, SUPER_PATHWAY == 'Carbohydrate')
-abx_metabolome_carb$SUPER_PATHWAY <- NULL
-carb <- as.vector(hclust(dist(abx_metabolome_carb))$order)
-abx_metabolome_carb <- t(abx_metabolome_carb[carb,])
-abx_metabolome_amino <- subset(abx_metabolome_path, SUPER_PATHWAY == 'Amino_Acid')
+abx_metabolome <- merge(metabolome_annotation, t(abx_metabolome), by='row.names')
+rownames(abx_metabolome) <- abx_metabolome$Row.names
+abx_metabolome$Row.names <- NULL
+abx_metabolome$SUB_PATHWAY <- NULL
+pathways <- table(abx_metabolome$SUPER_PATHWAY)
+abx_metabolome_amino <- subset(abx_metabolome, SUPER_PATHWAY == 'Amino_Acid')
 abx_metabolome_amino$SUPER_PATHWAY <- NULL
 amino <- as.vector(hclust(dist(abx_metabolome_amino))$order)
 abx_metabolome_amino <- t(abx_metabolome_amino[amino,])
-abx_metabolome_lipid <- subset(abx_metabolome_path, SUPER_PATHWAY == 'Lipid')
+abx_metabolome_carb <- subset(abx_metabolome, SUPER_PATHWAY == 'Carbohydrate')
+abx_metabolome_carb$SUPER_PATHWAY <- NULL
+carb <- as.vector(hclust(dist(abx_metabolome_carb))$order)
+abx_metabolome_carb <- t(abx_metabolome_carb[carb,])
+abx_metabolome_vit <- subset(abx_metabolome, SUPER_PATHWAY == 'Cofactors_and_Vitamins')
+abx_metabolome_vit$SUPER_PATHWAY <- NULL
+vit <- as.vector(hclust(dist(abx_metabolome_vit))$order)
+abx_metabolome_vit <- t(abx_metabolome_vit[vit,])
+abx_metabolome_energy <- subset(abx_metabolome, SUPER_PATHWAY == 'Energy')
+abx_metabolome_energy$SUPER_PATHWAY <- NULL
+energy <- as.vector(hclust(dist(abx_metabolome_energy))$order)
+abx_metabolome_energy <- t(abx_metabolome_energy[energy,])
+abx_metabolome_lipid <- subset(abx_metabolome, SUPER_PATHWAY == 'Lipid')
 abx_metabolome_lipid$SUPER_PATHWAY <- NULL
 lipid <- as.vector(hclust(dist(abx_metabolome_lipid))$order)
 abx_metabolome_lipid <- t(abx_metabolome_lipid[lipid,])
-abx_metabolome <- as.matrix(cbind(abx_metabolome_carb, abx_metabolome_amino, abx_metabolome_lipid))
-abx_lengths <- c(length(carb), length(amino), length(lipid))
-rm(carb, amino, lipid, abx_metabolome_path, metabolome_annotation)
+abx_metabolome_nuc <- subset(abx_metabolome, SUPER_PATHWAY == 'Nucleotide')
+abx_metabolome_nuc$SUPER_PATHWAY <- NULL
+nuc <- as.vector(hclust(dist(abx_metabolome_nuc))$order)
+abx_metabolome_nuc <- t(abx_metabolome_nuc[nuc,])
+abx_metabolome_pep <- subset(abx_metabolome, SUPER_PATHWAY == 'Peptide')
+abx_metabolome_pep$SUPER_PATHWAY <- NULL
+pep <- as.vector(hclust(dist(abx_metabolome_pep))$order)
+abx_metabolome_pep <- t(abx_metabolome_pep[pep,])
+abx_metabolome_xeno <- subset(abx_metabolome, SUPER_PATHWAY == 'Xenobiotics')
+abx_metabolome_xeno$SUPER_PATHWAY <- NULL
+xeno <- as.vector(hclust(dist(abx_metabolome_xeno))$order)
+abx_metabolome_xeno <- t(abx_metabolome_xeno[xeno,])
+abx_metabolome <- as.matrix(cbind(abx_metabolome_amino,abx_metabolome_carb,abx_metabolome_vit,
+                              abx_metabolome_energy,abx_metabolome_lipid,abx_metabolome_nuc,
+                              abx_metabolome_pep,abx_metabolome_xeno))
+rm(abx_metabolome_vit,metabolome_annotation, amino,carb,vit,energy,lipid,nuc,pep,xeno,
+   abx_metabolome_energy,abx_metabolome_lipid,abx_metabolome_nuc,
+   abx_metabolome_pep,abx_metabolome_xeno)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -209,7 +268,7 @@ heatmap.2( metabolome,
            symbreaks=FALSE,
            dendrogram='none',
            margins=c(10, 20),
-           cexRow=1.8, 
+           cexRow=2.5, 
            Colv=FALSE,
            Rowv=FALSE,
            labCol=FALSE,
@@ -223,25 +282,25 @@ text(x=0.15, y=0.76, 'Resistant', cex=3)
 segments(x0=0.182, y0=0.698, x1=0.182, y1=0.025, lwd=7) # Susceptible
 text(x=0.15, y=0.36, 'Susceptible', cex=3)
 
-segments(x0=0.189, y0=0.015, x1=0.326, y1=0.015, lwd=7) # amino acids
+segments(x0=0.189, y0=0.02, x1=0.326, y1=0.02, lwd=7) # amino acids
 text(x=0.2585, y=0.005, 'Amino Acids', cex=2.2)
-segments(x0=0.331, y0=0.015, x1=0.364, y1=0.015, lwd=7) # carbs
+segments(x0=0.331, y0=0.02, x1=0.364, y1=0.02, lwd=7) # carbs
 text(x=0.348, y=0.005, 'Carbohydrates', cex=2.2)
-segments(x0=0.37, y0=0.015, x1=0.409, y1=0.015, lwd=7) # vit
+segments(x0=0.37, y0=0.02, x1=0.409, y1=0.02, lwd=7) # vit
 text(x=0.39, y=0.005, 'Vitamins', cex=2.2)
-segments(x0=0.413, y0=0.015, x1=0.423, y1=0.015, lwd=7) # Energy 
-text(x=0.418, y=0.005, 'Energy', cex=2.2)
-segments(x0=0.427, y0=0.015, x1=0.75, y1=0.015, lwd=7) # Lipid 
+segments(x0=0.413, y0=0.02, x1=0.423, y1=0.02, lwd=7) # Energy 
+text(x=0.42, y=0.005, 'Energy', cex=2.2)
+segments(x0=0.427, y0=0.02, x1=0.75, y1=0.02, lwd=7) # Lipid 
 text(x=0.59, y=0.005, 'Lipid', cex=2.2)
-segments(x0=0.756, y0=0.015, x1=0.809, y1=0.015, lwd=7) # Nucleotide 
+segments(x0=0.756, y0=0.02, x1=0.809, y1=0.02, lwd=7) # Nucleotide 
 text(x=0.784, y=0.005, 'Nucleotide', cex=2.2)
-segments(x0=0.815, y0=0.015, x1=0.854, y1=0.015, lwd=7) # Peptide 
+segments(x0=0.815, y0=0.02, x1=0.854, y1=0.02, lwd=7) # Peptide 
 text(x=0.836, y=0.005, 'Peptide', cex=2.2)
-segments(x0=0.86, y0=0.015, x1=0.94, y1=0.015, lwd=7) # Xenobiotics  
+segments(x0=0.86, y0=0.02, x1=0.94, y1=0.02, lwd=7) # Xenobiotics  
 text(x=0.9, y=0.005, 'Xenobiotics ', cex=2.2)
 dev.off()
 
-pdf(file=plot_5a, width=20, height=20)
+pdf(file=plot_5a, width=50, height=30)
 heatmap.2( abx_metabolome,
            col=heat_palette,
            trace='none',
@@ -249,8 +308,8 @@ heatmap.2( abx_metabolome,
            symm=FALSE,
            symbreaks=FALSE,
            dendrogram='none',
-           margins=c(10, 20),
-           cexRow=2, 
+           margins=c(15, 20),
+           cexRow=3.8, 
            Rowv=FALSE,
            Colv=FALSE,
            labCol=FALSE,
@@ -259,14 +318,24 @@ heatmap.2( abx_metabolome,
            symkey=FALSE,
            key.xlab='Scaled Intensity',
            key.par=list(cex=1.5))
-segments(x0=0.17, y0=0.03, x1=0.22, y1=0.03, lwd=5) # Carbs
-text(x=0.19, y=0.01, 'Carbohydrates', cex=1.7)
-segments(x0=0.23, y0=0.03, x1=0.45, y1=0.03, lwd=5) # Amino acids
-text(x=0.34, y=0.01, 'Amino Acids', cex=1.7)
-segments(x0=0.46, y0=0.03, x1=0.845, y1=0.03, lwd=5) # Lipids
-text(x=0.6525, y=0.01, 'Lipids', cex=1.7)
-text(x=0.15, y=0.82, 'a', cex=4, font=2)
-text(x=0.5, y=0.845, 'Susceptible Metabolomes Only', cex=3, font=2)
+segments(x0=0.189, y0=0.04, x1=0.326, y1=0.04, lwd=7) # amino acids
+text(x=0.2585, y=0.025, 'Amino Acids', cex=3)
+segments(x0=0.331, y0=0.04, x1=0.364, y1=0.04, lwd=7) # carbs
+text(x=0.348, y=0.025, 'Carbohydrates', cex=3)
+segments(x0=0.37, y0=0.04, x1=0.409, y1=0.04, lwd=7) # vit
+text(x=0.39, y=0.005, 'Vitamins', cex=3)
+segments(x0=0.413, y0=0.04, x1=0.423, y1=0.04, lwd=7) # Energy 
+text(x=0.42, y=0.025, 'Energy', cex=3)
+segments(x0=0.427, y0=0.04, x1=0.75, y1=0.04, lwd=7) # Lipid 
+text(x=0.59, y=0.025, 'Lipid', cex=3)
+segments(x0=0.756, y0=0.04, x1=0.809, y1=0.04, lwd=7) # Nucleotide 
+text(x=0.784, y=0.025, 'Nucleotide', cex=3)
+segments(x0=0.815, y0=0.04, x1=0.854, y1=0.04, lwd=7) # Peptide 
+text(x=0.836, y=0.025, 'Peptide', cex=3)
+segments(x0=0.86, y0=0.04, x1=0.94, y1=0.04, lwd=7) # Xenobiotics  
+text(x=0.9, y=0.025, 'Xenobiotics ', cex=3)
+text(x=0.15, y=0.82, 'a', cex=6, font=2)
+text(x=0.55, y=0.845, 'Susceptible Metabolomes Only', cex=4, font=2)
 dev.off()
 
 pdf(file=plot_5b, width=20, height=20)

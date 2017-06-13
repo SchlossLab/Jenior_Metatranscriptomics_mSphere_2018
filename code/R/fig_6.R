@@ -7,34 +7,26 @@ gc()
 starting_dir <- getwd()
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
-# Define files
-# Metadata
-metadata <- 'data/metadata.tsv'
-
-# Sequencing
-strep_metatranscriptome <- 'data/read_mapping/strep_normalized_metaT.tsv'
-cef_metatranscriptome <- 'data/read_mapping/cef_normalized_metaT.tsv'
-clinda_metatranscriptome <- 'data/read_mapping/clinda_normalized_metaT.tsv'
-
 # Metabolomes
 metabolome <- 'data/metabolome/scaled_intensities.log10.tsv'
 
-# Output plot
-plot_file <- 'results/figures/figure_5.pdf'
+# Input Metadata
+metadata <- 'data/metadata.tsv'
 
-#-------------------------------------------------------------------------------------------------------------------------#
+# Output files
+plot_abc <- 'results/figures/figure_6abc.pdf'
+plot_d <- 'results/figures/figure_6d.pdf'
+plot_e <- 'results/figures/figure_6e.pdf'
+plot_f <- 'results/figures/figure_6f.pdf'
+
+#----------------#
 
 # Read in data
-# Metadata
-metadata <- read.delim(metadata, sep='\t', header=T, row.names=1)
-
-# Normalized Metatranscriptomes
-strep_metatranscriptome <- read.delim(strep_metatranscriptome, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
-cef_metatranscriptome <- read.delim(cef_metatranscriptome, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
-clinda_metatranscriptome <- read.delim(clinda_metatranscriptome, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
-
 # Metabolomes
 metabolome <- read.delim(metabolome, sep='\t', header=TRUE)
+
+# Metadata
+metadata <- read.delim(metadata, sep='\t', header=T, row.names=1)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -44,228 +36,193 @@ metadata$type <- NULL
 metadata$cage <- NULL
 metadata$mouse <- NULL
 metadata$gender <- NULL
-metadata$susceptibility <- NULL
-
-# Metatranscriptomes
-# Remove C. difficile genes
-cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
-cef_metatranscriptome <- cef_metatranscriptome[!cef_metatranscriptome$organism %in% cdiff_omit,]
-clinda_metatranscriptome <- clinda_metatranscriptome[!clinda_metatranscriptome$organism %in% cdiff_omit,]
-strep_metatranscriptome <- strep_metatranscriptome[!strep_metatranscriptome$organism %in% cdiff_omit,]
-rm(cdiff_omit)
-
-# Screen for those genes that have a gene annotation
-cef_annotated <- cef_metatranscriptome[!rownames(cef_metatranscriptome) %in% rownames(cef_metatranscriptome[grep('unknown_\\d', rownames(cef_metatranscriptome)),]), ]
-clinda_annotated <- clinda_metatranscriptome[!rownames(clinda_metatranscriptome) %in% rownames(clinda_metatranscriptome[grep('unknown_\\d', rownames(clinda_metatranscriptome)),]), ]
-strep_annotated <- strep_metatranscriptome[!rownames(strep_metatranscriptome) %in% rownames(strep_metatranscriptome[grep('unknown_\\d', rownames(strep_metatranscriptome)),]), ]
-rm(cef_metatranscriptome, clinda_metatranscriptome, strep_metatranscriptome)
-
-# Screen out ribosomal genes
-cef_annotated <- subset(cef_annotated, !grepl('Ribosomal_RNA*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, !grepl('ribosomal_RNA*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_RNA*', cef_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('Ribosomal_RNA*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('ribosomal_RNA*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_RNA*', clinda_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('Ribosomal_RNA*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('ribosomal_RNA*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_RNA*', strep_annotated$description))
-
-# Remove hypothetical and uncharacterized annotations
-cef_annotated <- subset(cef_annotated, description != 'hypothetical_protein')
-cef_annotated <- subset(cef_annotated, description != 'uncharacterized_*')
-clinda_annotated <- subset(clinda_annotated, description != 'hypothetical_protein')
-clinda_annotated <- subset(clinda_annotated, description != 'uncharacterized_*')
-strep_annotated <- subset(strep_annotated, description != 'hypothetical_protein')
-strep_annotated <- subset(strep_annotated, description != 'uncharacterized_*')
-
-# Calculate differences between mock and infected metatranscriptomes
-cef_annotated$delta <- (cef_annotated$cef_mock_metaT_reads - cef_annotated$cef_630_metaT_reads) * -1
-clinda_annotated$delta <- (clinda_annotated$clinda_mock_metaT_reads - clinda_annotated$clinda_630_metaT_reads) * -1
-strep_annotated$delta <- (strep_annotated$strep_mock_metaT_reads - strep_annotated$strep_630_metaT_reads) * -1
 
 # Metabolomes
-metabolome$PUBCHEM <- NULL
-metabolome$BIOCHEMICAL <- gsub('_', ' ', metabolome$BIOCHEMICAL)
-substr(metabolome$BIOCHEMICAL, 1, 1) <- toupper(substr(metabolome$BIOCHEMICAL, 1, 1))
 rownames(metabolome) <- metabolome$BIOCHEMICAL
 metabolome$BIOCHEMICAL <- NULL
+metabolome$PUBCHEM <- NULL
 metabolome$KEGG <- NULL
-metabolome_annotation <- metabolome[,c(1:2)]
 metabolome$SUB_PATHWAY <- NULL
-metabolome <- metabolome[metabolome$SUPER_PATHWAY %in% c('Carbohydrate','Amino_Acid','Lipid'),] # Subset to amino acids and carbohydrates
-metabolome <- metabolome[order(metabolome$SUPER_PATHWAY),]
 metabolome$SUPER_PATHWAY <- NULL
 metabolome <- as.data.frame(t(metabolome))
-
-# Format names and add metadata
 colnames(metabolome) <- gsub('_', ' ', colnames(metabolome))
 substr(colnames(metabolome), 1, 1) <- toupper(substr(colnames(metabolome), 1, 1))
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Ordination
+# Prep data
 metabolome <- clean_merge(metadata, metabolome)
 metabolome <- subset(metabolome, abx != 'germfree')
-
-# Subset antibiotics
-noabx_metabolome <- subset(metabolome, abx == 'none')
-noabx_metabolome$abx <- NULL
 cef_metabolome <- subset(metabolome, abx == 'cefoperazone')
 cef_metabolome$abx <- NULL
+cef_metabolome$susceptibility <- NULL
 clinda_metabolome <- subset(metabolome, abx == 'clindamycin')
 clinda_metabolome$abx <- NULL
+clinda_metabolome$susceptibility <- NULL
 strep_metabolome <- subset(metabolome, abx == 'streptomycin')
 strep_metabolome$abx <- NULL
-metabolome$abx <- NULL
-metabolome$infection <- NULL
+strep_metabolome$susceptibility <- NULL
 
-# Find medians within antibiotic groups
-noabx_metabolome <- aggregate(noabx_metabolome[,2:ncol(noabx_metabolome)], by=list(noabx_metabolome$infection), FUN=median)
-rownames(noabx_metabolome) <- noabx_metabolome$Group.1
-noabx_metabolome$Group.1 <- NULL
-noabx_metabolome <- t(noabx_metabolome)
-cef_metabolome <- aggregate(cef_metabolome[,2:ncol(cef_metabolome)], by=list(cef_metabolome$infection), FUN=median)
-rownames(cef_metabolome) <- c('Cefoperzone_Infected','Cefoperzone_Mock')
-cef_metabolome$Group.1 <- NULL
-cef_metabolome<- t(cef_metabolome)
-clinda_metabolome <- aggregate(clinda_metabolome[,2:ncol(clinda_metabolome)], by=list(clinda_metabolome$infection), FUN=median)
-rownames(clinda_metabolome) <- c('Clindamycin_Infected','Clindamycin_Mock')
-clinda_metabolome$Group.1 <- NULL
-clinda_metabolome <- t(clinda_metabolome)
-strep_metabolome <- aggregate(strep_metabolome[,2:ncol(strep_metabolome)], by=list(strep_metabolome$infection), FUN=median)
-rownames(strep_metabolome) <- c('Streptomycin_Infected','Streptomycin_Mock')
-strep_metabolome$Group.1 <- NULL
-strep_metabolome <- t(strep_metabolome)
+# Calculate significant differences
+strep_p <- round(adonis(strep_metabolome[,2:ncol(strep_metabolome)]~factor(strep_metabolome$infection), data=strep_metabolome, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3)
+strep_metabolome$infection <- NULL
+cef_p <- round(adonis(cef_metabolome[,2:ncol(cef_metabolome)]~factor(cef_metabolome$infection), data=cef_metabolome, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3)
+cef_metabolome$infection <- NULL
+clinda_p <- round(adonis(clinda_metabolome[,2:ncol(clinda_metabolome)]~factor(clinda_metabolome$infection), data=clinda_metabolome, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3)
+clinda_metabolome$infection <- NULL
 
-# Calculate delta between infected and mock
-cef_metabolome <- as.data.frame(10 ^ cef_metabolome)
-cef_metabolome$delta <- (cef_metabolome$Cefoperzone_Mock - cef_metabolome$Cefoperzone_Infected) * -1
-clinda_metabolome <- as.data.frame(10 ^ clinda_metabolome)
-clinda_metabolome$delta <- (clinda_metabolome$Clindamycin_Mock - clinda_metabolome$Clindamycin_Infected) * -1
-strep_metabolome <- as.data.frame(10 ^ strep_metabolome)
-strep_metabolome$delta <- (strep_metabolome$Streptomycin_Mock - strep_metabolome$Streptomycin_Infected) * -1
+# Calculate axes and merge with metadata
+cef_metabolome_nmds <- metaMDS(cef_metabolome, k=2, trymax=100)$points
+cef_metabolome_nmds <- clean_merge(metadata, cef_metabolome_nmds)
+clinda_metabolome_nmds <- metaMDS(clinda_metabolome, k=2, trymax=100)$points
+clinda_metabolome_nmds <- clean_merge(metadata, clinda_metabolome_nmds)
+strep_metabolome_nmds <- metaMDS(strep_metabolome, k=2, trymax=100)$points
+strep_metabolome_nmds <- clean_merge(metadata, strep_metabolome_nmds)
+rm(cef_metabolome, clinda_metabolome, strep_metabolome)
 
+# Subset to points for plot
+cef_metabolome_nmds$MDS2 <- cef_metabolome_nmds$MDS2 - 0.02
+clinda_metabolome_nmds$MDS1 <- clinda_metabolome_nmds$MDS1 + 0.1
+clinda_metabolome_nmds$MDS2 <- clinda_metabolome_nmds$MDS2 + 0.02
+cef_metabolome_nmds_630 <- subset(cef_metabolome_nmds, infection == '630')
+cef_metabolome_nmds_mock <- subset(cef_metabolome_nmds, infection == 'mock')
+clinda_metabolome_nmds_630 <- subset(clinda_metabolome_nmds, infection == '630')
+clinda_metabolome_nmds_mock <- subset(clinda_metabolome_nmds, infection == 'mock')
+strep_metabolome_nmds_630 <- subset(strep_metabolome_nmds, infection == '630')
+strep_metabolome_nmds_mock <- subset(strep_metabolome_nmds, infection == 'mock')
 
-
-
-
-
-
-
-
-
-
-
-# Convert to matrices
-metabolome <- as.matrix(metabolome)
-abx_metabolome <- as.matrix(abx_metabolome)
-noabx_metabolome <- as.matrix(noabx_metabolome)
-strep_metabolome <- as.matrix(strep_metabolome)
-cef_metabolome <- as.matrix(cef_metabolome)
-clinda_metabolome <- as.matrix(clinda_metabolome)
-
-# Remove columns with low variance
-metabolome <- rm_lowVar(metabolome)
-abx_metabolome <- rm_lowVar(abx_metabolome)
-noabx_metabolome <- rm_lowVar(noabx_metabolome)
-strep_metabolome <- rm_lowVar(strep_metabolome)
-cef_metabolome <- rm_lowVar(cef_metabolome)
-clinda_metabolome <- rm_lowVar(clinda_metabolome)
-
-# Scale data and center columns
-metabolome <- scale(metabolome)
-abx_metabolome <- scale(abx_metabolome)
-noabx_metabolome <- scale(noabx_metabolome)
-strep_metabolome <- scale(strep_metabolome)
-cef_metabolome <- scale(cef_metabolome)
-clinda_metabolome <- scale(clinda_metabolome)
-
-# Separate, cluster super pathways, and re-join
-metabolome_path <- merge(metabolome_annotation, t(metabolome), by='row.names')
-rownames(metabolome_path) <- metabolome_path$Row.names
-metabolome_path$Row.names <- NULL
-metabolome_path$SUB_PATHWAY <- NULL
-metabolome_carb <- subset(metabolome_path, SUPER_PATHWAY == 'Carbohydrate')
-metabolome_carb$SUPER_PATHWAY <- NULL
-carb <- as.vector(hclust(dist(metabolome_carb))$order)
-metabolome_carb <- t(metabolome_carb[carb,])
-metabolome_amino <- subset(metabolome_path, SUPER_PATHWAY == 'Amino_Acid')
-metabolome_amino$SUPER_PATHWAY <- NULL
-amino <- as.vector(hclust(dist(metabolome_amino))$order)
-metabolome_amino <- t(metabolome_amino[amino,])
-metabolome_lipid <- subset(metabolome_path, SUPER_PATHWAY == 'Lipid')
-metabolome_lipid$SUPER_PATHWAY <- NULL
-lipid <- as.vector(hclust(dist(metabolome_lipid))$order)
-metabolome_lipid <- t(metabolome_lipid[lipid,])
-metabolome <- as.matrix(cbind(metabolome_carb, metabolome_amino, metabolome_lipid))
-lengths <- c(length(carb), length(amino), length(lipid))
-rm(metabolome_carb, metabolome_amino, metabolome_lipid,
-   carb, amino, lipid, metabolome_path)
-
-abx_metabolome_path <- merge(metabolome_annotation, t(abx_metabolome), by='row.names')
-rownames(abx_metabolome_path) <- abx_metabolome_path$Row.names
-abx_metabolome_path$Row.names <- NULL
-abx_metabolome_path$SUB_PATHWAY <- NULL
-abx_metabolome_carb <- subset(abx_metabolome_path, SUPER_PATHWAY == 'Carbohydrate')
-abx_metabolome_carb$SUPER_PATHWAY <- NULL
-carb <- as.vector(hclust(dist(abx_metabolome_carb))$order)
-abx_metabolome_carb <- t(abx_metabolome_carb[carb,])
-abx_metabolome_amino <- subset(abx_metabolome_path, SUPER_PATHWAY == 'Amino_Acid')
-abx_metabolome_amino$SUPER_PATHWAY <- NULL
-amino <- as.vector(hclust(dist(abx_metabolome_amino))$order)
-abx_metabolome_amino <- t(abx_metabolome_amino[amino,])
-abx_metabolome_lipid <- subset(abx_metabolome_path, SUPER_PATHWAY == 'Lipid')
-abx_metabolome_lipid$SUPER_PATHWAY <- NULL
-lipid <- as.vector(hclust(dist(abx_metabolome_lipid))$order)
-abx_metabolome_lipid <- t(abx_metabolome_lipid[lipid,])
-abx_metabolome <- as.matrix(cbind(abx_metabolome_carb, abx_metabolome_amino, abx_metabolome_lipid))
-abx_lengths <- c(length(carb), length(amino), length(lipid))
-rm(abx_metabolome_carb, abx_metabolome_amino, abx_metabolome_lipid,
-   carb, amino, lipid, abx_metabolome_path, metabolome_annotation)
+# Calculate centroids
+cef_metabolome_centoids <- aggregate(cbind(cef_metabolome_nmds$MDS1,cef_metabolome_nmds$MDS2)~cef_metabolome_nmds$infection, data=cef_metabolome_nmds, mean)
+clinda_metabolome_centoids <- aggregate(cbind(clinda_metabolome_nmds$MDS1,clinda_metabolome_nmds$MDS2)~clinda_metabolome_nmds$infection, data=clinda_metabolome_nmds, mean)
+strep_metabolome_centoids <- aggregate(cbind(strep_metabolome_nmds$MDS1,strep_metabolome_nmds$MDS2)~strep_metabolome_nmds$infection, data=strep_metabolome_nmds, mean)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Set plotting up parameters
-heat_palette <- viridis(n=200)
+# Feature selection
+# Separate groups
+cef_metabolome <- subset(metabolome, abx == 'cefoperazone')
+cef_metabolome$abx <- NULL
+cef_metabolome$susceptibility <- NULL
+cef_metabolome$infection <- factor(cef_metabolome$infection)
+clinda_metabolome <- subset(metabolome, abx == 'clindamycin')
+clinda_metabolome$abx <- NULL
+clinda_metabolome$susceptibility <- NULL
+clinda_metabolome$infection <- factor(clinda_metabolome$infection)
+strep_metabolome <- subset(metabolome, abx == 'streptomycin')
+strep_metabolome$abx <- NULL
+strep_metabolome$susceptibility <- NULL
+strep_metabolome$infection <- factor(strep_metabolome$infection)
+rm(metadata, metabolome)
 
-# Generate figure
-pdf(file='~/Desktop/test.pdf', width=20, height=20)
+# Random Forest
+cef_rf <- featureselect_RF(cef_metabolome, 'infection')
+clinda_rf <- featureselect_RF(clinda_metabolome, 'infection')
+strep_rf <- featureselect_RF(strep_metabolome, 'infection')
 
+# Sort and subset top hits
+cef_rf <- cef_rf[order(-cef_rf$MDA),][1:5,]
+clinda_rf <- clinda_rf[order(-clinda_rf$MDA),][1:5,]
+strep_rf <- strep_rf[order(-strep_rf$MDA),][1:5,]
 
-heatmap.2( abx_metabolome,
-           col=heat_palette,
-           trace='none',
-           scale='none',
-           symm=FALSE,
-           symbreaks=FALSE,
-           dendrogram='none',
-           margins=c(10, 20),
-           cexRow=2, 
-           Rowv=FALSE,
-           Colv=FALSE,
-           labCol=FALSE,
-           keysize=1,
-           density.info='none',
-           symkey=FALSE,
-           key.xlab='Scaled Intensity',
-           key.par=list(cex=1.5))
-segments(x0=0.17, y0=0.03, x1=0.22, y1=0.03, lwd=5) # Carbs
-text(x=0.19, y=0.01, 'Carbohydrates', cex=1.7)
+# Subset concentrations
+inf_cef_metabolome <- subset(cef_metabolome, infection == '630')[, cef_rf$feature]
+inf_cef_metabolome$infection<- NULL
+mock_cef_metabolome <- subset(cef_metabolome, infection == 'mock')[, cef_rf$feature]
+mock_cef_metabolome$infection<- NULL
+rm(cef_metabolome)
 
-segments(x0=0.23, y0=0.03, x1=0.45, y1=0.03, lwd=5) # Amino acids
-text(x=0.34, y=0.01, 'Amino acids', cex=1.7)
+inf_clinda_metabolome <- subset(clinda_metabolome, infection == '630')[, clinda_rf$feature]
+inf_clinda_metabolome$infection<- NULL
+mock_clinda_metabolome <- subset(clinda_metabolome, infection == 'mock')[, clinda_rf$feature]
+mock_clinda_metabolome$infection<- NULL
+rm(clinda_metabolome)
 
-segments(x0=0.46, y0=0.03, x1=0.845, y1=0.03, lwd=5) # Lipids
-text(x=0.6525, y=0.01, 'Lipids', cex=1.7)
+inf_strep_metabolome <- subset(strep_metabolome, infection == '630')[, strep_rf$feature]
+inf_strep_metabolome$infection<- NULL
+mock_strep_metabolome <- subset(strep_metabolome, infection == 'mock')[, strep_rf$feature]
+mock_strep_metabolome$infection<- NULL
+rm(strep_metabolome)
 
+# Find significant differences
+cef_pvalues <- c()
+for (i in 1:ncol(inf_cef_metabolome)){cef_pvalues[i] <- wilcox.test(inf_cef_metabolome[,i], mock_cef_metabolome[,i], exact=FALSE)$p.value}
+cef_pvalues <- p.adjust(cef_pvalues, method='BH')
+clinda_pvalues <- c()
+for (i in 1:ncol(inf_clinda_metabolome)){clinda_pvalues[i] <- wilcox.test(inf_clinda_metabolome[,i], mock_clinda_metabolome[,i], exact=FALSE)$p.value}
+pvalues <- p.adjust(clinda_pvalues, method='BH')
+strep_pvalues <- c()
+for (i in 1:ncol(inf_strep_metabolome)){strep_pvalues[i] <- wilcox.test(inf_strep_metabolome[,i], mock_strep_metabolome[,i], exact=FALSE)$p.value}
+strep_pvalues <- p.adjust(strep_pvalues, method='BH')
 
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Generate figure panels
+# Ordinations
+pdf(file=plot_abc, width=12, height=4)
+layout(matrix(c(1,2,3),
+              nrow=1, ncol=3, byrow=TRUE))
+par(mar=c(4,4,1,1), las=1, mgp=c(2.8,0.75,0))
+#Streptomycin - Fig. 4a
+plot(x=strep_metabolome_nmds$MDS1, y=strep_metabolome_nmds$MDS2, xlim=c(-0.25,0.25), ylim=c(-0.15,0.15),
+     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
+mtext('a', side=2, line=2, las=2, adj=1.8, padj=-8.5, cex=1.6, font=2)
+legend('topleft', legend='Streptomycin-pretreated', pch=1, cex=1.5, pt.cex=0, bty='n')
+segments(x0=strep_metabolome_nmds_630$MDS1, y0=strep_metabolome_nmds_630$MDS2, x1=strep_metabolome_centoids[1,2], y1=strep_metabolome_centoids[1,3], col='gray30')
+segments(x0=strep_metabolome_nmds_mock$MDS1, y0=strep_metabolome_nmds_mock$MDS2, x1=strep_metabolome_centoids[2,2], y1=strep_metabolome_centoids[2,3], col='gray30')
+points(x=strep_metabolome_nmds_630$MDS1, y=strep_metabolome_nmds_630$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
+points(x=strep_metabolome_nmds_mock$MDS1, y=strep_metabolome_nmds_mock$MDS2, bg=strep_col, pch=24, cex=2, lwd=1.2)
+legend('bottomleft', legend=c('Mock vs Infected', as.expression(bquote(paste(italic('p'),' = 0.039 *')))), 
+       pch=1, cex=1.4, pt.cex=0, bty='n')
+legend('bottomright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
+       col='black', pch=c(19,17), cex=1.2, pt.cex=2)
+# Cefoperazone - Fig. 4b
+plot(x=cef_metabolome_nmds$MDS1, y=cef_metabolome_nmds$MDS2, xlim=c(-0.15,0.15), ylim=c(-0.15,0.15),
+     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
+mtext('b', side=2, line=2, las=2, adj=1.8, padj=-8.5, cex=1.6, font=2)
+legend('topleft', legend='Cefoperazone-pretreated', pch=1, cex=1.5, pt.cex=0, bty='n')
+segments(x0=cef_metabolome_nmds_630$MDS1, y0=cef_metabolome_nmds_630$MDS2, x1=cef_metabolome_centoids[1,2], y1=cef_metabolome_centoids[1,3], col='gray30')
+segments(x0=cef_metabolome_nmds_mock$MDS1, y0=cef_metabolome_nmds_mock$MDS2, x1=cef_metabolome_centoids[2,2], y1=cef_metabolome_centoids[2,3], col='gray30')
+points(x=cef_metabolome_nmds_630$MDS1, y=cef_metabolome_nmds_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
+points(x=cef_metabolome_nmds_mock$MDS1, y=cef_metabolome_nmds_mock$MDS2, bg=cef_col, pch=24, cex=2, lwd=1.2)
+legend('bottomleft', legend=c('Mock vs Infected', as.expression(bquote(paste(italic('p'),' = 0.016 *')))), 
+       pch=1, cex=1.4, pt.cex=0, bty='n')
+legend('bottomright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
+       col='black', pch=c(19,17), cex=1.2, pt.cex=2)
+# Clindamycin - Fig. 4c
+plot(x=clinda_metabolome_nmds$MDS1-0.075, y=clinda_metabolome_nmds$MDS2, xlim=c(-0.15,0.15), ylim=c(-0.1,0.1),
+     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
+mtext('c', side=2, line=2, las=2, adj=1.8, padj=-8.5, cex=1.6, font=2)
+legend('topleft', legend='Clindamycin-pretreated', pch=1, cex=1.5, pt.cex=0, bty='n')
+segments(x0=clinda_metabolome_nmds_630$MDS1-0.075, y0=clinda_metabolome_nmds_630$MDS2, x1=clinda_metabolome_centoids[1,2]-0.075, y1=clinda_metabolome_centoids[1,3], col='gray30')
+segments(x0=clinda_metabolome_nmds_mock$MDS1-0.0751, y0=clinda_metabolome_nmds_mock$MDS2, x1=clinda_metabolome_centoids[2,2]-0.075, y1=clinda_metabolome_centoids[2,3], col='gray30')
+points(x=clinda_metabolome_nmds_630$MDS1-0.075, y=clinda_metabolome_nmds_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
+points(x=clinda_metabolome_nmds_mock$MDS1-0.075, y=clinda_metabolome_nmds_mock$MDS2, bg=clinda_col, pch=24, cex=2, lwd=1.2)
+legend('bottomleft', legend=c('Mock vs Infected',as.expression(bquote(paste(italic('p'),' = 0.127 n.s.')))), 
+       pch=1, cex=1.4, pt.cex=0, bty='n')
+legend('bottomright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
+       col='black', pch=c(19,17), cex=1.2, pt.cex=2)
 dev.off()
 
+# Feature Selection
+# Strep Infected - Fig. 4b
+metabolite_stripchart(plot_d, inf_strep_metabolome, mock_strep_metabolome, strep_pvalues, strep_rf$MDA, 
+                      0, 'Infected', 'Mock', 'Streptomycin-pretreated', strep_col, 'd', 'mediumorchid4', 'chartreuse2')
+# Cef Infected - Fig. 4c
+metabolite_stripchart(plot_e, inf_cef_metabolome, mock_cef_metabolome, cef_pvalues, cef_rf$MDA, 
+                      0, 'Infected', 'Mock', 'Cefoperazone-pretreated', cef_col, 'e', 'mediumorchid4', 'chartreuse2')
+# Clinda Infected - Fig. 4d
+metabolite_stripchart(plot_f, inf_clinda_metabolome, mock_clinda_metabolome, clinda_pvalues, clinda_rf$MDA, 
+                      33.33, 'Infected', 'Mock', 'Clindamycin-pretreated', clinda_col, 'f', 'mediumorchid4', 'chartreuse2')
 
+#-------------------------------------------------------------------------------------------------------------------------------------#
 
-#-------------------------------------------------------------------------------------------------------------------------#
+#Clean up
+for (dep in deps){
+  pkg <- paste('package:', dep, sep='')
+  detach(pkg, character.only = TRUE)
+}
+setwd(starting_dir)
+rm(list=ls())
+gc()
 
-# Clean up
-#for (dep in deps){
-#  pkg <- paste('package:', dep, sep='')
-#  detach(pkg, character.only=TRUE)}
-#setwd(starting_dir)
-#rm(list=ls())
-#gc()

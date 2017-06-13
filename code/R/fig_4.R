@@ -7,308 +7,352 @@ gc()
 starting_dir <- getwd()
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
-# Output plot name
-plot_ab <- 'results/figures/figure_4ab.pdf'
-plot_c <- 'results/figures/figure_4c.pdf'
-plot_d <- 'results/figures/figure_4d.pdf'
+# Define files
 
-# Input Metabolomes
-metabolome_file <- 'data/metabolome/scaled_intensities.log10.tsv'
+# Normalized Metatranscriptomes
+cef_normalized_reads <- 'data/read_mapping/cef_normalized_metaT.tsv'
+clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
+strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
 
-# Input Metadata
-metadata_file <- 'data/metadata.tsv'
+# KEGG taxonomy IDs
+kegg_tax <- 'data/kegg_taxonomy.tsv'
 
-#----------------#
+# Taxonomy colors
+tax_colors <- 'data/taxonomy_color.tsv'
+
+# Output plot
+plot_file <- 'results/figures/figure_4.tiff'
+
+#-------------------------------------------------------------------------------------------------------------------------#
 
 # Read in data
 
-# Metabolomes
-metabolome <- read.delim(metabolome_file, sep='\t', header=TRUE)
-rm(metabolome_file)
+# Normalized Metatranscriptomes
+cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, row.names=7)
+clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, row.names=7)
+strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, row.names=7)
+  
+# KEGG organism file
+kegg_tax <- read.delim(kegg_tax, sep='\t', header=TRUE)
+kegg_tax[] <- lapply(kegg_tax, as.character)
 
-# Metadata
-metadata <- read.delim(metadata_file, sep='\t', header=T, row.names=1)
-rm(metadata_file)
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Format data
-
-# Metadata
-metadata$type <- NULL
-metadata$cage <- NULL
-metadata$mouse <- NULL
-metadata$gender <- NULL
-
-# Metabolomes
-metabolome <- metabolome[,!colnames(metabolome) %in% c('GfC1M1','GfC1M2','GfC1M3', 
-                                                       'GfC2M1','GfC2M2','GfC2M3', 
-                                                       'GfC3M1','GfC3M2','GfC3M3', 
-                                                       'GfC4M1','GfC4M2','GfC4M3', 
-                                                       'GfC5M1','GfC5M2','GfC5M3', 
-                                                       'GfC6M1','GfC6M2','GfC6M3')] # Germfree
-rownames(metabolome) <- metabolome$BIOCHEMICAL
-metabolome$BIOCHEMICAL <- NULL
-metabolome$PUBCHEM <- NULL
-metabolome$KEGG <- NULL
-metabolome$SUB_PATHWAY <- NULL
-metabolome$SUPER_PATHWAY <- NULL
-metabolome <- as.data.frame(t(metabolome))
+# Taxonomy colors
+tax_colors <- read.delim(tax_colors, sep='\t', header=TRUE)
+tax_colors[] <- lapply(tax_colors, as.character)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Stats
-# Prep data
-metabolome_subset <- clean_merge(metadata, metabolome)
-abx_subset <- subset(metabolome_subset, abx != 'none')
-abx_subset$infection <- NULL
-abx_subset$susceptibility <- NULL
-metabolome_subset$abx <- NULL
-metabolome_subset$infection <- NULL
+# Format transcription
+cef_normalized_reads$gene <- NULL
+cef_normalized_reads[,c(1:2)] <- log2(cef_normalized_reads[,c(1:2)] + 1)
+clinda_normalized_reads$gene <- NULL
+clinda_normalized_reads[,c(1:2)] <- log2(clinda_normalized_reads[,c(1:2)] + 1)
+strep_normalized_reads$gene <- NULL
+strep_normalized_reads[,c(1:2)] <- log2(strep_normalized_reads[,c(1:2)] + 1)
 
-# Calculate significant differences
-noabx_p <- round(adonis(metabolome_subset[,2:ncol(metabolome_subset)]~factor(metabolome_subset$susceptibility), data=metabolome_subset, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3)
-abx_p <- round(adonis(abx_subset[,2:ncol(abx_subset)]~factor(abx_subset$abx), data=abx_subset, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3)
+# Remove those genes without an organism annotation
+cef_annotated <- cef_normalized_reads[!is.na(cef_normalized_reads$organism),]
+clinda_annotated <- clinda_normalized_reads[!is.na(clinda_normalized_reads$organism),]
+strep_annotated <- strep_normalized_reads[!is.na(strep_normalized_reads$organism),]
 
-#-------------------------------------------------------------------------------------------------------------------------#
+# Remove any C. difficile genes with transcription only in infected
+cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
+cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% cdiff_omit))
+clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% cdiff_omit))
+strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% cdiff_omit))
+rm(cdiff_omit)
 
-# Calculate axes
-# Metabolome - all
-metabolome_nmds <- metaMDS(metabolome, k=2, trymax=100, distance='bray')$points
-metabolome_nmds <- clean_merge(metadata, metabolome_nmds)
-metabolome_nmds$MDS1 <- metabolome_nmds$MDS1 + 0.15
-metabolome_nmds$MDS2 <- metabolome_nmds$MDS2 - 0.05
+# Remove all possible mammalian genes
+mamm_omit <- c('fab','cfa','ggo','hgl','hsa','mcc','mdo','pon','aml',
+               'ptr','rno','shr','ssc','aml','bta','cge','ecb',
+               'pps','fca','mmu','oaa','gga','ola','acs','aga')
+strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% mamm_omit))
+cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% mamm_omit))
+clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% mamm_omit))
+rm(mamm_omit)
 
-# Subset NMDS axes to color points - all
-metabolome_cefoperazone <- subset(metabolome_nmds, abx == 'cefoperazone')
-metabolome_cefoperazone_630 <- subset(metabolome_cefoperazone, infection == '630')
-metabolome_cefoperazone_mock <- subset(metabolome_cefoperazone, infection == 'mock')
-rm(metabolome_cefoperazone)
-metabolome_clindamycin <- subset(metabolome_nmds, abx == 'clindamycin')
-metabolome_clindamycin_630 <- subset(metabolome_clindamycin, infection == '630')
-metabolome_clindamycin_mock <- subset(metabolome_clindamycin, infection == 'mock')
-rm(metabolome_clindamycin)
-metabolome_streptomycin <- subset(metabolome_nmds, abx == 'streptomycin')
-metabolome_streptomycin_630 <- subset(metabolome_streptomycin, infection == '630')
-metabolome_streptomycin_mock <- subset(metabolome_streptomycin, infection == 'mock')
-rm(metabolome_streptomycin)
-metabolome_noantibiotics <- subset(metabolome_nmds, abx == 'none')
+# Calculate correlation coefficients
+strep_corr <- as.character(round(cor.test(strep_annotated[,2], strep_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
+cef_corr <- as.character(round(cor.test(cef_annotated[,2], cef_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
+clinda_corr <- as.character(round(cor.test(clinda_annotated[,2], clinda_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
 
-# Separate analysis for abx only
-abx_metabolome <- metabolome[,!colnames(metabolome) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-                                                           'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5')] # Untreated SPF samples 
+# Using previously defined lines, find outliers to y = x
+strep_630_outliers <- subset(strep_annotated, strep_annotated$strep_630_metaT_reads > strep_annotated$strep_mock_metaT_reads + 2)
+strep_mock_outliers <- subset(strep_annotated, strep_annotated$strep_mock_metaT_reads > strep_annotated$strep_630_metaT_reads + 2)
+cef_630_outliers <- subset(cef_annotated, cef_annotated$cef_630_metaT_reads > cef_annotated$cef_mock_metaT_reads + 2)
+cef_mock_outliers <- subset(cef_annotated, cef_annotated$cef_mock_metaT_reads > cef_annotated$cef_630_metaT_reads + 2)
+clinda_630_outliers <- clinda_annotated[(clinda_annotated$clinda_630_metaT_reads > clinda_annotated$clinda_mock_metaT_reads + 2),]
+clinda_mock_outliers <- clinda_annotated[(clinda_annotated$clinda_mock_metaT_reads > clinda_annotated$clinda_630_metaT_reads + 2),]
 
-# Calculate axes and merge with metadata
-abx_metabolome_nmds <- metaMDS(abx_metabolome, k=2, trymax=100)$points
-abx_metabolome_nmds <- clean_merge(metadata, abx_metabolome_nmds)
-abx_metabolome_nmds$MDS1 <- abx_metabolome_nmds$MDS1 - 0.05
-
-# Subset to points for plot
-metabolome_abx <- subset(abx_metabolome_nmds, abx == 'cefoperazone')
-metabolome_abx_cef_630 <- subset(metabolome_abx, infection == '630')
-metabolome_abx_cef_mock <- subset(metabolome_abx, infection == 'mock')
-metabolome_abx <- subset(abx_metabolome_nmds, abx == 'clindamycin')
-metabolome_abx_clinda_630 <- subset(metabolome_abx, infection == '630')
-metabolome_abx_clinda_mock <- subset(metabolome_abx, infection == 'mock')
-metabolome_abx <- subset(abx_metabolome_nmds, abx == 'streptomycin')
-metabolome_abx_strep_630 <- subset(metabolome_abx, infection == '630')
-metabolome_abx_strep_mock <- subset(metabolome_abx, infection == 'mock')
+# Remove outliers from the rest of the genes
+strep_annotated <- strep_annotated[!row.names(strep_annotated) %in% row.names(strep_630_outliers), ]
+strep_annotated <- strep_annotated[!row.names(strep_annotated) %in% row.names(strep_mock_outliers), ]
+cef_annotated <- cef_annotated[!row.names(cef_annotated) %in% row.names(cef_630_outliers), ]
+cef_annotated <- cef_annotated[!row.names(cef_annotated) %in% row.names(cef_mock_outliers), ]
+clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_630_outliers), ]
+clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_mock_outliers), ]
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Feature selection
-# Separate groups
-#metabolome <- metabolome[metabolome$SUPER_PATHWAY %in% c('Carbohydrate','Amino_Acid','Lipid'),] # Subset to amino acids and carbohydrates
+# Break down outliers into taxonomic groups
 
-metabolome <- clean_merge(metadata, metabolome)
-abx_metabolome <- subset(metabolome, abx != 'none')
-abx_metabolome$infection <- NULL
-abx_metabolome$susceptibility <- NULL
-abx_metabolome$abx <- factor(abx_metabolome$abx)
-metabolome$infection <- NULL
-metabolome$abx <- NULL
-metabolome$abx <- factor(metabolome$susceptibility)
-rm(metadata)
+# Drop levels
+strep_630_outliers[] <- lapply(strep_630_outliers, as.character)
+strep_mock_outliers[] <- lapply(strep_mock_outliers, as.character)
+cef_630_outliers[] <- lapply(cef_630_outliers, as.character)
+cef_mock_outliers[] <- lapply(cef_mock_outliers, as.character)
+clinda_630_outliers[] <- lapply(clinda_630_outliers, as.character)
+clinda_mock_outliers[] <- lapply(clinda_mock_outliers, as.character)
+strep_annotated[] <- lapply(strep_annotated, as.character)
+cef_annotated[] <- lapply(cef_annotated, as.character)
+clinda_annotated[] <- lapply(clinda_annotated, as.character)
 
-# Random Forest
-all_rf <- featureselect_RF(metabolome, 'susceptibility')
-abx_rf <- featureselect_RF(abx_metabolome, 'abx')
+# Save KEGG ID names
+strep_630_outliers$kegg_id <- rownames(strep_630_outliers)
+strep_mock_outliers$kegg_id <- rownames(strep_mock_outliers)
+cef_630_outliers$kegg_id <- rownames(cef_630_outliers)
+cef_mock_outliers$kegg_id <- rownames(cef_mock_outliers)
+clinda_630_outliers$kegg_id <- rownames(clinda_630_outliers)
+clinda_mock_outliers$kegg_id <- rownames(clinda_mock_outliers)
+strep_annotated$kegg_id <- rownames(strep_annotated)
+cef_annotated$kegg_id <- rownames(cef_annotated)
+clinda_annotated$kegg_id <- rownames(clinda_annotated)
 
-# Sort and subset top hits
-all_rf <- all_rf[order(-all_rf$MDA),][1:7,]
-abx_rf <- abx_rf[order(-abx_rf$MDA),][1:7,]
+# Merge with KEGG taxonomy
+strep_630_outliers <- merge(x=strep_630_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
+strep_630_outliers$org_code <- NULL
+strep_630_outliers$strep_630_metaT_reads <- as.numeric(strep_630_outliers$strep_630_metaT_reads)
+strep_630_outliers$strep_mock_metaT_reads <- as.numeric(strep_630_outliers$strep_mock_metaT_reads)
+strep_mock_outliers <- merge(x=strep_mock_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
+strep_mock_outliers$org_code <- NULL
+strep_mock_outliers$strep_630_metaT_reads <- as.numeric(strep_mock_outliers$strep_630_metaT_reads)
+strep_mock_outliers$strep_mock_metaT_reads <- as.numeric(strep_mock_outliers$strep_mock_metaT_reads)
+cef_630_outliers <- merge(x=cef_630_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
+cef_630_outliers$org_code <- NULL
+cef_630_outliers$cef_630_metaT_reads <- as.numeric(cef_630_outliers$cef_630_metaT_reads)
+cef_630_outliers$cef_mock_metaT_reads <- as.numeric(cef_630_outliers$cef_mock_metaT_reads)
+cef_mock_outliers <- merge(x=cef_mock_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
+cef_mock_outliers$org_code <- NULL
+cef_mock_outliers$cef_630_metaT_reads <- as.numeric(cef_mock_outliers$cef_630_metaT_reads)
+cef_mock_outliers$cef_mock_metaT_reads <- as.numeric(cef_mock_outliers$cef_mock_metaT_reads)
+clinda_630_outliers <- merge(x=clinda_630_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
+clinda_630_outliers$org_code <- NULL
+clinda_630_outliers$clinda_630_metaT_reads <- as.numeric(clinda_630_outliers$clinda_630_metaT_reads)
+clinda_630_outliers$clinda_mock_metaT_reads <- as.numeric(clinda_630_outliers$clinda_mock_metaT_reads)
+clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
+clinda_mock_outliers$org_code <- NULL
+clinda_mock_outliers$clinda_630_metaT_reads <- as.numeric(clinda_mock_outliers$clinda_630_metaT_reads)
+clinda_mock_outliers$clinda_mock_metaT_reads <- as.numeric(clinda_mock_outliers$clinda_mock_metaT_reads)
+strep_annotated <- merge(x=strep_annotated, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
+strep_annotated$org_code <- NULL
+strep_annotated$strep_630_metaT_reads <- as.numeric(strep_annotated$strep_630_metaT_reads)
+strep_annotated$strep_mock_metaT_reads <- as.numeric(strep_annotated$strep_mock_metaT_reads)
+cef_annotated <- merge(x=cef_annotated, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
+cef_annotated$org_code <- NULL
+cef_annotated$cef_630_metaT_reads <- as.numeric(cef_annotated$cef_630_metaT_reads)
+cef_annotated$cef_mock_metaT_reads <- as.numeric(cef_annotated$cef_mock_metaT_reads)
+clinda_annotated <- merge(x=clinda_annotated, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
+clinda_annotated$org_code <- NULL
+clinda_annotated$clinda_630_metaT_reads <- as.numeric(clinda_annotated$clinda_630_metaT_reads)
+clinda_annotated$clinda_mock_metaT_reads <- as.numeric(clinda_annotated$clinda_mock_metaT_reads)
+rm(kegg_tax)
 
-# Subset concentrations
-res_metabolome <- subset(metabolome, susceptibility == 'resistant')[, all_rf$feature]
-res_metabolome$susceptibility <- NULL
-sus_metabolome <- subset(metabolome, susceptibility == 'susceptible')[, all_rf$feature]
-sus_metabolome$susceptibility <- NULL
-rm(metabolome)
+#-------------------------------------------------------------------------------------------------------------------------#
 
-cef_abx_metabolome <- subset(abx_metabolome, abx == 'cefoperazone')[, abx_rf$feature]
-cef_abx_metabolome$abx <- NULL
-clinda_abx_metabolome <- subset(abx_metabolome, abx == 'clindamycin')[, abx_rf$feature]
-clinda_abx_metabolome$abx <- NULL
-strep_abx_metabolome <- subset(abx_metabolome, abx == 'streptomycin')[, abx_rf$feature]
-strep_abx_metabolome$abx <- NULL
-rm(abx_metabolome)
+# Get points ready for plotting
 
-# Find significant differences
-resistant_pvalues <- c()
-for (i in 1:ncol(res_metabolome)){resistant_pvalues[i] <- wilcox.test(res_metabolome[,i], sus_metabolome[,i], exact=FALSE)$p.value}
-resistant_pvalues <- p.adjust(resistant_pvalues, method='BH')
+# Define colors based on genus
+strep_630_outliers <- merge(x=strep_630_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
+strep_630_outliers$color[is.na(strep_630_outliers$color)] <- 'white'
+strep_mock_outliers <- merge(x=strep_mock_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
+strep_mock_outliers$color[is.na(strep_mock_outliers$color)] <- 'white'
+cef_630_outliers <- merge(x=cef_630_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
+cef_630_outliers$color[is.na(cef_630_outliers$color)] <- 'white'
+cef_mock_outliers <- merge(x=cef_mock_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
+cef_mock_outliers$color[is.na(cef_mock_outliers$color)] <- 'white'
+clinda_630_outliers <- merge(x=clinda_630_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
+clinda_630_outliers$color[is.na(clinda_630_outliers$color)] <- 'white'
+clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
+clinda_mock_outliers$color[is.na(clinda_mock_outliers$color)] <- 'white'
+rm(tax_colors)
 
-abx_pvalues1 <- c()
-for (i in 1:ncol(cef_abx_metabolome)){abx_pvalues1[i] <- wilcox.test(cef_abx_metabolome[,i], clinda_abx_metabolome[,i], exact=FALSE)$p.value}
-abx_pvalues2 <- c()
-for (i in 1:ncol(cef_abx_metabolome)){abx_pvalues2[i] <- wilcox.test(cef_abx_metabolome[,i], strep_abx_metabolome[,i], exact=FALSE)$p.value}
-abx_pvalues3 <- c()
-for (i in 1:ncol(clinda_abx_metabolome)){abx_pvalues3[i] <- wilcox.test(clinda_abx_metabolome[,i], strep_abx_metabolome[,i], exact=FALSE)$p.value}
-abx_pvalues1 <- p.adjust(abx_pvalues1, method='BH')
-abx_pvalues2 <- p.adjust(abx_pvalues2, method='BH')
-abx_pvalues3 <- p.adjust(abx_pvalues3, method='BH')
+# Subset out other bacteria group
+strep_630_outliers_other <- subset(strep_630_outliers, color == 'white')
+strep_630_outliers <- subset(strep_630_outliers, color != 'white')
+strep_mock_outliers_other <- subset(strep_mock_outliers, color == 'white')
+strep_mock_outliers <- subset(strep_mock_outliers, color != 'white')
+cef_630_outliers_other <- subset(cef_630_outliers, color == 'white')
+cef_630_outliers <- subset(cef_630_outliers, color != 'white')
+cef_mock_outliers_other <- subset(cef_mock_outliers, color == 'white')
+cef_mock_outliers <- subset(cef_mock_outliers, color != 'white')
+clinda_630_outliers_other <- subset(clinda_630_outliers, color == 'white')
+clinda_630_outliers <- subset(clinda_630_outliers, color != 'white')
+clinda_mock_outliers_other <- subset(clinda_mock_outliers, color == 'white')
+clinda_mock_outliers <- subset(clinda_mock_outliers, color != 'white')
+
+# Make sure Archeael points are visible
+strep_630_archeae <- subset(strep_630_outliers, color == '#FF8000')
+strep_mock_archeae <- subset(strep_mock_outliers, color == '#FF8000')
+cef_630_archeae <- subset(cef_630_outliers, color == '#FF8000')
+cef_mock_archeae <- subset(cef_mock_outliers, color == '#FF8000')
+clinda_630_archeae <- subset(clinda_630_outliers, color == '#FF8000')
+clinda_mock_archeae <- subset(clinda_mock_outliers, color == '#FF8000')
+
+# Make sure Actinobacteria points are visible
+strep_630_actino <- rbind(subset(strep_630_outliers, color == '#009900'), 
+                          subset(strep_630_outliers, color == '#006600'), 
+                          subset(strep_630_outliers, color == '#33FF33'))
+strep_mock_actino <- rbind(subset(strep_mock_outliers, color == '#009900'), 
+                           subset(strep_mock_outliers, color == '#006600'), 
+                           subset(strep_mock_outliers, color == '#33FF33'))
+cef_630_actino <- rbind(subset(cef_630_outliers, color == '#009900'), 
+                        subset(cef_630_outliers, color == '#006600'), 
+                        subset(cef_630_outliers, color == '#33FF33'))
+cef_mock_actino <- rbind(subset(cef_mock_outliers, color == '#009900'), 
+                         subset(cef_mock_outliers, color == '#006600'), 
+                         subset(cef_mock_outliers, color == '#33FF33'))
+clinda_630_actino <- rbind(subset(clinda_630_outliers, color == '#009900'), 
+                           subset(clinda_630_outliers, color == '#006600'), 
+                           subset(clinda_630_outliers, color == '#33FF33'))
+clinda_mock_actino <- rbind(subset(clinda_mock_outliers, color == '#009900'), 
+                            subset(clinda_mock_outliers, color == '#006600'), 
+                            subset(clinda_mock_outliers, color == '#33FF33'))
+clinda_mock_ecoli <- subset(clinda_mock_outliers, color == '#CCCC00')
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Check the count of genes for each genus in outlier groups
+table(strep_630_outliers$genus) # upper
+table(strep_mock_outliers$genus) # lower
+table(cef_630_outliers$genus) # upper
+table(cef_mock_outliers$genus) # lower
+table(clinda_630_outliers$genus) # upper
+table(clinda_mock_outliers$genus) # lower
+
+# Do the same for those in the gray area
+table(strep_annotated$genus)
+table(cef_annotated$genus)
+table(clinda_annotated$genus)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
-pdf(file=plot_ab, width=12, height=6)
-layout(matrix(c(1,2),
-              nrow=1, ncol=2, byrow=TRUE))
-par(mar=c(4,4,1,1), las=1, mgp=c(2.8,0.75,0))
+tiff(filename=plot_file, width=10, height=10, units='in', 
+     res=200, pointsize=12, compression='none')
+layout(matrix(c(1,2,
+                3,4), 
+              nrow=2, ncol=2, byrow = TRUE))
+par(mar=c(4, 4, 1, 1), mgp=c(3,0.7,0))
 
-# All conventional mice
-plot(x=metabolome_nmds$MDS1, y=metabolome_nmds$MDS2, xlim=c(-0.25,0.25), ylim=c(-0.25,0.25),
-     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
-mtext('a', side=2, line=2, las=2, adj=1.9, padj=-10, cex=2, font=2)
-points(x=metabolome_cefoperazone_630$MDS1, y=metabolome_cefoperazone_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_clindamycin_630$MDS1, y=metabolome_clindamycin_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_streptomycin_630$MDS1, y=metabolome_streptomycin_630$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_cefoperazone_mock$MDS1, y=metabolome_cefoperazone_mock$MDS2, bg=cef_col, pch=24, cex=1.8, lwd=1.2)
-points(x=metabolome_clindamycin_mock$MDS1, y=metabolome_clindamycin_mock$MDS2, bg=clinda_col, pch=24, cex=1.8, lwd=1.2)
-points(x=metabolome_streptomycin_mock$MDS1, y=metabolome_streptomycin_mock$MDS2, bg=strep_col, pch=24, cex=1.8, lwd=1.2)
-points(x=metabolome_noantibiotics$MDS1, y=metabolome_noantibiotics$MDS2, bg=noabx_col, pch=24, cex=1.8, lwd=1.2)
-legend('bottomleft', legend=c('Resistant vs Susceptible', as.expression(bquote(paste(italic('p'),' < 0.001 ***')))), 
-       pch=1, cex=1.2, pt.cex=0, bty='n')
-legend('topright', legend=c('No Antibiotic','Streptomycin','Cefoperzone','Clindamycin'), 
-       pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=22, cex=1.2, pt.cex=2.5)
-legend('topleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
-       col='black', pch=c(19,17), cex=1.2, pt.cex=2)
-# Antibiotics individually
-plot(x=abx_metabolome_nmds$MDS1, y=abx_metabolome_nmds$MDS2, xlim=c(-0.1,0.1), ylim=c(-0.1,0.1),
-     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
-mtext('b', side=2, line=2, las=2, adj=1.9, padj=-10, cex=2, font=2)
-points(x=metabolome_abx_cef_630$MDS1, y=metabolome_abx_cef_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_abx_cef_mock$MDS1, y=metabolome_abx_cef_mock$MDS2, bg=cef_col, pch=24, cex=2, lwd=1.2)
-points(x=metabolome_abx_clinda_630$MDS1, y=metabolome_abx_clinda_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_abx_clinda_mock$MDS1, y=metabolome_abx_clinda_mock$MDS2, bg=clinda_col, pch=24, cex=2, lwd=1.2)
-points(x=metabolome_abx_strep_630$MDS1, y=metabolome_abx_strep_630$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_abx_strep_mock$MDS1, y=metabolome_abx_strep_mock$MDS2, bg=strep_col, pch=24, cex=2, lwd=1.2)
-legend('bottomleft', legend=c('Between Pretreatments', as.expression(bquote(paste(italic('p'),' < 0.001 ***')))), 
-       pch=1, cex=1.2, pt.cex=0, bty='n')
-legend('topright', legend=c('Streptomycin','Cefoperzone','Clindamycin'), 
-       pt.bg=c(strep_col,cef_col,clinda_col), pch=22, cex=1.2, pt.cex=2.5)
-legend('topleft', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
-       col='black', pch=c(19,17), cex=1.2, pt.cex=2)
+#-------------------#
 
-dev.off()
+# Streptomycin
+plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
+filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
+box()
+points(x=strep_annotated$strep_mock_metaT_reads, y=strep_annotated$strep_630_metaT_reads, pch=20, cex=1.3, col='gray40')
+segments(-2, -2, 14, 14, lty=2)
+axis(1, at=seq(0,12,2), label=seq(0,12,2))
+axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
+minor.ticks.axis(1, 10, mn=0, mx=12)
+minor.ticks.axis(2, 10, mn=0, mx=12)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
+mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
+mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
+legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(strep_col,'black'))
+mtext('a', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
 
-#---------------#
+points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_630_outliers_other$color)
+points(x=strep_mock_outliers_other$strep_mock_metaT_reads, y=strep_mock_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_mock_outliers_other$color)
+points(x=strep_630_outliers$strep_mock_metaT_reads, y=strep_630_outliers$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_outliers$color, col='gray10')
+points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_outliers$color, col='gray10')
+points(x=strep_630_actino$strep_mock_metaT_reads, y=strep_630_actino$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_actino$color, col='gray10')
+points(x=strep_mock_actino$strep_mock_metaT_reads, y=strep_mock_actino$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_actino$color, col='gray10')
+points(x=strep_630_archeae$strep_mock_metaT_reads, y=strep_630_archeae$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_archeae$color, col='gray10')
+points(x=strep_mock_archeae$strep_mock_metaT_reads, y=strep_mock_archeae$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_archeae$color, col='gray10')
 
-# Feature Selection
-# All abx vs Untreated
-metabolite_stripchart(plot_c, res_metabolome, sus_metabolome, resistant_pvalues, all_rf$MDA, 
-                      0, 'Resistant', 'Susceptible', '', 'white', 'c', 'gray80', 'salmon2')
+#-------------------#
 
-# Each antibiotic group
-pdf(file=plot_d, width=4, height=ncol(strep_abx_metabolome)*1.5)
-layout(matrix(c(1:(ncol(strep_abx_metabolome)+2)), nrow=(ncol(strep_abx_metabolome)+2), ncol=1, byrow = TRUE))
+# Cefoperazone
+plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
+filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
+box()
+points(x=cef_annotated$cef_mock_metaT_reads, y=cef_annotated$cef_630_metaT_reads, pch=20, cex=1.3, col='gray40')
+segments(-2, -2, 14, 14, lty=2)
+axis(1, at=seq(0,12,2), label=seq(0,12,2))
+axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
+minor.ticks.axis(1, 10, mn=0, mx=12)
+minor.ticks.axis(2, 10, mn=0, mx=12)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
+mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
+mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
+legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(cef_col,'black'))
+mtext('b', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
 
-par(mar=c(0.2, 0, 0, 2), mgp=c(2.3, 0.75, 0), xpd=FALSE)
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
-text(x=-10.2, y=-3, labels='d', cex=2.4, font=2, xpd=TRUE)
-legend('bottomright', legend=c('Streptomycin', 'Cefoperazone', 'Clindamycin'), bty='n',
-       pt.bg=c(strep_col,cef_col,clinda_col), pch=21, cex=1.2, pt.cex=2, ncol=3)
+points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$cef_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=cef_630_outliers_other$color)
+points(x=cef_mock_outliers_other$cef_mock_metaT_reads, y=cef_mock_outliers_other$cef_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=cef_mock_outliers_other$color)
+points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_outliers$color, col='gray10')
+points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_outliers$color, col='gray10')
+points(x=cef_630_actino$cef_mock_metaT_reads, y=cef_630_actino$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_actino$color, col='gray10')
+points(x=cef_mock_actino$cef_mock_metaT_reads, y=cef_mock_actino$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_actino$color, col='gray10')
+points(x=cef_630_archeae$cef_mock_metaT_reads, y=cef_630_archeae$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_archeae$color, col='gray10')
+points(x=cef_mock_archeae$cef_mock_metaT_reads, y=cef_mock_archeae$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_archeae$color, col='gray10')
 
-par(mar=c(0.2, 2, 0.2, 2.5), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
-for(i in c(1:(ncol(strep_abx_metabolome)))){
-  xmax <- ceiling(max(c(max(strep_abx_metabolome[,i]), max(cef_abx_metabolome[,i]))))
-  while(xmax %% 5 != 0 ){xmax <- xmax + 1}
-  plot(0, type='n', xlab='', ylab='', xaxt='n', yaxt='n', xlim=c(0,xmax), ylim=c(0.3,2.25))
-  stripchart(at=1.65, jitter(strep_abx_metabolome[,i], amount=1e-5),
-             pch=21, bg=strep_col, method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
-  stripchart(at=1.2, jitter(cef_abx_metabolome[,i], amount=1e-5), 
-             pch=21, bg=cef_col, method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
-  stripchart(at=0.66, jitter(clinda_abx_metabolome[,i], amount=1e-5), 
-             pch=21, bg=clinda_col, method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
-  metabolite <- paste(colnames(strep_abx_metabolome)[i], ' [',as.character(round(abx_rf$MDA[i],3)),']', sep='')
-  legend('topright', legend=metabolite, pch=1, cex=1.3, pt.cex=0, bty='n')
-  
-  mtext('|', side=4, cex=1.6, las=1, adj=-0.3, padj=-0.5)
-  mtext('|', side=4, cex=1.6, las=1, adj=-0.3, padj=-0.3)
-  mtext('|', side=4, cex=1.6, las=1, adj=-0.3, padj=1.7)
-  mtext('|', side=4, cex=1.6, las=1, adj=-0.3, padj=1.5)
-  mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=-0.5)
-  mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=-0.3)
-  mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=0)
-  mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=0.5)
-  mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=1.5)
-  mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=1.7)
-  if (abx_pvalues2[i] < 0.001){
-    mtext('***', side=4, font=2, cex=1, padj=0.8, adj=0.64)
-  } else if (abx_pvalues2[i] <= 0.01){
-    mtext('**', side=4, font=2, cex=1, padj=0.8, adj=0.64)
-  } else if (abx_pvalues2[i] <= 0.05){
-    mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.64)
-  } else {
-    mtext('n.s.', cex=0.7, side=4, padj=0.5, adj=0.64)
-  }
-  if (abx_pvalues1[i] < 0.001){
-    mtext('***', side=4, font=2, cex=1, padj=0.8, adj=0.27)
-  } else if (abx_pvalues1[i] <= 0.01){
-    mtext('**', side=4, font=2, cex=1, padj=0.8, adj=0.27)
-  } else if (abx_pvalues1[i] <= 0.05){
-    mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.27)
-  } else {
-    mtext('n.s.', cex=0.7, side=4, padj=0.5, adj=0.27)
-  }
-  if (abx_pvalues3[i] < 0.001){
-    mtext('***', side=4, font=2, cex=1, padj=2.2, adj=0.45)
-  } else if (abx_pvalues3[i] <= 0.01){
-    mtext('**', side=4, font=2, cex=1, padj=2.2, adj=0.45)
-  } else if (abx_pvalues3[i] <= 0.05){
-    mtext('*', side=4, font=2, cex=1, padj=2.2, adj=0.45)
-  } else {
-    mtext('n.s.', cex=0.7, side=4, padj=2.4, adj=0.45)
-  }
-  
-  if (xmax <= 10) {
-    text(x=seq(0,xmax,1), y=0.42, labels=seq(0,xmax,1), cex=1)
-    axis(1, at=seq(0,5,1), NA, cex.axis=0.8, tck=0.015)
-  } else if (xmax > 1000){
-    text(x=seq(0,xmax,200), y=0.42, labels=seq(0,xmax,200), cex=1)
-    axis(1, at=seq(0,xmax,200), NA, cex.axis=0.8, tck=0.015)
-  } else if (xmax > 500){
-    text(x=seq(0,xmax,100), y=0.42, labels=seq(0,xmax,100), cex=1)
-    axis(1, at=seq(0,xmax,100), NA, cex.axis=0.8, tck=0.015)
-  } else if (xmax > 100){
-    text(x=seq(0,xmax,50), y=0.42, labels=seq(0,xmax,50), cex=1)
-    axis(1, at=seq(0,xmax,50), NA, cex.axis=0.8, tck=0.015)
-  } else if (xmax > 50){
-    text(x=seq(0,xmax,10), y=0.42, labels=seq(0,xmax,10), cex=1)
-    axis(1, at=seq(0,xmax,10), NA, cex.axis=0.8, tck=0.015)
-  } else {
-    text(x=seq(0,xmax,5), y=0.42, labels=seq(0,xmax,5), cex=1)
-    axis(1, at=seq(0,xmax,5), NA, cex.axis=0.8, tck=0.015)
-  }
-  segments(median(strep_abx_metabolome[,i]), 1.48, median(strep_abx_metabolome[,i]), 1.82, lwd=2.5)
-  segments(median(cef_abx_metabolome[,i]), 1.03, median(cef_abx_metabolome[,i]), 1.37, lwd=2.5)
-  segments(median(clinda_abx_metabolome[,i]), 0.49, median(clinda_abx_metabolome[,i]), 0.83, lwd=2.5)
-  
-}
-par(mar=c(0, 0, 0, 0))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
-text(x=0, y=4, labels=expression(paste('Scaled Intensity (',log[10],')')), cex=1.4)
-text(x=7, y=4.5, labels='OOB Error = 1.85%', cex=0.8)
+#-------------------#
+
+# Clindamycin
+plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
+filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
+box()
+points(x=clinda_annotated$clinda_mock_metaT_reads, y=clinda_annotated$clinda_630_metaT_reads, pch=20, cex=1.3, col='gray40')
+segments(-2, -2, 14, 14, lty=2)
+axis(1, at=seq(0,12,2), label=seq(0,12,2))
+axis(2, at=seq(0,12,2), label=seq(0,12,2), las=1)
+minor.ticks.axis(1, 10, mn=0, mx=12)
+minor.ticks.axis(2, 10, mn=0, mx=12)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.5, cex=0.7)
+mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
+mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
+legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(clinda_col,'black'))
+mtext('c', side=2, line=2, las=2, adj=2.5, padj=-14, cex=1.2, font=2)
+
+points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_630_outliers_other$color)
+points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_mock_outliers_other$color)
+points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_outliers$color, col='gray10')
+points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_mock_outliers$color, col='gray10')
+points(x=clinda_630_actino$clinda_mock_metaT_reads, y=clinda_630_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_actino$color, col='gray10')
+points(x=clinda_mock_actino$clinda_mock_metaT_reads, y=clinda_mock_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_mock_actino$color, col='gray10')
+points(x=clinda_630_archeae$clinda_mock_metaT_reads, y=clinda_630_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_archeae$color, col='gray10')
+points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_mock_archeae$color, col='gray10')
+
+#-------------------#
+
+# Taxonomic group legend
+par(mar=c(0,1,3,0))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
+rect(xleft=-4.5, ybottom=10, xright=3.5, ytop=-5.5, border='black')
+
+# Left side
+text(x=c(-3,-3,1,1,1,1,0.5), y=c(9,2.4,9,5.5,2.4,0,-2.4), labels=c('Bacteroidetes', 'Firmicutes','Actinobacteria','Proteobacteria','Verrucomicrobia','Other Bacteria', 'Archeae'), cex=1.2) # Phyla
+text(x=-2.5, y=c(8.3,7.6,6.9,6.2,5.5,4.8), labels=c('Allistipes','Bacteroides','Odoribacter','Parabacteroides','Prevotella','Porphymonas'), cex=0.9, font=3) # Bacteroietes
+points(x=rep(-1.2,6), y=c(8.3,7.6,6.9,6.2,5.5,4.8), pch=22, cex=2.1, col='black', bg=c('#000099','#0000CC','#0000FF','#3333FF','#6666FF','#9999FF')) # blues
+text(x=-2.5, y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), labels=c('Clostridium','Enterococcus','Eubacterium','Lactobacillus','Lactococcus','Roseburia','Ruminococcus','Staphylococcus','Streptococcus'), cex=0.9, font=3) # Firmicutes
+points(x=rep(-1.2,9), y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), pch=22, cex=2.1, col='black', bg=c('#330000','#660000','#990000','#CC0000','#FF0000','#FF3333','#FF6666','#FF9999','#FFCCCC')) # reds
+
+# Right side
+text(x=1.5, y=c(8.3,7.6,6.9), labels=c('Bifidobacterium','Corynebacterium','Olsenella'), cex=0.9, font=3) # Actinobacteria
+points(x=rep(2.85,3), y=c(8.3,7.6,6.9), pch=22, cex=2.1, col='black', bg=c('#006600','#009900','#33FF33')) # greens
+text(x=1.5, y=4.8, labels='Escherichia', cex=0.9, font=3) # Proteobacteria
+points(x=2.85, y=4.8, pch=22, cex=2.1, col='black', bg='#CCCC00') # yellow
+text(x=1.5, y=1.7, labels='Akkermansia', cex=0.9, font=3) # Verrucomicrobia
+points(x=2.85, y=1.7, pch=22, cex=2.1, col='black', bg='#990099') # purple
+text(x=1.5, y=-0.85, labels='<0.1% Each', cex=0.9) # Other bacteria
+points(x=2.85, y=-0.85, pch=22, cex=2.1, col='black', bg='white') # Other Bacteria - white
+text(x=1.35, y=-3.1, labels='Methanobrevibacter', cex=0.9, font=3) # Archeae
+points(x=2.85, y=-3.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
 
 dev.off()
 
@@ -317,8 +361,7 @@ dev.off()
 # Clean up
 for (dep in deps){
   pkg <- paste('package:', dep, sep='')
-  detach(pkg, character.only = TRUE)
-}
+  detach(pkg, character.only = TRUE)}
 setwd(starting_dir)
 rm(list=ls())
 gc()
