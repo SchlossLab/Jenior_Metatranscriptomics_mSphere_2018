@@ -256,9 +256,9 @@ title('Streptomycin-pretreated', line=0.5, cex.main=1.3, col.main=strep_col, fon
 index <- 1
 for(i in c(1:ncol(strep_mock_otu))){
   stripchart(at=index-0.35, jitter(strep_mock_otu[,i], amount=1e-5), 
-             pch=21, bg='gray80', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='chartreuse2', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   stripchart(at=index+0.35, jitter(strep_infected_otu[,i], amount=1e-5), 
-             pch=21, bg='black', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='mediumorchid4', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   if (i != ncol(strep_mock_otu)){
     abline(h=index+1, lty=2)
   }
@@ -271,7 +271,7 @@ for(i in c(1:ncol(strep_mock_otu))){
 }
 axis(1, at=c(0,(log10(strep_size/1000)),(log10(strep_size/100)),(log10(strep_size/10)),log10(strep_size)), labels=c('0','0.1','1','10','100')) 
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
-       pch=c(21, 21), pt.bg=c('black','gray80'), bg='white', pt.cex=1.4, cex=0.9)
+       pch=c(21, 21), pt.bg=c('mediumorchid4','chartreuse2'), bg='white', pt.cex=1.4, cex=0.9)
 formatted_names <- lapply(1:nrow(strep_lefse), function(i) bquote(paste(italic(.(strep_lefse$genus[i])), ' ', .(as.vector(strep_lefse$OTU)[i]), sep='')))
 axis(2, at=seq(1,index-2,2)+0.4, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 formatted_p <- lapply(1:nrow(strep_lefse), function(i) bquote(paste(.(as.vector(strep_lefse$phylum)[i]), '; ', italic('p'), ' = ', .(strep_lefse$pValue[i]), sep='')))
@@ -292,9 +292,9 @@ title('Cefoperazone-pretreated', line=0.5, cex.main=1.3, col.main=cef_col, font.
 index <- 1
 for(i in c(1:ncol(cef_mock_otu))){
   stripchart(at=index-0.35, jitter(cef_mock_otu[,i], amount=1e-5), 
-             pch=21, bg='gray80', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='chartreuse2', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   stripchart(at=index+0.35, jitter(cef_infected_otu[,i], amount=1e-5), 
-             pch=21, bg='black', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='mediumorchid4', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   if (i != ncol(cef_mock_otu)){
     abline(h=index+1, lty=2)
   }
@@ -307,7 +307,7 @@ for(i in c(1:ncol(cef_mock_otu))){
 }
 axis(1, at=c(0,(log10(cef_size/1000)),(log10(cef_size/100)),(log10(cef_size/10)),log10(cef_size)), labels=c('0','0.1','1','10','100')) 
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
-       pch=c(21, 21), pt.bg=c('black','gray80'), bg='white', pt.cex=1.4, cex=0.9)
+       pch=c(21, 21), pt.bg=c('mediumorchid4','chartreuse2'), bg='white', pt.cex=1.4, cex=0.9)
 formatted_names <- lapply(1:nrow(cef_lefse), function(i) bquote(paste(italic(.(cef_lefse$genus[i])), ' ', .(as.vector(cef_lefse$OTU)[i]), sep='')))
 axis(2, at=seq(1,index-2,2)+0.4, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 formatted_p <- lapply(1:nrow(cef_lefse), function(i) bquote(paste(.(as.vector(cef_lefse$phylum)[i]), '; ', italic('p'), ' = ', .(cef_lefse$pValue[i]), sep='')))
@@ -329,9 +329,9 @@ title('Clindamycin-pretreated', line=0.5, cex.main=1.3, col.main=clinda_col, fon
 index <- 1
 for(i in c(1:ncol(clinda_mock_otu))){
   stripchart(at=index-0.25, jitter(clinda_mock_otu[,i], amount=1e-5), 
-             pch=21, bg='gray80', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='chartreuse2', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   stripchart(at=index+0.25, jitter(clinda_infected_otu[,i], amount=1e-5), 
-             pch=21, bg='black', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+             pch=21, bg='mediumorchid4', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   if (i != ncol(clinda_mock_otu)){
     abline(h=index+1, lty=2)
   }
@@ -344,7 +344,7 @@ for(i in c(1:ncol(clinda_mock_otu))){
 }
 axis(1, at=c(0,(log10(clinda_size/1000)),(log10(clinda_size/100)),(log10(clinda_size/10)),log10(clinda_size)), labels=c('0','0.1','1','10','100')) 
 legend('topright', legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))), 'Mock-infected'),
-       pch=c(21, 21), pt.bg=c('black','gray80'), bg='white', pt.cex=1.4, cex=0.9)
+       pch=c(21, 21), pt.bg=c('mediumorchid4','chartreuse2'), bg='white', pt.cex=1.4, cex=0.9)
 formatted_names <- lapply(1:nrow(clinda_lefse), function(i) bquote(paste(italic(.(clinda_lefse$genus[i])), ' ', .(as.vector(clinda_lefse$OTU)[i]), sep='')))
 axis(2, at=seq(1,index-2,2)+0.25, labels=do.call(expression, formatted_names), las=1, line=-0.5, tick=F, cex.axis=1.1, font=3) 
 formatted_p <- lapply(1:nrow(clinda_lefse), function(i) bquote(paste(.(as.vector(clinda_lefse$phylum)[i]), '; ', italic('p'), ' = ', .(clinda_lefse$pValue[i]), sep='')))
