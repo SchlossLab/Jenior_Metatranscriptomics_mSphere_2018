@@ -16,9 +16,9 @@ metabolome <- 'data/metabolome/scaled_intensities.log10.tsv'
 
 # Output plot
 plot_4 <- 'results/supplement/figures/figure_S4.pdf'
-plot_5a <- 'results/supplement/figures/figure_S5a.pdf'
-plot_5b <- 'results/supplement/figures/figure_S5b.pdf'
-plot_5c <- 'results/supplement/figures/figure_S5c.pdf'
+plot_5 <- 'results/supplement/figures/figure_S5.pdf'
+plot_6a <- 'results/supplement/figures/figure_S6a.pdf'
+plot_6b <- 'results/supplement/figures/figure_S6b.pdf'
 
 # Supplementary table
 supp_table3 <- 'results/supplement/tables/table_S4.tsv'
@@ -300,7 +300,7 @@ segments(x0=0.86, y0=0.02, x1=0.94, y1=0.02, lwd=7) # Xenobiotics
 text(x=0.9, y=0.005, 'Xenobiotics ', cex=2.2)
 dev.off()
 
-pdf(file=plot_5a, width=50, height=30)
+pdf(file=plot_5, width=50, height=30)
 heatmap.2( abx_metabolome,
            col=heat_palette,
            trace='none',
@@ -334,11 +334,10 @@ segments(x0=0.815, y0=0.04, x1=0.854, y1=0.04, lwd=7) # Peptide
 text(x=0.836, y=0.025, 'Peptide', cex=3)
 segments(x0=0.86, y0=0.04, x1=0.94, y1=0.04, lwd=7) # Xenobiotics  
 text(x=0.9, y=0.025, 'Xenobiotics ', cex=3)
-text(x=0.15, y=0.82, 'a', cex=6, font=2)
 text(x=0.55, y=0.845, 'Susceptible Metabolomes Only', cex=4, font=2)
 dev.off()
 
-pdf(file=plot_5b, width=20, height=20)
+pdf(file=plot_6a, width=20, height=20)
 heatmap.2( abx_metabolome_carb,
            col=heat_palette,
            trace='none',
@@ -356,11 +355,11 @@ heatmap.2( abx_metabolome_carb,
            symkey=FALSE,
            key.xlab='Scaled Intensity',
            key.par=list(cex=1.5))
-text(x=0.15, y=0.82, 'b', cex=4, font=2)
+text(x=0.15, y=0.82, 'a', cex=4, font=2)
 text(x=0.5, y=0.845, 'Carbohydrates', cex=3.5, font=2)
 dev.off()
 
-pdf(file=plot_5c, width=40, height=20)
+pdf(file=plot_6b, width=40, height=20)
 heatmap.2( abx_metabolome_amino,
            col=heat_palette,
            trace='none',
@@ -378,7 +377,7 @@ heatmap.2( abx_metabolome_amino,
            symkey=FALSE,
            key.xlab='Scaled Intensity',
            key.par=list(cex=1.5))
-text(x=0.17, y=0.82, 'c', cex=4, font=2)
+text(x=0.17, y=0.82, 'b', cex=4, font=2)
 text(x=0.5, y=0.845, 'Amino Acids', cex=3.5, font=2)
 dev.off()
 
