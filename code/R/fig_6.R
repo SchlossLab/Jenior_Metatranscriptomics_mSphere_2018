@@ -115,16 +115,38 @@ metabolome$infection <- NULL
 noabx_metabolome <- aggregate(noabx_metabolome[,2:ncol(noabx_metabolome)], by=list(noabx_metabolome$infection), FUN=median)
 rownames(noabx_metabolome) <- noabx_metabolome$Group.1
 noabx_metabolome$Group.1 <- NULL
+noabx_metabolome <- t(noabx_metabolome)
 cef_metabolome <- aggregate(cef_metabolome[,2:ncol(cef_metabolome)], by=list(cef_metabolome$infection), FUN=median)
-rownames(cef_metabolome) <- c('Cefoperzone-Infected','Cefoperzone-Mock')
+rownames(cef_metabolome) <- c('Cefoperzone_Infected','Cefoperzone_Mock')
 cef_metabolome$Group.1 <- NULL
+cef_metabolome<- t(cef_metabolome)
 clinda_metabolome <- aggregate(clinda_metabolome[,2:ncol(clinda_metabolome)], by=list(clinda_metabolome$infection), FUN=median)
-rownames(clinda_metabolome) <- c('Clindamycin-Infected','Clindamycin-Mock')
+rownames(clinda_metabolome) <- c('Clindamycin_Infected','Clindamycin_Mock')
 clinda_metabolome$Group.1 <- NULL
+clinda_metabolome <- t(clinda_metabolome)
 strep_metabolome <- aggregate(strep_metabolome[,2:ncol(strep_metabolome)], by=list(strep_metabolome$infection), FUN=median)
-rownames(strep_metabolome) <- c('Streptomycin-Infected','Streptomycin-Mock')
+rownames(strep_metabolome) <- c('Streptomycin_Infected','Streptomycin_Mock')
 strep_metabolome$Group.1 <- NULL
-abx_metabolome <- rbind(strep_metabolome,cef_metabolome,clinda_metabolome)
+strep_metabolome <- t(strep_metabolome)
+
+# Calculate differenes between infected and mock
+cef_metabolome <- as.data.frame(10 ^ cef_metabolome)
+cef_metabolome$difference <- cef_metabolome$Cefoperzone_Mock - cef_metabolome$Cefoperzone_Infected
+clinda_metabolome <- as.data.frame(10 ^ clinda_metabolome)
+clinda_metabolome$difference <- clinda_metabolome$Clindamycin_Mock - clinda_metabolome$Clindamycin_Infected
+strep_metabolome <- as.data.frame(10 ^ strep_metabolome)
+strep_metabolome$difference <- strep_metabolome$Streptomycin_Mock - strep_metabolome$Streptomycin_Infected
+
+
+
+
+
+
+
+
+
+
+
 
 # Convert to matrices
 metabolome <- as.matrix(metabolome)
