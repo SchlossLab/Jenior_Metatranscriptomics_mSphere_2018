@@ -49,7 +49,6 @@ metabolome <- metabolome[,!colnames(metabolome) %in% c('GfC1M1','GfC1M2','GfC1M3
                                                        'GfC6M1','GfC6M2','GfC6M3')] # Germfree
 rownames(metabolome) <- metabolome$BIOCHEMICAL
 metabolome$BIOCHEMICAL <- NULL
-metabolome <- metabolome[metabolome$SUPER_PATHWAY %in% c('Carbohydrate','Amino_Acid','Lipid'),] # Subset to amino acids and carbohydrates
 metabolome$PUBCHEM <- NULL
 metabolome$KEGG <- NULL
 metabolome$SUB_PATHWAY <- NULL
@@ -119,6 +118,8 @@ metabolome_abx_strep_mock <- subset(metabolome_abx, infection == 'mock')
 
 # Feature selection
 # Separate groups
+#metabolome <- metabolome[metabolome$SUPER_PATHWAY %in% c('Carbohydrate','Amino_Acid','Lipid'),] # Subset to amino acids and carbohydrates
+
 metabolome <- clean_merge(metadata, metabolome)
 abx_metabolome <- subset(metabolome, abx != 'none')
 abx_metabolome$infection <- NULL
