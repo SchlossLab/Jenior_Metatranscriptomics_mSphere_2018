@@ -79,6 +79,11 @@ clinda_annotated <- subset(clinda_annotated, description != 'uncharacterized_*')
 strep_annotated <- subset(strep_annotated, description != 'hypothetical_protein')
 strep_annotated <- subset(strep_annotated, description != 'uncharacterized_*')
 
+# Calculate differences between mock and infected metatranscriptomes
+cef_annotated$delta <- (cef_annotated$cef_mock_metaT_reads - cef_annotated$cef_630_metaT_reads) * -1
+clinda_annotated$delta <- (clinda_annotated$clinda_mock_metaT_reads - clinda_annotated$clinda_630_metaT_reads) * -1
+strep_annotated$delta <- (strep_annotated$strep_mock_metaT_reads - strep_annotated$strep_630_metaT_reads) * -1
+
 # Metabolomes
 metabolome$PUBCHEM <- NULL
 metabolome$BIOCHEMICAL <- gsub('_', ' ', metabolome$BIOCHEMICAL)
@@ -129,13 +134,13 @@ rownames(strep_metabolome) <- c('Streptomycin_Infected','Streptomycin_Mock')
 strep_metabolome$Group.1 <- NULL
 strep_metabolome <- t(strep_metabolome)
 
-# Calculate differenes between infected and mock
+# Calculate delta between infected and mock
 cef_metabolome <- as.data.frame(10 ^ cef_metabolome)
-cef_metabolome$difference <- cef_metabolome$Cefoperzone_Mock - cef_metabolome$Cefoperzone_Infected
+cef_metabolome$delta <- (cef_metabolome$Cefoperzone_Mock - cef_metabolome$Cefoperzone_Infected) * -1
 clinda_metabolome <- as.data.frame(10 ^ clinda_metabolome)
-clinda_metabolome$difference <- clinda_metabolome$Clindamycin_Mock - clinda_metabolome$Clindamycin_Infected
+clinda_metabolome$delta <- (clinda_metabolome$Clindamycin_Mock - clinda_metabolome$Clindamycin_Infected) * -1
 strep_metabolome <- as.data.frame(10 ^ strep_metabolome)
-strep_metabolome$difference <- strep_metabolome$Streptomycin_Mock - strep_metabolome$Streptomycin_Infected
+strep_metabolome$delta <- (strep_metabolome$Streptomycin_Mock - strep_metabolome$Streptomycin_Infected) * -1
 
 
 
