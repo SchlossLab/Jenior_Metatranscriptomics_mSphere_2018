@@ -276,7 +276,7 @@ metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
   par(mar=c(0, 0, 0, 0))
   plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
   text(x=0, y=4, labels=expression(paste('Scaled Intensity (',log[10],')')), cex=1.4)
-  text(x=8, y=4.5, labels=paste('OOB Error = ', as.character(oob), '%',sep=''), cex=0.8)
+  text(x=8, y=4.5, labels=paste('OOB Error = ', as.character(oob), '%',sep=''))
   
   dev.off()
 }

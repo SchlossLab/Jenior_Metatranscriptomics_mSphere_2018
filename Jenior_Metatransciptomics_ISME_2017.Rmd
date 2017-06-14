@@ -154,6 +154,7 @@ we acknowledge that colonization could be driven more by the increase in relativ
 
 Colonization resistance to c difficile may be the result of the contribution by distinct subcommunities of bacteria across each unique community. Conversely, these results also offer support to the nutrient niche plasticity of *C. difficile* as it colonizes differentially sensitized gut ecosystems.
 
+specific pathways turn on/off following infection effecting metabolites and have implications for the nutrient niche space of *C. difficile*.
 
 
 
@@ -269,19 +270,23 @@ Correspondence to [Patrick D. Schloss](pdschloss@umich.edu)
 
 ###Figure Legends
 
-**Figure 1 | Experimental models of *C. difficile* infection and infection phenotype differences.** **(a)** Experimental timelines of antibiotic pretreatment and infection mouse models. **(b)** Quantification of *C. difficile* cfu and toxin titer across antibiotic pretreatment models. Gray asterisks indicate significant difference from no antibiotic controls by Wilcoxon rank-sum test with the Benjamini-Hochberg correction (all *p* < 0.001). 
+**Figure 1 | Experimental models of *C. difficile* infection and distinct virulence patterns.** **(a)** Experimental timelines of antibiotic pretreatment and infection mouse models. **(b)** Quantification of *C. difficile* c.f.u. and toxin titer across antibiotic pretreatment models. Gray asterisks indicate significant difference from no antibiotic controls by Wilcoxon rank-sum test with the Benjamini-Hochberg correction (all *p* < 0.001). 
 
 **Figure 2 | Impact of *C. difficile* colonization on other bacterial populations abundances in the gut microbiota.** **(a)** Relative abundance of family-level taxonomic classification for OTUs in each treatment group. **(b-d)** Discriminating OTUs with LEfSe analysis between Mock and *C. difficile*-infected communities within each pretreatment group, *p*-values from LEfSe are shown on the left with taxonomic information (all *p* < 0.05). Relative abundance of the respective OTUs from each mouse along with medians are shown for each pretreatment group. Black asterisks indicate significant difference in relative abundance determined by Wilcoxon rank-sum test with Benjamini-Hochberg correction (*p* < 0.05).
 
-**Figure 3 | *C. difficile* infection alters specific pathway and gene expression of the gut microbiota across perturbed communities** Metatranscriptomic (cDNA) read abundances associated with each gene were normalized to their associated metganomic (DNA) coverage, resulting in values that reflect upregulation and not basal expression levels of highly abundant genes. **(a)** Differences in read abundance for top 5 KEGG pathways with the largest amount of change between Mock and *C. difficile*-infected states within each antibiotic pretreatment. Values above the center line were expressed more during *C. difficile* infection, and those below the line were expressed more in Mock-infected animals. Dotted lines indicate average expression of pathways associated with each condition. **(b-d)** cDNA read abundances of the top 10 genes with the largest differences in expression within each indicated antibiotic pretreatment group. Shown are the expression levels for the genes displayed on the left during Mock (white) or *C. difficile* (black) infection. Gene names and member pathways indicated by letter codes along the left axis (pathway legend below). Abundances for each annotated pathway or gene were reported at the community-level and were agnostic to individual taxonomic group contributions to transcript pool.
+**Figure 3 | *C. difficile* infection alters specific pathway and gene expression of the gut microbiota across perturbed communities** Metatranscriptomic (cDNA) read abundances associated with each gene were normalized to their associated metaganomic (DNA) coverage, resulting in values that reflect upregulation and not basal expression levels of highly abundant genes. **(a)** Differences in read abundance for top 5 KEGG pathways with the largest amount of change between Mock and *C. difficile*-infected states within each antibiotic pretreatment. Values above the center line were expressed more during *C. difficile* infection, and those below the line were expressed more in Mock-infected animals. Dotted lines indicate average expression of pathways associated with each condition. **(b-d)** cDNA read abundances of the top 10 genes with the largest differences in expression within each indicated antibiotic pretreatment group. Shown are the expression levels for the genes displayed on the left during Mock (white) or *C. difficile* (black) infection. Gene names and member pathways indicated by letter codes along the left axis (pathway legend below). Abundances for each annotated pathway or gene were reported at the community-level and were agnostic to individual taxonomic group contributions to transcript pool.
 
-**Figure 4 | *C. difficile* colonization alters gene expression of taxonomic groups differentially between antibiotic pretreatements.** Each point represents a unique gene from the respective metagenomic assembly. Coordinates determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Metatranscriptomic read abundances are normalized to their associated metganomic coverage. Colored indicate genus of origin, and gray areas denote genes with consistent expression between conditions determined by least squares regression analysis with a minimum residual value of 2. Experimental groups are shown as follows; **(a)** Streptomycin-pretreated, **(b)** Cefoperazone-pretreated, and **(c)** Clindamycin-pretreated. 
+**Figure 4 | *C. difficile* colonization alters gene expression of taxonomic groups differentially between antibiotic pretreatements.** Each point represents a unique gene from the respective metagenomic assembly. Coordinates were determined by the log~2~-transformed expression level of each gene between *C. difficile*-infected and mock-infected conditions. Metatranscriptomic read abundances were normalized to their associated metagenomic coverage. Colored indicate genus of origin, and gray areas denote genes with consistent expression between conditions and outliers to this region were determined by least squares regression analysis with a minimum residual value of 2;. **(a)** Streptomycin-pretreated, **(b)** Cefoperazone-pretreated, and **(c)** Clindamycin-pretreated. 
 
-**Figure 5 | Impact of antibiotic pretreatment and *C. difficile* infection on cecal metabolome** NMDS ordinations of Bray-Curtis distances comparing the dissimilarity of infection groups within each antibiotic pretreatment; **(a)** Streptomycin, **(b)** Cefoperazone, and **(c)** Clindamycin. Significant differences were determined by AMOVA. Relative concentrations of metabolites with highest Mean Decrease Accuracy (MDA) from Random Forest feature selection to discriminate between Mock and *C. difficile*-infected conditions within each antibiotic pretreatment; **(d)** Streptomycin, **(e)** Cefoperazone, and **(f)** Clindamycin. Significant differences are labeled along the right axis and were calculated with Wilcoxon rank-sum test with Benjamini-Hochberg correction (\*\*\* < 0.001, \*\* <= 0.01, \* <= 0.05).
 
-**Figure 6 | *C. difficile* infection has differential effects on cecal metabolome according to pretreatment regime.** 
-**(a)** 
-specific pathways turn on/off following infection effecting metabolites and have implications for the nutrient niche space of *C. difficile*.
+**Figure 5 | Impact of antibiotic pretreatment class on the cecal metabolome.** **(a-b)** NMDS ordinations of Bray-Curtis distances comparing the cecal metabolome dissimilarity of mice receiving no pretreatment or one of the three distinct classes of antibiotics. (a) Comparison of untreated 
+
+
+Significant differences were determined by AMOVA. **(c-d)** 
+
+
+
+**Figure 6 |  *C. difficile* infection has differential effects on cecal metabolome according to pretreatment regime.** **(a-c)** NMDS ordinations of Bray-Curtis distances comparing the dissimilarity of infection groups within each antibiotic pretreatment; (a) Streptomycin, (b) Cefoperazone, and (c) Clindamycin. Significant differences were determined by AMOVA. **(d-f)** Relative concentrations of metabolites with highest Mean Decrease Accuracy (MDA) from Random Forest feature selection to discriminate between Mock and *C. difficile*-infected conditions within each antibiotic pretreatment. Respective MDA is labeled in brackets next to each metabolite name and out of bag error from internal cross-validation of each model is labeled under the plotting area. (d) Streptomycin pretreatment, (e) Cefoperazone pretreatment, and (f) Clindamycin pretreatment. Significant differences are labeled along the right axis and were calculated with Wilcoxon rank-sum test with Benjamini-Hochberg correction (\*\*\* < 0.001, \*\* <= 0.01, \* <= 0.05).
 
 
 
@@ -299,6 +304,11 @@ specific pathways turn on/off following infection effecting metabolites and have
 **Supplementary Figure 6 | **
 
 
+**Supplementary Table 1 | **
+**Supplementary Table 2 | **
+**Supplementary Table 3 | **
+**Supplementary Table 4 | **
+**Supplementary Table 5 | **
 
 
 ### References
