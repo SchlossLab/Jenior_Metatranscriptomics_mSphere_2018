@@ -1,12 +1,4 @@
----
-title: "*Clostridium difficile* infection differentially alters the structure and metabolic activity of distinct murine cecal microbiomes"
-csl: isme.csl
-output:
- word_document:
-  keep_md: true
-  reference_docx: manuscript_format.docx
-bibliography: references.bib
----
+# *Clostridium difficile* infection differentially alters the structure and metabolic activity of distinct murine cecal microbiomes
 
 **Authors:** Matthew L. Jenior, Jhansi L. Leslie, and Patrick D. Schloss^\*^
 
