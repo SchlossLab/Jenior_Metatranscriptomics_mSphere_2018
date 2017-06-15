@@ -15,14 +15,24 @@ bibliography: references.bib
 
 
 
+
+
 ###Introduction
 
-*Clostridium difficile* is a 
-
+Infection by the nosocomial bacterial pathogen *Clostridium difficile* has increased in prevalence over the previous decade to become the most common health-care associated infection. 
 
 What c. difficile is and its associated infection are
 
+
+Clinically, *C. difficile* susceptibility has been associated with several distinct classes of antibiotic [], all of which have been shown to have extremely divergent impacts on the gut microbiota in mouse models []. 0
+
+Several classes of antibiotics haver also been associated with changes in the gut metabolome...
+
+
+
 Associations with multiple antibiotics in the clinic
+
+
 
 different clinical outcomes
 
@@ -219,19 +229,25 @@ Correspondence to [Patrick D. Schloss](pdschloss@umich.edu)
 **Supplementary Figure 2 | Relative concentrations of bile acids in each antibiotic pretreatment group** 
 Significant differences were determined by Wilcoxon rank-sum test with Benjamini-Hochberg correction.
 
-**Supplementary Figure 3 | Global effect of infection on the cecal metabolome**
+**Supplementary Figure 3 | Effect of infection on the cecal metabolome across pretreatment groups**
 
-**Supplementary Figure 4 | Heatmap comparing Resistant and Susceptible mice for all metabolites** shown is the median of each group
+**Supplementary Figure 4 | Heatmap comparing Resistant and Susceptible mice for all measured metabolites** shown is the median of each group
 
 **Supplementary Figure 5 | Heatmap comparing antibiotic pretreated groups** shown is the median of each group
 
 **Supplementary Figure 6 | Gene-level expression for each community compared to the level expressed in resistant mice for each gene**
 
 
-**Supplementary Table 1 | Antibiotic pretreatment regimes**
+
+
+**Supplementary Table 1 | Antibiotic pretreatment regimes** 
+
 **Supplementary Table 2 | High-throughput sequencing read counts and metagenomic assembly efficiency**
+
 **Supplementary Table 3 | Normalized cDNA abundances for each antibiotic pretreated group**
+
 **Supplementary Table 4 | Median scaled intensity for each metabolite for all antibiotic pretreatment groups**
+
 **Supplementary Table 5 | Results from Random Forest feature selection for metabolomic results**
 
 
