@@ -41,6 +41,7 @@ metadata$mouse <- NULL
 metadata$gender <- NULL
 
 # Metabolomes
+metabolome$BIOCHEMICAL <- gsub('_', ' ', metabolome$BIOCHEMICAL)
 rownames(metabolome) <- metabolome$BIOCHEMICAL
 metabolome$BIOCHEMICAL <- NULL
 metabolome$PUBCHEM <- NULL
@@ -208,7 +209,7 @@ legend('bottomright', legend=c('Streptomycin', 'Cefoperazone', 'Clindamycin'), b
 
 par(mar=c(0.2, 2, 0.2, 2.5), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
 for(i in c(1:(ncol(strep_abx_metabolome)))){
-  xmax <- ceiling(max(c(max(strep_abx_metabolome[,i]), max(cef_abx_metabolome[,i]))))
+  xmax <- ceiling(max(c(max(strep_abx_metabolome[,i]), max(cef_abx_metabolome[,i]), max(clinda_abx_metabolome[,i]))))
   while(xmax %% 5 != 0 ){xmax <- xmax + 1}
   plot(0, type='n', xlab='', ylab='', xaxt='n', yaxt='n', xlim=c(0,xmax), ylim=c(0.3,2.25))
   stripchart(at=1.65, jitter(strep_abx_metabolome[,i], amount=1e-5),

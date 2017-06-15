@@ -213,7 +213,7 @@ metabolite_stripchart(plot_e, inf_cef_metabolome, mock_cef_metabolome, cef_pvalu
                       0, 'Infected', 'Mock', 'Cefoperazone-pretreated', cef_col, 'e', 'mediumorchid4', 'chartreuse2')
 # Clinda Infected - Fig. 4d
 metabolite_stripchart(plot_f, inf_clinda_metabolome, mock_clinda_metabolome, clinda_pvalues, clinda_rf$MDA, 
-                      33.33, 'Infected', 'Mock', 'Clindamycin-pretreated', clinda_col, 'f', 'mediumorchid4', 'chartreuse2')
+                      44.44, 'Infected', 'Mock', 'Clindamycin-pretreated', clinda_col, 'f', 'mediumorchid4', 'chartreuse2')
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
