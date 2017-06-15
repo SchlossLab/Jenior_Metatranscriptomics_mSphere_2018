@@ -107,18 +107,19 @@ These data revealed distinct changes in expression for underrepresented genera f
 After observing separate bacterial taxa differentially expressing transcrtipt based on antibiotic pretreatment and infection status, we then hypothesized that the changes we saw at the metabolomic level were due to the activity of specific bacterial taxa that were differentially effected by *C. difficile* over others. To examine this we correlated the expression of specific metabolic pathways in select bacterial tax with the changes in relative concentration of metabolites associated with those pathways in each of the pretreatment groups tested.
 
 
+We did this by focising on communities with largest change in both metatranscriptome and metabolome
+strep and cef
 
-
-
-
-
-
+concoct
+since annotation is less reliable...
 
 
 
 ###Discussion
 
-Collectively, our results support the hypothesis that 
+Collectively, our results support the mouse cecal microbiome presents distinct challenges.the each perturn cecal micriome not only has alstered community structure, but distinct metabolomes. Additionally, the changes at the metabolomic level are most like the product of tchanges in activity to the microbiome in response to additional disruptions.,.
+- each community has different metabolic challenges
+changes are due to community and less to c. difficile 
 
 First, we identify distinct changes in bacterial community structure in response to antibiotic pretreatment as well as *C. difficile* colonization. 
 Results summary and implication
