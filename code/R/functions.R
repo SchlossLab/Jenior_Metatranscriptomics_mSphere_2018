@@ -19,9 +19,9 @@ set.seed(8619)
 strep_col <- '#D37A1F'
 cef_col <- '#3A9CBC'
 clinda_col <- '#A40019'
-noabx_col <- 'gray80'
+noabx_col <- 'gray30'
 gf_col <- 'forestgreen'
-
+heat_palette <- viridis(n=200)
 
 # Remove columns with low variance
 rm_lowVar <- function(data_table) {
@@ -78,6 +78,16 @@ clean_merge <- function(data_1, data_2){
   
   return(clean_merged)
 }
+
+
+# Calculates distance of a point from x=y in 2-d space
+dist_xy <- function(x) {
+  v1 <- c(20,20) - x
+  v2 <- c(0,0) - c(20,20)
+  m <- cbind(v1, v2)
+  distance <- abs(det(m)) / sqrt(sum(v1 * v1))
+  return(distance)
+} 
 
 
 # Plot logarithmic tick marks on axes

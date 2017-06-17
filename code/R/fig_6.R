@@ -92,6 +92,39 @@ cef_annotated <- cef_annotated[!row.names(cef_annotated) %in% row.names(cef_mock
 clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_630_outliers), ]
 clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_mock_outliers), ]
 
+# Calculate mean distance of outliers to x=y
+dists_630 <- c()
+for (i in 1:nrow(strep_630_outliers)){
+  dists_630[i] <- dist_xy(c(strep_630_outliers$strep_630_metaT_reads[i], strep_630_outliers$strep_mock_metaT_reads[i]))
+}
+dists_mock <- c()
+for (i in 1:nrow(strep_mock_outliers)){
+  dists_mock[i] <- dist_xy(c(strep_mock_outliers$strep_630_metaT_reads[i], strep_mock_outliers$strep_mock_metaT_reads[i]))
+}
+round(mean(c(dists_630, dists_mock)), 3)
+as.numeric(length(c(dists_630, dists_mock)))
+dists_630 <- c()
+for (i in 1:nrow(cef_630_outliers)){
+  dists_630[i] <- dist_xy(c(cef_630_outliers$cef_630_metaT_reads[i], cef_630_outliers$cef_mock_metaT_reads[i]))
+}
+dists_mock <- c()
+for (i in 1:nrow(cef_mock_outliers)){
+  dists_mock[i] <- dist_xy(c(cef_mock_outliers$cef_630_metaT_reads[i], cef_mock_outliers$cef_mock_metaT_reads[i]))
+}
+round(mean(c(dists_630, dists_mock)), 3)
+as.numeric(length(c(dists_630, dists_mock)))
+dists_630 <- c()
+for (i in 1:nrow(clinda_630_outliers)){
+  dists_630[i] <- dist_xy(c(clinda_630_outliers$clinda_630_metaT_reads[i], clinda_630_outliers$clinda_mock_metaT_reads[i]))
+}
+dists_mock <- c()
+for (i in 1:nrow(clinda_mock_outliers)){
+  dists_mock[i] <- dist_xy(c(clinda_mock_outliers$clinda_630_metaT_reads[i], clinda_mock_outliers$clinda_mock_metaT_reads[i]))
+}
+round(mean(c(dists_630, dists_mock)), 3)
+as.numeric(length(c(dists_630, dists_mock)))
+rm(dists_630, dists_mock)
+
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Break down outliers into taxonomic groups

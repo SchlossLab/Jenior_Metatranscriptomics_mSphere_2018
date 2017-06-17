@@ -95,7 +95,7 @@ text(-4.7, 4.88, 'a', cex=1.9, font=2)
 
 # Vegetative cells
 par(mar=c(3,4,1,4), mgp=c(2.5, 0.75, 0))
-stripchart(cfu_vegetative~treatment, data=wetlab, col='black', bg='firebrick2', xlim=c(0,22), ylim=c(0,9), pch=21,
+stripchart(cfu_vegetative~treatment, data=wetlab, col='black', bg='chocolate2', xlim=c(0,22), ylim=c(0,9), pch=21,
            vertical=TRUE, at=c(0.5, 6.5, 12.5, 18.5), xaxt='n', yaxt='n', ylab='CFU/g Cecal Content', cex.lab=1.2,
            cex=1.7, method='jitter', jitter=0.2)
 abline(h=2, lwd=1.5, col='gray30', lty=5) # LOD
@@ -118,7 +118,7 @@ x1=c(0.5, 6.5, 12.5, 18.5)+0.6, y1=c(
   as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 2]))), lwd=3)
 
 # Spores
-stripchart(cfu_spore~treatment, data=wetlab, col='black', bg='blue2', xlim=c(0,22), ylim=c(0,9), pch=21,
+stripchart(cfu_spore~treatment, data=wetlab, col='black', bg='chartreuse3', xlim=c(0,22), ylim=c(0,9), pch=21,
            vertical=TRUE, at=c(2, 8, 14, 20), xaxt='n', yaxt='n', ylab='', cex=1.7, method='jitter', jitter=0.2, add=TRUE)
 # Median lines
 segments(x0=c(2, 8, 14, 20)-0.6, y0=c(
@@ -134,7 +134,7 @@ segments(x0=c(2, 8, 14, 20)-0.6, y0=c(
 
 # Toxin
 par(new=TRUE, xpd=TRUE)
-stripchart(toxin_titer~treatment, data=wetlab, col='black', bg='green3', xlim=c(0,22), ylim=c(1.6,3.4), pch=23,
+stripchart(toxin_titer~treatment, data=wetlab, col='black', bg='deeppink3', xlim=c(0,22), ylim=c(1.6,3.4), pch=23,
            vertical=TRUE, at=c(3.5, 9.5, 15.5, 21.5), xaxt='n', yaxt='n', ylab='', cex=1.7, method='jitter', jitter=0.2)
 # Median lines
 segments(x0=c(3.5, 9.5, 15.5, 21.5)-0.6, y0=c(
@@ -152,9 +152,9 @@ axis(side=4, at=seq(1.6,3.4,0.2), las=1,
 mtext(expression(paste('Toxin Titer/g Cecal Content (',log[10],')')), side=4, line=3, cex=0.8)
 
 legend('topleft', legend=c('Vegetative cells (CFU)','Spores (CFU)'), ncol=1, bty='n',
-       pch=21, col='black', pt.bg=c('firebrick2','blue2'), pt.cex=1.9)
+       pch=21, col='black', pt.bg=c('chocolate2','chartreuse3'), pt.cex=1.9)
 legend('topright', legend='Toxin titer', bty='n',
-       pch=23, col='black', pt.bg='green3', pt.cex=1.9)
+       pch=23, col='black', pt.bg='deeppink3', pt.cex=1.9)
 box()
 
 # Add significance
