@@ -10,6 +10,7 @@ source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.
 # Define input files
 wetlab_file <- 'data/wetlab_assays.tsv'
 metadata_file <- 'data/metadata.tsv'
+cfu <- 'data/cfu_time.tsv'
 
 # Define output files
 plot_file <- 'results/figures/figure_1.pdf'
@@ -25,6 +26,7 @@ metadata$cage <- NULL
 metadata$mouse <- NULL
 metadata$gender <- NULL
 wetlab <- read.delim(wetlab_file, sep='\t', header=T, row.names=1)
+cfu <- read.delim(cfu, sep='\t', header=TRUE)
 rm(metadata_file, wetlab_file)
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
@@ -45,12 +47,30 @@ wetlab$cfu_vegetative[wetlab$cfu_vegetative <= 2.0] <- 1.7 # Undetectable points
 wetlab$cfu_spore[wetlab$cfu_spore <= 2.0] <- 1.7 # Undetectable points below LOD
 wetlab$toxin_titer[wetlab$toxin_titer <= 2.0] <- 1.94 # Undetectable points below LOD
 
+# Format CFU oveer time
+# Aggregate median by abx
+cfu[,2:ncol(cfu)] <- log10(cfu[,2:ncol(cfu)] + 1)
+cfu_median <- aggregate(cfu[,2:ncol(cfu)], by=list(cfu$abx), FUN=quantile, probs=0.5)
+rownames(cfu_median) <- cfu_median$Group.1
+cfu_median$Group.1 <- NULL
+cfu_median <- as.data.frame(t(cfu_median))
+cfu_q25 <- aggregate(cfu[,2:ncol(cfu)], by=list(cfu$abx), FUN=quantile, probs=0.25)
+rownames(cfu_q25) <- cfu_q25$Group.1
+cfu_q25$Group.1 <- NULL
+cfu_q25 <- as.data.frame(t(cfu_q25))
+cfu_q75 <- aggregate(cfu[,2:ncol(cfu)], by=list(cfu$abx), FUN=quantile, probs=0.75)
+rownames(cfu_q75) <- cfu_q75$Group.1
+cfu_q75$Group.1 <- NULL
+cfu_q75 <- as.data.frame(t(cfu_q75))
+rm(cfu)
+
 #----------------------------------------------------------------------------------------------------------------------#
 
 # Set up multi-panel figure
-pdf(file=plot_file, width=10, height=3)
-layout(matrix(c(1,2,2),
-              nrow=1, ncol=3, byrow = TRUE))
+pdf(file=plot_file, width=8, height=7)
+layout(matrix(c(1,2,
+                3,3),
+              nrow=2, ncol=2, byrow = TRUE))
 minor_ticks <- c(0.18,0.34,0.48,0.6,0.7,0.78,0.84,0.9,0.94,0.98)
 short_ticks <- c(log10(strep_size/1000)-0.33,log10(strep_size/1000)-0.2,log10(strep_size/1000)-0.1,log10(strep_size/1000)-0.05)
 
@@ -87,7 +107,27 @@ text(x=-2.5, y=c(-1,-1.4), c('Streptomycin (5.0 mg/ml)','Cefoperazone (0.5 mg/ml
 text(x=2.3, y=-1, 'Clindamycin (10 mg/kg)', cex=1.2, col=clinda_col)
 
 # Plot label
-text(-4.7, 4.88, 'a', cex=1.9, font=2)
+text(-4.7, 4.88, 'a', cex=1.5, font=2)
+
+#-------------------------------------------------------------------#
+
+# CFU over time
+par(mar=c(4,4,1,1), las=1, mgp=c(2.5, 0.75, 0))
+plot(0, type='n', xlab='Days Post-Infection', ylab='Total CFU/g Cecal Content', xaxt='n', yaxt='n', xlim=c(0,11), ylim=c(0,10))
+lines(cfu_median$streptomycin, lwd=2.5, col=strep_col, type='b', pch=19) 
+segments(x0=c(1:11), y0=cfu_q25$streptomycin, x1=c(1:11), y1=cfu_q75$streptomycin, col=strep_col, lwd=2.5)
+lines(cfu_median$cefoperazone, lwd=2.5, col=cef_col, type='b', pch=19) 
+segments(x0=c(1:11), y0=cfu_q25$cefoperazone, x1=c(1:11), y1=cfu_q75$cefoperazone, col=cef_col, lwd=2.5)
+lines(cfu_median$clindamycin, lwd=2.5, col=clinda_col, type='b', pch=19) 
+segments(x0=c(1:11), y0=cfu_q25$clindamycin, x1=c(1:11), y1=cfu_q75$clindamycin, col=clinda_col, lwd=2.5)
+lines(cfu_median$none, lwd=2.5, col=noabx_col, type='b', pch=19) 
+segments(x0=c(1:11), y0=cfu_q25$none, x1=c(1:11), y1=cfu_q75$none, col=noabx_col, lwd=2.5)
+abline(h=2, lwd=2, lty=2)
+axis(side=1, at=c(0:11), labels=c(-1:10))
+axis(side=2, at=seq(0,10,1), labels=c(0, parse(text=paste(rep(10,10), '^', seq(1,10,1), sep=''))), las=1)
+legend(x=6.5, y=8, legend=c('Streptomycin (5 mg/ml)', 'Cefoperazone (0.5 mg/ml)', 'Clindamycin (10 mg/kg)', 'No Antibiotics'),
+       pch=16, col=c(strep_col, cef_col, clinda_col, noabx_col), cex=0.7, pt.cex=1.2)
+mtext('b', side=2, line=2, las=2, adj=2.3, padj=-9, cex=1.2, font=2)
 
 #-------------------------------------------------------------------#
 
@@ -133,7 +173,7 @@ segments(x0=c(2, 8, 14, 20)-0.6, y0=c(
     as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 3]))), lwd=3)
 
 # Toxin
-par(new=TRUE, xpd=TRUE)
+par(new=TRUE, xpd=TRUE, las=0)
 stripchart(toxin_titer~treatment, data=wetlab, col='black', bg='deeppink3', xlim=c(0,22), ylim=c(1.6,3.4), pch=23,
            vertical=TRUE, at=c(3.5, 9.5, 15.5, 21.5), xaxt='n', yaxt='n', ylab='', cex=1.7, method='jitter', jitter=0.2)
 # Median lines
@@ -149,8 +189,7 @@ segments(x0=c(3.5, 9.5, 15.5, 21.5)-0.6, y0=c(
     as.numeric(median(wetlab[wetlab$treatment == 'clindamycin', 4]))), lwd=3)
 axis(side=4, at=seq(1.6,3.4,0.2), las=1,
      labels=c('1.6','1.8','2.0','2.2','2.4','2.6','2.8','3.0','3.2','3.4'))
-mtext(expression(paste('Toxin Titer/g Cecal Content (',log[10],')')), side=4, line=3, cex=0.8)
-
+mtext(expression(paste('Toxin Titer/g Cecal Content (',log[10],')')), side=4, line=3, padj=-0.5, cex=0.9)
 legend('topleft', legend=c('Vegetative cells (CFU)','Spores (CFU)'), ncol=1, bty='n',
        pch=21, col='black', pt.bg=c('chocolate2','chartreuse3'), pt.cex=1.9)
 legend('topright', legend='Toxin titer', bty='n',
@@ -160,7 +199,7 @@ box()
 # Add significance
 text(x=c(6.5,12.5,18.5,8,14,20,15.5,21.5), y=c(3.4,3.4,3.4,3,3,3,3.2,2.5), labels=rep('*',8), col=noabx_col, font=2, cex=2.2)
 
-mtext('b', side=2, line=2, las=2, adj=2.5, padj=-8, cex=1.2, font=2)
+mtext('c', side=2, line=2, las=2, adj=2.3, padj=-9.5, cex=1.2, font=2)
 
 dev.off()
 
