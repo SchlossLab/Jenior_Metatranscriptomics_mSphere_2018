@@ -281,7 +281,7 @@ axis(side=1, at=minor_ticks+0.42, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.42, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.42, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('B', side=2, line=2, las=2, adj=10, padj=-9, cex=1.3)
+mtext('B', side=2, line=2, las=2, adj=9, padj=-9, cex=1.3)
 
 #-----------------#
 
@@ -318,7 +318,7 @@ axis(side=1, at=minor_ticks+0.74, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.74, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.74, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('C', side=2, line=2, las=2, adj=11, padj=-9, cex=1.3)
+mtext('C', side=2, line=2, las=2, adj=9, padj=-9, cex=1.3)
 
 #-----------------#
 
@@ -354,7 +354,7 @@ axis(side=1, at=minor_ticks+0.4, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.4, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.4, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('D', side=2, line=2, las=2, adj=10, padj=-9, cex=1.3)
+mtext('D', side=2, line=2, las=2, adj=9, padj=-9, cex=1.3)
 
 dev.off()
 
