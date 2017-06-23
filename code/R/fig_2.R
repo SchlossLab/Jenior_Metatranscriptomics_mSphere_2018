@@ -226,7 +226,7 @@ mtext(rep('CDI',3), side=1, at=c(13.5,32,50.5), adj=0.5, padj=1, cex=0.7)
 mtext(rep('Mock',4), side=1, at=c(4,22.5,40.5,59.5), adj=0.5, padj=1, cex=0.7)
 mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
       side=1, at=c(4,18,36,55), adj=0.5, padj=2.5, cex=0.85, col=c('black',strep_col, cef_col, clinda_col))
-mtext('a', side=2, line=2, las=2, adj=2.5, padj=-8, cex=1.3, font=2)
+mtext('A', side=2, line=2, las=2, adj=2.5, padj=-8, cex=1.3)
 
 # Create a figure legend in empty plot
 par(mar=c(4,0,0.3,3))
@@ -264,9 +264,9 @@ for(i in c(1:ncol(strep_mock_otu))){
   }
   segments(median(strep_mock_otu[,i]), index-0.6, median(strep_mock_otu[,i]), index, lwd=2) #adds line for median
   segments(median(strep_infected_otu[,i]), index+0.6, median(strep_infected_otu[,i]), index, lwd=2)
-  if (wilcox.test(strep_mock_otu[,i], strep_infected_otu[,i], exact=FALSE)$p.value <= 0.05){
-    text(x=log10(strep_size)+0.25, y=index, labels='*', font=2, cex=1.8, xpd=TRUE)
-  }
+  #if (wilcox.test(strep_mock_otu[,i], strep_infected_otu[,i], exact=FALSE)$p.value <= 0.05){
+  #  text(x=log10(strep_size)+0.25, y=index, labels='*', font=2, cex=1.8, xpd=TRUE)
+  #}
   index <- index + 2
 }
 axis(1, at=c(0,(log10(strep_size/1000)),(log10(strep_size/100)),(log10(strep_size/10)),log10(strep_size)), labels=c('0','0.1','1','10','100')) 
@@ -281,7 +281,7 @@ axis(side=1, at=minor_ticks+0.42, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.42, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.42, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('b', side=2, line=2, las=2, adj=10, padj=-9, cex=1.3, font=2)
+mtext('B', side=2, line=2, las=2, adj=10, padj=-9, cex=1.3)
 
 #-----------------#
 
@@ -300,9 +300,9 @@ for(i in c(1:ncol(cef_mock_otu))){
   }
   segments(median(cef_mock_otu[,i]), index-0.6, median(cef_mock_otu[,i]), index, lwd=2) #adds line for median
   segments(median(cef_infected_otu[,i]), index+0.6, median(cef_infected_otu[,i]), index, lwd=2)
-  if (wilcox.test(cef_mock_otu[,i], cef_infected_otu[,i], exact=FALSE)$p.value <= 0.05){
-    text(x=log10(cef_size)+0.25, y=index, labels='*', font=2, cex=1.8, xpd=TRUE)
-  }
+  #if (wilcox.test(cef_mock_otu[,i], cef_infected_otu[,i], exact=FALSE)$p.value <= 0.05){
+  #  text(x=log10(cef_size)+0.25, y=index, labels='*', font=2, cex=1.8, xpd=TRUE)
+  #}
   index <- index + 2
 }
 axis(1, at=c(0,(log10(cef_size/1000)),(log10(cef_size/100)),(log10(cef_size/10)),log10(cef_size)), labels=c('0','0.1','1','10','100')) 
@@ -318,7 +318,7 @@ axis(side=1, at=minor_ticks+0.74, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.74, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.74, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('c', side=2, line=2, las=2, adj=11, padj=-9, cex=1.3, font=2)
+mtext('C', side=2, line=2, las=2, adj=11, padj=-9, cex=1.3)
 
 #-----------------#
 
@@ -337,9 +337,9 @@ for(i in c(1:ncol(clinda_mock_otu))){
   }
   segments(median(clinda_mock_otu[,i]), index-0.6, median(clinda_mock_otu[,i]), index, lwd=2) #adds line for median
   segments(median(clinda_infected_otu[,i]), index+0.6, median(clinda_infected_otu[,i]), index, lwd=2)
-  if (wilcox.test(clinda_mock_otu[,i], clinda_infected_otu[,i], exact=FALSE)$p.value <= 0.05){
-    text(x=log10(clinda_size)+0.25, y=index, labels='*', font=2, cex=1.8, xpd=TRUE)
-  }
+  #if (wilcox.test(clinda_mock_otu[,i], clinda_infected_otu[,i], exact=FALSE)$p.value <= 0.05){
+  #  text(x=log10(clinda_size)+0.25, y=index, labels='*', font=2, cex=1.8, xpd=TRUE)
+  #}
   index <- index + 2
 }
 axis(1, at=c(0,(log10(clinda_size/1000)),(log10(clinda_size/100)),(log10(clinda_size/10)),log10(clinda_size)), labels=c('0','0.1','1','10','100')) 
@@ -354,7 +354,7 @@ axis(side=1, at=minor_ticks+0.4, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.4, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.4, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('d', side=2, line=2, las=2, adj=10, padj=-9, cex=1.3, font=2)
+mtext('D', side=2, line=2, las=2, adj=10, padj=-9, cex=1.3)
 
 dev.off()
 
