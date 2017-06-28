@@ -234,7 +234,7 @@ metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
   
   par(mar=c(0.2, 0, 0, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE)
   plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
-  text(x=-10.2, y=-3, labels=fig_label, cex=2.4, font=2, xpd=TRUE)
+  text(x=-10.2, y=-3, labels=fig_label, cex=2.4, xpd=TRUE)
   legend('bottomright', legend=c(group1, group2), bty='n',
          pt.bg=c(col1, col2), pch=21, cex=1.2, pt.cex=2, ncol=2)
   text(x=-4.5, y=-4.5, labels=fig_title, cex=1.2, font=2, col=title_col)
