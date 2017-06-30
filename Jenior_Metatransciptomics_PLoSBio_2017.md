@@ -1,12 +1,4 @@
----
-title: "*Clostridium difficile* infection differentially alters the structure and metabolic activity of distinct intestinal microbiomes to promote sustained colonization"
-csl: plos.csl
-output:
- word_document:
-  keep_md: true
-  reference_docx: manuscript_format.docx
-bibliography: references.bib
----
+# *Clostridium difficile* infection differentially alters the structure and metabolic activity of distinct intestinal microbiomes to promote sustained colonization
 
 **Authors:** Matthew L. Jenior, Jhansi L. Leslie, Vincent B. Young, and Patrick D. Schloss^\*^
 
