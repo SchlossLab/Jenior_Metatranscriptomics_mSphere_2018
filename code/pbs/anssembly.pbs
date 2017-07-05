@@ -1,0 +1,28 @@
+#!/bin/sh
+#PBS -N assembly
+#PBS -q fluxod
+#PBS -l qos=flux
+#PBS -l nodes=1:ppn=4,mem=32GB
+#PBS -l walltime=300:00:00
+#PBS -j oe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -A pschloss_fluxod
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+cd $PBS_O_WORKDIR
+
+
+# Assemble paired reads 
+python /nfs/turbo/schloss-lab/bin/megahit/megahit -t 16 -m 45000000000 -l 251 -1 ${metagenome}.read1.pool.cut.trim.mus_filtered.fasta -2 ${metagenome}.read2.pool.cut.trim.mus_filtered.fasta --k-min 87 --k-max 127 --k-step 10 -o ${metagenome}.megahit
+cd ${metagenome}.megahit/
+rm -r intermediate_contigs
+python /nfs/turbo/schloss-lab/bin/seq_stats.py ${metagenome}.final.contigs.fa > ${metagenome}.assembly.summary
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit
+

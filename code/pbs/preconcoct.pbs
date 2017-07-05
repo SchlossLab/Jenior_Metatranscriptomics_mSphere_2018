@@ -1,0 +1,49 @@
+#!/bin/sh
+#PBS -N preCONCOCT
+#PBS -q fluxod
+#PBS -l qos=flux
+#PBS -l nodes=1:ppn=4,mem=32GB
+#PBS -l walltime=300:00:00
+#PBS -j oe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -A pschloss_fluxod
+
+
+# Format contigs for optimal mapping as CONCOCT input
+python /nfs/turbo/schloss-lab/mljenior/home/scripts/removeShortSeqs.py ${metagenome}.final.contigs.fa 1000 > ${metagenome}.final.contigs.1k.fa
+python /share/apps/rhel6/concoct/0.4.0/scripts/cut_up_fasta.py -c 10000 -o 0 -m ${metagenome}.final.contigs.1k.fa > ${metagenome}.final.contigs.1k.10k.fa
+rm ${metagenome}.final.contigs.fa ${metagenome}.final.contigs.1k.fa
+
+# Create a bowite database
+/nfs/turbo/schloss-lab/bin/bowtie2-build -f ${metagenome}.final.contigs.1k.10k.fa ${metagenome}.contig_db
+
+
+# Align paired-end reads to contigs
+/home/mljenior/bin/bowtie2/bowtie2 -f --fr -x ${metagenome}.contig_db -1 ${metagenome}.read1.pool.cut.trim.fasta -2 ${metagenome}.read2.pool.cut.trim.fasta -S ${metagenome}.reads2contigs.concoct.sam
+samtools faidx ${metagenome}.final.contigs.1k.10k.fa
+samtools view -bt ${metagenome}.final.contigs.1k.10k.fa.fai ${metagenome}.reads2contigs.concoct.sam > ${metagenome}.reads2contigs.concoct.bam
+rm ${metagenome}.reads2contigs.concoct.sam
+samtools sort ${metagenome}.reads2contigs.concoct.bam ${metagenome}.reads2contigs.concoct.sort1
+samtools index ${metagenome}.reads2contigs.concoct.sort.bam
+
+
+
+# Get coverage using BEDtools
+/mnt/EXT/Schloss-data/matt/bin/bedtools2/bin/genomeCoverageBed -ibam ${metagenome}.reads2contigs.concoct.sort.rmdup.sort.bam -g ${metagenome}.final.contigs.1k.10k.fa > ${metagenome}.final.contigs.coverage.txt
+
+# Create coverage table
+python /share/apps/rhel6/concoct/0.4.0/scripts/gen_input_table.py --isbedfiles ${metagenome}.final.contigs.1k.10k.fa  ${metagenome}.final.contigs.coverage.txt > ${metagenome}.coveragetable.tsv
+
+# Create linkage table
+python /share/apps/rhel6/concoct/0.4.0/scripts/bam_to_linkage.py -m 8 --regionlength 500 --fullsearch ${metagenome}.final.contigs.1k.10k.fa ${metagenome}.reads2contigs.concoct.sort.rmdup.sort.bam > ${metagenome}.linkagetable.tsv
+
+
+
+
+
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit

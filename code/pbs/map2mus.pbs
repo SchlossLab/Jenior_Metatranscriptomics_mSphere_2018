@@ -1,0 +1,34 @@
+#!/bin/sh
+#PBS -N map_to_mus
+#PBS -q fluxod
+#PBS -l qos=flux
+#PBS -l nodes=1:ppn=4,mem=32GB
+#PBS -l walltime=300:00:00
+#PBS -j oe
+#PBS -V
+#PBS -M mljenior@umich.edu
+#PBS -A pschloss_fluxod
+
+echo "ncpus-2.pbs"
+cat $PBS_NODEFILE
+qstat -f $PBS_JOBID
+cd $PBS_O_WORKDIR
+
+
+# Map paired reads to corresponding metagenome
+/nfs/turbo/schloss-lab/bin/bowtie2 -f --fr -p 8 -x /nfs/turbo/schloss-lab/mljenior/musmusculus_genome/mus_musculus.genome \ 
+	-1 ${metagenome}.read1.pool.cut.trim.fasta \ 
+	-2 ${metagenome}.read2.pool.cut.trim.fasta \ 
+	--un-conc ${metagenome}.filter.read.fasta
+mv ${metagenome}.filter.read.1.fasta ${transcriptome}.read1.pool.cut.trim.mus_filtered.fasta
+mv ${metagenome}.filter.read.2.fasta ${transcriptome}.read2.pool.cut.trim.mus_filtered.fasta
+
+# Map orphan reads to corresponding metagenome
+/nfs/turbo/schloss-lab/bin/bowtie2 -f -p 8 -x /nfs/turbo/schloss-lab/mljenior/musmusculus_genome/mus_musculus.genome \ 
+	-U ${metagenome}.orphan.pool.cut.trim.fasta \ 
+	--un ${metagenome}.orphan.pool.cut.trim.mus_filtered.fasta
+
+
+echo "qsub working directory absolute is"
+echo $PBS_O_WORKDIR
+exit
