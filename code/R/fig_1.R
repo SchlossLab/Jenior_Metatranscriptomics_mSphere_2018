@@ -19,7 +19,6 @@ plot_file <- 'results/figures/figure_1.pdf'
 
 # Load in data
 metadata <- read.delim(metadata_file, sep='\t', header=T, row.names=1)
-metadata <- metadata[!rownames(metadata) %in% c('CefC5M2'), ] # Remove contaminated sample
 metadata <- subset(metadata, type == 'conventional') # remove germfree
 metadata$type <- NULL
 metadata$cage <- NULL
@@ -125,7 +124,7 @@ segments(x0=c(1:11), y0=cfu_q25$none, x1=c(1:11), y1=cfu_q75$none, col=noabx_col
 abline(h=2, lwd=2, lty=2)
 axis(side=1, at=c(0:11), labels=c(-1:10))
 axis(side=2, at=seq(0,10,1), labels=c(0, parse(text=paste(rep(10,10), '^', seq(1,10,1), sep=''))), las=1)
-legend(x=6.5, y=8, legend=c('Streptomycin (5 mg/ml)', 'Cefoperazone (0.5 mg/ml)', 'Clindamycin (10 mg/kg)', 'No Antibiotics'),
+legend(x=1.7, y=4.6, legend=c('Streptomycin (5 mg/ml)', 'Cefoperazone (0.5 mg/ml)', 'Clindamycin (10 mg/kg)', 'No Antibiotics'),
        pch=16, col=c(strep_col, cef_col, clinda_col, noabx_col), cex=0.7, pt.cex=1.2)
 mtext('B', side=2, line=2, las=2, adj=2.3, padj=-9, cex=1.2)
 

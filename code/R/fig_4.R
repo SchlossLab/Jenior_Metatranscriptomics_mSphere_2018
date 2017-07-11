@@ -40,13 +40,12 @@ metadata$gender <- NULL
 # Metabolomes
 rownames(metabolome) <- metabolome$BIOCHEMICAL
 metabolome$BIOCHEMICAL <- NULL
+metabolome_metadata <- metabolome[,c(1:4)]
 metabolome$PUBCHEM <- NULL
 metabolome$KEGG <- NULL
 metabolome$SUB_PATHWAY <- NULL
 metabolome$SUPER_PATHWAY <- NULL
 metabolome <- as.data.frame(t(metabolome))
-colnames(metabolome) <- gsub('_', ' ', colnames(metabolome))
-substr(colnames(metabolome), 1, 1) <- toupper(substr(colnames(metabolome), 1, 1))
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -154,6 +153,21 @@ pvalues <- p.adjust(clinda_pvalues, method='BH')
 strep_pvalues <- c()
 for (i in 1:ncol(inf_strep_metabolome)){strep_pvalues[i] <- wilcox.test(inf_strep_metabolome[,i], mock_strep_metabolome[,i], exact=FALSE)$p.value}
 strep_pvalues <- p.adjust(strep_pvalues, method='BH')
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+
+cef_metadata <- subset(metabolome_metadata, rownames(metabolome_metadata) %in% cef_rf$feature)
+strep_metadata <- subset(metabolome_metadata, rownames(metabolome_metadata) %in% strep_rf$feature)
+clinda_metadata <- subset(metabolome_metadata, rownames(metabolome_metadata) %in% clinda_rf$feature)
+
+
+
+
+
+colnames(metabolome) <- gsub('_', ' ', colnames(metabolome))
+substr(colnames(metabolome), 1, 1) <- toupper(substr(colnames(metabolome), 1, 1))
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
