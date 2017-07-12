@@ -19,7 +19,10 @@ plot_file <- 'results/figures/figure_1.pdf'
 
 # Load in data
 metadata <- read.delim(metadata_file, sep='\t', header=T, row.names=1)
+<<<<<<< Updated upstream
 metadata <- subset(metadata, type == 'conventional') # remove germfree
+=======
+>>>>>>> Stashed changes
 metadata$type <- NULL
 metadata$cage <- NULL
 metadata$mouse <- NULL
