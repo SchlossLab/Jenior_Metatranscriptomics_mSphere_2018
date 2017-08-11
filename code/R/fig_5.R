@@ -349,7 +349,7 @@ axis(side=2, at=seq(-16,16,4), labels=c(16,12,8,4,0,4,8,12,16))
 text(x=c(2.2,1.9), y=c(15.7,-15.7), cex=0.7, labels=c('Infection-associated', 'Mock-associated'))
 legend('top', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
        pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.5, col='black', bty='n')
-mtext('A', side=2, line=2, las=2, adj=1.7, padj=-5.5)
+mtext('A', side=2, line=2, las=2, adj=1.7, padj=-5.5, font=2)
 
 # Add groups
 barplot(strep_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=strep_col, yaxt='n', add=TRUE, xpd=F) # Streptomycin
@@ -376,7 +376,7 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Streptomycin-pretreated', line=0.5, cex.main=1.2, col.main=strep_col, font.main=2)
-mtext('B', side=2, padj=-10, adj=17)
+mtext('B', side=2, padj=-10, adj=17, font=2)
 text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
@@ -392,7 +392,7 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Cefoperazone-pretreated', line=0.5, cex.main=1.2, col.main=cef_col, font.main=2)
-mtext('C', side=2, padj=-9, adj=16)
+mtext('C', side=2, padj=-9, adj=16, font=2)
 text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
@@ -408,7 +408,7 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Clindamycin-pretreated', line=0.5, cex.main=1.2, col.main=clinda_col, font.main=2)
-mtext('D', side=2, padj=-9, adj=16)
+mtext('D', side=2, padj=-9, adj=16, font=2)
 text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)

@@ -226,7 +226,7 @@ mtext(rep('CDI',3), side=1, at=c(13.5,32,50.5), adj=0.5, padj=1, cex=0.7)
 mtext(rep('Mock',4), side=1, at=c(4,22.5,40.5,59.5), adj=0.5, padj=1, cex=0.7)
 mtext(c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
       side=1, at=c(4,18,36,55), adj=0.5, padj=2.5, cex=0.85, col=c('black',strep_col, cef_col, clinda_col))
-mtext('A', side=2, line=2, las=2, adj=2.5, padj=-8, cex=1.3)
+mtext('A', side=2, line=2, las=2, adj=2.5, padj=-8, cex=1.3, font=2)
 
 # Create a figure legend in empty plot
 par(mar=c(4,0,0.3,3))
@@ -281,7 +281,7 @@ axis(side=1, at=minor_ticks+0.42, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.42, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.42, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('B', side=2, line=2, las=2, adj=9, padj=-9, cex=1.3)
+mtext('B', side=2, line=2, las=2, adj=9, padj=-9, cex=1.3, font=2)
 
 #-----------------#
 
@@ -318,7 +318,7 @@ axis(side=1, at=minor_ticks+0.74, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.74, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.74, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('C', side=2, line=2, las=2, adj=9, padj=-9, cex=1.3)
+mtext('C', side=2, line=2, las=2, adj=9, padj=-9, cex=1.3, font=2)
 
 #-----------------#
 
@@ -354,7 +354,7 @@ axis(side=1, at=minor_ticks+0.4, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+1.4, label=rep('',length(minor_ticks)), tck=-0.01)
 axis(side=1, at=minor_ticks+2.4, label=rep('',length(minor_ticks)), tck=-0.01)
 
-mtext('D', side=2, line=2, las=2, adj=9, padj=-9, cex=1.3)
+mtext('D', side=2, line=2, las=2, adj=9, padj=-9, cex=1.3, font=2)
 
 dev.off()
 

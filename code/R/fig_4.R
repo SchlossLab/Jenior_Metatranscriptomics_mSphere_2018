@@ -180,7 +180,7 @@ par(mar=c(4,4,1,1), las=1, mgp=c(2.8,0.75,0))
 #Streptomycin - Fig. 4a
 plot(x=strep_metabolome_nmds$MDS1, y=strep_metabolome_nmds$MDS2, xlim=c(-0.25,0.25), ylim=c(-0.15,0.15),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
-mtext('a', side=2, line=2, las=2, adj=1.8, padj=-8.5, cex=1.6, font=2)
+mtext('A', side=2, line=2, las=2, adj=1.8, padj=-8.5, cex=1.6, font=2)
 legend('topleft', legend='Streptomycin-pretreated', pch=1, cex=1.5, pt.cex=0, bty='n')
 segments(x0=strep_metabolome_nmds_630$MDS1, y0=strep_metabolome_nmds_630$MDS2, x1=strep_metabolome_centoids[1,2], y1=strep_metabolome_centoids[1,3], col='gray30')
 segments(x0=strep_metabolome_nmds_mock$MDS1, y0=strep_metabolome_nmds_mock$MDS2, x1=strep_metabolome_centoids[2,2], y1=strep_metabolome_centoids[2,3], col='gray30')
@@ -193,7 +193,7 @@ legend('bottomright', legend=c(as.expression(bquote(paste(italic('C. difficile')
 # Cefoperazone - Fig. 4b
 plot(x=cef_metabolome_nmds$MDS1, y=cef_metabolome_nmds$MDS2, xlim=c(-0.15,0.15), ylim=c(-0.15,0.15),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
-mtext('b', side=2, line=2, las=2, adj=1.8, padj=-8.5, cex=1.6, font=2)
+mtext('B', side=2, line=2, las=2, adj=1.8, padj=-8.5, cex=1.6, font=2)
 legend('topleft', legend='Cefoperazone-pretreated', pch=1, cex=1.5, pt.cex=0, bty='n')
 segments(x0=cef_metabolome_nmds_630$MDS1, y0=cef_metabolome_nmds_630$MDS2, x1=cef_metabolome_centoids[1,2], y1=cef_metabolome_centoids[1,3], col='gray30')
 segments(x0=cef_metabolome_nmds_mock$MDS1, y0=cef_metabolome_nmds_mock$MDS2, x1=cef_metabolome_centoids[2,2], y1=cef_metabolome_centoids[2,3], col='gray30')
@@ -206,7 +206,7 @@ legend('bottomright', legend=c(as.expression(bquote(paste(italic('C. difficile')
 # Clindamycin - Fig. 4c
 plot(x=clinda_metabolome_nmds$MDS1-0.075, y=clinda_metabolome_nmds$MDS2, xlim=c(-0.15,0.15), ylim=c(-0.1,0.1),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
-mtext('c', side=2, line=2, las=2, adj=1.8, padj=-8.5, cex=1.6, font=2)
+mtext('C', side=2, line=2, las=2, adj=1.8, padj=-8.5, cex=1.6, font=2)
 legend('topleft', legend='Clindamycin-pretreated', pch=1, cex=1.5, pt.cex=0, bty='n')
 segments(x0=clinda_metabolome_nmds_630$MDS1-0.075, y0=clinda_metabolome_nmds_630$MDS2, x1=clinda_metabolome_centoids[1,2]-0.075, y1=clinda_metabolome_centoids[1,3], col='gray30')
 segments(x0=clinda_metabolome_nmds_mock$MDS1-0.0751, y0=clinda_metabolome_nmds_mock$MDS2, x1=clinda_metabolome_centoids[2,2]-0.075, y1=clinda_metabolome_centoids[2,3], col='gray30')
@@ -221,13 +221,13 @@ dev.off()
 # Feature Selection
 # Strep Infected - Fig. 4b
 metabolite_stripchart(plot_d, inf_strep_metabolome, mock_strep_metabolome, strep_pvalues, strep_rf$MDA, 
-                      0, 'Infected', 'Mock', 'Streptomycin-pretreated', strep_col, 'd', 'mediumorchid4', 'chartreuse2')
+                      0, 'Infected', 'Mock', 'Streptomycin-pretreated', strep_col, 'D', 'mediumorchid4', 'chartreuse2')
 # Cef Infected - Fig. 4c
 metabolite_stripchart(plot_e, inf_cef_metabolome, mock_cef_metabolome, cef_pvalues, cef_rf$MDA, 
-                      0, 'Infected', 'Mock', 'Cefoperazone-pretreated', cef_col, 'e', 'mediumorchid4', 'chartreuse2')
+                      0, 'Infected', 'Mock', 'Cefoperazone-pretreated', cef_col, 'E', 'mediumorchid4', 'chartreuse2')
 # Clinda Infected - Fig. 4d
 metabolite_stripchart(plot_f, inf_clinda_metabolome, mock_clinda_metabolome, clinda_pvalues, clinda_rf$MDA, 
-                      44.44, 'Infected', 'Mock', 'Clindamycin-pretreated', clinda_col, 'f', 'mediumorchid4', 'chartreuse2')
+                      44.44, 'Infected', 'Mock', 'Clindamycin-pretreated', clinda_col, 'F', 'mediumorchid4', 'chartreuse2')
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 

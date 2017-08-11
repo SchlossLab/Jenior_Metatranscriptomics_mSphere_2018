@@ -231,7 +231,7 @@ mtext('CDI:', side=1, at=-0.5, padj=1, cex=1.1)
 mtext(c('-','+','-','+','-','+','-'), side=1, 
       at=c(0.5, 2.5,3.5, 5.5,6.5, 8.5,9.5), padj=1, cex=1.3)
 abline(v=c(1.5,4.5,7.5), lty=5)
-mtext('a', side=2, line=2, las=2, adj=2, padj=-10, cex=1.4, font=2)
+mtext('A', side=2, line=2, las=2, adj=2, padj=-10, cex=1.4, font=2)
 text(x=c(0.5, 2.5,3.5, 5.5,6.5, 8.5,9.5), y=19.5, labels='*', col=noabx_col, cex=2.5, font=2) # Significant difference fromm untreated
 segments(x0=c(5.5,8.5), y0=5, x1=c(6.5,9.5), y1=5, lwd=2.5)
 text(x=c(6,9), y=6, labels='*', cex=2.5, font=2) # Significant difference within groups
@@ -244,7 +244,7 @@ plot(x=otu_nmds$MDS1, y=otu_nmds$MDS2, xlim=c(-1.5,2), ylim=c(-1.5,1.5),
      xlab='NMDS axis 1', ylab='NMDS axis 2', xaxt='n', yaxt='n', pch=19, cex=0.2)
 axis(side=1, at=seq(-1.5,2.0,0.5), labels=seq(-1.5,2.0,0.5))
 axis(side=2, at=seq(-2.0,1.5,0.5), labels=seq(-2.0,1.5,0.5))
-mtext('b', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
+mtext('B', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='All groups', pch=1, cex=1.4, pt.cex=0, bty='n')
 points(x=otu_cefoperazone_630$MDS1, y=otu_cefoperazone_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
 points(x=otu_clindamycin_630$MDS1, y=otu_clindamycin_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
@@ -262,7 +262,7 @@ legend('bottomright', legend=c('Resistant vs Susceptible:',
 # Abx only
 plot(x=abx_otu_nmds$MDS1-0.25, y=abx_otu_nmds$MDS2, xlim=c(-1.3,1.3), ylim=c(-1.8,1.8),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('c', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
+mtext('C', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='Antibiotic pretreatments only', pch=1, cex=1.4, pt.cex=0, bty='n')
 points(x=otu_abx_cef_630$MDS1-0.25, y=otu_abx_cef_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
 points(x=otu_abx_cef_mock$MDS1-0.25, y=otu_abx_cef_mock$MDS2, bg=cef_col, pch=24, cex=2, lwd=1.2)
@@ -279,7 +279,7 @@ legend('bottomright', legend=c('Strep vs Cef vs Clinda:',
 # Streptomycin
 plot(x=strep_otu_nmds$MDS1, y=strep_otu_nmds$MDS2, xlim=c(-1.3,1.3), ylim=c(-1.8,1.8),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('d', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
+mtext('D', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='Streptomycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
 segments(x0=strep_otu_nmds_630$MDS1, y0=strep_otu_nmds_630$MDS2, x1=strep_otu_centoids[1,2], y1=strep_otu_centoids[1,3], col='gray30')
 segments(x0=strep_otu_nmds_mock$MDS1, y0=strep_otu_nmds_mock$MDS2, x1=strep_otu_centoids[2,2], y1=strep_otu_centoids[2,3], col='gray30')
@@ -294,7 +294,7 @@ legend('bottomright', legend=c('Mock vs Infected:',
 # Cefoperazone
 plot(x=cef_otu_nmds$MDS1, y=cef_otu_nmds$MDS2, xlim=c(-1.2,1.2), ylim=c(-0.8,0.8),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('e', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
+mtext('E', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='Cefoperazone-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
 segments(x0=cef_otu_nmds_630$MDS1, y0=cef_otu_nmds_630$MDS2, x1=cef_otu_centoids[1,2], y1=cef_otu_centoids[1,3], col='gray30')
 segments(x0=cef_otu_nmds_mock$MDS1, y0=cef_otu_nmds_mock$MDS2, x1=cef_otu_centoids[2,2], y1=cef_otu_centoids[2,3], col='gray30')
@@ -309,7 +309,7 @@ legend('bottomright', legend=c('Mock vs Infected:',
 # Clindamycin
 plot(x=clinda_otu_nmds$MDS1, y=clinda_otu_nmds$MDS2, xlim=c(-1.1,1.1), ylim=c(-1.2,1.2),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('f', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
+mtext('F', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
 legend('topleft', legend='Clindamycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
 segments(x0=clinda_otu_nmds_630$MDS1, y0=clinda_otu_nmds_630$MDS2, x1=clinda_otu_centoids[1,2], y1=clinda_otu_centoids[1,3], col='gray30')
 segments(x0=clinda_otu_nmds_mock$MDS1, y0=clinda_otu_nmds_mock$MDS2, x1=clinda_otu_centoids[2,2], y1=clinda_otu_centoids[2,3], col='gray30')

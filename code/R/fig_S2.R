@@ -167,7 +167,7 @@ layout(matrix(c(1:(ncol(strep_abx_bile_metabolome)+2)), nrow=(ncol(strep_abx_bil
 
 par(mar=c(0.2, 0, 0, 2), mgp=c(2.3, 0.75, 0), xpd=FALSE)
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
-text(x=-10.2, y=-3, labels='a', cex=2.4, font=2, xpd=TRUE)
+text(x=-10.2, y=-3, labels='A', cex=2.4, font=2, xpd=TRUE)
 legend('bottomright', legend=c('No Antibiotics','Streptomycin', 'Cefoperazone', 'Clindamycin'), bty='n',
        pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=21, cex=1.2, pt.cex=2, ncol=2)
 
@@ -254,7 +254,7 @@ layout(matrix(c(1:(ncol(strep_abx_carb_metabolome)+2)), nrow=(ncol(strep_abx_car
 
 par(mar=c(0.2, 0, 0, 2), mgp=c(2.3, 0.75, 0), xpd=FALSE)
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
-text(x=-10.2, y=-3, labels='b', cex=2.4, font=2, xpd=TRUE)
+text(x=-10.2, y=-3, labels='B', cex=2.4, font=2, xpd=TRUE)
 legend('bottomright', legend=c('No Antibiotics','Streptomycin', 'Cefoperazone', 'Clindamycin'), bty='n',
        pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=21, cex=1.2, pt.cex=2, ncol=2)
 
@@ -342,7 +342,7 @@ layout(matrix(c(1:(ncol(strep_abx_amino_metabolome)+2)), nrow=(ncol(strep_abx_am
 
 par(mar=c(0.2, 0, 0, 2), mgp=c(2.3, 0.75, 0), xpd=FALSE)
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
-text(x=-10.2, y=-3, labels='c', cex=2.4, font=2, xpd=TRUE)
+text(x=-10.2, y=-3, labels='C', cex=2.4, font=2, xpd=TRUE)
 legend('bottomright', legend=c('No Antibiotics','Streptomycin', 'Cefoperazone', 'Clindamycin'), bty='n',
        pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=21, cex=1.2, pt.cex=2, ncol=2)
 
