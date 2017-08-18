@@ -166,7 +166,7 @@ par(mar=c(4,4,1,1), las=1, mgp=c(2.8,0.75,0))
 # All conventional mice
 plot(x=metabolome_nmds$MDS1, y=metabolome_nmds$MDS2, xlim=c(-0.25,0.25), ylim=c(-0.15,0.15),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
-mtext('A', side=2, line=2, las=2, adj=1.9, padj=-10, cex=2, font=2)
+mtext('A', side=2, line=2, las=2, adj=1.6, padj=-10, cex=2, font=2)
 points(x=metabolome_cefoperazone_mock$MDS1, y=metabolome_cefoperazone_mock$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_clindamycin_mock$MDS1, y=metabolome_clindamycin_mock$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_streptomycin_mock$MDS1, y=metabolome_streptomycin_mock$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
@@ -179,7 +179,7 @@ legend('topright', legend=c('No Antibiotic','Streptomycin','Cefoperzone','Clinda
 # Antibiotics individually
 plot(x=abx_metabolome_nmds$MDS1, y=abx_metabolome_nmds$MDS2, xlim=c(-0.15,0.15), ylim=c(-0.15,0.15),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
-mtext('B', side=2, line=2, las=2, adj=1.9, padj=-10, cex=2, font=2)
+mtext('B', side=2, line=2, las=2, adj=1.6, padj=-10, cex=2, font=2)
 points(x=metabolome_abx_cef_mock$MDS1, y=metabolome_abx_cef_mock$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_abx_clinda_mock$MDS1, y=metabolome_abx_clinda_mock$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_abx_strep_mock$MDS1, y=metabolome_abx_strep_mock$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)

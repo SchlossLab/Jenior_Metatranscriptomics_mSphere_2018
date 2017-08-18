@@ -231,7 +231,7 @@ mtext('CDI:', side=1, at=-0.5, padj=1, cex=1.1)
 mtext(c('-','+','-','+','-','+','-'), side=1, 
       at=c(0.5, 2.5,3.5, 5.5,6.5, 8.5,9.5), padj=1, cex=1.3)
 abline(v=c(1.5,4.5,7.5), lty=5)
-mtext('A', side=2, line=2, las=2, adj=2, padj=-10, cex=1.4, font=2)
+mtext('A', side=2, line=2, las=2, adj=1.4, padj=-9.5, cex=1.4, font=2)
 text(x=c(0.5, 2.5,3.5, 5.5,6.5, 8.5,9.5), y=19.5, labels='*', col=noabx_col, cex=2.5, font=2) # Significant difference fromm untreated
 segments(x0=c(5.5,8.5), y0=5, x1=c(6.5,9.5), y1=5, lwd=2.5)
 text(x=c(6,9), y=6, labels='*', cex=2.5, font=2) # Significant difference within groups
