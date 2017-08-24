@@ -227,7 +227,7 @@ format_network <- function(community_importances, color_pallette){
 
 # Generates plot for significant differences in metabolite concentrations
 metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, mda, 
-                                  oob, group1, group2, fig_title, title_col, fig_label, col1, col2){
+                                  oob, group1, group2, fig_title, treatment_col, fig_label){
   
   pdf(file=plot_file, width=4, height=ncol(metabolome1)*1.5)
   layout(matrix(c(1:(ncol(metabolome1)+2)), nrow=(ncol(metabolome1)+2), ncol=1, byrow = TRUE))
@@ -236,8 +236,8 @@ metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
   plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
   text(x=-10.2, y=-3, labels=fig_label, cex=2.4, xpd=TRUE, font=2)
   legend('bottomright', legend=c(group1, group2), bty='n',
-         pt.bg=c(col1, col2), pch=21, cex=1.2, pt.cex=2, ncol=2)
-  text(x=-4.5, y=-4.5, labels=fig_title, cex=1.2, font=2, col=title_col)
+         pt.bg='black', pch=c(16,1), cex=1.2, pt.cex=2, lwd=c(1,1.5), ncol=2)
+  text(x=-4.5, y=-4.5, labels=fig_title, cex=1.2, font=2, col=treatment_col)
   
   par(mar=c(0.2, 2, 0.2, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
   for(i in c(1:(ncol(metabolome1)))){
@@ -246,9 +246,9 @@ metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
     if (xmax > 1000) {while(xmax %% 100 != 0 ){xmax <- xmax + 1}} else if (xmax > 70){while(xmax %% 10 != 0 ){xmax <- xmax + 1}}
     plot(0, type='n', xlab='', ylab='', xaxt='n', yaxt='n', xlim=c(0,xmax), ylim=c(0.3,1.8))
     stripchart(at=1.2, jitter(metabolome1[,i], amount=1e-5), 
-               pch=21, bg=col1, method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
+               pch=1, bg=treatment_col, method='jitter', jitter=0.12, cex=2, lwd=2, add=TRUE)
     stripchart(at=0.66, jitter(metabolome2[,i], amount=1e-5), 
-               pch=21, bg=col2, method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
+               pch=16, bg=treatment_col, method='jitter', jitter=0.12, cex=2, add=TRUE)
     metabolite <- paste(colnames(metabolome1)[i], ' [',as.character(round(mda[i],3)),']', sep='')
     legend('topright', legend=metabolite, pch=1, cex=1.3, pt.cex=0, bty='n')
     if (xmax <= 10) {

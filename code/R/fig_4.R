@@ -9,6 +9,7 @@ source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.
 
 # Metabolomes
 metabolome <- 'data/metabolome/scaled_intensities.log10.tsv'
+aminovalerate <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/exploratory/aminovalerate.tsv'
 
 # Input Metadata
 metadata <- 'data/metadata.tsv'
@@ -24,6 +25,7 @@ plot_f <- 'results/figures/figure_4f.pdf'
 # Read in data
 # Metabolomes
 metabolome <- read.delim(metabolome, sep='\t', header=TRUE)
+aminovalerate <- read.delim(aminovalerate, sep='\t', header=T)
 
 # Metadata
 metadata <- read.delim(metadata, sep='\t', header=T, row.names=1)
@@ -96,6 +98,29 @@ cef_metabolome_centoids <- aggregate(cbind(cef_metabolome_nmds$MDS1,cef_metabolo
 clinda_metabolome_centoids <- aggregate(cbind(clinda_metabolome_nmds$MDS1,clinda_metabolome_nmds$MDS2)~clinda_metabolome_nmds$infection, data=clinda_metabolome_nmds, mean)
 strep_metabolome_centoids <- aggregate(cbind(strep_metabolome_nmds$MDS1,strep_metabolome_nmds$MDS2)~strep_metabolome_nmds$infection, data=strep_metabolome_nmds, mean)
 
+# Amnovalerate data
+aminovalerate_untreated <- subset(aminovalerate, abx == 'none')
+aminovalerate_untreated$abx <- NULL
+colnames(aminovalerate_untreated) <- c('infection', 'substrate')
+aminovalerate_untreated$infection <- factor(aminovalerate_untreated$infection, levels=c('mock','infected'))
+aminovalerate_cef <- subset(aminovalerate, abx == 'cefoperazone')
+aminovalerate_cef$abx <- NULL
+colnames(aminovalerate_cef) <- c('infection', 'substrate')
+aminovalerate_cef$infection <- factor(aminovalerate_cef$infection, levels=c('mock','infected'))
+aminovalerate_strep <- subset(aminovalerate, abx == 'streptomycin')
+aminovalerate_strep$abx <- NULL
+colnames(aminovalerate_strep) <- c('infection', 'substrate')
+aminovalerate_strep$infection <- factor(aminovalerate_strep$infection, levels=c('mock','infected'))
+aminovalerate_clinda <- subset(aminovalerate, abx == 'clindamycin')
+aminovalerate_clinda$abx <- NULL
+colnames(aminovalerate_clinda) <- c('infection', 'substrate')
+aminovalerate_clinda$infection <- factor(aminovalerate_clinda$infection, levels=c('mock','infected'))
+aminovalerate_gf <- subset(aminovalerate, abx == 'germfree')
+aminovalerate_gf$abx <- NULL
+colnames(aminovalerate_gf) <- c('infection', 'substrate')
+aminovalerate_gf$infection <- factor(aminovalerate_gf$infection, levels=c('mock','infected'))
+rm(aminovalerate)
+
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Feature selection
@@ -161,13 +186,8 @@ cef_metadata <- subset(metabolome_metadata, rownames(metabolome_metadata) %in% c
 strep_metadata <- subset(metabolome_metadata, rownames(metabolome_metadata) %in% strep_rf$feature)
 clinda_metadata <- subset(metabolome_metadata, rownames(metabolome_metadata) %in% clinda_rf$feature)
 
-
-
-
-
 colnames(metabolome) <- gsub('_', ' ', colnames(metabolome))
 substr(colnames(metabolome), 1, 1) <- toupper(substr(colnames(metabolome), 1, 1))
-
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -221,13 +241,59 @@ dev.off()
 # Feature Selection
 # Strep Infected - Fig. 4b
 metabolite_stripchart(plot_d, inf_strep_metabolome, mock_strep_metabolome, strep_pvalues, strep_rf$MDA, 
-                      0, 'Infected', 'Mock', 'Streptomycin-pretreated', strep_col, 'D', 'mediumorchid4', 'chartreuse2')
+                      0, 'Infected', 'Mock', 'Streptomycin-pretreated', strep_col, 'D')
 # Cef Infected - Fig. 4c
 metabolite_stripchart(plot_e, inf_cef_metabolome, mock_cef_metabolome, cef_pvalues, cef_rf$MDA, 
-                      0, 'Infected', 'Mock', 'Cefoperazone-pretreated', cef_col, 'E', 'mediumorchid4', 'chartreuse2')
+                      0, 'Infected', 'Mock', 'Cefoperazone-pretreated', cef_col, 'E')
 # Clinda Infected - Fig. 4d
 metabolite_stripchart(plot_f, inf_clinda_metabolome, mock_clinda_metabolome, clinda_pvalues, clinda_rf$MDA, 
-                      44.44, 'Infected', 'Mock', 'Clindamycin-pretreated', clinda_col, 'F', 'mediumorchid4', 'chartreuse2')
+                      44.44, 'Infected', 'Mock', 'Clindamycin-pretreated', clinda_col, 'F')
+
+# Aminovalerate
+stripchart(substrate~infection, data=aminovalerate_untreated, vertical=T, pch=19, 
+           xaxt='n', yaxt='n', col='gray40', ylim=c(0,6), xlim=c(0.5,13.5),
+           cex=1.5, ylab='Scaled Intesity', method='jitter', jitter=0.15, cex.lab=1.2)
+stripchart(substrate~infection, data=aminovalerate_strep, vertical=T, pch=19, at=c(3,4),
+           xaxt='n', yaxt='n', col=wes_palette('FantasticFox')[1], ylim=c(0,6), xlim=c(0.5,13.5),
+           cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
+stripchart(substrate~infection, data=aminovalerate_cef, vertical=T, pch=19, at=c(6,7),
+           xaxt='n', yaxt='n', col=wes_palette('FantasticFox')[3], ylim=c(0,6), xlim=c(0.5,13.5),
+           cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
+stripchart(substrate~infection, data=aminovalerate_clinda, vertical=T, pch=19, at=c(9,10),
+           xaxt='n', yaxt='n', col=wes_palette('FantasticFox')[5], ylim=c(0,6), xlim=c(0.5,13.5),
+           cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
+stripchart(substrate~infection, data=aminovalerate_gf, vertical=T, pch=19, at=c(12,13),
+           xaxt='n', yaxt='n', col='forestgreen', ylim=c(0,6), xlim=c(0.5,13.5),
+           cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
+axis(side=2, at=c(0:6), labels=c('0.0','1.0','2.0','3.0', '4.0','5.0','6.0'), cex.axis=1.2)
+abline(v=c(2,5,8,11), lty=2, col='gray35')
+mtext(c('CDI:','Group:'), side=1, at=-0.7, padj=c(0.3,2.5), cex=0.7)
+mtext(c('-','-','+','-','+','-','+','-','+'), side=1, 
+      at=c(1,3,4,6,7,9,10,12,13), padj=0.3, cex=1.1)
+mtext(c('No Antibiotics','Streptomycin','Cefoperazone','Clindamycin','ex-Germfree'), side=1, 
+      at=c(1,3.5,6.5,9.5,12.5), padj=2, cex=0.9)
+legend('topright', legend='5-Aminovalerate', pt.cex=0, bty='n')
+segments(x0=c(0.6,2.6,3.6,5.6,6.6,8.6,9.6,11.6,12.6), x1=c(1.4,3.4,4.4,6.4,7.4,9.4,10.4,12.4,13.4),
+         y0=c(median(aminovalerate_untreated[,2]),
+              median(subset(aminovalerate_strep, infection=='mock')[,2]), median(subset(aminovalerate_strep, infection=='infected')[,2]),
+              median(subset(aminovalerate_cef, infection=='mock')[,2]), median(subset(aminovalerate_cef, infection=='infected')[,2]),
+              median(subset(aminovalerate_clinda, infection=='mock')[,2]), median(subset(aminovalerate_clinda, infection=='infected')[,2]),
+              median(subset(aminovalerate_gf, infection=='mock')[,2]), median(subset(aminovalerate_gf, infection=='infected')[,2])), 
+         y1=c(median(aminovalerate_untreated[,2]),
+              median(subset(aminovalerate_strep, infection=='mock')[,2]), median(subset(aminovalerate_strep, infection=='infected')[,2]),
+              median(subset(aminovalerate_cef, infection=='mock')[,2]), median(subset(aminovalerate_cef, infection=='infected')[,2]),
+              median(subset(aminovalerate_clinda, infection=='mock')[,2]), median(subset(aminovalerate_clinda, infection=='infected')[,2]),
+              median(subset(aminovalerate_gf, infection=='mock')[,2]), median(subset(aminovalerate_gf, infection=='infected')[,2])),
+         lwd=3)
+segments(x0=c(3,6,9,12), y0=5, x1=c(4,7,10,13), y1=5, lwd=2)
+text(x=c(3.5,6.5,9.5,12.5), y=5.2, '*', font=2, cex=2)
+mtext(rep('*',7), side=3, adj=c(0.21,0.28,
+                                0.43,0.5,
+                                0.645,
+                                0.863,0.933), padj=0.4, font=2, cex=1.5, col='gray40') # Untreated vs Mock significance
+mtext('G', side=2, line=2, las=2, adj=1.4, padj=-3, cex=1.6, font=2)
+
+dev.off()
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
