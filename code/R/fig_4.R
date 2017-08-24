@@ -19,6 +19,7 @@ plot_abc <- 'results/figures/figure_4abc.pdf'
 plot_d <- 'results/figures/figure_4d.pdf'
 plot_e <- 'results/figures/figure_4e.pdf'
 plot_f <- 'results/figures/figure_4f.pdf'
+plot_g <- 'results/figures/figure_4g.pdf'
 
 #----------------#
 
@@ -250,6 +251,9 @@ metabolite_stripchart(plot_f, inf_clinda_metabolome, mock_clinda_metabolome, cli
                       44.44, 'Infected', 'Mock', 'Clindamycin-pretreated', clinda_col, 'F')
 
 # Aminovalerate
+pdf(file=plot_g, width=8, height=4)
+par(mar=c(3.5,5,1.5,1), xpd=FALSE, las=1, mgp=c(3,0.7,0))
+
 stripchart(substrate~infection, data=aminovalerate_untreated, vertical=T, pch=19, 
            xaxt='n', yaxt='n', col='gray40', ylim=c(0,6), xlim=c(0.5,13.5),
            cex=1.5, ylab='Scaled Intesity', method='jitter', jitter=0.15, cex.lab=1.2)
