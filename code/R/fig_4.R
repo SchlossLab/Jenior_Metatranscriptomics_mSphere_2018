@@ -258,13 +258,13 @@ stripchart(substrate~infection, data=aminovalerate_untreated, vertical=T, pch=19
            xaxt='n', yaxt='n', col='gray40', ylim=c(0,6), xlim=c(0.5,13.5),
            cex=1.5, ylab='Scaled Intesity', method='jitter', jitter=0.15, cex.lab=1.2)
 stripchart(substrate~infection, data=aminovalerate_strep, vertical=T, pch=19, at=c(3,4),
-           xaxt='n', yaxt='n', col=wes_palette('FantasticFox')[1], ylim=c(0,6), xlim=c(0.5,13.5),
+           xaxt='n', yaxt='n', col=strep_col, ylim=c(0,6), xlim=c(0.5,13.5),
            cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
 stripchart(substrate~infection, data=aminovalerate_cef, vertical=T, pch=19, at=c(6,7),
-           xaxt='n', yaxt='n', col=wes_palette('FantasticFox')[3], ylim=c(0,6), xlim=c(0.5,13.5),
+           xaxt='n', yaxt='n', col=cef_col, ylim=c(0,6), xlim=c(0.5,13.5),
            cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
 stripchart(substrate~infection, data=aminovalerate_clinda, vertical=T, pch=19, at=c(9,10),
-           xaxt='n', yaxt='n', col=wes_palette('FantasticFox')[5], ylim=c(0,6), xlim=c(0.5,13.5),
+           xaxt='n', yaxt='n', col=clinda_col, ylim=c(0,6), xlim=c(0.5,13.5),
            cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
 stripchart(substrate~infection, data=aminovalerate_gf, vertical=T, pch=19, at=c(12,13),
            xaxt='n', yaxt='n', col='forestgreen', ylim=c(0,6), xlim=c(0.5,13.5),
@@ -295,7 +295,7 @@ mtext(rep('*',7), side=3, adj=c(0.21,0.28,
                                 0.43,0.5,
                                 0.645,
                                 0.863,0.933), padj=0.4, font=2, cex=1.5, col='gray40') # Untreated vs Mock significance
-mtext('G', side=2, line=2, las=2, adj=1.4, padj=-3, cex=1.6, font=2)
+mtext('G', side=2, line=2, las=2, adj=2, padj=-8, cex=1.6, font=2)
 
 dev.off()
 
