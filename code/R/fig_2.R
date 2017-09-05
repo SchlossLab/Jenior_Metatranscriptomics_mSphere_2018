@@ -236,12 +236,23 @@ legend('topright', legend=taxonomy_family$family, pt.bg=taxonomy_family$color,
 
 # Add in phylum classifications
 segments(x0=c(4.8,4.8,4.8,4.8,4.8), x1=c(4.8,4.8,4.8,4.8,4.8), 
+<<<<<<< Updated upstream
          y0=c(5.05,4.5,1.8,-1.9,-3), 
          y1=c(4.7,2,-1.7,-2.8,-3.3), lwd=3) # vertical
 segments(x0=c(4.4,4.4,4.28,4.43,4.48), x1=c(4.8,4.8,4.8,4.8,4.8), 
          y0=c(4.9,3.25,0.05,-2.35,-3.15), 
          y1=c(4.9,3.25,0.05,-2.35,-3.15), lwd=2) # horizontal
 text(x=c(3.75,3.75,3.75,3.75,3.75), y=c(4.9,3.25,0.05,-2.35,-3.15), cex=1.2,
+=======
+         y0=c(5.1,4.5,1.65,-2.3,-3.4), 
+         y1=c(4.7,1.95,-2.0,-3.15,-3.8), lwd=3) # vertical
+
+segments(x0=c(4.4,4.4,4.28,4.43,4.48), x1=c(4.8,4.8,4.8,4.8,4.8), 
+         y0=c(4.8,3.125,-0.275,-2.8,-3.7), 
+         y1=c(4.8,3.125,-0.275,-2.8,-3.7), lwd=2) # horizontal
+
+text(x=c(3.75,3.75,3.75,3.75,3.75), y=c(4.8,3.125,-0.275,-2.8,-3.7), cex=1.2,
+>>>>>>> Stashed changes
      labels=c('Actinobacteria', 'Bacteroidetes', 'Firmicutes', 'Proteobacteria', 'Verrucomicrobia'))
 
 #-------------------------------------------------------------------#
