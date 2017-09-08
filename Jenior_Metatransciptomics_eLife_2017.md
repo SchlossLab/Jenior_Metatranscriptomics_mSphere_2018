@@ -98,7 +98,7 @@ This work was supported by funding from the National Institutes of Health to PDS
 
 ###Acknowledgments
 
-The authors would like to acknowledge Charles Koumpouras for assistance with DNA extractions and metabolomic sample preparation. We would also like to acknowledge members of the University of Michigan Germfree Mouse Center, University of Michigan Sequencing Core, and Metabolon for their assistance in experimental design, execution, and data collection. Pooled and quality trimmed transcriptomic read data and experiment metadata are available through the NCBI Sequence Read Archive (SRA; PRJNA354635). Data processing steps for beginning from raw sequence data to the final manuscript are hosted at https://github.com/mjenior/Jenior_Metatranscriptomics_ISME_2017.
+The authors would like to acknowledge Charles Koumpouras for assistance with DNA extractions and metabolomic sample preparation. We would also like to acknowledge members of the University of Michigan Germfree Mouse Center, University of Michigan Sequencing Core, and Metabolon for their assistance in experimental design, execution, and data collection. Pooled and quality trimmed transcriptomic read data from infection experiments are available through the NCBI Sequence Read Archive (SRA; PRJNA354635). Metagenomeic reads, mock-infected metatranscriptomic reads, and 16S rRNA gene sequencing reads can also be found on the SRA (). Data processing steps for beginning from raw sequence data to the final manuscript are hosted at https://github.com/mjenior/Jenior_Metatranscriptomics_ISME_2017.
 
 **Author Affiliations**
 **Department of Microbiology and Immunology, University of Michigan, Ann Arbor, Michigan.**
