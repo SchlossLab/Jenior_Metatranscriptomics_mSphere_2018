@@ -1,5 +1,5 @@
 ---
-title: "*Clostridium difficile* infection differentially alters the structure and metabolic activity of distinct intestinal microbiomes to promote sustained colonization"
+title: "*Clostridium difficile* differentially alters the structure and metabolism of distinct cecal communities to promote sustained colonization"
 csl: elife.csl
 output:
  word_document:
