@@ -13,7 +13,12 @@ bibliography: references.bib
 
 ###Abstract
 
-*Clostridium difficile* is the most common single cause of hospital-acquired infection over the last decade in the United States. A problematic feature of this infection is that initial susceptibility to colonization by the pathogen is closely linked to previous antibiotic therapy. This connection is due to the impact that antibiotics have on the indigenous bacterial community in the gastrointestinal tract which, in a healthy state, possesses colonization resistance to *C. difficile*. However, perturbed communities are susceptible to colonization where the pathogen can subsequently multiply and produce toxin, leading to inflammatory diarrheal disease. Furthermore, certain patients are unable to clear the pathogen and remain persistently colonized. In this study, we explored the effect of *C. difficile* colonization on community-level gene expresion and metabolism using a murine model of antibiotic treatment and infection. We characterized multiple susceptible communities utilizing metagenome-enable metatranscriptomics supplemented by untargeted metabolomic mass-spectrometry across multiple classes of antibiotic treatment to understand the depth of metabolic crosstalk and effect that *C. difficile* has on infected communities of bacteria. Our results demonstrate that the metabolic activity of microbiomes that *C. difficile* is more likely to colonize for longer periods of time are differentially impacted 18 hours post-infection. These changes in activity are reflected in the metabolic environment of the cecum and indicate restructured nutrient-niche landscape particularly for those involving Stickland fermentation substrates and certain carbohydrates. This work underscores potential mechanisms by which the pathogen alters the ecology of the GI tract to promote persistence.
+*Clostridium difficile* is the most common single cause of hospital-acquired infection over the last decade in the United States. A problematic feature of this infection is that initial susceptibility to colonization by the pathogen is closely linked to previous antibiotic therapy which disrupt colonization resistance of the healthy gut microbiota. 
+
+# need to relay that this is most likely a function of the community
+Additionally, certain patients are unable to fully clear the pathogen and remain persistently colonized. 
+
+In this study, we explored the effect of *C. difficile* colonization on community-level gene expresion and metabolism using a murine model of infection. We characterized multiple susceptible communities utilizing metagenome-enable metatranscriptomics supplemented by untargeted metabolomic mass-spectrometry across multiple classes of antibiotic treatment to understand the depth of metabolic crosstalk and effect that *C. difficile* has on infected communities of bacteria. Our results demonstrate that the metabolic activity of microbiomes that *C. difficile* is more likely to colonize for longer periods of time are differentially impacted 18 hours post-infection. These changes in activity are reflected in the metabolic environment of the cecum and indicate restructured nutrient-niche landscape particularly for those involving Stickland fermentation substrates and certain carbohydrates. This work underscores potential mechanisms by which the pathogen alters the ecology of the GI tract to promote persistence.
 
 
 ###Introduction
@@ -109,21 +114,12 @@ This work was supported by funding from the National Institutes of Health to PDS
 
 The authors would like to acknowledge Charles Koumpouras for assistance with DNA extractions and metabolomic sample preparation. We would also like to acknowledge members of the University of Michigan Germfree Mouse Center, University of Michigan Sequencing Core, and Metabolon for their assistance in experimental design, execution, and data collection. Pooled and quality trimmed transcriptomic read data from infection experiments are available through the NCBI Sequence Read Archive (SRA; PRJNA354635). Metagenomeic reads, mock-infected metatranscriptomic reads, and 16S rRNA gene sequencing reads can also be found on the SRA (). Data processing steps for beginning from raw sequence data to the final manuscript are hosted at https://github.com/mjenior/Jenior_Metatranscriptomics_ISME_2017.
 
-**Author Affiliations**
-**Department of Microbiology and Immunology, University of Michigan, Ann Arbor, Michigan.**
-Matthew L. Jenior, Jhansi L. Leslie, & Patrick D. Schloss Ph.D.
-
-**Department of Internal Medicine/Infectious Diseases Division, University of Michigan Medical Center, Ann Arbor, Michigan.**
-**Department of Microbiology and Immunology, University of Michigan, Ann Arbor, Michigan.**
-Vincent B. Young M.D. Ph.D.
 
 **Author Contributions**
 M.L.J. conceived, designed and performed experiments, analyzed data, and drafted the manuscript. J.L.L. performed experiments and contributed to the manuscript. V.B.Y conceived of experiments and contributed to the manuscript. P.D.S. interpreted data and contributed the manuscript.
 
+**Competing Interests**
 The authors declare no conflicts of interest.
-
-**Corresponding author**
-Correspondence to [Patrick D. Schloss](pdschloss@umich.edu)
 
 
 ###Figure Legends
