@@ -171,7 +171,7 @@ points(x=metabolome_cefoperazone_mock$MDS1, y=metabolome_cefoperazone_mock$MDS2,
 points(x=metabolome_clindamycin_mock$MDS1, y=metabolome_clindamycin_mock$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_streptomycin_mock$MDS1, y=metabolome_streptomycin_mock$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_noantibiotics$MDS1, y=metabolome_noantibiotics$MDS2, bg=noabx_col, pch=21, cex=2, lwd=1.2)
-legend('bottomleft', legend=c('Resistant vs Susceptible', as.expression(bquote(paste(italic('p'),' < 0.001 ***')))), 
+legend('bottomleft', legend=c('Resistant vs Susceptible', as.expression(bquote(paste(italic('p'),' < 0.001')))), 
        pch=1, cex=1.2, pt.cex=0, bty='n')
 legend('topright', legend=c('No Antibiotic','Streptomycin','Cefoperzone','Clindamycin'), 
        pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=21, cex=1.2, pt.cex=2.5)
@@ -183,7 +183,7 @@ mtext('B', side=2, line=2, las=2, adj=1.6, padj=-10, cex=2, font=2)
 points(x=metabolome_abx_cef_mock$MDS1, y=metabolome_abx_cef_mock$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_abx_clinda_mock$MDS1, y=metabolome_abx_clinda_mock$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
 points(x=metabolome_abx_strep_mock$MDS1, y=metabolome_abx_strep_mock$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
-legend('bottomleft', legend=c('Between Pretreatments', as.expression(bquote(paste(italic('p'),' < 0.001 ***')))), 
+legend('bottomleft', legend=c('Between Pretreatments', as.expression(bquote(paste(italic('p'),' < 0.001')))), 
        pch=1, cex=1.2, pt.cex=0, bty='n')
 legend('topright', legend=c('Streptomycin','Cefoperzone','Clindamycin'), 
        pt.bg=c(strep_col,cef_col,clinda_col), pch=21, cex=1.2, pt.cex=2.5)
@@ -195,7 +195,7 @@ dev.off()
 # Feature Selection
 # All abx vs Untreated
 metabolite_stripchart(plot_c, res_metabolome, sus_metabolome, resistant_pvalues, all_rf$MDA, 
-                      0, 'Resistant', 'Susceptible', '', 'white', 'C', 'gray80', 'salmon2')
+                      0, 'Resistant', 'Susceptible', '', 'white', 'C')
 
 # Each antibiotic group
 pdf(file=plot_d, width=4, height=ncol(strep_abx_metabolome)*1.5)
@@ -232,18 +232,18 @@ for(i in c(1:(ncol(strep_abx_metabolome)))){
   mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=1.5)
   mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=1.7)
   if (abx_pvalues2[i] < 0.001){
-    mtext('***', side=4, font=2, cex=1, padj=0.8, adj=0.64)
+    mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.64)
   } else if (abx_pvalues2[i] <= 0.01){
-    mtext('**', side=4, font=2, cex=1, padj=0.8, adj=0.64)
+    mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.64)
   } else if (abx_pvalues2[i] <= 0.05){
     mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.64)
   } else {
     mtext('n.s.', cex=0.7, side=4, padj=0.5, adj=0.64)
   }
   if (abx_pvalues1[i] < 0.001){
-    mtext('***', side=4, font=2, cex=1, padj=0.8, adj=0.27)
+    mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.27)
   } else if (abx_pvalues1[i] <= 0.01){
-    mtext('**', side=4, font=2, cex=1, padj=0.8, adj=0.27)
+    mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.27)
   } else if (abx_pvalues1[i] <= 0.05){
     mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.27)
   } else {

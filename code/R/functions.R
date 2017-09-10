@@ -273,9 +273,9 @@ metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
     segments(median(metabolome1[,i]), 1.03, median(metabolome1[,i]), 1.37, lwd=2.5)
     segments(median(metabolome2[,i]), 0.49, median(metabolome2[,i]), 0.83, lwd=2.5)
     if (pvalues[i] < 0.001){
-      mtext('***', side=4, font=2, cex=1.2, padj=0.5)
+      mtext('*', side=4, font=2, cex=1.2, padj=0.5)
     } else if (pvalues[i] <= 0.01){
-      mtext('**', side=4, font=2, cex=1.2, padj=0.5)
+      mtext('*', side=4, font=2, cex=1.2, padj=0.5)
     } else if (pvalues[i] <= 0.05){
       mtext('*', side=4, font=2, cex=1.2, padj=0.5)
     } else {

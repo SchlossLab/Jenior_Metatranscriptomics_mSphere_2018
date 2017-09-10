@@ -377,7 +377,7 @@ minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Streptomycin-pretreated', line=0.5, cex.main=1.2, col.main=strep_col, font.main=2)
 mtext('B', side=2, padj=-10, adj=16, font=2)
-text(x=12.5, y=5.5, 'Infection', cex=1.1)
+#text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
@@ -393,7 +393,7 @@ minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Cefoperazone-pretreated', line=0.5, cex.main=1.2, col.main=cef_col, font.main=2)
 mtext('C', side=2, padj=-9, adj=16, font=2)
-text(x=12.5, y=5.5, 'Infection', cex=1.1)
+#text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
@@ -409,7 +409,7 @@ minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Clindamycin-pretreated', line=0.5, cex.main=1.2, col.main=clinda_col, font.main=2)
 mtext('D', side=2, padj=-9, adj=16, font=2)
-text(x=12.5, y=5.5, 'Infection', cex=1.1)
+#text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
