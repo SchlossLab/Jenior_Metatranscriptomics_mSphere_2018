@@ -266,7 +266,7 @@ stripchart(substrate~infection, data=aminovalerate_cef, vertical=T, pch=19, at=c
            cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
 stripchart(substrate~infection, data=aminovalerate_clinda, vertical=T, pch=19, at=c(9,10),
            xaxt='n', yaxt='n', col=clinda_col, ylim=c(0,6), xlim=c(0.5,10.5),
-           cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
+           cex=1.5, ylab=expression(paste('Scaled Intensity (',log[10],')')), method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
 axis(side=2, at=c(0:6), labels=c('0.0','1.0','2.0','3.0', '4.0','5.0','6.0'), cex.axis=1.2)
 abline(v=c(2,5,8,11), lty=2, col='gray35')
 mtext(c('CDI:','Group:'), side=1, at=-0.7, padj=c(0.3,2.5), cex=0.7)
@@ -274,7 +274,7 @@ mtext(c('-','-','+','-','+','-','+'), side=1,
       at=c(1,3,4,6,7,9,10), padj=0.3, cex=1.1)
 mtext(c('No Antibiotics','Streptomycin','Cefoperazone','Clindamycin'), side=1, 
       at=c(1,3.5,6.5,9.5), padj=2, cex=0.9)
-legend('topright', legend='5-Aminovalerate', pt.cex=0, bty='n', cex=0.9)
+legend('topright', legend='5-aminovalerate', pt.cex=0, bty='n', cex=0.9)
 segments(x0=c(0.6,2.6,3.6,5.6,6.6,8.6,9.6), x1=c(1.4,3.4,4.4,6.4,7.4,9.4,10.4),
          y0=c(median(aminovalerate_untreated[,2]),
               median(subset(aminovalerate_strep, infection=='mock')[,2]), median(subset(aminovalerate_strep, infection=='infected')[,2]),
