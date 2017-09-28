@@ -270,7 +270,7 @@ table(clinda_annotated$genus)
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
-tiff(filename=plot_file, width=12, height=12, units='in', 
+tiff(filename=plot_file, width=10, height=10, units='in', 
      res=200, pointsize=12, compression='none')
 layout(matrix(c(1,2,
                 3,4), 
@@ -294,7 +294,7 @@ mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(strep_col,'black'))
-mtext('A', side=2, line=2, las=2, adj=1, padj=-12, cex=1.7, font=2)
+mtext('A', side=2, line=2, las=2, adj=1, padj=-9.5, cex=1.7, font=2)
 
 points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_630_outliers_other$color)
 points(x=strep_mock_outliers_other$strep_mock_metaT_reads, y=strep_mock_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_mock_outliers_other$color)
@@ -322,7 +322,7 @@ mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(cef_col,'black'))
-mtext('B', side=2, line=2, las=2, adj=1, padj=-12, cex=1.7, font=2)
+mtext('B', side=2, line=2, las=2, adj=1, padj=-9.5, cex=1.7, font=2)
 
 points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$cef_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=cef_630_outliers_other$color)
 points(x=cef_mock_outliers_other$cef_mock_metaT_reads, y=cef_mock_outliers_other$cef_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=cef_mock_outliers_other$color)
@@ -350,7 +350,7 @@ mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
 legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(clinda_col,'black'))
-mtext('C', side=2, line=2, las=2, adj=1, padj=-12, cex=1.7, font=2)
+mtext('C', side=2, line=2, las=2, adj=1, padj=-9.5, cex=1.7, font=2)
 
 points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_630_outliers_other$color)
 points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_mock_outliers_other$color)

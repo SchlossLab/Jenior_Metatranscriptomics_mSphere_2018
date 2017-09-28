@@ -257,17 +257,18 @@ pdf(file=plot_g, width=6, height=4)
 par(mar=c(3.5,5,1.5,1), xpd=FALSE, las=1, mgp=c(3,0.7,0))
 stripchart(substrate~infection, data=aminovalerate_untreated, vertical=T, pch=19, 
            xaxt='n', yaxt='n', col='gray40', ylim=c(0,6), xlim=c(0.5,10.5),
-           cex=1.5, ylab='Scaled Intesity', method='jitter', jitter=0.15, cex.lab=1.2)
+           cex=1.5, ylab='', method='jitter', jitter=0.15, cex.lab=1.2)
 stripchart(substrate~infection, data=aminovalerate_strep, vertical=T, pch=19, at=c(3,4),
            xaxt='n', yaxt='n', col=strep_col, ylim=c(0,6), xlim=c(0.5,10.5),
-           cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
+           cex=1.5, ylab='', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
 stripchart(substrate~infection, data=aminovalerate_cef, vertical=T, pch=19, at=c(6,7),
            xaxt='n', yaxt='n', col=cef_col, ylim=c(0,6), xlim=c(0.5,10.5),
-           cex=1.5, ylab='Scaled Intensity', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
+           cex=1.5, ylab='', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
 stripchart(substrate~infection, data=aminovalerate_clinda, vertical=T, pch=19, at=c(9,10),
            xaxt='n', yaxt='n', col=clinda_col, ylim=c(0,6), xlim=c(0.5,10.5),
-           cex=1.5, ylab=expression(paste('Scaled Intensity (',log[10],')')), method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
+           cex=1.5, ylab='', method='jitter', jitter=0.15, cex.lab=1.2, add=TRUE)
 axis(side=2, at=c(0:6), labels=c('0.0','1.0','2.0','3.0', '4.0','5.0','6.0'), cex.axis=1.2)
+mtext(text=expression(paste('Scaled Intensity (',log[10],')')), side=2, cex=1.2, las=0, padj=-2.5)
 abline(v=c(2,5,8,11), lty=2, col='gray35')
 mtext(c('CDI:','Group:'), side=1, at=-0.7, padj=c(0.3,2.5), cex=0.7)
 mtext(c('-','-','+','-','+','-','+'), side=1, 
