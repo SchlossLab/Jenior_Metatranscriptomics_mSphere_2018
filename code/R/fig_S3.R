@@ -139,7 +139,7 @@ par(mar=c(4,4,1,1), las=1, mgp=c(2.8,0.75,0))
 # Infection
 plot(x=abx_metabolome_nmds$MDS1, y=abx_metabolome_nmds$MDS2, xlim=c(-0.075,0.075), ylim=c(-0.075,0.075),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
-mtext('A', side=2, line=2, las=2, adj=1.8, padj=-10, cex=2, font=2)
+mtext('A', side=2, line=2, las=2, adj=1.8, padj=-10, cex=1.5, font=2)
 points(x=metabolome_abx_630$MDS1, y=metabolome_abx_630$MDS2, bg='mediumorchid4', pch=21, cex=2, lwd=1.2)
 points(x=metabolome_abx_mock$MDS1, y=metabolome_abx_mock$MDS2, bg='chartreuse2', pch=21, cex=2, lwd=1.2)
 legend('bottomleft', legend=c('Between Antibiotic Groups', as.expression(bquote(paste(italic('p'),' = 0.075 n.s.')))), 
