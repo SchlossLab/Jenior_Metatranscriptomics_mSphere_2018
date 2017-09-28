@@ -112,7 +112,7 @@ text(-4.7, 4.88, 'A', cex=1.5, font=2)
 
 # CFU over time
 par(mar=c(4,4,1,1), las=1, mgp=c(2.5, 0.75, 0))
-plot(0, type='n', xlab='Days Post-Infection', ylab='Total CFU/g Cecal Content', xaxt='n', yaxt='n', xlim=c(0,11), ylim=c(0,10))
+plot(0, type='n', xlab='Days Post-Infection', ylab='Total cfu/g Cecal Content', xaxt='n', yaxt='n', xlim=c(0,11), ylim=c(0,10))
 lines(cfu_median$streptomycin, lwd=2.5, col=strep_col, type='b', pch=19) 
 segments(x0=c(1:11), y0=cfu_q25$streptomycin, x1=c(1:11), y1=cfu_q75$streptomycin, col=strep_col, lwd=2.5)
 lines(cfu_median$cefoperazone, lwd=2.5, col=cef_col, type='b', pch=19) 
@@ -135,7 +135,7 @@ mtext('B', side=2, line=2, las=2, adj=2.3, padj=-9, cex=1.2, font=2)
 # Vegetative cells
 par(mar=c(3,4,1,4), mgp=c(2.5, 0.75, 0))
 stripchart(cfu_vegetative~treatment, data=wetlab, col='black', bg='chocolate2', xlim=c(0,22), ylim=c(0,9), pch=21,
-           vertical=TRUE, at=c(0.5, 6.5, 12.5, 18.5), xaxt='n', yaxt='n', ylab='CFU/g Cecal Content', cex.lab=1.2,
+           vertical=TRUE, at=c(0.5, 6.5, 12.5, 18.5), xaxt='n', yaxt='n', ylab='cfu/g Cecal Content', cex.lab=1.2,
            cex=1.7, method='jitter', jitter=0.2)
 abline(h=2, lwd=1.5, col='gray30', lty=5) # LOD
 abline(v=c(5,11,17), lwd=1.5) # dividers
@@ -189,7 +189,7 @@ segments(x0=c(3.5, 9.5, 15.5, 21.5)-0.6, y0=c(
 axis(side=4, at=seq(1.6,3.4,0.2), las=1,
      labels=c('1.6','1.8','2.0','2.2','2.4','2.6','2.8','3.0','3.2','3.4'))
 mtext(expression(paste('Toxin Titer/g Cecal Content (',log[10],')')), side=4, line=3, padj=-0.5, cex=0.9)
-legend('topleft', legend=c('Vegetative cells (CFU)','Spores (CFU)'), ncol=1, bty='n',
+legend('topleft', legend=c('Vegetative cells (cfu)','Spores (cfu)'), ncol=1, bty='n',
        pch=21, col='black', pt.bg=c('chocolate2','chartreuse3'), pt.cex=1.9)
 legend('topright', legend='Toxin titer', bty='n',
        pch=23, col='black', pt.bg='deeppink3', pt.cex=1.9)
