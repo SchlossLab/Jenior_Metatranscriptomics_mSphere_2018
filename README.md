@@ -13,12 +13,12 @@
 	|
 	|- Jenior_Metatransciptomics_eLife_2017.Rmd		# executable Rmarkdown for this study
 	|- Jenior_Metatransciptomics_eLife_2017.md		# Markdown (GitHub) version of the *.Rmd file
-	|- Jenior_Metatransciptomics_eLife_2017.docx	# Word document of study manuscript
-	|- manuscript_format.docx						# Word document associated with Rmd for proper formatting
-	|- references.bib								# BibTeX formatted references
-	|- eLife.csl									# csl file to format references
+	|- Jenior_Metatransciptomics_eLife_2017.docx		# Word document of study manuscript
+	|- manuscript_format.docx				# Word document associated with Rmd for proper formatting
+	|- references.bib					# BibTeX formatted references
+	|- eLife.csl						# csl file to format references
 	|
-	|- doc/			# Metagenome & metatranscriptome bioinformatic processing pipelines
+	|- doc/		# Metagenome & metatranscriptome bioinformatic processing pipelines
 	|
 	|- data/          # raw and primary data
 	| |- references/  # reference files used in analysis
@@ -27,7 +27,7 @@
 	|
 	|- code/          # all programmatic code (python, R, pbs, mothur_batch)
 	|
-	|- results/        	# all output from workflows and analyses
-	| |- figures/     	# manuscript figures
+	|- results/        # all output from workflows and analyses
+	| |- figures/     # manuscript figures
 	| +- supplement/    # supplementary tables and figures
 
