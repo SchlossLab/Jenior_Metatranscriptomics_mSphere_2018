@@ -25,9 +25,9 @@
 	| |- raw/         # raw data, unaltered
 	| +- process/     # cleaned data, unaltered once created
 	|
-	|- code/          # all programmatic code (python, R, pbs, mothur_batch)
+	|- code/	# all programmatic code (python, R, pbs, mothur_batch)
 	|
-	|- results/        # all output from workflows and analyses
-	| |- figures/     # manuscript figures
-	| +- supplement/    # supplementary tables and figures
+	|- results/			# all output from workflows and analyses
+	| |- figures/		# manuscript figures
+	| +- supplement/	# supplementary tables and figures
 
