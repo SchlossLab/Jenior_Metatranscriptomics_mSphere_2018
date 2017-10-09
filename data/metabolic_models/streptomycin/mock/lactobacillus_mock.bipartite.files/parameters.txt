@@ -1,8 +1,0 @@
-User Defined Parameters
-KO expression file: lactobacillus_DNA.streptomycin_mock_RNA.final.pool.norm.ko.txt
-Graph name: lactobacillus_mock
-KEGG ortholog nodes: 430
-Substrate nodes: 724
-Probability distribution generated: yes
-Permutations: 1000
-Duration: 4 seconds

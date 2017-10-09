@@ -20,14 +20,13 @@
 	|
 	|- doc/		# Metagenome & metatranscriptome bioinformatic processing pipelines
 	|
-	|- data/          # raw and primary data
-	| |- references/  # reference files used in analysis
-	| |- raw/         # raw data, unaltered
-	| +- process/     # cleaned data, unaltered once created
+	|- data/          	# raw and primary data
+	| |- /			# 
+	| +- /		# 
 	|
 	|- code/	# all programmatic code (python, R, pbs, mothur_batch)
 	|
-	|- results/			# all output from workflows and analyses
+	|- results/		# all output from workflows and analyses
 	| |- figures/		# manuscript figures
 	| +- supplement/	# supplementary tables and figures
 
