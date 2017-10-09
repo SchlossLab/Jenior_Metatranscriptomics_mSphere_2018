@@ -1,35 +1,33 @@
 
-## *Clostridium difficile* infection differentially alters the structure and metabolic activity of distinct intestinal microbiomes to promote sustained colonization
+## *Clostridium difficile* differentially alters the structure and metabolism of distinct cecal microbiomes to promote sustained colonization during infection
 
-Abstract in progress..
 
+*Clostridium difficile* has become the most common single cause of hospital-acquired infection over the last decade in the United States. Susceptibility is primarily associated with previous exposure to antibiotics, which compromise the structure and function of the gut bacterial community. Furthermore, specific classes correlate more strongly with recurrent or persistent *C. difficile* infection. We used a murine model of infection to explore the effect of distinct antibiotic classes on sustained *C. difficile* colonization, as well as the impact of infection on community-level gene expression and metabolism 18 hours post-infection. Utilizing untargeted metabolomic analysis, we found that *C. difficile* infection has larger impacts on the metabolic activity of the microbiota across cefoperazone and streptomycin-treated mice, which become persistently colonized. Using metagenome-enabled metatranscriptomics, we observed that the infected communities were enriched in pathways associated with amino acid metabolism and particularly in non-dominant species relative to mock-infected controls. Conversely, in clindamycin pretreatment where *C. difficile* is cleared within 8 days, the effect of infection on the microbiota was only detectable in changes to the community structure but not in metabolic activity or gene expression. Our results suggest that *C. difficile* is able to restructure the nutrient-niche landscape in certain gut environments in order to promote persistent infection.
 
 
 ### Overview
 
 	project
-	|- README          # the top level description of content (this doc)
+	|- README          # the top level description of content
 	|- LICENSE         # the license for this project
 	|
-	|- study.Rmd    # executable Rmarkdown for this study, if applicable
-	|- study.md     # Markdown (GitHub) version of the *.Rmd file
-	|- study.docx     # Word document of study manuscript
-	|- references.bib # BibTeX formatted references
-	|- XXXX.csl     # csl file to format references for journal XXX
+	|- Jenior_Metatransciptomics_eLife_2017.Rmd		# executable Rmarkdown for this study
+	|- Jenior_Metatransciptomics_eLife_2017.md		# Markdown (GitHub) version of the *.Rmd file
+	|- Jenior_Metatransciptomics_eLife_2017.docx	# Word document of study manuscript
+	|- manuscript_format.docx						# Word document associated with Rmd for proper formatting
+	|- references.bib								# BibTeX formatted references
+	|- eLife.csl									# csl file to format references
 	|
-	|- data           # raw and primary data, are not changed once created
-	| |- references/  # reference files to be used in analysis
-	| |- raw/         # raw data, will not be altered
-	| +- process/     # cleaned data, will not be altered once created;
+	|- doc/			# Metagenome & metatranscriptome bioinformatic processing pipelines
 	|
-	|- code/          # any programmatic code
+	|- data/          # raw and primary data
+	| |- references/  # reference files used in analysis
+	| |- raw/         # raw data, unaltered
+	| +- process/     # cleaned data, unaltered once created
 	|
-	|- results        # all output from workflows and analyses
-	| |- tables/      # text version of tables to be rendered with kable in R
-	| |- figures/     # graphs, likely designated for manuscript figures
-	| +- supplement/    # diagrams, images, and other non-graph graphics
+	|- code/          # all programmatic code (python, R, pbs, mothur_batch)
 	|
-	+- exploratory/   # exploratory data analysis for study
-	| |- notebook/    # preliminary analyses
-	| +- scratch/     # temporary files that can be safely deleted or lost
+	|- results/        	# all output from workflows and analyses
+	| |- figures/     	# manuscript figures
+	| +- supplement/    # supplementary tables and figures
 
