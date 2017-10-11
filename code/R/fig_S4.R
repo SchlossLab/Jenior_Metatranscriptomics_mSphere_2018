@@ -8,299 +8,345 @@ starting_dir <- getwd()
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
 
 # Define files
-# Metadata
-metadata <- 'data/metadata.tsv'
+# Normalized Metatranscriptomes
+noabx_normalized_reads <- 'data/read_mapping/conv_normalized_metaT.tsv'
+cef_normalized_reads <- 'data/read_mapping/cef_normalized_metaT.tsv'
+clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
+strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
 
-# Metabolomes
-metabolome <- 'data/metabolome/scaled_intensities.log10.tsv'
+# Gene look up table
+genes <- 'data/gene_names.tsv'
 
 # Output plot
-plot_file <- 'results/supplement/figures/figure_S4.pdf'
+plot_file <- 'results/supplement/figures/figure_S5.pdf'
 
-# Supplementary table
-supp_table3 <- 'results/supplement/tables/table_S4.tsv'
-
-#-------------------------------------------------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 
 # Read in data
-# Metadata
-metadata <- read.delim(metadata, sep='\t', header=T, row.names=1)
+# Normalized Metatranscriptomes
+noabx_normalized_reads <- read.delim(noabx_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
+cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
+clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
+strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
 
-# Metabolomes
-metabolome <- read.delim(metabolome, sep='\t', header=TRUE)
+# Gene functions
+genes <- read.delim(genes, sep='\t', header=TRUE, stringsAsFactors=FALSE)
 
-#-------------------------------------------------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 
 # Format data
-# Metadata
-metadata$type <- NULL
-metadata$cage <- NULL
-metadata$mouse <- NULL
-metadata$gender <- NULL
-metadata$susceptibility <- NULL
+# Remove excess columns
+noabx_normalized_reads$ko <- NULL
+cef_normalized_reads$ko <- NULL
+clinda_normalized_reads$ko <- NULL
+strep_normalized_reads$ko <- NULL
 
-# Metabolomes
-metabolome$PUBCHEM <- NULL
-metabolome$BIOCHEMICAL <- gsub('_', ' ', metabolome$BIOCHEMICAL)
-substr(metabolome$BIOCHEMICAL, 1, 1) <- toupper(substr(metabolome$BIOCHEMICAL, 1, 1))
-rownames(metabolome) <- metabolome$BIOCHEMICAL
-metabolome$BIOCHEMICAL <- NULL
-metabolome$KEGG <- NULL
-metabolome_annotation <- metabolome[,c(1:2)]
-metabolome$SUB_PATHWAY <- NULL
-metabolome <- metabolome[order(metabolome$SUPER_PATHWAY),]
-metabolome$SUPER_PATHWAY <- NULL
-metabolome <- as.data.frame(t(metabolome))
+# Screen for those genes that have a gene annotation
+noabx_annotated <- subset(noabx_normalized_reads, gene != '')
+noabx_annotated <- noabx_annotated[!rownames(noabx_annotated) %in% rownames(noabx_annotated[grep('unknown_\\d', noabx_annotated$gene),]), ]
+cef_annotated <- subset(cef_normalized_reads, gene != '')
+cef_annotated <- cef_annotated[!rownames(cef_annotated) %in% rownames(cef_annotated[grep('unknown_\\d', cef_annotated$gene),]), ]
+clinda_annotated <- subset(clinda_normalized_reads, gene != '')
+clinda_annotated <- clinda_annotated[!rownames(clinda_annotated) %in% rownames(clinda_annotated[grep('unknown_\\d', clinda_annotated$gene),]), ]
+strep_annotated <- subset(strep_normalized_reads, gene != '')
+strep_annotated <- strep_annotated[!rownames(strep_annotated) %in% rownames(strep_annotated[grep('unknown_\\d', strep_annotated$gene),]), ]
+rm(noabx_normalized_reads, cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
 
-# Format names and add metadata
-colnames(metabolome) <- gsub('_', ' ', colnames(metabolome))
-substr(colnames(metabolome), 1, 1) <- toupper(substr(colnames(metabolome), 1, 1))
-metabolome <- clean_merge(metadata, metabolome)
-metabolome <- subset(metabolome, abx != 'germfree')
+# Screen out ribosomal genes
+noabx_annotated <- rbind(subset(noabx_annotated, !grepl('rps*', noabx_annotated$gene)),
+                         subset(noabx_annotated, !grepl('rpl*', noabx_annotated$gene)),
+                         subset(noabx_annotated, !grepl('rpm*', noabx_annotated$gene)))
 
-# Subset antibiotics
-noabx_metabolome <- subset(metabolome, abx == 'none')
-noabx_metabolome$abx <- NULL
-cef_metabolome <- subset(metabolome, abx == 'cefoperazone')
-cef_metabolome$abx <- NULL
-clinda_metabolome <- subset(metabolome, abx == 'clindamycin')
-clinda_metabolome$abx <- NULL
-strep_metabolome <- subset(metabolome, abx == 'streptomycin')
-strep_metabolome$abx <- NULL
-metabolome$abx <- NULL
-metabolome$infection <- NULL
+cef_annotated <- rbind(subset(cef_annotated, !grepl('rps.', cef_annotated$gene)),
+                       subset(cef_annotated, !grepl('rpl.', cef_annotated$gene)))
+clinda_annotated <- rbind(subset(clinda_annotated, !grepl('rps.', clinda_annotated$gene)),
+                          subset(clinda_annotated, !grepl('rpl.', clinda_annotated$gene)))
+strep_annotated <- rbind(subset(strep_annotated, !grepl('rps.', strep_annotated$gene)),
+                         subset(strep_annotated, !grepl('rpl.', strep_annotated$gene)))
 
-# Find medians within antibiotic groups
-noabx_metabolome <- aggregate(noabx_metabolome[,2:ncol(noabx_metabolome)], by=list(noabx_metabolome$infection), FUN=median)
-rownames(noabx_metabolome) <- 'No_Antibiotics-Mock(median)'
-noabx_metabolome$Group.1 <- NULL
-cef_metabolome <- aggregate(cef_metabolome[,2:ncol(cef_metabolome)], by=list(cef_metabolome$infection), FUN=median)
-rownames(cef_metabolome) <- c('Cefoperzone-Infected(median)','Cefoperzone-Mock(median)')
-cef_metabolome$Group.1 <- NULL
-clinda_metabolome <- aggregate(clinda_metabolome[,2:ncol(clinda_metabolome)], by=list(clinda_metabolome$infection), FUN=median)
-rownames(clinda_metabolome) <- c('Clindamycin-Infected(median)','Clindamycin-Mock(median)')
-clinda_metabolome$Group.1 <- NULL
-strep_metabolome <- aggregate(strep_metabolome[,2:ncol(strep_metabolome)], by=list(strep_metabolome$infection), FUN=median)
-rownames(strep_metabolome) <- c('Streptomycin-Infected(median)','Streptomycin-Mock(median)')
-strep_metabolome$Group.1 <- NULL
-abx_metabolome <- rbind(strep_metabolome,cef_metabolome,clinda_metabolome)
+# Save pathway information
+all_pathways <- rbind(noabx_annotated[,2:3],cef_annotated[,3:4],clinda_annotated[,3:4],strep_annotated[,3:4])
+all_pathways <- all_pathways[!duplicated(all_pathways$gene), ]
 
-# Create and write supplementary table
-supp_metabolome <- t(rbind(noabx_metabolome, abx_metabolome))
-supp_metabolome <- merge(metabolome_annotation, supp_metabolome, by='row.names')
-colnames(supp_metabolome)[1] <- 'BIOCHEMICAL'
-supp_metabolome$BIOCHEMICAL <- gsub(' ', '_', supp_metabolome$BIOCHEMICAL)
-write.table(supp_metabolome, file=supp_table3, sep='\t', row.names=FALSE, quote=FALSE)
-rm(supp_metabolome)
-rownames(abx_metabolome) <- c('Streptomycin\nInfected','Streptomycin\nMock','Cefoperzone\nInfected',
-                              'Cefoperzone\nMock','Clindamycin\nInfected','Clindamycin\nMock')
+# Reverse log2 transformation temporarily
+noabx_annotated$conv_metaT_reads <- 2 ^ noabx_annotated$conv_metaT_reads
+cef_annotated$cef_630_metaT_reads <- 2 ^ cef_annotated$cef_630_metaT_reads
+cef_annotated$cef_mock_metaT_reads <- 2 ^ cef_annotated$cef_mock_metaT_reads
+clinda_annotated$clinda_630_metaT_reads <- 2 ^ clinda_annotated$clinda_630_metaT_reads
+clinda_annotated$clinda_mock_metaT_reads <- 2 ^ clinda_annotated$clinda_mock_metaT_reads
+strep_annotated$strep_630_metaT_reads <- 2 ^ strep_annotated$strep_630_metaT_reads
+strep_annotated$strep_mock_metaT_reads <- 2 ^ strep_annotated$strep_mock_metaT_reads
 
-# Convert to matrices
-metabolome <- as.matrix(metabolome)
-abx_metabolome <- as.matrix(abx_metabolome)
-noabx_metabolome <- as.matrix(noabx_metabolome)
-strep_metabolome <- as.matrix(strep_metabolome)
-cef_metabolome <- as.matrix(cef_metabolome)
-clinda_metabolome <- as.matrix(clinda_metabolome)
+# Subset to treatment groups
+noabx_annotated$conv_metaT_reads <- as.numeric(noabx_annotated$conv_metaT_reads)
+cef_630_annotated <- cef_annotated
+cef_630_annotated$cef_630_metaT_reads <- as.numeric(cef_630_annotated$cef_630_metaT_reads)
+cef_630_annotated$cef_mock_metaT_reads <- NULL
+cef_mock_annotated <- cef_annotated
+cef_mock_annotated$cef_mock_metaT_reads <- as.numeric(cef_mock_annotated$cef_mock_metaT_reads)
+cef_mock_annotated$cef_630_metaT_reads <- NULL
+clinda_630_annotated <- clinda_annotated
+clinda_630_annotated$clinda_630_metaT_reads <- as.numeric(clinda_630_annotated$clinda_630_metaT_reads)
+clinda_630_annotated$clinda_mock_metaT_reads <- NULL
+clinda_mock_annotated <- clinda_annotated
+clinda_mock_annotated$clinda_mock_metaT_reads <- as.numeric(clinda_mock_annotated$clinda_mock_metaT_reads)
+clinda_mock_annotated$clinda_630_metaT_reads <- NULL
+strep_630_annotated <- strep_annotated
+strep_630_annotated$strep_630_metaT_reads <- as.numeric(strep_630_annotated$strep_630_metaT_reads)
+strep_630_annotated$strep_mock_metaT_reads <- NULL
+strep_mock_annotated <- strep_annotated
+strep_mock_annotated$strep_mock_metaT_reads <- as.numeric(strep_mock_annotated$strep_mock_metaT_reads)
+strep_mock_annotated$strep_630_metaT_reads <- NULL
+rm(cef_annotated, clinda_annotated, strep_annotated)
 
-# Remove columns with low variance
-metabolome <- rm_lowVar(metabolome)
-abx_metabolome <- rm_lowVar(abx_metabolome)
-noabx_metabolome <- rm_lowVar(noabx_metabolome)
-strep_metabolome <- rm_lowVar(strep_metabolome)
-cef_metabolome <- rm_lowVar(cef_metabolome)
-clinda_metabolome <- rm_lowVar(clinda_metabolome)
+# Aggregate identical genes, regardless of organism - retransform
+noabx_annotated <- aggregate(noabx_annotated$conv_metaT_reads, by=list(noabx_annotated$gene), FUN=sum)
+colnames(noabx_annotated) <- c('gene', 'noabx_reads')
+cef_630_annotated <- aggregate(cef_630_annotated$cef_630_metaT_reads, by=list(cef_630_annotated$gene), FUN=sum)
+colnames(cef_630_annotated) <- c('gene', 'cef_630_reads')
+cef_mock_annotated <- aggregate(cef_mock_annotated$cef_mock_metaT_reads, by=list(cef_mock_annotated$gene), FUN=sum)
+colnames(cef_mock_annotated) <- c('gene', 'cef_mock_reads')
+clinda_630_annotated <- aggregate(clinda_630_annotated$clinda_630_metaT_reads, by=list(clinda_630_annotated$gene), FUN=sum)
+colnames(clinda_630_annotated) <- c('gene', 'clinda_630_reads')
+clinda_mock_annotated <- aggregate(clinda_mock_annotated$clinda_mock_metaT_reads, by=list(clinda_mock_annotated$gene), FUN=sum)
+colnames(clinda_mock_annotated) <- c('gene', 'clinda_mock_reads')
+strep_630_annotated <- aggregate(strep_630_annotated$strep_630_metaT_reads, by=list(strep_630_annotated$gene), FUN=sum)
+colnames(strep_630_annotated) <- c('gene', 'strep_630_reads')
+strep_mock_annotated <- aggregate(strep_mock_annotated$strep_mock_metaT_reads, by=list(strep_mock_annotated$gene), FUN=sum)
+colnames(strep_mock_annotated) <- c('gene', 'strep_mock_reads')
 
-# Scale data and center columns
-metabolome <- scale(metabolome)
-abx_metabolome <- scale(abx_metabolome)
-noabx_metabolome <- scale(noabx_metabolome)
-strep_metabolome <- scale(strep_metabolome)
-cef_metabolome <- scale(cef_metabolome)
-clinda_metabolome <- scale(clinda_metabolome)
+#--------------------------------------------------------------------------------------------------#
 
-# Separate, cluster super pathways, and re-join
-rownames(metabolome) <- c('Cefoperazone - Infected 1','Cefoperazone - Infected 2','Cefoperazone - Infected 3',
-                          'Cefoperazone - Infected 4','Cefoperazone - Infected 5','Cefoperazone - Infected 6',
-                          'Cefoperazone - Infected 7','Cefoperazone - Infected 8','Cefoperazone - Infected 9',
-                          'Cefoperazone - Mock 1','Cefoperazone - Mock 2','Cefoperazone - Mock 3',
-                          'Cefoperazone - Mock 4','Cefoperazone - Mock 5','Cefoperazone - Mock 6',
-                          'Cefoperazone - Mock 7','Cefoperazone - Mock 8','Cefoperazone - Mock 9',
-                          'Clindamycin - Infected 1','Clindamycin - Infected 2','Clindamycin - Infected 3',
-                          'Clindamycin - Infected 4','Clindamycin - Infected 5','Clindamycin - Infected 6',
-                          'Clindamycin - Infected 7','Clindamycin - Infected 8','Clindamycin - Infected 9',
-                          'Clindamycin - Mock 1','Clindamycin - Mock 2','Clindamycin - Mock 3',
-                          'Clindamycin - Mock 4','Clindamycin - Mock 5','Clindamycin - Mock 6',
-                          'Clindamycin - Mock 7','Clindamycin - Mock 8','Clindamycin - Mock 9',
-                          'No Antibiotics - Mock 1','No Antibiotics - Mock 2','No Antibiotics - Mock 3',
-                          'No Antibiotics - Mock 4','No Antibiotics - Mock 5','No Antibiotics - Mock 6',
-                          'No Antibiotics - Mock 7','No Antibiotics - Mock 8','No Antibiotics - Mock 9',
-                          'Streptomycin - Infected 1','Streptomycin - Infected 2','Streptomycin - Infected 3',
-                          'Streptomycin - Infected 4','Streptomycin - Infected 5','Streptomycin - Infected 6',
-                          'Streptomycin - Infected 7','Streptomycin - Infected 8','Streptomycin - Infected 9',
-                          'Streptomycin - Mock 1','Streptomycin - Mock 2','Streptomycin - Mock 3',
-                          'Streptomycin - Mock 4','Streptomycin - Mock 5','Streptomycin - Mock 6',
-                          'Streptomycin - Mock 7','Streptomycin - Mock 8','Streptomycin - Mock 9')
-metabolome <- metabolome[c('No Antibiotics - Mock 1','No Antibiotics - Mock 2','No Antibiotics - Mock 3',
-                            'No Antibiotics - Mock 4','No Antibiotics - Mock 5','No Antibiotics - Mock 6',
-                            'No Antibiotics - Mock 7','No Antibiotics - Mock 8','No Antibiotics - Mock 9',
-                            'Streptomycin - Infected 1','Streptomycin - Infected 2','Streptomycin - Infected 3',
-                            'Streptomycin - Infected 4','Streptomycin - Infected 5','Streptomycin - Infected 6',
-                            'Streptomycin - Infected 7','Streptomycin - Infected 8','Streptomycin - Infected 9',
-                            'Streptomycin - Mock 1','Streptomycin - Mock 2','Streptomycin - Mock 3',
-                            'Streptomycin - Mock 4','Streptomycin - Mock 5','Streptomycin - Mock 6',
-                            'Streptomycin - Mock 7','Streptomycin - Mock 8','Streptomycin - Mock 9',
-                            'Cefoperazone - Infected 1','Cefoperazone - Infected 2','Cefoperazone - Infected 3',
-                            'Cefoperazone - Infected 4','Cefoperazone - Infected 5','Cefoperazone - Infected 6',
-                            'Cefoperazone - Infected 7','Cefoperazone - Infected 8','Cefoperazone - Infected 9',
-                            'Cefoperazone - Mock 1','Cefoperazone - Mock 2','Cefoperazone - Mock 3',
-                            'Cefoperazone - Mock 4','Cefoperazone - Mock 5','Cefoperazone - Mock 6',
-                            'Cefoperazone - Mock 7','Cefoperazone - Mock 8','Cefoperazone - Mock 9',
-                            'Clindamycin - Infected 1','Clindamycin - Infected 2','Clindamycin - Infected 3',
-                            'Clindamycin - Infected 4','Clindamycin - Infected 5','Clindamycin - Infected 6',
-                            'Clindamycin - Infected 7','Clindamycin - Infected 8','Clindamycin - Infected 9',
-                            'Clindamycin - Mock 1','Clindamycin - Mock 2','Clindamycin - Mock 3',
-                            'Clindamycin - Mock 4','Clindamycin - Mock 5','Clindamycin - Mock 6',
-                            'Clindamycin - Mock 7','Clindamycin - Mock 8','Clindamycin - Mock 9'),]
-metabolome <- merge(metabolome_annotation, t(metabolome), by='row.names')
-rownames(metabolome) <- metabolome$Row.names
-metabolome$Row.names <- NULL
-metabolome$SUB_PATHWAY <- NULL
-pathways <- table(metabolome$SUPER_PATHWAY)
-metabolome_amino <- subset(metabolome, SUPER_PATHWAY == 'Amino_Acid')
-metabolome_amino$SUPER_PATHWAY <- NULL
-amino <- as.vector(hclust(dist(metabolome_amino))$order)
-metabolome_amino <- t(metabolome_amino[amino,])
-metabolome_carb <- subset(metabolome, SUPER_PATHWAY == 'Carbohydrate')
-metabolome_carb$SUPER_PATHWAY <- NULL
-carb <- as.vector(hclust(dist(metabolome_carb))$order)
-metabolome_carb <- t(metabolome_carb[carb,])
-metabolome_vit <- subset(metabolome, SUPER_PATHWAY == 'Cofactors_and_Vitamins')
-metabolome_vit$SUPER_PATHWAY <- NULL
-vit <- as.vector(hclust(dist(metabolome_vit))$order)
-metabolome_vit <- t(metabolome_vit[vit,])
-metabolome_energy <- subset(metabolome, SUPER_PATHWAY == 'Energy')
-metabolome_energy$SUPER_PATHWAY <- NULL
-energy <- as.vector(hclust(dist(metabolome_energy))$order)
-metabolome_energy <- t(metabolome_energy[energy,])
-metabolome_lipid <- subset(metabolome, SUPER_PATHWAY == 'Lipid')
-metabolome_lipid$SUPER_PATHWAY <- NULL
-lipid <- as.vector(hclust(dist(metabolome_lipid))$order)
-metabolome_lipid <- t(metabolome_lipid[lipid,])
-metabolome_nuc <- subset(metabolome, SUPER_PATHWAY == 'Nucleotide')
-metabolome_nuc$SUPER_PATHWAY <- NULL
-nuc <- as.vector(hclust(dist(metabolome_nuc))$order)
-metabolome_nuc <- t(metabolome_nuc[nuc,])
-metabolome_pep <- subset(metabolome, SUPER_PATHWAY == 'Peptide')
-metabolome_pep$SUPER_PATHWAY <- NULL
-pep <- as.vector(hclust(dist(metabolome_pep))$order)
-metabolome_pep <- t(metabolome_pep[pep,])
-metabolome_xeno <- subset(metabolome, SUPER_PATHWAY == 'Xenobiotics')
-metabolome_xeno$SUPER_PATHWAY <- NULL
-xeno <- as.vector(hclust(dist(metabolome_xeno))$order)
-metabolome_xeno <- t(metabolome_xeno[xeno,])
-metabolome <- as.matrix(cbind(metabolome_amino,metabolome_carb,metabolome_vit,
-                              metabolome_energy,metabolome_lipid,metabolome_nuc,
-                              metabolome_pep,metabolome_xeno))
-rm(metabolome_amino,metabolome_carb,metabolome_vit,
-   metabolome_energy,metabolome_lipid,metabolome_nuc,
-   metabolome_pep,metabolome_xeno)
+# Combine each with no antibiotic controls
+cef_630_annotated <- merge(cef_630_annotated, noabx_annotated, by='gene')
+cef_mock_annotated <- merge(cef_mock_annotated, noabx_annotated, by='gene')
+clinda_630_annotated <- merge(clinda_630_annotated, noabx_annotated, by='gene')
+clinda_mock_annotated <- merge(clinda_mock_annotated, noabx_annotated, by='gene')
+strep_630_annotated <- merge(strep_630_annotated, noabx_annotated, by='gene')
+strep_mock_annotated <- merge(strep_mock_annotated, noabx_annotated, by='gene')
+rm(noabx_annotated)
 
-abx_metabolome <- merge(metabolome_annotation, t(abx_metabolome), by='row.names')
-rownames(abx_metabolome) <- abx_metabolome$Row.names
-abx_metabolome$Row.names <- NULL
-abx_metabolome$SUB_PATHWAY <- NULL
-pathways <- table(abx_metabolome$SUPER_PATHWAY)
-abx_metabolome_amino <- subset(abx_metabolome, SUPER_PATHWAY == 'Amino_Acid')
-abx_metabolome_amino$SUPER_PATHWAY <- NULL
-amino <- as.vector(hclust(dist(abx_metabolome_amino))$order)
-abx_metabolome_amino <- t(abx_metabolome_amino[amino,])
-abx_metabolome_carb <- subset(abx_metabolome, SUPER_PATHWAY == 'Carbohydrate')
-abx_metabolome_carb$SUPER_PATHWAY <- NULL
-carb <- as.vector(hclust(dist(abx_metabolome_carb))$order)
-abx_metabolome_carb <- t(abx_metabolome_carb[carb,])
-abx_metabolome_vit <- subset(abx_metabolome, SUPER_PATHWAY == 'Cofactors_and_Vitamins')
-abx_metabolome_vit$SUPER_PATHWAY <- NULL
-vit <- as.vector(hclust(dist(abx_metabolome_vit))$order)
-abx_metabolome_vit <- t(abx_metabolome_vit[vit,])
-abx_metabolome_energy <- subset(abx_metabolome, SUPER_PATHWAY == 'Energy')
-abx_metabolome_energy$SUPER_PATHWAY <- NULL
-energy <- as.vector(hclust(dist(abx_metabolome_energy))$order)
-abx_metabolome_energy <- t(abx_metabolome_energy[energy,])
-abx_metabolome_lipid <- subset(abx_metabolome, SUPER_PATHWAY == 'Lipid')
-abx_metabolome_lipid$SUPER_PATHWAY <- NULL
-lipid <- as.vector(hclust(dist(abx_metabolome_lipid))$order)
-abx_metabolome_lipid <- t(abx_metabolome_lipid[lipid,])
-abx_metabolome_nuc <- subset(abx_metabolome, SUPER_PATHWAY == 'Nucleotide')
-abx_metabolome_nuc$SUPER_PATHWAY <- NULL
-nuc <- as.vector(hclust(dist(abx_metabolome_nuc))$order)
-abx_metabolome_nuc <- t(abx_metabolome_nuc[nuc,])
-abx_metabolome_pep <- subset(abx_metabolome, SUPER_PATHWAY == 'Peptide')
-abx_metabolome_pep$SUPER_PATHWAY <- NULL
-pep <- as.vector(hclust(dist(abx_metabolome_pep))$order)
-abx_metabolome_pep <- t(abx_metabolome_pep[pep,])
-abx_metabolome_xeno <- subset(abx_metabolome, SUPER_PATHWAY == 'Xenobiotics')
-abx_metabolome_xeno$SUPER_PATHWAY <- NULL
-xeno <- as.vector(hclust(dist(abx_metabolome_xeno))$order)
-abx_metabolome_xeno <- t(abx_metabolome_xeno[xeno,])
-abx_metabolome <- as.matrix(cbind(abx_metabolome_amino,abx_metabolome_carb,abx_metabolome_vit,
-                              abx_metabolome_energy,abx_metabolome_lipid,abx_metabolome_nuc,
-                              abx_metabolome_pep,abx_metabolome_xeno))
-rm(abx_metabolome_vit,metabolome_annotation, amino,carb,vit,energy,lipid,nuc,pep,xeno,
-   abx_metabolome_energy,abx_metabolome_lipid,abx_metabolome_nuc,
-   abx_metabolome_pep,abx_metabolome_xeno)
+# Calculate differences in expression and remove those with no change
+cef_630_annotated$difference <- abs(cef_630_annotated$cef_630_reads - cef_630_annotated$noabx_reads)
+cef_630_annotated <- subset(cef_630_annotated, difference > 0)
+cef_mock_annotated$difference <- abs(cef_mock_annotated$cef_mock_reads - cef_mock_annotated$noabx_reads)
+cef_mock_annotated <- subset(cef_mock_annotated, difference > 0)
+clinda_630_annotated$difference <- abs(clinda_630_annotated$clinda_630_reads - clinda_630_annotated$noabx_reads)
+clinda_630_annotated <- subset(clinda_630_annotated, difference > 0)
+clinda_mock_annotated$difference <- abs(clinda_mock_annotated$clinda_mock_reads - clinda_mock_annotated$noabx_reads)
+clinda_mock_annotated <- subset(clinda_mock_annotated, difference > 0)
+strep_630_annotated$difference <- abs(strep_630_annotated$strep_630_reads - strep_630_annotated$noabx_reads)
+strep_630_annotated <- subset(strep_630_annotated, difference > 0)
+strep_mock_annotated$difference <- abs(strep_mock_annotated$strep_mock_reads - strep_mock_annotated$noabx_reads)
+strep_mock_annotated <- subset(strep_mock_annotated, difference > 0)
 
-#-------------------------------------------------------------------------------------------------------------------------#
+# Rank differences and subset to top 15
+cef_630_annotated <- cef_630_annotated[order(-cef_630_annotated$difference),]
+cef_630_annotated$difference <- NULL
+cef_630_top <- cef_630_annotated[1:15,]
+cef_mock_annotated <- cef_mock_annotated[order(-cef_mock_annotated$difference),]
+cef_mock_annotated$difference <- NULL
+cef_mock_top <- cef_mock_annotated[1:15,]
+clinda_630_annotated <- clinda_630_annotated[order(-clinda_630_annotated$difference),]
+clinda_630_annotated$difference <- NULL
+clinda_630_top <- clinda_630_annotated[1:15,]
+clinda_mock_annotated <- clinda_mock_annotated[order(-clinda_mock_annotated$difference),]
+clinda_mock_annotated$difference <- NULL
+clinda_mock_top <- clinda_mock_annotated[1:15,]
+strep_630_annotated <- strep_630_annotated[order(-strep_630_annotated$difference),]
+strep_630_annotated$difference <- NULL
+strep_630_top <- strep_630_annotated[1:15,]
+strep_mock_annotated <- strep_mock_annotated[order(-strep_mock_annotated$difference),]
+strep_mock_annotated$difference <- NULL
+strep_mock_top <- strep_mock_annotated[1:15,]
+rm(cef_630_annotated,cef_mock_annotated,clinda_630_annotated,
+   clinda_mock_annotated,strep_630_annotated,strep_mock_annotated)
 
-# Generate figures
-pdf(file=plot_file, width=50, height=30)
-heatmap.2( metabolome,
-           col=heat_palette,
-           trace='none',
-           scale='none',
-           symm=FALSE,
-           symbreaks=FALSE,
-           dendrogram='none',
-           margins=c(10, 20),
-           cexRow=2.5, 
-           Colv=FALSE,
-           Rowv=FALSE,
-           labCol=FALSE,
-           keysize=1,
-           density.info='none',
-           symkey=FALSE,
-           key.xlab='Scaled Intensity',
-           key.par=list(cex=1.5))
-segments(x0=0.182, y0=0.816, x1=0.182, y1=0.707, lwd=7) # Resistant
-text(x=0.15, y=0.76, 'Resistant', cex=3)
-segments(x0=0.182, y0=0.698, x1=0.182, y1=0.025, lwd=7) # Susceptible
-text(x=0.15, y=0.36, 'Susceptible', cex=3)
+# Log transform expression
+cef_630_top[,2:3] <- log2(cef_630_top[,2:3] + 1)
+cef_mock_top[,2:3] <- log2(cef_mock_top[,2:3] + 1)
+clinda_630_top[,2:3] <- log2(clinda_630_top[,2:3] + 1)
+clinda_mock_top[,2:3] <- log2(clinda_mock_top[,2:3] + 1)
+strep_630_top[,2:3] <- log2(strep_630_top[,2:3] + 1)
+strep_mock_top[,2:3] <- log2(strep_mock_top[,2:3] + 1)
 
-segments(x0=0.189, y0=0.02, x1=0.326, y1=0.02, lwd=7) # amino acids
-text(x=0.2585, y=0.005, 'Amino Acids', cex=2.2)
-segments(x0=0.331, y0=0.02, x1=0.364, y1=0.02, lwd=7) # carbs
-text(x=0.348, y=0.005, 'Carbohydrates', cex=2.2)
-segments(x0=0.37, y0=0.02, x1=0.409, y1=0.02, lwd=7) # vit
-text(x=0.39, y=0.005, 'Vitamins', cex=2.2)
-segments(x0=0.413, y0=0.02, x1=0.423, y1=0.02, lwd=7) # Energy 
-text(x=0.42, y=0.005, 'Energy', cex=2.2)
-segments(x0=0.427, y0=0.02, x1=0.75, y1=0.02, lwd=7) # Lipid 
-text(x=0.59, y=0.005, 'Lipid', cex=2.2)
-segments(x0=0.756, y0=0.02, x1=0.809, y1=0.02, lwd=7) # Nucleotide 
-text(x=0.784, y=0.005, 'Nucleotide', cex=2.2)
-segments(x0=0.815, y0=0.02, x1=0.854, y1=0.02, lwd=7) # Peptide 
-text(x=0.836, y=0.005, 'Peptide', cex=2.2)
-segments(x0=0.86, y0=0.02, x1=0.94, y1=0.02, lwd=7) # Xenobiotics  
-text(x=0.9, y=0.005, 'Xenobiotics ', cex=2.2)
+# Reassociate with pathway annotations
+cef_630_top_pathways <- merge(cef_630_top, all_pathways, by='gene', all.x=TRUE)
+cef_mock_top_pathways <- merge(cef_mock_top, all_pathways, by='gene', all.x=TRUE)
+clinda_630_top_pathways <- merge(clinda_630_top, all_pathways, by='gene', all.x=TRUE)
+clinda_mock_top_pathways <- merge(clinda_mock_top, all_pathways, by='gene', all.x=TRUE)
+strep_630_top_pathways <- merge(strep_630_top, all_pathways, by='gene', all.x=TRUE)
+strep_mock_top_pathways <- merge(strep_mock_top, all_pathways, by='gene', all.x=TRUE)
+rm(all_pathways)
+
+# Add rownames
+cef_630_top <- merge(cef_630_top, genes, by='gene', all.x=TRUE)
+cef_630_top$gene <- NULL
+cef_630_top$name <- gsub('_', ' ', cef_630_top$name)
+rownames(cef_630_top) <- cef_630_top$name
+cef_630_top$name <- NULL
+cef_mock_top <- merge(cef_mock_top, genes, by='gene', all.x=TRUE)
+cef_mock_top$gene <- NULL
+cef_mock_top$name <- gsub('_', ' ', cef_mock_top$name)
+rownames(cef_mock_top) <- cef_mock_top$name
+cef_mock_top$name <- NULL
+clinda_630_top <- merge(clinda_630_top, genes, by='gene', all.x=TRUE)
+clinda_630_top$gene <- NULL
+clinda_630_top$name <- gsub('_', ' ', clinda_630_top$name)
+rownames(clinda_630_top) <- clinda_630_top$name
+clinda_630_top$name <- NULL
+clinda_mock_top <- merge(clinda_mock_top, genes, by='gene', all.x=TRUE)
+clinda_mock_top$gene <- NULL
+clinda_mock_top$name <- gsub('_', ' ', clinda_mock_top$name)
+rownames(clinda_mock_top) <- clinda_mock_top$name
+clinda_mock_top$name <- NULL
+strep_630_top <- merge(strep_630_top, genes, by='gene', all.x=TRUE)
+strep_630_top$gene <- NULL
+strep_630_top$name <- gsub('_', ' ', strep_630_top$name)
+rownames(strep_630_top) <- strep_630_top$name
+strep_630_top$name <- NULL
+strep_mock_top <- merge(strep_mock_top, genes, by='gene', all.x=TRUE)
+strep_mock_top$gene <- NULL
+strep_mock_top$name <- gsub('_', ' ', strep_mock_top$name)
+rownames(strep_mock_top) <- strep_mock_top$name
+strep_mock_top$name <- NULL
+rm(genes)
+
+# Reorder by expression in treatment group
+cef_630_top <- cef_630_top[order(cef_630_top$cef_630_reads),]
+cef_mock_top <- cef_mock_top[order(cef_mock_top$cef_mock_reads),]
+clinda_630_top <- clinda_630_top[order(clinda_630_top$clinda_630_reads),]
+clinda_mock_top <- clinda_mock_top[order(clinda_mock_top$clinda_mock_reads),]
+strep_630_top <- strep_630_top[order(strep_630_top$strep_630_reads),]
+strep_mock_top <- strep_mock_top[order(strep_mock_top$strep_mock_reads),]
+
+# Convert to matrices for barplots
+cef_630_top <- as.matrix(t(cef_630_top))
+cef_mock_top <- as.matrix(t(cef_mock_top))
+clinda_630_top <- as.matrix(t(clinda_630_top))
+clinda_mock_top <- as.matrix(t(clinda_mock_top))
+strep_630_top <- as.matrix(t(strep_630_top))
+strep_mock_top <- as.matrix(t(strep_mock_top))
+
+# Reverse the row order so infected plots first
+cef_630_top <- cef_630_top[rev(rownames(cef_630_top)),]
+cef_mock_top <- cef_mock_top[rev(rownames(cef_mock_top)),]
+clinda_630_top <- clinda_630_top[rev(rownames(clinda_630_top)),]
+clinda_mock_top <- clinda_mock_top[rev(rownames(clinda_mock_top)),]
+strep_630_top <- strep_630_top[rev(rownames(strep_630_top)),]
+strep_mock_top <- strep_mock_top[rev(rownames(strep_mock_top)),]
+
+#--------------------------------------------------------------------------------------------------#
+
+# Generate figure
+pdf(file=plot_file, width=11, height=12)
+layout(matrix(c(1,1,2,2,3,
+                4,4,5,5,6,
+                7,7,8,8,9),
+              nrow=3, ncol=5, byrow = TRUE))
+
+#------------------#
+
+# Streptomycin
+# Mock-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(strep_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, strep_col), cex.names=1) 
+box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
+mtext('A', side=2, padj=-11, adj=18, cex=1.2, font=2)
+
+# 630-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(strep_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE,
+        xlab='', ylab='', col=c(noabx_col, strep_col), cex.names=1) 
+box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
+mtext('B', side=2, padj=-11, adj=17, cex=1.2, font=2)
+
+# Legend
+par(mar=c(0,0,0,1))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
+legend('center', legend=c('Streptomycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(strep_col,noabx_col), 
+       pch=22, pt.cex=2.4, cex=1.3)
+
+#------------------#
+
+# Cefoperazone
+# Mock-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(cef_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, cef_col), cex.names=1) 
+box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
+mtext('C', side=2, padj=-11, adj=18, cex=1.2, font=2)
+
+# 630-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(cef_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, cef_col), cex.names=1) 
+box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
+mtext('D', side=2, padj=-11, adj=17, cex=1.2, font=2)
+
+# Legend
+par(mar=c(0,0,0,1))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
+legend('center', legend=c('Cefoperazone-pretreated','No Antibiotics (No CDI)'), pt.bg=c(cef_col,noabx_col), 
+       pch=22, pt.cex=2.4, cex=1.3)
+
+#------------------#
+
+# Clindamycin
+# Mock-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(clinda_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, clinda_col), cex.names=1) 
+box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
+mtext('E', side=2, padj=-11, adj=18, cex=1.2, font=2)
+
+# 630-infected
+par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
+barplot(clinda_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', col=c(noabx_col, clinda_col), cex.names=1) 
+box()
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
+mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
+mtext('F', side=2, padj=-11, adj=30, cex=1.2, font=2)
+
+# Legend
+par(mar=c(0,0,0,1))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
+legend('center', legend=c('Clindamycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(clinda_col,noabx_col), 
+       pch=22, pt.cex=2.4, cex=1.3)
+
 dev.off()
 
+#--------------------------------------------------------------------------------------------------#
 
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Clean up
+#Clean up
 for (dep in deps){
   pkg <- paste('package:', dep, sep='')
-  detach(pkg, character.only=TRUE)}
+  detach(pkg, character.only = TRUE)
+}
 setwd(starting_dir)
 rm(list=ls())
 gc()
