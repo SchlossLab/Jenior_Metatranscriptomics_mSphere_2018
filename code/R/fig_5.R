@@ -425,7 +425,7 @@ legend('center', ncol=3, cex=0.75, pt.cex=0.9,
          'Methane metabolism','Phosphotransferase system','Starch & sucrose metabolism',
          'Glutathione metabolism','Valine, leucine, and isoleucine biosyn.','Glycine, serine, and threonine metab.'))
 
-text(x=-6.5, y=1.8, expression(paste('Most frequent pathways among genes in ', bold('b-d'), ':')), cex=0.9, xpd=TRUE)
+text(x=-6.5, y=1.8, expression(paste('Most frequent pathways among genes in ', bold('B-D'), ':')), cex=0.9, xpd=TRUE)
 
 dev.off()
 
