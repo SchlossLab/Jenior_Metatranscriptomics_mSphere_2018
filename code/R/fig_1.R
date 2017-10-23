@@ -106,7 +106,7 @@ text(x=-2.5, y=c(-1,-1.4), c('Streptomycin (5.0 mg/ml)','Cefoperazone (0.5 mg/ml
 text(x=2.3, y=-1, 'Clindamycin (10 mg/kg)', cex=1.2, col=clinda_col)
 
 # Plot label
-text(-4.7, 4.88, 'A', cex=1.2, font=2)
+text(-4.7, 4.88, 'A', cex=1.4, font=2)
 
 #-------------------------------------------------------------------#
 
@@ -126,7 +126,7 @@ axis(side=1, at=c(0:11), labels=c(-1:10))
 axis(side=2, at=seq(0,10,1), labels=c(0, parse(text=paste(rep(10,10), '^', seq(1,10,1), sep=''))), las=1)
 legend(x=1.7, y=4.6, legend=c('Streptomycin (5 mg/ml)', 'Cefoperazone (0.5 mg/ml)', 'Clindamycin (10 mg/kg)', 'No Antibiotics'),
        pch=16, col=c(strep_col, cef_col, clinda_col, noabx_col), cex=0.7, pt.cex=1.2)
-mtext('B', side=2, line=2, las=2, adj=2.3, padj=-9, cex=1.3, font=2)
+mtext('B', side=2, line=2, las=2, adj=2.3, padj=-9, cex=1.2, font=2)
 
 #-------------------------------------------------------------------#
 
