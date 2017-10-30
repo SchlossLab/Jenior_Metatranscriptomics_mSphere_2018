@@ -321,7 +321,7 @@ colnames(clinda_annotated) <- c('(A) ATP synthase subunit B',
 pathway_names <- c(rev(rownames(strep_pathways)),rownames(cef_pathways),rev(rownames(clinda_pathways)))
 strep_pathways <- c(rev(as.vector(strep_pathways$diff)),0,rep(0,5),0,rep(0,5))
 cef_pathways <- c(rep(0,5),0,as.vector(cef_pathways$diff),0,rep(0,5))
-clinda_pathways <- c(rep(0,5),0,rep(0,5),0,rev(as.vector(clinda_pathways$diff)))
+clinda_pathways <- c(rep(0,5),0,rep(0,5),0,rev(as.vector(clinda_pathways$diff-3)))
 
 #--------------------------------------------------------------------------------------------------#
 
