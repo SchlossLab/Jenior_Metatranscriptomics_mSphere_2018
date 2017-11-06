@@ -11,12 +11,12 @@
 	|- README          # the top level description of content
 	|- LICENSE         # the license for this project
 	|
-	|- Jenior_Metatransciptomics_eLife_2017.Rmd		# executable Rmarkdown for this study
-	|- Jenior_Metatransciptomics_eLife_2017.md		# Markdown (GitHub) version of the *.Rmd file
-	|- Jenior_Metatransciptomics_eLife_2017.docx		# Word document of study manuscript
+	|- Jenior_Metatransciptomics_PLOSBio_2017.Rmd		# executable Rmarkdown for this study
+	|- Jenior_Metatransciptomics_PLOSBio_2017.md		# Markdown (GitHub) version of the *.Rmd file
+	|- Jenior_Metatransciptomics_PLOSBio_2017.docx		# Word document of study manuscript
 	|- manuscript_format.docx				# Word document associated with Rmd for proper formatting
 	|- references.bib					# BibTeX formatted references
-	|- eLife.csl						# csl file to format references
+	|- plos-biology.csl						# csl file to format references
 	|
 	|- doc/		# Metagenome & metatranscriptome bioinformatic processing pipelines
 	|
