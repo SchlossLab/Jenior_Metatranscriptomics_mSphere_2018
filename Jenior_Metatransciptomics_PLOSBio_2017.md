@@ -128,7 +128,7 @@ M.L.J. conceived, designed and performed experiments, analyzed data, and drafted
 The authors declare no conflicts of interest.
 
 
-###Supporting Information Legends
+###Supporting Information Captions
 
 **Supporting Figure 1 | Impact of antibiotic pretreatment and *C. difficile* infection on cecal bacterial community structure** **(A)** Inverse-Simpson diversity of cecal communities from all pretreatment groups. Gray stars indicate significant difference from no antibiotic controls (all *p* < 0.001). Black stars denote within pretreatment group significant difference between mock and *C. difficile*-infected communities. Differences were calculated using Wilcoxon rank-sum test with Benjamini-Hochberg correction. NMDS ordinations of Bray-Curtis distances comparing the groups labeled in the bottom left of each plotting area. **(B)** Antibiotic-pretreated compared to Untreated controls and **(C)** comparison between only antibiotic pretreatment groups. **(D-F)** Within antibiotic pretreatment comparisons for the effect of *C. difficile* colonization on community structure. Significant differences and correlation coefficients for ordination analyses were found using ANOSIM.
 
