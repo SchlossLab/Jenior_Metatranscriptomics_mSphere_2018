@@ -118,7 +118,7 @@ This work was supported by funding from the National Institutes of Health to PDS
 
 ###Acknowledgments
 
-The authors would like to acknowledge Charles Koumpouras for assistance with DNA extractions and metabolomic sample preparation. We would also like to acknowledge members of the University of Michigan Germfree Mouse Center, University of Michigan Sequencing Core, and Metabolon for their assistance in experimental design, execution, and data collection. Pooled and quality trimmed transcriptomic and 16S rRNA gene amplicon read data from infection experiments are available through the NCBI Sequence Read Archive (SRA; PRJNA354635). Metagenomeic reads, mock-infected metatranscriptomic reads can be found also on the SRA (PRJNA415307). Data processing steps for beginning from raw sequence data to the final manuscript are hosted at https://github.com/mjenior/Jenior_Metatranscriptomics_eLife_2017.
+The authors would like to acknowledge Charles Koumpouras for assistance with DNA extractions and metabolomic sample preparation. We would also like to acknowledge members of the University of Michigan Germfree Mouse Center, University of Michigan Sequencing Core, and Metabolon for their assistance in experimental design, execution, and data collection. Pooled and quality trimmed transcriptomic and 16S rRNA gene amplicon read data from infection experiments are available through the NCBI Sequence Read Archive (SRA; PRJNA354635). Metagenomeic reads, mock-infected metatranscriptomic reads can be found also on the SRA (PRJNA415307). Data processing steps for beginning from raw sequence data to the final manuscript are hosted at https://github.com/mjenior/Jenior_Metatranscriptomics_PLOSBio_2017.
 
 
 **Author Contributions**
