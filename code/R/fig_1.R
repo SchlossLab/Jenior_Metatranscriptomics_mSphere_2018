@@ -46,7 +46,7 @@ wetlab$cfu_vegetative[wetlab$cfu_vegetative <= 2.0] <- 1.7 # Undetectable points
 wetlab$cfu_spore[wetlab$cfu_spore <= 2.0] <- 1.7 # Undetectable points below LOD
 wetlab$toxin_titer[wetlab$toxin_titer <= 2.0] <- 1.94 # Undetectable points below LOD
 
-# Format CFU oveer time
+# Format CFU over time
 # Aggregate median by abx
 cfu[,2:ncol(cfu)] <- log10(cfu[,2:ncol(cfu)] + 1)
 cfu_median <- aggregate(cfu[,2:ncol(cfu)], by=list(cfu$abx), FUN=quantile, probs=0.5)
