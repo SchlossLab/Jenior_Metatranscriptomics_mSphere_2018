@@ -26,7 +26,7 @@ Colonization resistance to the nosocomial pathogen *Clostridium difficile* is pr
 	|- doc/		# Metagenome & metatranscriptome bioinformatic processing pipelines
 	|
 	|- data/          	# raw and primary data
-	| |- /16S_analysis			# 
+	| |- /16S_analysis			# 16S results for all pretreatments
 	| |- /kegg			# subset of KEGG reference files used
 	| |- /metabolome			# results from untargeted LCMS analysis
 	| |- /metagenomes			# metagenomic contigs
