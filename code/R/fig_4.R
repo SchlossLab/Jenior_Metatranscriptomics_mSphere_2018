@@ -288,9 +288,9 @@ segments(x0=c(0.6,2.6,3.6,5.6,6.6,8.6,9.6), x1=c(1.4,3.4,4.4,6.4,7.4,9.4,10.4),
          lwd=3)
 segments(x0=c(3,6,9), y0=5, x1=c(4,7,10), y1=5, lwd=2)
 text(x=c(3.5,6.5,9.5), y=5.2, '*', font=2, cex=2)
-mtext(rep('*',5), side=3, adj=c(0.21,0.28,
-                                0.43,0.5,
-                                0.645), padj=0.4, font=2, cex=1.5, col='gray40') # Untreated vs Mock significance
+mtext(rep('*',5), side=3, adj=c(0.31,0.48,
+                                0.53,0.645,
+                                0.75), padj=0.4, font=2, cex=1.6, col='gray40') # Untreated vs Mock significance
 mtext('G', side=2, line=2, las=2, adj=2, padj=-8, cex=1.6, font=2)
 
 dev.off()
