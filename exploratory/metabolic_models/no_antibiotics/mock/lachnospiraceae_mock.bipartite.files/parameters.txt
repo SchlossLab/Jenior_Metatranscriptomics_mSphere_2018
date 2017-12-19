@@ -1,0 +1,8 @@
+User Defined Parameters
+KO expression file: lachnospiraceae_DNA.conventional_RNA.final.pool.norm.ko.txt
+Graph name: lachnospiraceae_mock
+KEGG ortholog nodes: 239
+Substrate nodes: 488
+Probability distribution generated: yes
+Permutations: 1000
+Duration: 2 seconds

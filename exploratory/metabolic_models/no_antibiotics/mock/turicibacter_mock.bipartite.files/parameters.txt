@@ -1,0 +1,8 @@
+User Defined Parameters
+KO expression file: turicibacter_DNA.conventional_RNA.final.pool.norm.ko.txt
+Graph name: turicibacter_mock
+KEGG ortholog nodes: 361
+Substrate nodes: 615
+Probability distribution generated: yes
+Permutations: 1000
+Duration: 3 seconds

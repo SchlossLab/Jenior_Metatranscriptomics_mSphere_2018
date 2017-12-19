@@ -1,0 +1,8 @@
+User Defined Parameters
+KO expression file: butyrivibrio_DNA.conventional_RNA.final.pool.norm.ko.txt
+Graph name: butyrivibrio_mock
+KEGG ortholog nodes: 515
+Substrate nodes: 822
+Probability distribution generated: yes
+Permutations: 1000
+Duration: 5 seconds

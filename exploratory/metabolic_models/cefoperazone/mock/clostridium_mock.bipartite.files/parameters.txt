@@ -1,0 +1,8 @@
+User Defined Parameters
+KO expression file: clostridium_DNA.cefoperazone_mock_RNA.final.pool.norm.ko.txt
+Graph name: clostridium_mock
+KEGG ortholog nodes: 483
+Substrate nodes: 818
+Probability distribution generated: yes
+Permutations: 1000
+Duration: 4 seconds

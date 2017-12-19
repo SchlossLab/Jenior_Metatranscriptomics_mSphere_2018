@@ -1,0 +1,8 @@
+User Defined Parameters
+KO expression file: mollicute_DNA.conventional_RNA.final.pool.norm.ko.txt
+Graph name: mollicute_mock
+KEGG ortholog nodes: 196
+Substrate nodes: 401
+Probability distribution generated: yes
+Permutations: 1000
+Duration: 2 seconds
