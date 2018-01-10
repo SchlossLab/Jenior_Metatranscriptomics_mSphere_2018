@@ -9,10 +9,17 @@ source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.
 
 # Define files
 
+# Metadata
+metadata <- 'data/metadata.tsv'
+
 # Normalized Metatranscriptomes
 cef_normalized_reads <- 'data/read_mapping/cef_normalized_metaT.tsv'
 clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
 strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
+
+# 16S abundances
+genus_shared <- 'data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample'
+genus_tax <- 'data/16S_analysis/all_treatments.0.03.cons.genus.format.taxonomy'
 
 # KEGG taxonomy IDs
 kegg_tax <- 'data/kegg_taxonomy.tsv'
@@ -27,6 +34,9 @@ plot_file <- 'results/figures/figure_6.tiff'
 
 # Read in data
 
+# Metadata
+metadata <- read.delim(metadata, sep='\t', header=TRUE, row.names=1)
+
 # Normalized Metatranscriptomes
 cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, row.names=7)
 clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, row.names=7)
@@ -35,6 +45,12 @@ strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TR
 # KEGG organism file
 kegg_tax <- read.delim(kegg_tax, sep='\t', header=TRUE)
 kegg_tax[] <- lapply(kegg_tax, as.character)
+
+# 16S data
+genus_shared <- read.delim(genus_shared, sep='\t', header=TRUE, row.names=2)
+genus_shared$label <- NULL
+genus_shared$numOtus <- NULL
+genus_tax <- read.delim(genus_tax, sep='\t', header=TRUE)
 
 # Taxonomy colors
 tax_colors <- read.delim(tax_colors, sep='\t', header=TRUE)
@@ -75,6 +91,11 @@ rm(mamm_omit)
 strep_corr <- as.character(round(cor.test(strep_annotated[,2], strep_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
 cef_corr <- as.character(round(cor.test(cef_annotated[,2], cef_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
 clinda_corr <- as.character(round(cor.test(clinda_annotated[,2], clinda_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
+
+# Collate transcript abundances at genus-level 
+
+
+
 
 # Using previously defined lines, find outliers to y = x
 strep_630_outliers <- subset(strep_annotated, strep_annotated$strep_630_metaT_reads > strep_annotated$strep_mock_metaT_reads + 2)
@@ -254,6 +275,12 @@ clinda_mock_ecoli <- subset(clinda_mock_outliers, color == '#CCCC00')
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
+# Transform 16S abundances
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
 # Check the count of genes for each genus in outlier groups
 table(strep_630_outliers$genus) # upper
 table(strep_mock_outliers$genus) # lower
@@ -270,10 +297,11 @@ table(clinda_annotated$genus)
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
-tiff(filename=plot_file, width=10, height=10, units='in', 
+tiff(filename=plot_file, width=10, height=15, units='in', 
      res=200, pointsize=12, compression='none')
 layout(matrix(c(1,2,
-                3,4), 
+                3,4,
+                5,5), 
               nrow=2, ncol=2, byrow = TRUE))
 par(mar=c(4, 4, 1, 1), mgp=c(3,0.7,0))
 
@@ -386,6 +414,25 @@ text(x=1.5, y=-0.85, labels='<0.1% Each', cex=0.9) # Other bacteria
 points(x=2.75, y=-0.85, pch=22, cex=2.1, col='black', bg='white') # Other Bacteria - white
 text(x=1.35, y=-3.1, labels='Methanobrevibacter', cex=0.9, font=3) # Archeae
 points(x=2.75, y=-3.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
+
+#-------------------#
+
+# 16S to normalized transcript abundance orrelation
+par(mar=c(4, 4, 1, 1))
+plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
+
+
+points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_630_outliers_other$color)
+
+
+
+
+
+
+box()
+
+
+
 
 dev.off()
 
