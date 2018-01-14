@@ -18,11 +18,11 @@ clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
 strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
 
 # 16S abundances
-genus_shared <- 'data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample'
-genus_tax <- 'data/16S_analysis/all_treatments.0.03.cons.genus.format.taxonomy'
+genus_shared <- 'data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
+genus_tax <- 'data/16S_analysis/all_treatments.genus.final.taxonomy'
 
 # KEGG taxonomy IDs
-kegg_tax <- 'data/kegg_taxonomy.tsv'
+kegg_tax <- 'data/kegg/kegg_taxonomy.tsv'
 
 # Taxonomy colors
 tax_colors <- 'data/taxonomy_color.tsv'
@@ -51,7 +51,9 @@ genus_shared <- read.delim(genus_shared, sep='\t', header=TRUE, row.names=2)
 genus_shared$label <- NULL
 genus_shared$numOtus <- NULL
 genus_tax <- read.delim(genus_tax, sep='\t', header=TRUE)
-
+rownames(genus_tax) <- genus_tax$OTU
+genus_tax$OTU <- NULL
+ 
 # Taxonomy colors
 tax_colors <- read.delim(tax_colors, sep='\t', header=TRUE)
 tax_colors[] <- lapply(tax_colors, as.character)
@@ -93,9 +95,33 @@ cef_corr <- as.character(round(cor.test(cef_annotated[,2], cef_annotated[,1], me
 clinda_corr <- as.character(round(cor.test(clinda_annotated[,2], clinda_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
 
 # Collate transcript abundances at genus-level 
+genus_shared <- t(genus_shared)
+genus_tax_shared <- merge(genus_tax, genus_shared, by='row.names')
+genus_tax_shared$Row.names <- NULL
+genus_tax_agg_shared <- aggregate(. ~ Genus, data=genus_tax_shared, FUN=sum)
+rownames(genus_tax_agg_shared) <- genus_tax_agg_shared$Genus
+genus_tax_agg_shared$Genus <- NULL
+genus_tax_agg_shared <- t(genus_tax_agg_shared)
+rm(genus_tax, genus_shared, genus_tax_shared)
 
-
-
+# Combine with metadata and collate within treatment
+genus_tax_agg_metadata_shared <- merge(metadata, genus_tax_agg_shared, by='row.names')
+genus_tax_agg_metadata_shared$Row.names <- NULL
+genus_tax_agg_metadata_shared$cage <- NULL
+genus_tax_agg_metadata_shared$mouse <- NULL
+genus_tax_agg_metadata_shared$gender <- NULL
+genus_tax_agg_metadata_shared$type <- NULL
+genus_tax_agg_metadata_shared <- subset(genus_tax_agg_metadata_shared, infection == '630')
+genus_tax_agg_metadata_shared$infection <- NULL
+genus_tax_agg_metadata_shared$susceptibility <- NULL
+genus_tax_agg_metadata_shared <- subset(genus_tax_agg_metadata_shared, genus_tax_agg_metadata_shared$abx %in% c('cefoperazone','clindamycin','streptomycin'))
+genus_tax_agg_metadata_shared <- aggregate(. ~ abx, data=genus_tax_agg_metadata_shared, FUN=median)
+rownames(genus_tax_agg_metadata_shared) <- genus_tax_agg_metadata_shared$abx
+genus_tax_agg_metadata_shared$abx <- NULL
+genus_tax_agg_metadata_shared <- log2(genus_tax_agg_metadata_shared + 1)
+genus_tax_agg_metadata_shared <- t(genus_tax_agg_metadata_shared)
+genus_tax_agg_metadata_shared <- as.data.frame(genus_tax_agg_metadata_shared)
+rm(genus_tax_agg_shared)
 
 # Using previously defined lines, find outliers to y = x
 strep_630_outliers <- subset(strep_annotated, strep_annotated$strep_630_metaT_reads > strep_annotated$strep_mock_metaT_reads + 2)
@@ -230,6 +256,54 @@ clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=tax_colors, by.x='genus'
 clinda_mock_outliers$color[is.na(clinda_mock_outliers$color)] <- 'white'
 rm(tax_colors)
 
+# Find difference in expression for outliers
+strep_630_difference <- log2(abs(((2^strep_630_outliers$strep_mock_metaT_reads) - 1) - ((2^strep_630_outliers$strep_630_metaT_reads) - 1)) + 1)
+strep_630_difference <- cbind(strep_630_outliers$genus, strep_630_difference, strep_630_outliers$description)
+temp <- genus_tax_agg_metadata_shared
+temp$cefoperazone <- NULL
+temp$clindamycin <- NULL
+strep_630_difference <- merge(strep_630_difference, temp, by.x='V1', by.y='row.names')
+colnames(strep_630_difference) <- c('genus','transcriptDiff','description','relAbund')
+strep_mock_difference <- log2(abs(((2^strep_mock_outliers$strep_mock_metaT_reads) - 1) - ((2^strep_mock_outliers$strep_630_metaT_reads) - 1)) + 1)
+strep_mock_difference <- cbind(strep_mock_outliers$genus, strep_mock_difference, strep_mock_outliers$description)
+strep_mock_difference <- merge(strep_mock_difference, temp, by.x='V1', by.y='row.names')
+colnames(strep_mock_difference) <- c('genus','transcriptDiff','description','relAbund')
+strep_difference <- rbind(strep_630_difference, strep_mock_difference)
+strep_difference$transcriptDiff <- as.numeric(as.character(strep_difference$transcriptDiff))
+strep_difference$relAbund <- as.numeric(as.character(strep_difference$relAbund))
+rm(strep_630_difference, strep_mock_difference)
+cef_630_difference <- log2(abs(((2^cef_630_outliers$cef_mock_metaT_reads) - 1) - ((2^cef_630_outliers$cef_630_metaT_reads) - 1)) + 1)
+cef_630_difference <- cbind(cef_630_outliers$genus, cef_630_difference, cef_630_outliers$description)
+temp <- genus_tax_agg_metadata_shared
+temp$streptomycin <- NULL
+temp$clindamycin <- NULL
+cef_630_difference <- merge(cef_630_difference, temp, by.x='V1', by.y='row.names')
+colnames(cef_630_difference) <- c('genus','transcriptDiff','description','relAbund')
+cef_mock_difference <- log2(abs(((2^cef_mock_outliers$cef_mock_metaT_reads) - 1) - ((2^cef_mock_outliers$cef_630_metaT_reads) - 1)) + 1)
+cef_mock_difference <- cbind(cef_mock_outliers$genus, cef_mock_difference, cef_mock_outliers$description)
+cef_mock_difference <- merge(cef_mock_difference, temp, by.x='V1', by.y='row.names')
+colnames(cef_mock_difference) <- c('genus','transcriptDiff','description','relAbund')
+cef_difference <- rbind(cef_630_difference, cef_mock_difference)
+cef_difference$transcriptDiff <- as.numeric(as.character(cef_difference$transcriptDiff))
+cef_difference$relAbund <- as.numeric(as.character(cef_difference$relAbund))
+rm(cef_630_difference, cef_mock_difference)
+clinda_630_difference <- log2(abs(((2^clinda_630_outliers$clinda_mock_metaT_reads) - 1) - ((2^clinda_630_outliers$clinda_630_metaT_reads) - 1)) + 1)
+clinda_630_difference <- cbind(clinda_630_outliers$genus, clinda_630_difference, clinda_630_outliers$description)
+temp <- genus_tax_agg_metadata_shared
+temp$cefoperazone <- NULL
+temp$streptomycin <- NULL
+clinda_630_difference <- merge(clinda_630_difference, temp, by.x='V1', by.y='row.names')
+colnames(clinda_630_difference) <- c('genus','transcriptDiff','description','relAbund')
+clinda_mock_difference <- log2(abs(((2^clinda_mock_outliers$clinda_mock_metaT_reads) - 1) - ((2^clinda_mock_outliers$clinda_630_metaT_reads) - 1)) + 1)
+clinda_mock_difference <- cbind(clinda_mock_outliers$genus, clinda_mock_difference, clinda_mock_outliers$description)
+clinda_mock_difference <- merge(clinda_mock_difference, temp, by.x='V1', by.y='row.names')
+colnames(clinda_mock_difference) <- c('genus','transcriptDiff','description','relAbund')
+clinda_difference <- rbind(clinda_630_difference, clinda_mock_difference)
+clinda_difference$transcriptDiff <- as.numeric(as.character(clinda_difference$transcriptDiff))
+clinda_difference$relAbund <- as.numeric(as.character(clinda_difference$relAbund))
+rm(clinda_630_difference, clinda_mock_difference)
+rm(genus_tax_agg_metadata_shared, temp)
+
 # Subset out other bacteria group
 strep_630_outliers_other <- subset(strep_630_outliers, color == 'white')
 strep_630_outliers <- subset(strep_630_outliers, color != 'white')
@@ -275,11 +349,13 @@ clinda_mock_ecoli <- subset(clinda_mock_outliers, color == '#CCCC00')
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Transform 16S abundances
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------#
+# Spearman correlation of 16S and metatransctiptomic change
+strep_16S_r <- as.character(round(cor.test(strep_difference$transcriptDiff, strep_difference$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
+strep_16S_p <- as.character(round(cor.test(strep_difference$transcriptDiff, strep_difference$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
+cef_16S_r <- as.character(round(cor.test(cef_difference$transcriptDiff, cef_difference$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
+cef_16S_p <- as.character(round(cor.test(cef_difference$transcriptDiff, cef_difference$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
+clinda_16S_r <- as.character(round(cor.test(clinda_difference$transcriptDiff, clinda_difference$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
+clinda_16S_p <- as.character(round(cor.test(clinda_difference$transcriptDiff, clinda_difference$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
 
 # Check the count of genes for each genus in outlier groups
 table(strep_630_outliers$genus) # upper
@@ -310,7 +386,7 @@ par(mar=c(4, 4, 1, 1), mgp=c(3,0.7,0))
 # Streptomycin
 plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
 filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
-box()
+box(lwd=2)
 points(x=strep_annotated$strep_mock_metaT_reads, y=strep_annotated$strep_630_metaT_reads, pch=20, cex=1.3, col='gray40')
 segments(-2, -2, 14, 14, lty=2)
 axis(1, at=seq(0,12,2), label=seq(0,12,2))
@@ -321,7 +397,7 @@ mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
-legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(strep_col,'black'))
+legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('R'),' = ',.(strep_corr))))), bty='n', cex=1.2, text.col=c(strep_col,'black'))
 mtext('A', side=2, line=2, las=2, adj=1, padj=-9.5, cex=1.7, font=2)
 
 points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_630_outliers_other$color)
@@ -338,7 +414,7 @@ points(x=strep_mock_archeae$strep_mock_metaT_reads, y=strep_mock_archeae$strep_6
 # Cefoperazone
 plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
 filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
-box()
+box(lwd=2)
 points(x=cef_annotated$cef_mock_metaT_reads, y=cef_annotated$cef_630_metaT_reads, pch=20, cex=1.3, col='gray40')
 segments(-2, -2, 14, 14, lty=2)
 axis(1, at=seq(0,12,2), label=seq(0,12,2))
@@ -349,7 +425,7 @@ mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
-legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(cef_col,'black'))
+legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('R'),' = ',.(cef_corr))))), bty='n', cex=1.2, text.col=c(cef_col,'black'))
 mtext('B', side=2, line=2, las=2, adj=1, padj=-9.5, cex=1.7, font=2)
 
 points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$cef_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=cef_630_outliers_other$color)
@@ -366,7 +442,7 @@ points(x=cef_mock_archeae$cef_mock_metaT_reads, y=cef_mock_archeae$cef_630_metaT
 # Clindamycin
 plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
 filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
-box()
+box(lwd=2)
 points(x=clinda_annotated$clinda_mock_metaT_reads, y=clinda_annotated$clinda_630_metaT_reads, pch=20, cex=1.3, col='gray40')
 segments(-2, -2, 14, 14, lty=2)
 axis(1, at=seq(0,12,2), label=seq(0,12,2))
@@ -377,7 +453,7 @@ mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=
 mtext('Mock-Infected', side=1, padj=3.7, font=2, cex=0.9)
 mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-2, cex=0.7)
 mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2, cex=0.9)
-legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('rho'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(clinda_col,'black'))
+legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('R'),' = ',.(clinda_corr))))), bty='n', cex=1.2, text.col=c(clinda_col,'black'))
 mtext('C', side=2, line=2, las=2, adj=1, padj=-9.5, cex=1.7, font=2)
 
 points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_630_outliers_other$color)
@@ -394,7 +470,7 @@ points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clin
 # Taxonomic group legend
 par(mar=c(0,1,3,0))
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-rect(xleft=-4.5, ybottom=10, xright=3.5, ytop=-5.5, border='black')
+rect(xleft=-4.5, ybottom=10, xright=3.5, ytop=-5.5, border='black', lwd=2)
 
 # Left side
 text(x=c(-3,-3,1,1,1,1,0.5), y=c(9,2.4,9,5.5,2.4,0,-2.4), labels=c('Bacteroidetes', 'Firmicutes','Actinobacteria','Proteobacteria','Verrucomicrobia','Other Bacteria', 'Archeae'), cex=1.2) # Phyla
@@ -422,14 +498,16 @@ par(mar=c(4, 4, 1, 1))
 plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
 
 
-points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_630_outliers_other$color)
+points(x=strep_difference$transcriptDiff, y=strep_difference$relAbund, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_col)
+
+
+points(x=cef_difference$transcriptDiff, y=cef_difference$relAbund, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=cef_col)
+
+points(x=clinda_difference$transcriptDiff, y=clinda_difference$relAbund, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_col)
 
 
 
-
-
-
-box()
+box(lwd=2)
 
 
 

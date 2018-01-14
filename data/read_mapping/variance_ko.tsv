@@ -1,0 +1,7 @@
+ko	streptomycin	cefoperazone	clindamycin	germfree	variance	definition
+K01358	57	51	47	61	38.6666666666667	ATP-dependent_Clp_protease,_protease_subunit_[EC:3.4.21.92]
+K01689	65	168	55	436	31508.6666666667	enolase_[EC:4.2.1.11]
+K01868	25	22	22	15	18	threonyl-tRNA_synthetase_[EC:6.1.1.3]
+K02469	12	22	14	16	18.6666666666667	DNA_gyrase_subunit_A_[EC:5.99.1.3]
+K10670	544	382	516	80	45131.6666666667	glycine_reductase_[EC:1.21.4.2]
+K10793	278	466	589	77	50088.3333333333	D-proline_reductase_(dithiol)_PrdA_[EC:1.21.4.1]
