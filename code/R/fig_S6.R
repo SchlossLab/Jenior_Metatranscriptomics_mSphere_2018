@@ -31,11 +31,11 @@ samp_var <- function(data) {
 }
 
 # Define files
-metadata <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/metadata.tsv'
-metabolome <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/wetlab_assays/metabolomics.scaled_intensities.tsv'
-shared <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
-ko_var <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/mapping/variance_ko.tsv'
-cfu <- '~/Desktop/Repositories/Jenior_Transcriptomics_2015/data/wetlab_assays/cfu.dat'
+metadata <- '~/Desktop/Repositories/Jenior_Modeling_mSystems_2017/data/metadata.tsv'
+metabolome <- '~/Desktop/Repositories/Jenior_Modeling_mSystems_2017/data/wetlab_assays/metabolomics.scaled_intensities.tsv'
+shared <- '~/Desktop/Repositories/Jenior_Modeling_mSystems_2017/data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
+ko_var <- '~/Desktop/Repositories/Jenior_Modeling_mSystems_2017/data/mapping/variance_ko.tsv'
+cfu <- '~/Desktop/Repositories/Jenior_Modeling_mSystems_2017/data/wetlab_assays/cfu.dat'
 
 #----------------------------------------#
 
@@ -53,8 +53,9 @@ cfu <- read.delim(cfu, sep='\t', header=T)
 clpP <- as.numeric(ko_var['K01358',c(1:3)])
 thrS <- as.numeric(ko_var['K01868',c(1:3)])
 gyrA <- as.numeric(ko_var['K02469',c(1:3)])
-kar_var <- c(gyrA,0,thrS,0,clpP)
-rm(gyrA,thrS,clpP)
+kar_var <- as.data.frame(cbind(gyrA,thrS,clpP))
+kar_var$abx <- c('Streptomycin','Cefoperazone','Clindamycin')
+rm(gyrA,thrS,clpP,ko_var)
 
 # Format data
 metadata$cage <- NULL
@@ -159,115 +160,119 @@ cef_shared_630 <- samp_var(cef_shared_630)
 clinda_shared_mock <- samp_var(clinda_shared_mock)
 clinda_shared_630 <- samp_var(clinda_shared_630)
 conv_shared_mock <- samp_var(conv_shared_mock)
-
-# Calculate summary stats for barplots
-metabolome <- rbind(quantile(strep_metabolome_mock)[2:4],
-                    quantile(strep_metabolome_630)[2:4],
-                    quantile(cef_metabolome_mock)[2:4],
-                    quantile(cef_metabolome_630)[2:4],
-                    quantile(clinda_metabolome_mock)[2:4],
-                    quantile(clinda_metabolome_630)[2:4],
-                    quantile(conv_metabolome_mock)[2:4])
-metabolome <- as.data.frame(metabolome)
-colnames(metabolome) <- c('q25','median','q75')
-rownames(metabolome) <- c('strep_mock','strep_630','cef_mock','cef_630',
-                          'clinda_mock','clinda_630','conv_mock')
-metabolome$q75[nrow(metabolome)] <- 0.86
-shared <- rbind(quantile(strep_shared_mock)[2:4],
-                quantile(strep_shared_630)[2:4],
-                quantile(cef_shared_mock)[2:4],
-                quantile(cef_shared_630)[2:4],
-                quantile(clinda_shared_mock)[2:4],
-                quantile(clinda_shared_630)[2:4],
-                quantile(conv_shared_mock)[2:4])
-shared <- as.data.frame(shared)
-colnames(shared) <- c('q25','median','q75')
-rownames(shared) <- c('strep_mock','strep_630','cef_mock','cef_630',
-                          'clinda_mock','clinda_630','conv_mock')
-shared$q75[nrow(shared)] <- 0.00095
-cfu_var <- c(var(strep_cfu),var(cef_cfu),var(clinda_cfu))
-rm(strep_cfu,cef_cfu,clinda_cfu)
-
-rm(strep_metabolome_mock,strep_metabolome_630,cef_metabolome_mock,cef_metabolome_630,
-   clinda_metabolome_mock,clinda_metabolome_630,conv_metabolome_mock,strep_shared_mock,
-   strep_shared_630,cef_shared_mock,cef_shared_630,clinda_shared_mock,clinda_shared_630,conv_shared_mock)
-
-#----------------------------------------#
-
-# Generate plot
-plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/results/supplement/figures/figure_S6.pdf'
-pdf(file=plot_file, width=12, height=10)
-layout(matrix(c(1,2,
-                3,3,
-                4,4), nrow=3, ncol=2, byrow=TRUE))
+cfu_var <- c(var(strep_cfu),var(cef_cfu),var(clinda_cfu)) 
+rm(strep_cfu,cef_cfu,clinda_cfu) 
 
 # Conserved colors across studies and figures
 strep_col <- '#D37A1F'
 cef_col <- '#3A9CBC'
 clinda_col <- '#A40019'
 noabx_col <- 'gray40'
-gf_col <- 'forestgreen'
+
+#----------------------------------------#
+
+# Generate plot
+plot_file <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/results/supplement/figures/figure_S6.pdf'
+pdf(file=plot_file, width=9, height=7)
+layout(matrix(c(1,
+                2), nrow=2, ncol=1, byrow=TRUE))
 
 # Housekeeping genes
-par(mar=c(3,5,1,1), las=1, mgp=c(3,0.7,0))
-plot(0, type='n', xlab='', xaxt='n', ylab='Normalized cDNA Abundance', xlim=c(0,17), ylim=c(0,100), yaxs='i')
-legend('topleft', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
-       pt.bg=c(strep_col, cef_col, clinda_col), pch=22, cex=1.6, pt.cex=2.6, col='black', bty='n')
-# Add groups
-barplot(kar_var, col=c(strep_col,cef_col,clinda_col,'white',
-                       strep_col,cef_col,clinda_col,'white',
-                       strep_col,cef_col,clinda_col,'white'), yaxt='n', add=TRUE, yaxs='i')
-text(cex=1.7, x=c(2.9,7.8,12.5), y=-9, c('GyrA','ThrS','ClpP'), xpd=TRUE, pos=2)
-mtext('A', side=2, line=2, las=2, adj=2, padj=-7, cex=1.5)
-box(lwd=2)
+#par(mar=c(3,5,1,1), las=1, mgp=c(3,0.7,0))
+#plot(0, type='n', xlab='', xaxt='n', ylab='Normalized cDNA Abundance', xlim=c(0,14), ylim=c(0,100), cex.lab=1.4, cex.axis=1.4)
+#legend('topright', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
+#       pt.bg=c(strep_col, cef_col, clinda_col), pch=21, cex=1.6, pt.cex=2.6, col='black', bty='n')
+#stripchart(at=2, kar_var[,1], vertical=T, pch=21, bg=c(strep_col,cef_col,clinda_col), 
+#           method='jitter', jitter=0.5, cex=2.5, lwd=1, add=TRUE)
+#stripchart(at=7, kar_var[,2], vertical=T, pch=21, bg=c(strep_col,cef_col,clinda_col), 
+#           method='jitter', jitter=0.5, cex=2.5, lwd=1, add=TRUE)
+#stripchart(at=12, kar_var[,3], vertical=T, pch=21, bg=c(strep_col,cef_col,clinda_col), 
+#           method='jitter', jitter=0.5, cex=2.5, lwd=1, add=TRUE)
+#segments(x0=c(1,6,11), y0=c(median(kar_var[,1]),median(kar_var[,2]),median(kar_var[,3])), 
+#         x1=c(3,8,13), y1=c(median(kar_var[,1]),median(kar_var[,2]),median(kar_var[,3])), lwd=4)
+#legend('topleft', legend='Housekeeping Genes', pt.cex=0, bty='n', cex=1.6)
+#text(cex=1.8, x=c(2.8,7.6,12.3), y=-12, c('GyrA','ThrS','ClpP'), xpd=TRUE, pos=2)
+#mtext('A', side=2, line=2, las=2, adj=2, padj=-7, cex=1.5)
+#box(lwd=2)
 
 # Vegetative C. difficile CFU
-par(las=1, mar=c(3,5,1,1), mgp=c(3,0.7,0), yaxs='i')
-barplot(cfu_var, ylim=c(0,1), ylab='Sample Variance',
-        col=c(strep_col,cef_col,clinda_col))
-mtext(c('Streptomycin','Cefoperazone','Clindamycin'), side=1, 
-      at=c(0.7,1.9,3.1,4.3), padj=2, cex=1.2)
-mtext('B', side=2, line=2, las=2, adj=2, padj=-7, cex=1.5)
-legend('topleft', legend='Vegetative CFU (Log10)', pt.cex=0, bty='n', cex=1.6)
-box(lwd=2)
+#par(las=1, mar=c(3,5,1,1), mgp=c(3,0.7,0))
+#stripchart(at=1, cfu_var, vertical=T, pch=21, bg=c(strep_col,cef_col,clinda_col), 
+#           method='jitter', jitter=0.75, cex=2.5, lwd=1, ylim=c(0,1), 
+#           ylab='Sample Variance', cex.lab=1.5, cex.axis=1.4)
+#segments(x0=0, y0=median(cfu_var), x1=2, y1=median(cfu_var), lwd=4)
+#mtext('B', side=2, line=2, las=2, adj=2, padj=-7, cex=1.5)
+#legend('topleft', legend='Vegetative CFU', pt.cex=0, bty='n', cex=1.6)
+#box(lwd=2)
 
 # 16S
-par(las=1, mar=c(3,5,1,1), mgp=c(3,0.7,0), yaxs='i')
-barplot(shared$median, xaxt='n', yaxt='n', ylim=c(0,0.001), ylab='Sample Variance',
-        col=c(strep_col,strep_col,cef_col,cef_col,clinda_col,clinda_col,noabx_col))
-segments(x0=c(0.7,1.9,3.1,4.3,5.5,6.7,7.9), y0=shared$q25, x1=c(0.7,1.9,3.1,4.3,5.5,6.7,7.9), y1=shared$q75, lwd=2)
-mtext('CDI:', side=1, at=0, padj=0.5, cex=0.9)
-mtext(c('+','-','+','-','+','-','-'), side=1, 
-      at=c(0.7,1.9,3.1,4.3,5.5,6.7,7.9), padj=0.5, cex=1.5)
-mtext(c('Streptomycin','Cefoperazone','Clindamycin','No Antibiotics'), side=1, 
-      at=c(1.3,3.7,6.1,7.9), padj=2, cex=0.9)
-abline(v=c(2.5,4.9,7.3), lty=2)
-axis(side=2, at=c(0,0.0002,0.0004,0.0006,0.001), labels=c('0.0','0.0002','0.0004','0.0006','0.004'), cex.axis=1)
-axis.break(2, 0.0008, style='slash') 
-rect(xleft=7.7, xright=8.1, ytop=0.00081, ybottom=0.00079, col='white', border='white')
-segments(x0=c(-1,-1,8.72),y0=c(0,0.001,0),x1=c(10,10,8.72),y1=c(0,0.001,0.001), lwd=2)
-mtext('C', side=2, line=2, las=2, adj=2, padj=-7, cex=1.5)
-legend('topleft', legend='OTU Abundance', pt.cex=0, bty='n', cex=1.2)
+par(las=1, mar=c(3,5,1,1), mgp=c(3,0.7,0))
+plot(0, type='n', xlab='', xaxt='n', ylab='Sample Variance', 
+     xlim=c(0,11), ylim=c(0,1.5), cex.lab=1.5, cex.axis=1.4)
+abline(v=c(3,6,9), lty=2)
 box(lwd=2)
+stripchart(at=1, strep_shared_mock, vertical=T, pch=21, bg=strep_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=2, strep_shared_630, vertical=T, pch=21, bg=strep_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=4, cef_shared_mock, vertical=T, pch=21, bg=cef_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=5, cef_shared_630, vertical=T, pch=21, bg=cef_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=7, clinda_shared_mock, vertical=T, pch=21, bg=clinda_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=8, clinda_shared_630, vertical=T, pch=21, bg=clinda_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=10, conv_shared_mock, vertical=T, pch=21, bg=noabx_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+segments(x0=c(1,2,4,5,7,8,10)-0.45, y0=c(median(strep_shared_mock),median(strep_shared_630),median(cef_shared_mock),median(cef_shared_630),median(clinda_shared_mock),median(clinda_shared_630),median(conv_shared_mock)), 
+         x1=c(1,2,4,5,7,8,10)+0.45, y1=c(median(strep_shared_mock),median(strep_shared_630),median(cef_shared_mock),median(cef_shared_630),median(clinda_shared_mock),median(clinda_shared_630),median(conv_shared_mock)), 
+         lwd=4)
+segments(x0=c(1,2,4,5,7,8,10)-0.3, y0=c(quantile(strep_shared_mock)[4],quantile(strep_shared_630)[4],quantile(cef_shared_mock)[4],quantile(cef_shared_630)[4],quantile(clinda_shared_mock)[4],quantile(clinda_shared_630)[4],quantile(conv_shared_mock)[4]), 
+         x1=c(1,2,4,5,7,8,10)+0.3, y1=c(quantile(strep_shared_mock)[4],quantile(strep_shared_630)[4],quantile(cef_shared_mock)[4],quantile(cef_shared_630)[4],quantile(clinda_shared_mock)[4],quantile(clinda_shared_630)[4],quantile(conv_shared_mock)[4]), 
+         lwd=4, col='gray')
+mtext('CDI:', side=1, at=0, padj=0.8, cex=1)
+mtext(c('+','-','+','-','+','-','-'), side=1, 
+      at=c(1,2,4,5,7,8,10), padj=0.5, cex=1.5)
+mtext(c('Streptomycin','Cefoperazone','Clindamycin','No Antibiotics'), side=1, 
+      at=c(1.5,4.5,7.5,10), padj=2, cex=1.2)
+mtext('A', side=2, line=2, las=2, adj=2.5, padj=-7, cex=1.5)
+legend('topleft', legend='OTU Abundances', pt.cex=0, bty='n', cex=1.2)
 
 # Metabolome
-par(las=1, mar=c(3,5,1,1), mgp=c(3,0.7,0), yaxs='i')
-barplot(metabolome$median, xaxt='n', yaxt='n', ylim=c(0,0.9), ylab='Sample Variance',
-        col=c(strep_col,strep_col,cef_col,cef_col,clinda_col,clinda_col,noabx_col))
-segments(x0=c(0.7,1.9,3.1,4.3,5.5,6.7,7.9), y0=metabolome$q25, x1=c(0.7,1.9,3.1,4.3,5.5,6.7,7.9), y1=metabolome$q75, lwd=2)
-mtext('CDI:', side=1, at=0, padj=0.5, cex=0.9)
+par(las=1, mar=c(4,5,1,1), mgp=c(3,0.7,0))
+plot(0, type='n', xlab='', xaxt='n', ylab='Sample Variance', 
+     xlim=c(0,11), ylim=c(0,500), cex.lab=1.5, cex.axis=1.4)
+abline(v=c(3,6,9), lty=2)
+box(lwd=2)
+stripchart(at=1, strep_metabolome_mock, vertical=T, pch=21, bg=strep_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=2, strep_metabolome_630, vertical=T, pch=21, bg=strep_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=4, cef_metabolome_mock, vertical=T, pch=21, bg=cef_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=5, cef_metabolome_630, vertical=T, pch=21, bg=cef_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=7, clinda_metabolome_mock, vertical=T, pch=21, bg=clinda_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=8, clinda_metabolome_630, vertical=T, pch=21, bg=clinda_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+stripchart(at=10, conv_metabolome_mock, vertical=T, pch=21, bg=noabx_col, 
+           method='jitter', jitter=0.3, cex=1.5, lwd=1, add=TRUE)
+segments(x0=c(1,2,4,5,7,8,10)-0.45, y0=c(median(strep_metabolome_mock),median(strep_metabolome_630),median(cef_metabolome_mock),median(cef_metabolome_630),median(clinda_metabolome_mock),median(clinda_metabolome_630),median(conv_metabolome_mock)), 
+         x1=c(1,2,4,5,7,8,10)+0.45, y1=c(median(strep_metabolome_mock),median(strep_metabolome_630),median(cef_metabolome_mock),median(cef_metabolome_630),median(clinda_metabolome_mock),median(clinda_metabolome_630),median(conv_metabolome_mock)), 
+         lwd=4)
+segments(x0=c(1,2,4,5,7,8,10)-0.3, y0=c(quantile(strep_metabolome_mock)[4],quantile(strep_metabolome_630)[4],quantile(cef_metabolome_mock)[4],quantile(cef_metabolome_630)[4],quantile(clinda_metabolome_mock)[4],quantile(clinda_metabolome_630)[4],quantile(conv_metabolome_mock)[4]), 
+         x1=c(1,2,4,5,7,8,10)+0.3, y1=c(quantile(strep_metabolome_mock)[4],quantile(strep_metabolome_630)[4],quantile(cef_metabolome_mock)[4],quantile(cef_metabolome_630)[4],quantile(clinda_metabolome_mock)[4],quantile(clinda_metabolome_630)[4],quantile(conv_metabolome_mock)[4]), 
+         lwd=4, col='gray')
+mtext('CDI:', side=1, at=0, padj=0.8, cex=1)
 mtext(c('+','-','+','-','+','-','-'), side=1, 
-      at=c(0.7,1.9,3.1,4.3,5.5,6.7,7.9), padj=0.5, cex=1.5)
+      at=c(1,2,4,5,7,8,10), padj=0.5, cex=1.5)
 mtext(c('Streptomycin','Cefoperazone','Clindamycin','No Antibiotics'), side=1, 
-      at=c(1.3,3.7,6.1,7.9), padj=2, cex=0.9)
-abline(v=c(2.5,4.9,7.3), lty=2)
-axis(side=2, at=c(0,0.2,0.4,0.6,0.9), labels=c('0.0','0.2','0.4','0.6','9.0'), cex=2)
-axis.break(2, 0.8, style='slash') 
-segments(x0=c(-1,-1,8.72),y0=c(0,0.9,0),x1=c(10,10,8.72),y1=c(0,0.9,0.9), lwd=2)
-rect(xleft=7.7, xright=8.1, ytop=0.81, ybottom=0.79, col='white', border='white')
-mtext('D', side=2, line=2, las=2, adj=2, padj=-7, cex=1.5)
-legend('topleft', legend='Metabolome (Log10)', pt.cex=0, bty='n', cex=1.2)
-bow(lwd=2)
+      at=c(1.5,4.5,7.5,10), padj=2, cex=1.2)
+mtext('B', side=2, line=2, las=2, adj=2.5, padj=-7, cex=1.5)
+legend('topleft', legend='Metabolites', pt.cex=0, bty='n', cex=1.2)
+
 
 dev.off()
 

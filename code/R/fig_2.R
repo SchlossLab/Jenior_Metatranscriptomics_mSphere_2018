@@ -5,7 +5,7 @@ gc()
 
 # Load in functions
 starting_dir <- getwd()
-source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
 
 # Define input files
 shared_otu_file <- 'data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
@@ -255,9 +255,9 @@ plot(1, type='n', ylim=c(0,nrow(strep_lefse)*2), xlim=c(0,log10(strep_size)),
 title('Streptomycin-pretreated', line=0.5, cex.main=1.3, col.main=strep_col, font.main=1)
 index <- 1
 for(i in c(1:ncol(strep_mock_otu))){
-  stripchart(at=index-0.35, jitter(strep_mock_otu[,i], amount=1e-5), 
+  stripchart(at=index-0.35, strep_mock_otu[,i], 
              pch=21, bg='black', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
-  stripchart(at=index+0.35, jitter(strep_infected_otu[,i], amount=1e-5), 
+  stripchart(at=index+0.35, strep_infected_otu[,i], 
              pch=21, bg='white', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   if (i != ncol(strep_mock_otu)){
     abline(h=index+1, lty=2)
@@ -291,9 +291,9 @@ plot(1, type='n', ylim=c(0,nrow(cef_lefse)*2), xlim=c(0,log10(cef_size)),
 title('Cefoperazone-pretreated', line=0.5, cex.main=1.3, col.main=cef_col, font.main=1)
 index <- 1
 for(i in c(1:ncol(cef_mock_otu))){
-  stripchart(at=index-0.35, jitter(cef_mock_otu[,i], amount=1e-5), 
+  stripchart(at=index-0.35, cef_mock_otu[,i], 
              pch=21, bg='black', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
-  stripchart(at=index+0.35, jitter(cef_infected_otu[,i], amount=1e-5), 
+  stripchart(at=index+0.35, cef_infected_otu[,i], 
              pch=21, bg='white', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   if (i != ncol(cef_mock_otu)){
     abline(h=index+1, lty=2)
@@ -328,9 +328,9 @@ plot(1, type='n', ylim=c(0,nrow(clinda_lefse)*2), xlim=c(0,log10(clinda_size)),
 title('Clindamycin-pretreated', line=0.5, cex.main=1.3, col.main=clinda_col, font.main=1)
 index <- 1
 for(i in c(1:ncol(clinda_mock_otu))){
-  stripchart(at=index-0.25, jitter(clinda_mock_otu[,i], amount=1e-5), 
+  stripchart(at=index-0.25, clinda_mock_otu[,i], 
              pch=21, bg='black', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
-  stripchart(at=index+0.25, jitter(clinda_infected_otu[,i], amount=1e-5), 
+  stripchart(at=index+0.25, clinda_infected_otu[,i], 
              pch=21, bg='white', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
   if (i != ncol(clinda_mock_otu)){
     abline(h=index+1, lty=2)

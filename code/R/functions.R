@@ -1,9 +1,9 @@
 
 # Set sorking directory
-setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/')
+setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/')
 
 # Load dependencies
-deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'RColorBrewer', 'gplots','viridis')
+deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'RColorBrewer', 'gplots','viridis', 'scales')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
