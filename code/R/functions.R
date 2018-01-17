@@ -79,7 +79,6 @@ clean_merge <- function(data_1, data_2){
   return(clean_merged)
 }
 
-
 # Calculates distance of a point from x=y in 2-d space
 dist_xy <- function(x) {
   v1 <- c(20,20) - x

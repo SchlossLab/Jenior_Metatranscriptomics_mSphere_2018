@@ -112,35 +112,23 @@ genus_tax_agg_metadata_shared$mouse <- NULL
 genus_tax_agg_metadata_shared$gender <- NULL
 genus_tax_agg_metadata_shared$type <- NULL
 genus_tax_agg_metadata_shared$susceptibility <- NULL
+genus_tax_agg_metadata_shared$infection <- NULL
 genus_tax_agg_metadata_shared <- subset(genus_tax_agg_metadata_shared, genus_tax_agg_metadata_shared$abx %in% c('cefoperazone','clindamycin','streptomycin'))
-genus_tax_agg_metadata_630_shared <- subset(genus_tax_agg_metadata_shared, infection == '630')
-genus_tax_agg_metadata_630_shared$infection <- NULL
-genus_tax_agg_metadata_mock_shared <- subset(genus_tax_agg_metadata_shared, infection == 'mock')
-genus_tax_agg_metadata_mock_shared$infection <- NULL
-genus_tax_agg_metadata_630_shared <- aggregate(. ~ abx, data=genus_tax_agg_metadata_630_shared, FUN=median)
-rownames(genus_tax_agg_metadata_630_shared) <- genus_tax_agg_metadata_630_shared$abx
-genus_tax_agg_metadata_630_shared$abx <- NULL
-genus_tax_agg_metadata_630_shared <- (genus_tax_agg_metadata_630_shared / rowSums(genus_tax_agg_metadata_630_shared)) * 100
-genus_tax_agg_metadata_630_shared <- as.data.frame(t(genus_tax_agg_metadata_630_shared))
-colnames(genus_tax_agg_metadata_630_shared) <- c('cef_630','clinda_630','strep_630')
-genus_tax_agg_metadata_mock_shared <- aggregate(. ~ abx, data=genus_tax_agg_metadata_mock_shared, FUN=median)
-rownames(genus_tax_agg_metadata_mock_shared) <- genus_tax_agg_metadata_mock_shared$abx
-genus_tax_agg_metadata_mock_shared$abx <- NULL
-genus_tax_agg_metadata_mock_shared <- (genus_tax_agg_metadata_mock_shared / rowSums(genus_tax_agg_metadata_mock_shared)) * 100
-genus_tax_agg_metadata_mock_shared <- as.data.frame(t(genus_tax_agg_metadata_mock_shared))
-colnames(genus_tax_agg_metadata_mock_shared) <- c('cef_mock','clinda_mock','strep_mock')
-all_genus <- merge(genus_tax_agg_metadata_630_shared, genus_tax_agg_metadata_mock_shared, by='row.names')
-cef_genus <- as.data.frame(cbind(all_genus$cef_630, all_genus$cef_mock))
-colnames(cef_genus) <- c('infection','mock')
-rownames(cef_genus) <- all_genus$Row.names
-strep_genus <- as.data.frame(cbind(all_genus$strep_630, all_genus$strep_mock))
-colnames(strep_genus) <- c('infection','mock')
-rownames(strep_genus) <- all_genus$Row.names
-clinda_genus <- as.data.frame(cbind(all_genus$clinda_630, all_genus$clinda_mock))
-colnames(clinda_genus) <- c('infection','mock')
-rownames(clinda_genus) <- all_genus$Row.names
-rm(genus_tax_agg_shared, genus_tax_agg_metadata_shared,
-   genus_tax_agg_metadata_630_shared, genus_tax_agg_metadata_mock_shared, all_genus)
+genus_tax_agg_metadata_shared <- aggregate(. ~ abx, data=genus_tax_agg_metadata_shared, FUN=median)
+rownames(genus_tax_agg_metadata_shared) <- genus_tax_agg_metadata_shared$abx
+genus_tax_agg_metadata_shared$abx <- NULL
+genus_tax_agg_metadata_shared <- (genus_tax_agg_metadata_shared / rowSums(genus_tax_agg_metadata_shared)) * 100
+genus_tax_agg_metadata_shared <- as.data.frame(t(genus_tax_agg_metadata_shared))
+cef_genus <- genus_tax_agg_metadata_shared
+cef_genus$clindamycin <- NULL
+cef_genus$streptomycin <- NULL
+clinda_genus <- genus_tax_agg_metadata_shared
+clinda_genus$cefoperazone <- NULL
+clinda_genus$streptomycin <- NULL
+strep_genus <- genus_tax_agg_metadata_shared
+strep_genus$clindamycin <- NULL
+strep_genus$cefoperazone <- NULL
+rm(genus_tax_agg_shared, genus_tax_agg_metadata_shared)
 
 # Using previously defined lines, find outliers to y = x
 strep_630_outliers <- subset(strep_annotated, strep_annotated$strep_630_metaT_reads > strep_annotated$strep_mock_metaT_reads + 2)
@@ -285,6 +273,7 @@ strep_difference$difference <- log2(as.numeric(as.character(strep_difference$dif
 strep_genus_diff <- merge(strep_genus, strep_difference, by.x='row.names', by.y='genus')
 rownames(strep_genus_diff) <- strep_genus_diff$Row.names
 strep_genus_diff$Row.names <- NULL
+colnames(strep_genus_diff) <- c('relAbund','transcriptChange')
 rm(strep_outliers, strep_difference, strep_genus)
 cef_outliers <- rbind(cef_630_outliers, cef_mock_outliers)
 cef_difference <- abs(((2^cef_outliers$cef_mock_metaT_reads) - 1) - ((2^cef_outliers$cef_630_metaT_reads) - 1))
@@ -295,6 +284,7 @@ cef_difference$difference <- log2(as.numeric(as.character(cef_difference$differe
 cef_genus_diff <- merge(cef_genus, cef_difference, by.x='row.names', by.y='genus')
 rownames(cef_genus_diff) <- cef_genus_diff$Row.names
 cef_genus_diff$Row.names <- NULL
+colnames(cef_genus_diff) <- c('relAbund','transcriptChange')
 rm(cef_outliers, cef_difference, cef_genus)
 clinda_outliers <- rbind(clinda_630_outliers, clinda_mock_outliers)
 clinda_difference <- abs(((2^clinda_outliers$clinda_mock_metaT_reads) - 1) - ((2^clinda_outliers$clinda_630_metaT_reads) - 1))
@@ -305,12 +295,25 @@ clinda_difference$difference <- log2(as.numeric(as.character(clinda_difference$d
 clinda_genus_diff <- merge(clinda_genus, clinda_difference, by.x='row.names', by.y='genus')
 rownames(clinda_genus_diff) <- clinda_genus_diff$Row.names
 clinda_genus_diff$Row.names <- NULL
+colnames(clinda_genus_diff) <- c('relAbund','transcriptChange')
 rm(clinda_outliers, clinda_difference, clinda_genus)
 
-# Remove undetectable 16S
-cef_genus_diff <- subset(cef_genus_diff, sum(cef_genus_diff$infection + cef_genus_diff$mock) > 0)
-clinda_genus_diff <- subset(clinda_genus_diff, sum(clinda_genus_diff$infection + clinda_genus_diff$mock) > 0)
-strep_genus_diff <- subset(strep_genus_diff, sum(strep_genus_diff$infection + strep_genus_diff$mock) > 0)
+# Convert relative abundance to categorical variable of ranges
+cef_genus_diff_01 <- subset(cef_genus_diff, cef_genus_diff$relAbund < 0.1)
+cef_genus_diff_01_1 <- subset(cef_genus_diff, cef_genus_diff$relAbund >= 0.1 & cef_genus_diff$relAbund < 1)
+cef_genus_diff_1_10 <- subset(cef_genus_diff, cef_genus_diff$relAbund >= 1 & cef_genus_diff$relAbund <= 10)
+cef_genus_diff_10_100 <- subset(cef_genus_diff, cef_genus_diff$relAbund > 10 & cef_genus_diff$relAbund <= 100)
+rm(cef_genus_diff)
+clinda_genus_diff_01 <- subset(clinda_genus_diff, clinda_genus_diff$relAbund < 0.1)
+clinda_genus_diff_01_1 <- subset(clinda_genus_diff, clinda_genus_diff$relAbund >= 0.1 & clinda_genus_diff$relAbund < 1)
+clinda_genus_diff_1_10 <- subset(clinda_genus_diff, clinda_genus_diff$relAbund >= 1 & clinda_genus_diff$relAbund <= 10)
+clinda_genus_diff_10_100 <- subset(clinda_genus_diff, clinda_genus_diff$relAbund > 10 & clinda_genus_diff$relAbund <= 100)
+rm(clinda_genus_diff)
+strep_genus_diff_01 <- subset(strep_genus_diff, strep_genus_diff$relAbund < 0.1)
+strep_genus_diff_01_1 <- subset(strep_genus_diff, strep_genus_diff$relAbund >= 0.1 & strep_genus_diff$relAbund < 1)
+strep_genus_diff_1_10 <- subset(strep_genus_diff, strep_genus_diff$relAbund >= 1 & strep_genus_diff$relAbund <= 10)
+strep_genus_diff_10_100 <- subset(strep_genus_diff, strep_genus_diff$relAbund > 10 & strep_genus_diff$relAbund <= 100)
+rm(strep_genus_diff)
 
 # Subset out other bacteria group
 strep_630_outliers_other <- subset(strep_630_outliers, color == 'white')
@@ -386,7 +389,7 @@ tiff(filename=plot_file, width=10, height=15, units='in',
 layout(matrix(c(1,2,
                 3,4,
                 5,5), 
-              nrow=2, ncol=2, byrow = TRUE))
+              nrow=3, ncol=2, byrow = TRUE))
 par(mar=c(4, 4, 1, 1), mgp=c(3,0.7,0))
 
 #-------------------#
@@ -501,37 +504,59 @@ points(x=2.75, y=-3.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
 
 #-------------------#
 
-# 16S to normalized transcript abundance orrelation
-par(mar=c(4, 4, 1, 1))
-plot(0, type='n', xlim=c(0,0.01), ylim=c(0,0.01), pch=20, xlab='Rel. Abund. - Mock', ylab='Rel. Abund. - Infected', las=1)
-
-
-points(x=strep_genus_diff$mock, y=strep_genus_diff$infection, cex=strep_genus_diff$difference/3, 
-       pch=21, col='gray10', lwd=1.5, bg=alpha(strep_col,0.6))
-
-points(x=cef_genus_diff$mock, y=cef_genus_diff$infection, cex=cef_genus_diff$difference/3, 
-       pch=21, col='gray10', lwd=1.5, bg=alpha(cef_col,0.6))
-
-points(x=clinda_genus_diff$mock, y=clinda_genus_diff$infection, cex=clinda_genus_diff$difference/3, 
-       pch=21, col='gray10', lwd=1.5, bg=alpha(clinda_col,0.6))
-
-
-
+# Transcript abundance by species abundance
+par(mar=c(4, 4, 1, 1), yaxs='i')
+plot(1, type='n', ylim=c(0,25), xlim=c(0,8),
+     ylab='', xlab='', xaxt='n', yaxt='n', las=1)
 box(lwd=2)
+abline(h=c(5,10,15,20,25), lty=5)
+#abline(v=c(2,4,6), lwd=2)
+axis(1, at=c(1,3,5,7), label=c('≤0.1%','>0.1% and ≤1%','>1% and ≤10%','>10% and ≤100%'), 
+     tick=FALSE, cex.axis=1.7, font=2)
+axis(2, at=c(0,5,10,15,20,25), cex.axis=1.4, las=1)
+mtext('Genus-level Relative Abundance (%)', side=1, padj=2.5, cex=1.2)
+mtext(expression(paste('Change in Metatranscriptome (',log[2],')')), side=2, padj=-1.5, cex=1.2)
+minor.ticks.axis(2, 20, mn=0, mx=25)
+legend('topleft', legend=c('Streptomycin-pretreatment','Cefoperazone-pretreatment','Clindamycin-pretreatment'),
+       pt.bg=c(strep_col, cef_col, clinda_col), pch=21, cex=1.6, pt.cex=2.6, col='black', bty='n')
 
-
-
-
-
+# <0.1%
+stripchart(at=0.8, strep_genus_diff_01$transcriptChange, pch=21, bg=alpha(strep_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=1, clinda_genus_diff_01$transcriptChange, pch=21, bg=alpha(clinda_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=1.2, cef_genus_diff_01$transcriptChange, pch=21, bg=alpha(cef_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+# >0.1% and <1%
+stripchart(at=2.8, strep_genus_diff_01_1$transcriptChange, pch=21, bg=alpha(strep_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=3, clinda_genus_diff_01_1$transcriptChange, pch=21, bg=alpha(clinda_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=3.2, cef_genus_diff_01_1$transcriptChange, pch=21, bg=alpha(cef_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+# >1% and <10%
+stripchart(at=4.8, strep_genus_diff_1_10$transcriptChange, pch=21, bg=alpha(strep_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=5, clinda_genus_diff_1_10$transcriptChange, pch=21, bg=alpha(clinda_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=5.2, cef_genus_diff_1_10$transcriptChange, pch=21, bg=alpha(cef_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+# >10% and <100%
+stripchart(at=6.8, strep_genus_diff_10_100$transcriptChange, pch=21, bg=alpha(strep_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=7, clinda_genus_diff_10_100$transcriptChange, pch=21, bg=alpha(clinda_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=7.2, cef_genus_diff_10_100$transcriptChange, pch=21, bg=alpha(cef_col, 0.75), 
+           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
 
 dev.off()
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clean up
-for (dep in deps){
-  pkg <- paste('package:', dep, sep='')
-  detach(pkg, character.only = TRUE)}
-setwd(starting_dir)
-rm(list=ls())
-gc()
+#for (dep in deps){
+#  pkg <- paste('package:', dep, sep='')
+#  detach(pkg, character.only = TRUE)}
+#setwd(starting_dir)
+#rm(list=ls())
+#gc()
