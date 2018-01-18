@@ -360,6 +360,8 @@ clinda_mock_ecoli <- subset(clinda_mock_outliers, color == '#CCCC00')
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
+# Perform some final calculations
+
 # Spearman correlation of 16S and metatransctiptomic change
 strep_16S_r <- as.character(round(cor.test(strep_difference$transcriptDiff, strep_difference$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
 strep_16S_p <- as.character(round(cor.test(strep_difference$transcriptDiff, strep_difference$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
@@ -381,6 +383,16 @@ table(strep_annotated$genus)
 table(cef_annotated$genus)
 table(clinda_annotated$genus)
 
+# Test magnitude of transcriptional differences
+
+
+
+
+
+
+
+
+
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
@@ -390,7 +402,7 @@ layout(matrix(c(1,2,
                 3,4,
                 5,5), 
               nrow=3, ncol=2, byrow = TRUE))
-par(mar=c(4, 4, 1, 1), mgp=c(3,0.7,0))
+par(mar=c(5, 5, 1, 1), mgp=c(3,0.7,0))
 
 #-------------------#
 
@@ -491,21 +503,21 @@ text(x=-2.5, y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), labels=c('Clostridium
 points(x=rep(-1.1,9), y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), pch=22, cex=2.1, col='black', bg=c('#330000','#660000','#990000','#CC0000','#FF0000','#FF3333','#FF6666','#FF9999','#FFCCCC')) # reds
 
 # Right side
-text(x=1.5, y=c(8.3,7.6,6.9), labels=c('Bifidobacterium','Corynebacterium','Olsenella'), cex=0.9, font=3) # Actinobacteria
-points(x=rep(2.75,3), y=c(8.3,7.6,6.9), pch=22, cex=2.1, col='black', bg=c('#006600','#009900','#33FF33')) # greens
-text(x=1.5, y=4.8, labels='Escherichia', cex=0.9, font=3) # Proteobacteria
-points(x=2.75, y=4.8, pch=22, cex=2.1, col='black', bg='#CCCC00') # yellow
-text(x=1.5, y=1.7, labels='Akkermansia', cex=0.9, font=3) # Verrucomicrobia
-points(x=2.75, y=1.7, pch=22, cex=2.1, col='black', bg='#990099') # purple
-text(x=1.5, y=-0.85, labels='<0.1% Each', cex=0.9) # Other bacteria
-points(x=2.75, y=-0.85, pch=22, cex=2.1, col='black', bg='white') # Other Bacteria - white
-text(x=1.34, y=-3.1, labels='Methanobrevibacter', cex=0.9, font=3) # Archeae
-points(x=2.75, y=-3.1, pch=22, cex=2.1, col='black', bg='#FF8000') # orange
+text(x=1.5, y=c(8.3,7.6,6.9), labels=c('Bifidobacterium','Corynebacterium','Olsenella'), cex=1, font=3) # Actinobacteria
+points(x=rep(2.75,3), y=c(8.3,7.6,6.9), pch=22, cex=2.2, col='black', bg=c('#006600','#009900','#33FF33')) # greens
+text(x=1.5, y=4.8, labels='Escherichia', cex=1, font=3) # Proteobacteria
+points(x=2.75, y=4.8, pch=22, cex=2.2, col='black', bg='#CCCC00') # yellow
+text(x=1.5, y=1.7, labels='Akkermansia', cex=1, font=3) # Verrucomicrobia
+points(x=2.75, y=1.7, pch=22, cex=2.2, col='black', bg='#990099') # purple
+text(x=1.5, y=-0.85, labels='<0.1% Each', cex=1) # Other bacteria
+points(x=2.75, y=-0.85, pch=22, cex=2.2, col='black', bg='white') # Other Bacteria - white
+text(x=1.34, y=-3.1, labels='Methanobrevibacter', cex=1, font=3) # Archeae
+points(x=2.75, y=-3.1, pch=22, cex=2.2, col='black', bg='#FF8000') # orange
 
 #-------------------#
 
 # Transcript abundance by species abundance
-par(mar=c(4, 4, 1, 1), yaxs='i')
+par(mar=c(5, 5, 2, 2), yaxs='i')
 plot(1, type='n', ylim=c(0,25), xlim=c(0,8),
      ylab='', xlab='', xaxt='n', yaxt='n', las=1)
 box(lwd=2)
