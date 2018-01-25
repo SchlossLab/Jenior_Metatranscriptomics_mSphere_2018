@@ -1,10 +1,12 @@
-install.packages("knitr")
+
 # Set up environment
 rm(list=ls())
 gc()
+
 # Load in functions
 starting_dir <- getwd()
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
+
 # Define files
 # Metagenomes
 cef_630_metagenome <- 'data/read_mapping/metagenome/cefoperazone_630.Cefoperazone.metaG.final.pool.norm.txt'
@@ -22,8 +24,11 @@ clinda_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/clindamyci
 strep_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_630.Streptomycin.metaT.final.pool.norm.txt'
 strep_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_mock.Streptomycin.metaT.final.pool.norm.txt'
 noabx_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/conventional.Conventional.metaT.final.pool.norm.txt'
+
 #-------------------------------------------------------------------------------------------------------------------------#
+
 # Read in data
+
 # Metagenomes
 cef_630_metagenome <- read.delim(cef_630_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(cef_630_metagenome) <- c('cef_630_metaG_reads')
@@ -39,6 +44,7 @@ strep_mock_metagenome <- read.delim(strep_mock_metagenome, sep='\t', header=FALS
 colnames(strep_mock_metagenome) <- c('strep_mock_metaG_reads')
 noabx_mock_metagenome <- read.delim(noabx_mock_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(noabx_mock_metagenome) <- c('noabx_mock_metaG_reads')
+
 # Metatranscriptomes
 cef_630_metatranscriptome <- read.delim(cef_630_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
 colnames(cef_630_metatranscriptome) <- c('cef_630_metaT_reads')
@@ -54,7 +60,9 @@ strep_mock_metatranscriptome <- read.delim(strep_mock_metatranscriptome, sep='\t
 colnames(strep_mock_metatranscriptome) <- c('strep_mock_metaT_reads')
 noabx_mock_metatranscriptome <- read.delim(noabx_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1)
 colnames(noabx_mock_metatranscriptome) <- c('noabx_mock_metaT_reads')
+
 #-------------------------------------------------------------------------------------------------------------------------#
+
 # Merge metagenomic and metatranscriptomic data
 cef_raw_reads <- clean_merge(cef_630_metagenome, cef_mock_metagenome)
 cef_raw_reads <- clean_merge(cef_raw_reads, cef_630_metatranscriptome)
@@ -66,12 +74,15 @@ strep_raw_reads <- clean_merge(strep_630_metagenome, strep_mock_metagenome)
 strep_raw_reads <- clean_merge(strep_raw_reads, strep_630_metatranscriptome)
 strep_raw_reads <- clean_merge(strep_raw_reads, strep_mock_metatranscriptome)
 noabx_raw_reads <- clean_merge(noabx_mock_metagenome, noabx_mock_metatranscriptome)
-rm(cef_630_metagenome, clinda_630_metagenome, strep_630_metagenome,
-cef_mock_metagenome, clinda_mock_metagenome, strep_mock_metagenome,
-cef_630_metatranscriptome, cef_mock_metatranscriptome, clinda_630_metatranscriptome,
-clinda_mock_metatranscriptome, strep_630_metatranscriptome, strep_mock_metatranscriptome,
-noabx_mock_metagenome, noabx_mock_metatranscriptome)
+
+rm(cef_630_metagenome, clinda_630_metagenome, strep_630_metagenome, 
+   cef_mock_metagenome, clinda_mock_metagenome, strep_mock_metagenome,
+   cef_630_metatranscriptome, cef_mock_metatranscriptome, clinda_630_metatranscriptome, 
+   clinda_mock_metatranscriptome, strep_630_metatranscriptome, strep_mock_metatranscriptome,
+   noabx_mock_metagenome, noabx_mock_metatranscriptome)
+
 #-------------------------------------------------------------------------------------------------------------------------#
+
 # Add KEGG annotations
 cef_kegg <- read.delim('data/kegg/cef_formatted.txt', sep='\t', header=TRUE, row.names=1)
 clinda_kegg <- read.delim('data/kegg/clinda_formatted.txt', sep='\t', header=TRUE, row.names=1)
@@ -82,6 +93,7 @@ clinda_raw_reads <- clean_merge(clinda_raw_reads, clinda_kegg)
 strep_raw_reads <- clean_merge(strep_raw_reads, strep_kegg)
 noabx_raw_reads <- clean_merge(noabx_raw_reads, noabx_kegg)
 rm(cef_kegg,clinda_kegg,strep_kegg,noabx_kegg)
+
 # Remove introduced duplicates
 cef_raw_reads$kegg_hit <- rownames(cef_raw_reads)
 clinda_raw_reads$kegg_hit <- rownames(clinda_raw_reads)
@@ -95,6 +107,7 @@ cef_raw_reads$kegg_hit <- NULL
 clinda_raw_reads$kegg_hit <- NULL
 strep_raw_reads$kegg_hit <- NULL
 noabx_raw_reads$kegg_hit <- NULL
+
 # Add KEGG pathways
 pathways <- read.delim('data/kegg/ko_paths.tsv', sep='\t', header=TRUE)
 cef_raw_reads <- merge(cef_raw_reads, pathways, by='ko', all.x=TRUE)
@@ -102,6 +115,7 @@ clinda_raw_reads <- merge(clinda_raw_reads, pathways, by='ko', all.x=TRUE)
 strep_raw_reads <- merge(strep_raw_reads, pathways, by='ko', all.x=TRUE)
 noabx_raw_reads <- merge(noabx_raw_reads, pathways, by='ko', all.x=TRUE)
 rm(pathways)
+
 # Separate in groups and aggregate (Remove genes with no metagenomic coverage)
 simp <- read.delim('data/kegg/simp_pathways.tsv', sep='\t', header=TRUE)
 cef_mock_metaG <- as.data.frame(cbind(as.character(cef_raw_reads$cef_mock_metaG_reads), as.character(cef_raw_reads$pathways)), stringsAsFactors=FALSE)
@@ -175,6 +189,7 @@ noabx_mock_metaT$pathway[is.na(noabx_mock_metaT$pathway)] <- 'Other'
 noabx_mock_metaT$abundance <- as.numeric(noabx_mock_metaT$abundance)
 noabx_mock_metaT <- merge(noabx_mock_metaT, simp, by='pathway')
 rm(simp, cef_raw_reads, clinda_raw_reads, strep_raw_reads, noabx_raw_reads)
+
 # Remove groups with no reads
 cef_630_metaG <- subset(cef_630_metaG, abundance > 0)
 cef_mock_metaG <- subset(cef_mock_metaG, abundance > 0)
@@ -190,6 +205,7 @@ clinda_630_metaT <- subset(clinda_630_metaT, abundance > 0)
 clinda_mock_metaT <- subset(clinda_mock_metaT, abundance > 0)
 noabx_mock_metaG <- subset(noabx_mock_metaG, abundance > 0)
 noabx_mock_metaT <- subset(noabx_mock_metaT, abundance > 0)
+
 # Tabulate results
 cef_mock_metaG <- as.data.frame(table(cef_mock_metaG$simplified))
 cef_mock_metaG <- subset(cef_mock_metaG, Freq != 0)
@@ -219,6 +235,7 @@ strep_630_metaT <- as.data.frame(table(strep_630_metaT$simplified))
 strep_630_metaT <- subset(strep_630_metaT, Freq != 0)
 noabx_mock_metaT <- as.data.frame(table(noabx_mock_metaT$simplified))
 noabx_mock_metaT <- subset(noabx_mock_metaT, Freq != 0)
+
 # Combine sample types
 metaG <- merge(strep_630_metaG, strep_mock_metaG, by='Var1', all=TRUE)
 colnames(metaG) <- c('Var1','strep_630','strep_mock')
@@ -253,23 +270,27 @@ metaT$pathway <- gsub('_', ' ', metaT$pathway)
 rownames(metaT) <- metaT$pathway
 metaT$pathway <- NULL
 rm(strep_630_metaG, strep_mock_metaG, cef_630_metaG, cef_mock_metaG, clinda_630_metaG, clinda_mock_metaG, noabx_mock_metaG,
-strep_630_metaT, strep_mock_metaT, cef_630_metaT, cef_mock_metaT, clinda_630_metaT, clinda_mock_metaT, noabx_mock_metaT)
+   strep_630_metaT, strep_mock_metaT, cef_630_metaT, cef_mock_metaT, clinda_630_metaT, clinda_mock_metaT, noabx_mock_metaT)
+
 # Remove Other catagory and reassign for just those groups with annotations
 metaG_temp <- subset(metaG, rownames(metaG) != 'Other')
+
+metaG_temp <- subset(metaG_temp, rowSums(metaG_temp) <= 10)
+
+
+
+
 metaG_temp[metaG_temp <= 5] <- 0
-metaG_temp <- subset(metaG_temp, rowSums(metaG_temp) > 0)
 metaG_other <- colSums(metaG) - colSums(metaG_temp)
+
+
+
+
+
+
+
+
+
 # Clean up
 #rm(list=ls())
 #gc()
-metaG_other
-View(metaG_temp)
-# Remove Other catagory and reassign for just those groups with annotations
-metaG_temp <- subset(metaG, rownames(metaG) != 'Other')
-metaG_temp <- subset(metaG_temp, rowSums(metaG_temp) <= 5)
-View(metaG_temp)
-metaG_temp <- subset(metaG_temp, rowSums(metaG_temp) <= 10)
-View(metaG_temp)
-# Remove Other catagory and reassign for just those groups with annotations
-metaG_temp <- subset(metaG, rownames(metaG) != 'Other')
-metaG_temp <- subset(metaG_temp, rowSums(metaG_temp) <= 10)
