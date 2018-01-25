@@ -63,6 +63,8 @@ colnames(noabx_mock_metatranscriptome) <- c('noabx_mock_metaT_reads')
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
+# Process and reformat data
+
 # Merge metagenomic and metatranscriptomic data
 cef_raw_reads <- clean_merge(cef_630_metagenome, cef_mock_metagenome)
 cef_raw_reads <- clean_merge(cef_raw_reads, cef_630_metatranscriptome)
@@ -80,8 +82,6 @@ rm(cef_630_metagenome, clinda_630_metagenome, strep_630_metagenome,
    cef_630_metatranscriptome, cef_mock_metatranscriptome, clinda_630_metatranscriptome, 
    clinda_mock_metatranscriptome, strep_630_metatranscriptome, strep_mock_metatranscriptome,
    noabx_mock_metagenome, noabx_mock_metatranscriptome)
-
-#-------------------------------------------------------------------------------------------------------------------------#
 
 # Add KEGG annotations
 cef_kegg <- read.delim('data/kegg/cef_formatted.txt', sep='\t', header=TRUE, row.names=1)
@@ -120,72 +120,72 @@ rm(pathways)
 simp <- read.delim('data/kegg/simp_pathways.tsv', sep='\t', header=TRUE)
 cef_mock_metaG <- as.data.frame(cbind(as.character(cef_raw_reads$cef_mock_metaG_reads), as.character(cef_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(cef_mock_metaG) <- c('abundance', 'pathway')
-cef_mock_metaG$pathway[is.na(cef_mock_metaG$pathway)] <- 'Other'
+cef_mock_metaG$pathway[is.na(cef_mock_metaG$pathway)] <- 'Unannotated'
 cef_mock_metaG$abundance <- as.numeric(cef_mock_metaG$abundance)
 cef_mock_metaG <- merge(cef_mock_metaG, simp, by='pathway')
 cef_630_metaG <- as.data.frame(cbind(as.character(cef_raw_reads$cef_630_metaG_reads), as.character(cef_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(cef_630_metaG) <- c('abundance', 'pathway')
-cef_630_metaG$pathway[is.na(cef_630_metaG$pathway)] <- 'Other'
+cef_630_metaG$pathway[is.na(cef_630_metaG$pathway)] <- 'Unannotated'
 cef_630_metaG$abundance <- as.numeric(cef_630_metaG$abundance)
 cef_630_metaG <- merge(cef_630_metaG, simp, by='pathway')
 clinda_mock_metaG <- as.data.frame(cbind(as.character(clinda_raw_reads$clinda_mock_metaG_reads), as.character(clinda_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(clinda_mock_metaG) <- c('abundance', 'pathway')
-clinda_mock_metaG$pathway[is.na(clinda_mock_metaG$pathway)] <- 'Other'
+clinda_mock_metaG$pathway[is.na(clinda_mock_metaG$pathway)] <- 'Unannotated'
 clinda_mock_metaG$abundance <- as.numeric(clinda_mock_metaG$abundance)
 clinda_mock_metaG <- merge(clinda_mock_metaG, simp, by='pathway')
 clinda_630_metaG <- as.data.frame(cbind(as.character(clinda_raw_reads$clinda_630_metaG_reads), as.character(clinda_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(clinda_630_metaG) <- c('abundance', 'pathway')
-clinda_630_metaG$pathway[is.na(clinda_630_metaG$pathway)] <- 'Other'
+clinda_630_metaG$pathway[is.na(clinda_630_metaG$pathway)] <- 'Unannotated'
 clinda_630_metaG$abundance <- as.numeric(clinda_630_metaG$abundance)
 clinda_630_metaG <- merge(clinda_630_metaG, simp, by='pathway')
 strep_mock_metaG <- as.data.frame(cbind(as.character(strep_raw_reads$strep_mock_metaG_reads), as.character(strep_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(strep_mock_metaG) <- c('abundance', 'pathway')
-strep_mock_metaG$pathway[is.na(strep_mock_metaG$pathway)] <- 'Other'
+strep_mock_metaG$pathway[is.na(strep_mock_metaG$pathway)] <- 'Unannotated'
 strep_mock_metaG$abundance <- as.numeric(strep_mock_metaG$abundance)
 strep_mock_metaG <- merge(strep_mock_metaG, simp, by='pathway')
 strep_630_metaG <- as.data.frame(cbind(as.character(strep_raw_reads$strep_630_metaG_reads), as.character(strep_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(strep_630_metaG) <- c('abundance', 'pathway')
-strep_630_metaG$pathway[is.na(strep_630_metaG$pathway)] <- 'Other'
+strep_630_metaG$pathway[is.na(strep_630_metaG$pathway)] <- 'Unannotated'
 strep_630_metaG$abundance <- as.numeric(strep_630_metaG$abundance)
 strep_630_metaG <- merge(strep_630_metaG, simp, by='pathway')
 noabx_mock_metaG <- as.data.frame(cbind(as.character(noabx_raw_reads$noabx_mock_metaG_reads), as.character(noabx_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(noabx_mock_metaG) <- c('abundance', 'pathway')
-noabx_mock_metaG$pathway[is.na(noabx_mock_metaG$pathway)] <- 'Other'
+noabx_mock_metaG$pathway[is.na(noabx_mock_metaG$pathway)] <- 'Unannotated'
 noabx_mock_metaG$abundance <- as.numeric(noabx_mock_metaG$abundance)
 noabx_mock_metaG <- merge(noabx_mock_metaG, simp, by='pathway')
 cef_mock_metaT <- as.data.frame(cbind(as.character(cef_raw_reads$cef_mock_metaT_reads), as.character(cef_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(cef_mock_metaT) <- c('abundance', 'pathway')
-cef_mock_metaT$pathway[is.na(cef_mock_metaT$pathway)] <- 'Other'
+cef_mock_metaT$pathway[is.na(cef_mock_metaT$pathway)] <- 'Unannotated'
 cef_mock_metaT$abundance <- as.numeric(cef_mock_metaT$abundance)
 cef_mock_metaT <- merge(cef_mock_metaT, simp, by='pathway')
 cef_630_metaT <- as.data.frame(cbind(as.character(cef_raw_reads$cef_630_metaT_reads), as.character(cef_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(cef_630_metaT) <- c('abundance', 'pathway')
-cef_630_metaT$pathway[is.na(cef_630_metaT$pathway)] <- 'Other'
+cef_630_metaT$pathway[is.na(cef_630_metaT$pathway)] <- 'Unannotated'
 cef_630_metaT$abundance <- as.numeric(cef_630_metaT$abundance)
 cef_630_metaT <- merge(cef_630_metaT, simp, by='pathway')
 clinda_mock_metaT <- as.data.frame(cbind(as.character(clinda_raw_reads$clinda_mock_metaT_reads), as.character(clinda_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(clinda_mock_metaT) <- c('abundance', 'pathway')
-clinda_mock_metaT$pathway[is.na(clinda_mock_metaT$pathway)] <- 'Other'
+clinda_mock_metaT$pathway[is.na(clinda_mock_metaT$pathway)] <- 'Unannotated'
 clinda_mock_metaT$abundance <- as.numeric(clinda_mock_metaT$abundance)
 clinda_mock_metaT <- merge(clinda_mock_metaT, simp, by='pathway')
 clinda_630_metaT <- as.data.frame(cbind(as.character(clinda_raw_reads$clinda_630_metaT_reads), as.character(clinda_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(clinda_630_metaT) <- c('abundance', 'pathway')
-clinda_630_metaT$pathway[is.na(clinda_630_metaT$pathway)] <- 'Other'
+clinda_630_metaT$pathway[is.na(clinda_630_metaT$pathway)] <- 'Unannotated'
 clinda_630_metaT$abundance <- as.numeric(clinda_630_metaT$abundance)
 clinda_630_metaT <- merge(clinda_630_metaT, simp, by='pathway')
 strep_mock_metaT <- as.data.frame(cbind(as.character(strep_raw_reads$strep_mock_metaT_reads), as.character(strep_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(strep_mock_metaT) <- c('abundance', 'pathway')
-strep_mock_metaT$pathway[is.na(strep_mock_metaT$pathway)] <- 'Other'
+strep_mock_metaT$pathway[is.na(strep_mock_metaT$pathway)] <- 'Unannotated'
 strep_mock_metaT$abundance <- as.numeric(strep_mock_metaT$abundance)
 strep_mock_metaT <- merge(strep_mock_metaT, simp, by='pathway')
 strep_630_metaT <- as.data.frame(cbind(as.character(strep_raw_reads$strep_630_metaT_reads), as.character(strep_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(strep_630_metaT) <- c('abundance', 'pathway')
-strep_630_metaT$pathway[is.na(strep_630_metaT$pathway)] <- 'Other'
+strep_630_metaT$pathway[is.na(strep_630_metaT$pathway)] <- 'Unannotated'
 strep_630_metaT$abundance <- as.numeric(strep_630_metaT$abundance)
 strep_630_metaT <- merge(strep_630_metaT, simp, by='pathway')
 noabx_mock_metaT <- as.data.frame(cbind(as.character(noabx_raw_reads$noabx_mock_metaT_reads), as.character(noabx_raw_reads$pathways)), stringsAsFactors=FALSE)
 colnames(noabx_mock_metaT) <- c('abundance', 'pathway')
-noabx_mock_metaT$pathway[is.na(noabx_mock_metaT$pathway)] <- 'Other'
+noabx_mock_metaT$pathway[is.na(noabx_mock_metaT$pathway)] <- 'Unannotated'
 noabx_mock_metaT$abundance <- as.numeric(noabx_mock_metaT$abundance)
 noabx_mock_metaT <- merge(noabx_mock_metaT, simp, by='pathway')
 rm(simp, cef_raw_reads, clinda_raw_reads, strep_raw_reads, noabx_raw_reads)
@@ -237,18 +237,12 @@ noabx_mock_metaT <- as.data.frame(table(noabx_mock_metaT$simplified))
 noabx_mock_metaT <- subset(noabx_mock_metaT, Freq != 0)
 
 # Combine sample types
-metaG <- merge(strep_630_metaG, strep_mock_metaG, by='Var1', all=TRUE)
-colnames(metaG) <- c('Var1','strep_630','strep_mock')
-metaG <- merge(metaG, cef_630_metaG, by='Var1', all=TRUE)
-colnames(metaG) <- c('Var1','strep_630','strep_mock','cef_630')
-metaG <- merge(metaG, cef_mock_metaG, by='Var1', all=TRUE)
-colnames(metaG) <- c('Var1','strep_630','strep_mock','cef_630','cef_mock')
-metaG <- merge(metaG, clinda_630_metaG, by='Var1', all=TRUE)
-colnames(metaG) <- c('Var1','strep_630','strep_mock','cef_630','cef_mock','clinda_630')
+metaG <- merge(strep_mock_metaG, cef_mock_metaG, by='Var1', all=TRUE)
+colnames(metaG) <- c('Var1','strep_mock','cef_mock')
 metaG <- merge(metaG, clinda_mock_metaG, by='Var1', all=TRUE)
-colnames(metaG) <- c('Var1','strep_630','strep_mock','cef_630','cef_mock','clinda_630','clinda_mock')
+colnames(metaG) <- c('Var1','strep_mock','cef_mock','clinda_mock')
 metaG <- merge(metaG, noabx_mock_metaG, by='Var1', all=TRUE)
-colnames(metaG) <- c('pathway','strep_630','strep_mock','cef_630','cef_mock','clinda_630','clinda_mock','noabx_mock')
+colnames(metaG) <- c('pathway','strep_mock','cef_mock','clinda_mock','noabx_mock')
 metaG[is.na(metaG)] <- 0
 metaG$pathway <- gsub('_', ' ', metaG$pathway)
 rownames(metaG) <- metaG$pathway
@@ -272,16 +266,51 @@ metaT$pathway <- NULL
 rm(strep_630_metaG, strep_mock_metaG, cef_630_metaG, cef_mock_metaG, clinda_630_metaG, clinda_mock_metaG, noabx_mock_metaG,
    strep_630_metaT, strep_mock_metaT, cef_630_metaT, cef_mock_metaT, clinda_630_metaT, clinda_mock_metaT, noabx_mock_metaT)
 
-# Remove Other catagory and reassign for just those groups with annotations
-metaG_temp <- subset(metaG, rownames(metaG) != 'Other')
+# Remove Unannotated catagory and reassign for just those groups with annotations
+metaG <- subset(metaG, rownames(metaG) != 'Unannotated')
+metaG_other <- subset(metaG, rowSums(metaG) <= 5)
+metaG <- subset(metaG, rowSums(metaG) > 5)
+metaG_other <- colSums(metaG) - colSums(metaG_other)
+metaG_rows <- c(rownames(metaG), 'Other') 
+metaG <- as.data.frame(rbind(metaG, metaG_other))
+rownames(metaG) <- metaG_rows
+rm(metaG_rows, metaG_other)
+metaT <- subset(metaT, rownames(metaT) != 'Unannotated')
+metaT_other <- subset(metaT, rowSums(metaT) <= 5)
+metaT <- subset(metaT, rowSums(metaT) > 5)
+metaT_other <- colSums(metaT) - colSums(metaT_other)
+metaT_rows <- c(rownames(metaT), 'Other') 
+metaT <- as.data.frame(rbind(metaT, metaT_other))
+rownames(metaT) <- metaT_rows
+rm(metaT_rows, metaT_other)
 
-metaG_temp <- subset(metaG_temp, rowSums(metaG_temp) <= 10)
+# Break into treatment groups
+cef <- as.data.frame((cbind(metaG$cef_mock, metaT$cef_630, metaT$cef_mock)))
+rownames(cef) <- 
 
 
 
+metaG <- as.matrix(metaG)
 
-metaG_temp[metaG_temp <= 5] <- 0
-metaG_other <- colSums(metaG) - colSums(metaG_temp)
+metaT <- as.matrix(metaT)
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Generate plot
+bar_palette <- viridis(n=max(c(nrow(metaG), nrow(metaT))))
+#layout(matrix(c(1,3,
+#                2,3), 
+#              nrow=2, ncol=2, byrow=FALSE))
+#par(mar=c(5, 5, 1, 1), mgp=c(3,0.7,0))
+
+
+
+# Stacked Bar Plot with Colors and Legend
+barplot(metaG, main='', xlab='', col=bar_palette) 
+
+
+
+barplot(metaT, main='', xlab='', col=bar_palette) 
 
 
 
