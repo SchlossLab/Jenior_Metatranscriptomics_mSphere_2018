@@ -261,7 +261,6 @@ clinda_630_outliers <- merge(x=clinda_630_outliers, y=tax_colors, by.x='genus', 
 clinda_630_outliers$color[is.na(clinda_630_outliers$color)] <- 'white'
 clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
 clinda_mock_outliers$color[is.na(clinda_mock_outliers$color)] <- 'white'
-rm(tax_colors)
 
 # Find difference in expression for outliers
 strep_outliers <- rbind(strep_630_outliers, strep_mock_outliers)
@@ -297,6 +296,21 @@ rownames(clinda_genus_diff) <- clinda_genus_diff$Row.names
 clinda_genus_diff$Row.names <- NULL
 colnames(clinda_genus_diff) <- c('relAbund','transcriptChange')
 rm(clinda_outliers, clinda_difference, clinda_genus)
+
+# Add color for genera
+cef_genus_diff <- merge(cef_genus_diff, tax_colors, by.x='row.names', by.y='taxonomy', all.x=TRUE)
+rownames(cef_genus_diff) <- cef_genus_diff$Row.names
+cef_genus_diff$Row.names <- NULL
+cef_genus_diff[is.na(cef_genus_diff)] <- 'white'
+clinda_genus_diff <- merge(clinda_genus_diff, tax_colors, by.x='row.names', by.y='taxonomy', all.x=TRUE)
+rownames(clinda_genus_diff) <- clinda_genus_diff$Row.names
+clinda_genus_diff$Row.names <- NULL
+clinda_genus_diff[is.na(clinda_genus_diff)] <- 'white'
+strep_genus_diff <- merge(strep_genus_diff, tax_colors, by.x='row.names', by.y='taxonomy', all.x=TRUE)
+rownames(strep_genus_diff) <- strep_genus_diff$Row.names
+strep_genus_diff$Row.names <- NULL
+strep_genus_diff[is.na(strep_genus_diff)] <- 'white'
+rm(tax_colors)
 
 # Convert relative abundance to categorical variable of ranges
 cef_genus_diff_01 <- subset(cef_genus_diff, cef_genus_diff$relAbund < 0.1)
@@ -382,16 +396,6 @@ table(clinda_mock_outliers$genus) # lower
 table(strep_annotated$genus)
 table(cef_annotated$genus)
 table(clinda_annotated$genus)
-
-# Test magnitude of transcriptional differences
-
-
-
-
-
-
-
-
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -520,55 +524,63 @@ points(x=2.75, y=-3.1, pch=22, cex=2.2, col='black', bg='#FF8000') # orange
 par(mar=c(5, 5, 2, 2), yaxs='i')
 plot(1, type='n', ylim=c(0,25), xlim=c(0,8),
      ylab='', xlab='', xaxt='n', yaxt='n', las=1)
-box(lwd=2)
-abline(h=c(5,10,15,20,25), lty=5)
-#abline(v=c(2,4,6), lwd=2)
 axis(1, at=c(1,3,5,7), label=c('≤0.1%','>0.1% and ≤1%','>1% and ≤10%','>10% and ≤100%'), 
      tick=FALSE, cex.axis=1.7, font=2)
 axis(2, at=c(0,5,10,15,20,25), cex.axis=1.4, las=1)
-mtext('Genus-level Relative Abundance (%)', side=1, padj=2.5, cex=1.2)
+mtext('Genus-level 16S Relative Abundance', side=1, padj=2.5, cex=1.2)
 mtext(expression(paste('Change in Metatranscriptome (',log[2],')')), side=2, padj=-1.5, cex=1.2)
 minor.ticks.axis(2, 20, mn=0, mx=25)
-legend('topleft', legend=c('Streptomycin-pretreatment','Cefoperazone-pretreatment','Clindamycin-pretreatment'),
-       pt.bg=c(strep_col, cef_col, clinda_col), pch=21, cex=1.6, pt.cex=2.6, col='black', bty='n')
+abline(v=c(2,4,6), lwd=2)
+abline(v=c(0.6,1,1.4), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
+abline(v=c(2.6,3,3.4), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
+abline(v=c(4.6,5,5.4), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
+abline(v=c(6.6,7,7.4), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
+box(lwd=2)
+mtext('D', side=2, line=2, las=2, adj=1, padj=-10, cex=1.7, font=2)
+
+
 
 # <0.1%
-stripchart(at=0.8, strep_genus_diff_01$transcriptChange, pch=21, bg=alpha(strep_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
-stripchart(at=1, clinda_genus_diff_01$transcriptChange, pch=21, bg=alpha(clinda_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
-stripchart(at=1.2, cef_genus_diff_01$transcriptChange, pch=21, bg=alpha(cef_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=0.6, strep_genus_diff_01$transcriptChange, pch=21, bg=strep_genus_diff_01$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=1, clinda_genus_diff_01$transcriptChange, pch=21, bg=clinda_genus_diff_01$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=1.4, cef_genus_diff_01$transcriptChange, pch=21, bg=cef_genus_diff_01$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
 # >0.1% and <1%
-stripchart(at=2.8, strep_genus_diff_01_1$transcriptChange, pch=21, bg=alpha(strep_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
-stripchart(at=3, clinda_genus_diff_01_1$transcriptChange, pch=21, bg=alpha(clinda_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
-stripchart(at=3.2, cef_genus_diff_01_1$transcriptChange, pch=21, bg=alpha(cef_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=2.6, strep_genus_diff_01_1$transcriptChange, pch=21, bg=strep_genus_diff_01_1$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=3, clinda_genus_diff_01_1$transcriptChange, pch=21, bg=clinda_genus_diff_01_1$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=3.4, cef_genus_diff_01_1$transcriptChange, pch=21, bg=cef_genus_diff_01_1$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
 # >1% and <10%
-stripchart(at=4.8, strep_genus_diff_1_10$transcriptChange, pch=21, bg=alpha(strep_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
-stripchart(at=5, clinda_genus_diff_1_10$transcriptChange, pch=21, bg=alpha(clinda_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
-stripchart(at=5.2, cef_genus_diff_1_10$transcriptChange, pch=21, bg=alpha(cef_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=4.6, strep_genus_diff_1_10$transcriptChange, pch=21, bg=strep_genus_diff_1_10$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=5, clinda_genus_diff_1_10$transcriptChange, pch=21, bg=clinda_genus_diff_1_10$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=5.4, cef_genus_diff_1_10$transcriptChange, pch=21, bg=cef_genus_diff_1_10$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
 # >10% and <100%
-stripchart(at=6.8, strep_genus_diff_10_100$transcriptChange, pch=21, bg=alpha(strep_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
-stripchart(at=7, clinda_genus_diff_10_100$transcriptChange, pch=21, bg=alpha(clinda_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
-stripchart(at=7.2, cef_genus_diff_10_100$transcriptChange, pch=21, bg=alpha(cef_col, 0.75), 
-           method='jitter', jitter=0.3, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=6.6, strep_genus_diff_10_100$transcriptChange, pch=21, bg=strep_genus_diff_10_100$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=7, clinda_genus_diff_10_100$transcriptChange, pch=21, bg=clinda_genus_diff_10_100$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+stripchart(at=7.4, cef_genus_diff_10_100$transcriptChange, pch=21, bg=cef_genus_diff_10_100$color, 
+           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+
+par(xpd=TRUE)
+legend(x=0.25, y=27.5, legend=c('Streptomycin-pretreated','Clindamycin-pretreated','Cefoperazone-pretreated'), 
+       bty='n', col=c(strep_col,clinda_col,cef_col), pch=c(1,16), cex=1.7, pt.cex=0, lty=5, lwd=2.5, ncol=3)
 
 dev.off()
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clean up
-#for (dep in deps){
-#  pkg <- paste('package:', dep, sep='')
-#  detach(pkg, character.only = TRUE)}
-#setwd(starting_dir)
-#rm(list=ls())
-#gc()
+for (dep in deps){
+  pkg <- paste('package:', dep, sep='')
+  detach(pkg, character.only = TRUE)}
+setwd(starting_dir)
+rm(list=ls())
+gc()
