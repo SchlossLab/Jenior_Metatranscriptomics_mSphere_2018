@@ -273,6 +273,32 @@ noabx$pathway <- NULL
 rm(strep_630_metaG, strep_mock_metaG, cef_630_metaG, cef_mock_metaG, clinda_630_metaG, clinda_mock_metaG, noabx_mock_metaG,
    strep_630_metaT, strep_mock_metaT, cef_630_metaT, cef_mock_metaT, clinda_630_metaT, clinda_mock_metaT, noabx_mock_metaT)
 
+# Bin low abundance in Other
+cef_sums <- colSums(cef[,1:3])
+cef <- cef[rowSums(cef) > 15,]
+cef_sums <- cef_sums - colSums(cef) 
+cef <- as.data.frame(t(cef))
+cef$Other <- as.numeric(cef_sums)
+cef <- t(cef)
+strep_sums <- colSums(strep[,1:3])
+strep <- strep[rowSums(strep) > 15,]
+strep_sums <- strep_sums - colSums(strep) 
+strep <- as.data.frame(t(strep))
+strep$Other <- as.numeric(strep_sums)
+strep <- t(strep)
+clinda_sums <- colSums(clinda[,1:3])
+clinda <- clinda[rowSums(clinda) > 15,]
+clinda_sums <- clinda_sums - colSums(clinda) 
+clinda <- as.data.frame(t(clinda))
+clinda$Other <- as.numeric(clinda_sums)
+clinda <- t(clinda)
+noabx_sums <- colSums(noabx[,1:2])
+noabx <- noabx[rowSums(noabx) > 15,]
+noabx_sums <- noabx_sums - colSums(noabx) 
+noabx <- as.data.frame(t(noabx))
+noabx$Other <- as.numeric(noabx_sums)
+noabx <- t(noabx)
+
 # Assign colors 
 bar_palette <- viridis(n=nrow(noabx))
 bar_palette <- as.data.frame(cbind(rownames(noabx), bar_palette))
@@ -290,6 +316,12 @@ noabx <- merge(noabx, bar_palette, by.x='row.names', by.y='pathway')
 rownames(noabx) <- noabx$Row.names
 noabx$Row.names <- NULL
 
+# Reorder for largest groups on top
+cef <- cef[order(cef$Metagenome),] 
+strep <- strep[order(strep$Metagenome),] 
+clinda <- clinda[order(clinda$Metagenome),] 
+noabx <- noabx[order(noabx$Metagenome),] 
+
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Generate plot
@@ -302,26 +334,31 @@ layout(matrix(c(1,2,
 par(mar=c(3, 4, 2, 1), mgp=c(3,0.7,0), las=1)
 barplot(as.matrix(noabx[,1:2]), main='No Antibiotics', xlab='', ylab='Unique Genes', col=as.character(noabx$color), ylim=c(0,10000))
 box(lwd=1.5)
+abline(v=1.3, lty=2, lwd=1.5)
 mtext('A', side=2, line=2, las=2, adj=1.5, padj=-8, cex=1.2, font=2)
 
 barplot(as.matrix(strep[,1:3]), main='Streptomycin-pretreated', xlab='', ylab='Unique Genes', col=as.character(strep$color), ylim=c(0,3000))
 box(lwd=1.5)
 mtext('Metatranscriptome', side=1, line=2, las=2, adj=0.75, padj=-0.5, cex=0.7, las=1)
+abline(v=1.3, lty=2, lwd=1.5)
 mtext('B', side=2, line=2, las=2, adj=1.5, padj=-8, cex=1.2, font=2)
 
-barplot(as.matrix(cef[,1:3]), main='Cefoperazone-pretreated', xlab='', ylab='Unique Genes', col=as.character(cef$color), ylim=c(0,3000))
+barplot(as.matrix(cef[,1:3]), main='Cefoperazone-pretreated', xlab='', ylab='Unique Genes', col=as.character(cef$color), ylim=c(0,2000))
 box(lwd=1.5)
 mtext('Metatranscriptome', side=1, line=2, las=2, adj=0.75, padj=-0.5, cex=0.7, las=1)
+abline(v=1.3, lty=2, lwd=1.5)
 mtext('C', side=2, line=2, las=2, adj=1.5, padj=-8, cex=1.2, font=2)
 
-barplot(as.matrix(clinda[,1:3]), main='Clindamycin-pretreated', xlab='', ylab='Unique Genes', col=as.character(clinda$color), ylim=c(0,3000))
+barplot(as.matrix(clinda[,1:3]), main='Clindamycin-pretreated', xlab='', ylab='Unique Genes', col=as.character(clinda$color), ylim=c(0,2000))
 box(lwd=1.5)
 mtext('Metatranscriptome', side=1, line=2, las=2, adj=0.75, padj=-0.5, cex=0.7, las=1)
+abline(v=1.3, lty=2, lwd=1.5)
 mtext('D', side=2, line=2, las=2, adj=1.5, padj=-8, cex=1.2, font=2)
 
 par(mar=c(0,0,1,0))
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-6,6))
-legend('top', legend=as.character(bar_palette$pathway), bty='n', pt.bg=rev(as.character(bar_palette$color)), pch=22, cex=0.8, pt.cex=1.8, ncol=3)
+legend('top', legend=as.character(bar_palette$pathway), bty='n', 
+       pt.bg=rev(as.character(bar_palette$color)), pch=22, cex=1.1, pt.cex=1.9, ncol=2)
 
 dev.off()
 

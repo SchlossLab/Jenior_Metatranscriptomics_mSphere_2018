@@ -5,7 +5,7 @@ gc()
 
 # Load in functions
 starting_dir <- getwd()
-source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
 
 # Define input files
 wetlab_file <- 'data/wetlab_assays.tsv'
@@ -196,7 +196,7 @@ legend('topright', legend='Toxin titer', bty='n',
 box()
 
 # Add significance
-text(x=c(6.5,12.5,18.5,8,14,20,15.5,21.5), y=c(3.4,3.4,3.4,3,3,3,3.2,2.5), labels=rep('*',8), col=noabx_col, font=2, cex=2.2)
+text(x=c(6.5,12.5,18.5,8,14,20,15.5,21.5), y=c(3.4,3.4,3.4,3,3,3,3.2,2.5), labels=rep('*',8), font=2, cex=2.2)
 
 mtext('C', side=2, line=2, las=2, adj=2.3, padj=-9.5, cex=1.2, font=2)
 

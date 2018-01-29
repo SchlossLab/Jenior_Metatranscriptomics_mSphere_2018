@@ -126,7 +126,7 @@ featureselect_RF <- function(training_data, classes){
   # Breiman (2001). Random Forests. Machine Learning.
   n_trees <- round(length(colnames(training_data)) - 1) * factor
   m_tries <- round(sqrt(length(colnames(training_data)) - 1))
-  data_randomForest <- randomForest(training_data[,classes]~., 
+  data_randomForest <- randomForest(classes~., 
                                     data=training_data, importance=TRUE, replace=FALSE, 
                                     err.rate=TRUE, ntree=n_trees, mtry=m_tries)
   detach(training_data)

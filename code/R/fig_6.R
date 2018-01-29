@@ -538,36 +538,34 @@ abline(v=c(6.6,7,7.4), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
 box(lwd=2)
 mtext('D', side=2, line=2, las=2, adj=1, padj=-10, cex=1.7, font=2)
 
-
-
 # <0.1%
 stripchart(at=0.6, strep_genus_diff_01$transcriptChange, pch=21, bg=strep_genus_diff_01$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=1, clinda_genus_diff_01$transcriptChange, pch=21, bg=clinda_genus_diff_01$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
-stripchart(at=1.4, cef_genus_diff_01$transcriptChange, pch=21, bg=cef_genus_diff_01$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
+stripchart(at=1.4, rev(cef_genus_diff_01$transcriptChange), pch=21, bg=rev(cef_genus_diff_01$color), 
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 # >0.1% and <1%
 stripchart(at=2.6, strep_genus_diff_01_1$transcriptChange, pch=21, bg=strep_genus_diff_01_1$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=3, clinda_genus_diff_01_1$transcriptChange, pch=21, bg=clinda_genus_diff_01_1$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=3.4, cef_genus_diff_01_1$transcriptChange, pch=21, bg=cef_genus_diff_01_1$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 # >1% and <10%
 stripchart(at=4.6, strep_genus_diff_1_10$transcriptChange, pch=21, bg=strep_genus_diff_1_10$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=5, clinda_genus_diff_1_10$transcriptChange, pch=21, bg=clinda_genus_diff_1_10$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=5.4, cef_genus_diff_1_10$transcriptChange, pch=21, bg=cef_genus_diff_1_10$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 # >10% and <100%
 stripchart(at=6.6, strep_genus_diff_10_100$transcriptChange, pch=21, bg=strep_genus_diff_10_100$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=7, clinda_genus_diff_10_100$transcriptChange, pch=21, bg=clinda_genus_diff_10_100$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=7.4, cef_genus_diff_10_100$transcriptChange, pch=21, bg=cef_genus_diff_10_100$color, 
-           pt.lwd=1.5, cex=3, lwd=0.5, vertical=TRUE, add=TRUE)
+           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
 
 par(xpd=TRUE)
 legend(x=0.25, y=27.5, legend=c('Streptomycin-pretreated','Clindamycin-pretreated','Cefoperazone-pretreated'), 
