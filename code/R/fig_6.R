@@ -267,7 +267,13 @@ strep_outliers <- rbind(strep_630_outliers, strep_mock_outliers)
 strep_difference <- abs(((2^strep_outliers$strep_mock_metaT_reads) - 1) - ((2^strep_outliers$strep_630_metaT_reads) - 1))
 strep_difference <- as.data.frame(cbind(strep_outliers$genus, strep_difference))
 colnames(strep_difference) <- c('genus', 'difference')
+strep_gene_count <- as.data.frame(table(strep_difference$genus))
+colnames(strep_gene_count) <- c('genus', 'count')
 strep_difference <- aggregate(. ~ genus, data=strep_difference, FUN=sum)
+strep_difference <- merge(strep_difference, strep_gene_count, by='genus')
+strep_difference$difference <- strep_difference$difference / strep_difference$count
+strep_difference$count <- NULL
+rm(strep_gene_count)
 strep_difference$difference <- log2(as.numeric(as.character(strep_difference$difference)) + 1)
 strep_genus_diff <- merge(strep_genus, strep_difference, by.x='row.names', by.y='genus')
 rownames(strep_genus_diff) <- strep_genus_diff$Row.names
@@ -278,7 +284,13 @@ cef_outliers <- rbind(cef_630_outliers, cef_mock_outliers)
 cef_difference <- abs(((2^cef_outliers$cef_mock_metaT_reads) - 1) - ((2^cef_outliers$cef_630_metaT_reads) - 1))
 cef_difference <- as.data.frame(cbind(cef_outliers$genus, cef_difference))
 colnames(cef_difference) <- c('genus', 'difference')
+cef_gene_count <- as.data.frame(table(cef_difference$genus))
+colnames(cef_gene_count) <- c('genus', 'count')
 cef_difference <- aggregate(. ~ genus, data=cef_difference, FUN=sum)
+cef_difference <- merge(cef_difference, cef_gene_count, by='genus')
+cef_difference$difference <- cef_difference$difference / cef_difference$count
+cef_difference$count <- NULL
+rm(cef_gene_count)
 cef_difference$difference <- log2(as.numeric(as.character(cef_difference$difference)) + 1)
 cef_genus_diff <- merge(cef_genus, cef_difference, by.x='row.names', by.y='genus')
 rownames(cef_genus_diff) <- cef_genus_diff$Row.names
@@ -289,7 +301,13 @@ clinda_outliers <- rbind(clinda_630_outliers, clinda_mock_outliers)
 clinda_difference <- abs(((2^clinda_outliers$clinda_mock_metaT_reads) - 1) - ((2^clinda_outliers$clinda_630_metaT_reads) - 1))
 clinda_difference <- as.data.frame(cbind(clinda_outliers$genus, clinda_difference))
 colnames(clinda_difference) <- c('genus', 'difference')
+clinda_gene_count <- as.data.frame(table(clinda_difference$genus))
+colnames(clinda_gene_count) <- c('genus', 'count')
 clinda_difference <- aggregate(. ~ genus, data=clinda_difference, FUN=sum)
+clinda_difference <- merge(clinda_difference, clinda_gene_count, by='genus')
+clinda_difference$difference <- clinda_difference$difference / clinda_difference$count
+clinda_difference$count <- NULL
+rm(clinda_gene_count)
 clinda_difference$difference <- log2(as.numeric(as.character(clinda_difference$difference)) + 1)
 clinda_genus_diff <- merge(clinda_genus, clinda_difference, by.x='row.names', by.y='genus')
 rownames(clinda_genus_diff) <- clinda_genus_diff$Row.names
@@ -522,53 +540,83 @@ points(x=2.75, y=-3.1, pch=22, cex=2.2, col='black', bg='#FF8000') # orange
 
 # Transcript abundance by species abundance
 par(mar=c(5, 5, 2, 2), yaxs='i')
-plot(1, type='n', ylim=c(0,25), xlim=c(0,8),
+plot(1, type='n', ylim=c(0,15), xlim=c(0,8),
      ylab='', xlab='', xaxt='n', yaxt='n', las=1)
 axis(1, at=c(1,3,5,7), label=c('≤0.1%','>0.1% and ≤1%','>1% and ≤10%','>10% and ≤100%'), 
      tick=FALSE, cex.axis=1.7, font=2)
-axis(2, at=c(0,5,10,15,20,25), cex.axis=1.4, las=1)
-mtext('Genus-level 16S Relative Abundance', side=1, padj=2.5, cex=1.2)
-mtext(expression(paste('Change in Metatranscriptome (',log[2],')')), side=2, padj=-1.5, cex=1.2)
+axis(2, at=c(0,5,10,15), cex.axis=1.5, las=1)
+mtext('Genus-level Relative Abundance (16S)', side=1, padj=2.5, cex=1.2)
+mtext(expression(paste('Absolute Difference in Metatranscriptome (',log[2],')')), side=2, padj=-1.5, cex=1.1)
 minor.ticks.axis(2, 20, mn=0, mx=25)
 abline(v=c(2,4,6), lwd=2)
-abline(v=c(0.6,1,1.4), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
-abline(v=c(2.6,3,3.4), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
-abline(v=c(4.6,5,5.4), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
-abline(v=c(6.6,7,7.4), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
+abline(v=c(0.5,1,1.5), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
+abline(v=c(2.5,3,3.5), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
+abline(v=c(4.5,5,5.5), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
+abline(v=c(6.5,7,7.5), lwd=2, lty=5, col=c(strep_col,clinda_col,cef_col))
 box(lwd=2)
 mtext('D', side=2, line=2, las=2, adj=1, padj=-10, cex=1.7, font=2)
 
 # <0.1%
-stripchart(at=0.6, strep_genus_diff_01$transcriptChange, pch=21, bg=strep_genus_diff_01$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
+strep_01_n <- as.numeric(nrow(strep_genus_diff_01))
+text(x=0.4, y=0.5, strep_01_n, cex=1.4)
+other <- subset(strep_genus_diff_01, strep_genus_diff_01$color == 'white')
+strep_genus_diff_01 <- subset(strep_genus_diff_01, strep_genus_diff_01$color != 'white')
+stripchart(at=0.5, other$transcriptChange, pch=21, bg=other$color, 
+           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+stripchart(at=0.5, rev(strep_genus_diff_01$transcriptChange), pch=21, bg=rev(strep_genus_diff_01$color), 
+           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+temp <- subset(strep_genus_diff_01, rownames(strep_genus_diff_01) %in% c('Lactococcus','Roseburia','Prevotella','Akkermansia','Bifidobacterium') )
+stripchart(at=0.5, temp$transcriptChange, pch=21, bg=temp$color, 
+           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+
+clinda_01_n <- as.numeric(nrow(clinda_genus_diff_01))
+text(x=0.9, y=0.5, clinda_01_n, cex=1.4)
+other <- subset(clinda_genus_diff_01, clinda_genus_diff_01$color == 'white')
+clinda_genus_diff_01 <- subset(clinda_genus_diff_01, clinda_genus_diff_01$color != 'white')
+stripchart(at=1, other$transcriptChange, pch=21, bg=other$color, 
+           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=1, clinda_genus_diff_01$transcriptChange, pch=21, bg=clinda_genus_diff_01$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=1.4, rev(cef_genus_diff_01$transcriptChange), pch=21, bg=rev(cef_genus_diff_01$color), 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
+           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+temp <- subset(clinda_genus_diff_01, rownames(clinda_genus_diff_01) %in% c('Bifidobacterium','Parabacteroides') )
+stripchart(at=1, temp$transcriptChange, pch=21, bg=temp$color, 
+           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+
+cef_01_n <- as.numeric(nrow(cef_genus_diff_01))
+text(x=1.4, y=0.5, cef_01_n, cex=1.4)
+other <- subset(cef_genus_diff_01, cef_genus_diff_01$color == 'white')
+cef_genus_diff_01 <- subset(cef_genus_diff_01, cef_genus_diff_01$color != 'white')
+stripchart(at=1.5, other$transcriptChange, pch=21, bg=other$color, 
+           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+stripchart(at=1.5, cef_genus_diff_01$transcriptChange, pch=21, bg=cef_genus_diff_01$color, 
+           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+temp <- subset(cef_genus_diff_01, rownames(cef_genus_diff_01) %in% c('Allistipes','Odoribacter','Parabacteroides') )
+stripchart(at=1.5, temp$transcriptChange, pch=21, bg=temp$color, 
+           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+
 # >0.1% and <1%
-stripchart(at=2.6, strep_genus_diff_01_1$transcriptChange, pch=21, bg=strep_genus_diff_01_1$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
+stripchart(at=2.4, strep_genus_diff_01_1$transcriptChange, pch=21, bg=strep_genus_diff_01_1$color, 
+           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=3, clinda_genus_diff_01_1$transcriptChange, pch=21, bg=clinda_genus_diff_01_1$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=3.4, cef_genus_diff_01_1$transcriptChange, pch=21, bg=cef_genus_diff_01_1$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
+           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+stripchart(at=3.5, cef_genus_diff_01_1$transcriptChange, pch=21, bg=cef_genus_diff_01_1$color, 
+           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
 # >1% and <10%
-stripchart(at=4.6, strep_genus_diff_1_10$transcriptChange, pch=21, bg=strep_genus_diff_1_10$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
+stripchart(at=4.5, strep_genus_diff_1_10$transcriptChange, pch=21, bg=strep_genus_diff_1_10$color, 
+           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=5, clinda_genus_diff_1_10$transcriptChange, pch=21, bg=clinda_genus_diff_1_10$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=5.4, cef_genus_diff_1_10$transcriptChange, pch=21, bg=cef_genus_diff_1_10$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
+           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+stripchart(at=5.5, cef_genus_diff_1_10$transcriptChange, pch=21, bg=cef_genus_diff_1_10$color, 
+           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
 # >10% and <100%
-stripchart(at=6.6, strep_genus_diff_10_100$transcriptChange, pch=21, bg=strep_genus_diff_10_100$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
+stripchart(at=6.5, strep_genus_diff_10_100$transcriptChange, pch=21, bg=strep_genus_diff_10_100$color, 
+           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
 stripchart(at=7, clinda_genus_diff_10_100$transcriptChange, pch=21, bg=clinda_genus_diff_10_100$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=7.4, cef_genus_diff_10_100$transcriptChange, pch=21, bg=cef_genus_diff_10_100$color, 
-           cex=3, lwd=1.5, vertical=TRUE, add=TRUE)
+           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+stripchart(at=7.5, cef_genus_diff_10_100$transcriptChange, pch=21, bg=cef_genus_diff_10_100$color, 
+           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
 
 par(xpd=TRUE)
-legend(x=0.25, y=27.5, legend=c('Streptomycin-pretreated','Clindamycin-pretreated','Cefoperazone-pretreated'), 
+legend(x=0.25, y=16.5, legend=c('Streptomycin-pretreated','Clindamycin-pretreated','Cefoperazone-pretreated'), 
        bty='n', col=c(strep_col,clinda_col,cef_col), pch=c(1,16), cex=1.7, pt.cex=0, lty=5, lwd=2.5, ncol=3)
 
 dev.off()

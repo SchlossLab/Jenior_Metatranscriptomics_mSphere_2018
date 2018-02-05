@@ -5,7 +5,7 @@ gc()
 
 # Load in functions
 starting_dir <- getwd()
-source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
 
 # Define files
 # Normalized Metatranscriptomes
@@ -326,44 +326,42 @@ clinda_pathways <- c(rep(0,5),0,rep(0,5),0,rev(as.vector(clinda_pathways$diff-3)
 #--------------------------------------------------------------------------------------------------#
 
 # Generate figure
-pdf(file=plot_file, width=5, height=14)
+pdf(file=plot_file, width=5, height=11)
 layout(matrix(c(1,1,
                 1,1,
                 2,2,
                 2,2,
                 3,3,
                 3,3,
-                4,4,
-                4,4,
-                5,5),
-              nrow=9, ncol=2, byrow = TRUE))
+                4,4),
+              nrow=7, ncol=2, byrow = TRUE))
 
 #------------------#
 
 # Overrepresented pathways
-par(mar=c(12,4,1,2), las=1, mgp=c(1.6,0.7,0))
-plot(0, type='n', xlab='', xaxt='n', yaxt='n', 
-     ylab=as.expression(bquote(paste(Delta,' cDNA Abundance (',log[2],')'))), xlim=c(0,20.5), ylim=c(-16,16))
-abline(h=0, lwd=1.5)
-axis(side=2, at=seq(-16,16,4), labels=c(16,12,8,4,0,4,8,12,16))
-text(x=c(2.2,1.9), y=c(15.7,-15.7), cex=0.7, labels=c('Infection-associated', 'Mock-associated'))
-legend('top', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
-       pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.5, col='black', bty='n')
-mtext('A', side=2, line=2, las=2, adj=1.7, padj=-5.5, font=2)
+#par(mar=c(12,4,1,2), las=1, mgp=c(1.6,0.7,0))
+#plot(0, type='n', xlab='', xaxt='n', yaxt='n', 
+#     ylab=as.expression(bquote(paste(Delta,' cDNA Abundance (',log[2],')'))), xlim=c(0,20.5), ylim=c(-16,16))
+#abline(h=0, lwd=1.5)
+#axis(side=2, at=seq(-16,16,4), labels=c(16,12,8,4,0,4,8,12,16))
+#text(x=c(2.2,1.9), y=c(15.7,-15.7), cex=0.7, labels=c('Infection-associated', 'Mock-associated'))
+#legend('top', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
+#       pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.5, col='black', bty='n')
+#mtext('A', side=2, line=2, las=2, adj=1.7, padj=-5.5, font=2)
 
 # Add groups
-barplot(strep_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=strep_col, yaxt='n', add=TRUE, xpd=F) # Streptomycin
-barplot(cef_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=cef_col, yaxt='n', add=TRUE, xpd=F) # Cefoperazone
-barplot(clinda_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=clinda_col, yaxt='n', add=TRUE, xpd=F) # Clindamycin
+#barplot(strep_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=strep_col, yaxt='n', add=TRUE, xpd=F) # Streptomycin
+#barplot(cef_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=cef_col, yaxt='n', add=TRUE, xpd=F) # Cefoperazone
+#barplot(clinda_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=clinda_col, yaxt='n', add=TRUE, xpd=F) # Clindamycin
 
 # Add average expression lines
-abline(h=ave_630, lwd=1.2, lty=5)
-abline(h=-ave_mock, lwd=1.2, lty=5)
-legend('bottomright', 'Ave. cDNA Abundance', lty=5,lwd=1.2, cex=0.9)
+#abline(h=ave_630, lwd=1.2, lty=5)
+#abline(h=-ave_mock, lwd=1.2, lty=5)
+#legend('bottomright', 'Ave. cDNA Abundance', lty=5,lwd=1.2, cex=0.9)
 
 # Add pathway names
-text(cex=0.9, x=c(1.2,2.3,3.5,4.7,5.9,  8.4,9.5,10.7,11.9,13.1,   15.6,16.7,17.9,19.2,20.5), 
-     y=-18, pathway_names, xpd=TRUE, srt=60, pos=2)
+#text(cex=0.9, x=c(1.2,2.3,3.5,4.7,5.9,  8.4,9.5,10.7,11.9,13.1,   15.6,16.7,17.9,19.2,20.5), 
+#     y=-18, pathway_names, xpd=TRUE, srt=60, pos=2)
 
 #------------------#
 
@@ -376,8 +374,8 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Streptomycin-pretreated', line=0.5, cex.main=1.2, col.main=strep_col, font.main=2)
-mtext('B', side=2, padj=-10, adj=16, font=2)
-#text(x=12.5, y=5.5, 'Infection', cex=1.1)
+mtext('A', side=2, padj=-10, adj=16, font=2)
+text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
@@ -392,8 +390,8 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Cefoperazone-pretreated', line=0.5, cex.main=1.2, col.main=cef_col, font.main=2)
-mtext('C', side=2, padj=-9, adj=16, font=2)
-#text(x=12.5, y=5.5, 'Infection', cex=1.1)
+mtext('B', side=2, padj=-9, adj=16, font=2)
+text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
@@ -408,8 +406,8 @@ axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
 title('Clindamycin-pretreated', line=0.5, cex.main=1.2, col.main=clinda_col, font.main=2)
-mtext('D', side=2, padj=-9, adj=16, font=2)
-#text(x=12.5, y=5.5, 'Infection', cex=1.1)
+mtext('C', side=2, padj=-9, adj=16, font=2)
+text(x=12.5, y=5.5, 'Infection', cex=1.1)
 legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
        pch=22, pt.cex=1.5, cex=0.9)
 
@@ -425,7 +423,7 @@ legend('center', ncol=3, cex=0.75, pt.cex=0.9,
          'Methane metabolism','Phosphotransferase system','Starch & sucrose metabolism',
          'Glutathione metabolism','Valine, leucine, and isoleucine biosyn.','Glycine, serine, and threonine metab.'))
 
-text(x=-6.5, y=1.8, expression(paste('Most frequent pathways among genes in ', bold('B-D'), ':')), cex=0.9, xpd=TRUE)
+text(x=-6.5, y=1.8, expression(paste('Most frequent pathways among genes in ', bold('A-C'), ':')), cex=0.9, xpd=TRUE)
 
 dev.off()
 

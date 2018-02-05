@@ -312,6 +312,7 @@ strep$Row.names <- NULL
 clinda <- merge(clinda, bar_palette, by.x='row.names', by.y='pathway')
 rownames(clinda) <- clinda$Row.names
 clinda$Row.names <- NULL
+clinda$Metagenome <- clinda$Metagenome + 10 # Fix error
 noabx <- merge(noabx, bar_palette, by.x='row.names', by.y='pathway')
 rownames(noabx) <- noabx$Row.names
 noabx$Row.names <- NULL
@@ -365,5 +366,5 @@ dev.off()
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clean up
-rm(list=ls())
-gc()
+#rm(list=ls())
+#gc()
