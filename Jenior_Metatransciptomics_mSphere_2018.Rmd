@@ -168,7 +168,7 @@ Pooled and quality trimmed transcriptomic and 16S rRNA gene amplicon read data f
 
 **Supplementary Table 2 | High-throughput sequencing read counts and metagenomic assembly quality** Raw and curated read abundances for both metagenomic and metatranscriptomic sequencing efforts. Raw read curation steps are outlined in Materials & Methods. Metagenomic contig summary statistics reflect the quality of assembly for each group.
 
-**Supplementary Table 3 | Normalized cDNA abundances for each antibiotic pretreated group** Final cDNA read abundances for each gene from the corresponding metagenomic assembly. Normalization reflects standardizing cDNA read abundances to both read length and target gene length as well as metagenomic coverage for each gene (also normalized).
+**Supplementary Table 3 | Normalized cDNA abundances of complete metatranscriptomes for each antibiotic pretreated group** Final cDNA read abundances for each gene from the corresponding metagenomic assembly. Normalization reflects standardizing cDNA read abundances to both read length and target gene length as well as metagenomic coverage for each gene.
 
 **Supplementary Table 4 | Median scaled intensity of metabolites for each antibiotic pretreatment and infection group** 
 
