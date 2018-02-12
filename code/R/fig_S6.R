@@ -79,7 +79,6 @@ strep_raw_reads <- clean_merge(strep_630_metagenome, strep_mock_metagenome)
 strep_raw_reads <- clean_merge(strep_raw_reads, strep_630_metatranscriptome)
 strep_raw_reads <- clean_merge(strep_raw_reads, strep_mock_metatranscriptome)
 noabx_raw_reads <- clean_merge(noabx_mock_metagenome, noabx_mock_metatranscriptome)
-
 rm(cef_630_metagenome, clinda_630_metagenome, strep_630_metagenome, 
    cef_mock_metagenome, clinda_mock_metagenome, strep_mock_metagenome,
    cef_630_metatranscriptome, cef_mock_metatranscriptome, clinda_630_metatranscriptome, 
@@ -95,7 +94,7 @@ cef_raw_reads <- clean_merge(cef_raw_reads, cef_kegg)
 clinda_raw_reads <- clean_merge(clinda_raw_reads, clinda_kegg)
 strep_raw_reads <- clean_merge(strep_raw_reads, strep_kegg)
 noabx_raw_reads <- clean_merge(noabx_raw_reads, noabx_kegg)
-rm(cef_kegg,clinda_kegg,strep_kegg,noabx_kegg)
+rm(cef_kegg, clinda_kegg, strep_kegg, noabx_kegg)
 
 # Remove introduced duplicates
 cef_raw_reads$kegg_hit <- rownames(cef_raw_reads)
@@ -118,6 +117,25 @@ clinda_raw_reads <- merge(clinda_raw_reads, pathways, by='ko', all.x=TRUE)
 strep_raw_reads <- merge(strep_raw_reads, pathways, by='ko', all.x=TRUE)
 noabx_raw_reads <- merge(noabx_raw_reads, pathways, by='ko', all.x=TRUE)
 rm(pathways)
+
+# Screen for annotated genes
+cef_annotated <- subset(cef_raw_reads, !is.na(organism))
+cef_annotated <- subset(cef_annotated, !description %in% c('unknown_function', 'unlikely', 'hypothetical_protein'))
+cef_annotated <- subset(cef_annotated, !grepl("uncharacterized_", cef_annotated$description))
+clinda_annotated <- subset(clinda_raw_reads, !is.na(organism))
+clinda_annotated <- subset(clinda_annotated, !description %in% c('unknown_function', 'unlikely', 'hypothetical_protein'))
+clinda_annotated <- subset(clinda_annotated, !grepl("uncharacterized_", clinda_annotated$description))
+strep_annotated <- subset(strep_raw_reads, !is.na(organism))
+strep_annotated <- subset(strep_annotated, !description %in% c('unknown_function', 'unlikely', 'hypothetical_protein'))
+strep_annotated <- subset(strep_annotated, !grepl("uncharacterized_", strep_annotated$description))
+noabx_annotated <- subset(noabx_raw_reads, !is.na(organism))
+noabx_annotated <- subset(noabx_annotated, !description %in% c('unknown_function', 'unlikely', 'hypothetical_protein'))
+noabx_annotated <- subset(noabx_annotated, !grepl("uncharacterized_", noabx_annotated$description))
+cef_raw_reads <- cef_annotated
+clinda_raw_reads <- clinda_annotated
+strep_raw_reads <- strep_annotated
+noabx_raw_reads <- noabx_annotated
+rm(cef_annotated, clinda_annotated, strep_annotated, noabx_annotated)
 
 # Separate in groups and aggregate (Remove genes with no metagenomic coverage)
 simp <- read.delim('data/kegg/simp_pathways.tsv', sep='\t', header=TRUE)
@@ -322,6 +340,11 @@ strep <- strep[order(strep$Metagenome),]
 clinda <- clinda[order(clinda$Metagenome),] 
 noabx <- noabx[order(noabx$Metagenome),] 
 
+sum(cef$Metagenome)
+sum(strep$Metagenome)
+sum(clinda$Metagenome)
+sum(noabx$Metagenome)
+
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Generate plot
@@ -365,5 +388,5 @@ dev.off()
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Clean up
-#rm(list=ls())
-#gc()
+rm(list=ls())
+gc()
