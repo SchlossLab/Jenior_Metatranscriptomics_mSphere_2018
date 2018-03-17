@@ -3,7 +3,7 @@
 setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/')
 
 # Load dependencies
-deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'RColorBrewer', 'gplots','viridis', 'scales')
+deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'RColorBrewer', 'gplots','viridis', 'scales','Hmisc')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -22,6 +22,11 @@ clinda_col <- '#A40019'
 noabx_col <- 'gray30'
 gf_col <- 'forestgreen'
 heat_palette <- viridis(n=200)
+
+# Calculate variances of rows
+RowVar <- function(x) {
+  rowSums((x - rowMeans(x))^2)/(dim(x)[2] - 1)
+}
 
 # Remove columns with low variance
 rm_lowVar <- function(data_table) {
