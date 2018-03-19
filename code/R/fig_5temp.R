@@ -253,14 +253,14 @@ rownames(final_pathways) <- path_names
 rm(path_names)
 
 # Add pathway information to genes
-rownames(final_annotated) <- c('(A) Dps family protein',
-                               '(B,C,H) Formate acetyltransferase',            
-                               '(D) Ribosome-associated factor Y',
-                               '(E,H) Phosphopyruvate hydratase',         
-                               '(F) HD superfamily hydrolase',
+rownames(final_annotated) <- c('(1) Dps family protein',
+                               '(2,3,8) Formate acetyltransferase',            
+                               '(4) Ribosome-associated factor Y',
+                               '(5,8) Phosphopyruvate hydratase',         
+                               '(6) HD superfamily hydrolase',
                                'ArsR family transcriptional regulator',
                                'GPH family symporter',
-                               '(G) Protein grpE')
+                               '(7) Protein grpE')
 
 # Reverse row order for plotting
 final_annotated <- final_annotated[nrow(final_annotated):1, ]
@@ -281,7 +281,7 @@ layout(matrix(c(1,2,
                 3,3),
               nrow=3, ncol=2, byrow = TRUE))
 
-par(mar=c(3,19.5,1,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i', yaxs='i')
+par(mar=c(3,19.75,1,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i', yaxs='i')
 barplot(as.matrix(t(final_annotated)), xaxt='n', xlim=c(0,14), ylim=c(0,57), beside=TRUE, horiz=TRUE, 
         xlab='', ylab='', angle=20, density=c(NA,20),  
         col=c(strep_col,strep_col,cef_col,cef_col,clinda_col,clinda_col), cex.names=1.4)
@@ -290,10 +290,11 @@ box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2), cex.axis=1.2)
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
-mtext('C', side=2, padj=-14, adj=15, font=2, cex=1.3)
+mtext('B', side=2, padj=-13, adj=15, font=2, cex=1.4)
+mtext('A', side=2, padj=-13, adj=11, font=2, cex=1.4)
 
 # Pathways
-par(mar=c(3,19.5,1,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i', yaxs='i')
+par(mar=c(3,19.75,1,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i', yaxs='i')
 barplot(as.matrix(t(final_pathways)), xaxt='n', xlim=c(0,14), ylim=c(0,57), beside=TRUE, horiz=TRUE, 
         xlab='', ylab='', angle=20, density=c(NA,20), 
         col=c(strep_col,strep_col,cef_col,cef_col,clinda_col,clinda_col), cex.names=1.4)
@@ -302,37 +303,36 @@ box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2), cex.axis=1.2)
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
-mtext('D', side=2, padj=-14, adj=15, font=2, cex=1.3)
+mtext('D', side=2, padj=-13, adj=15, font=2, cex=1.4)
+mtext('C', side=2, padj=-13, adj=11, font=2, cex=1.4)
 
 # Legend plot
 par(mar=c(0,0,0,0))
 plot(0, xaxt='n', yaxt='n', bty='n', pch='', ylab='', xlab='', xlim=c(-10,10), ylim=c(-5,5))
-legend(x=-9, y=3, legend=c('A. Metabolism of cofactors and vitamins',
-                             'B. Pyruvate metabolism',
-                             'C. Propanoate metabolism',
-                             'D. RNA transport',
-                             'E. Glycolysis / Gluconeogenesis',
-                             'F. RNA degradation',
-                             'G. Chaperones and folding catalysts',
-                             'H. Microbial metabolism in diverse environments'),
-       pt.cex=0, bty='n', cex=1.3)
+legend(x=-9, y=3, legend=c('1. Metabolism of cofactors and vitamins',
+                             '2. Pyruvate metabolism',
+                             '3. Propanoate metabolism',
+                             '4. RNA transport',
+                             '5. Glycolysis / Gluconeogenesis',
+                             '6. RNA degradation',
+                             '7. Chaperones and folding catalysts',
+                             '8. Microbial metabolism in diverse environments'),
+       pt.cex=0, bty='n', cex=1.5)
 legend(x=-1, y=3, legend=c(expression(italic('C. difficile')),'Mock-infected'), fill='black',
-       density=c(NA, 20), pt.cex=2, cex=1.4)
-legend(x=5, y=4, legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
-       pt.bg=c(strep_col,cef_col,clinda_col), pch=22, pt.cex=2, cex=1.4)
-text(x=-6, y=4, 'A', font=2, cex=2)
-text(x=-4, y=4, 'B', font=2, cex=2)
+       density=c(NA, 20), pt.cex=2.3, cex=1.5)
+legend(x=3, y=3.5, legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
+       pt.bg=c(strep_col,cef_col,clinda_col), pch=22, pt.cex=2.3, cex=1.5)
 
 dev.off()
 
 #--------------------------------------------------------------------------------------------------#
 
 #Clean up
-#for (dep in deps){
-#  pkg <- paste('package:', dep, sep='')
-#  detach(pkg, character.only = TRUE)
-#}
-#setwd(starting_dir)
-#rm(list=ls())
-#gc()
+for (dep in deps){
+  pkg <- paste('package:', dep, sep='')
+  detach(pkg, character.only = TRUE)
+}
+setwd(starting_dir)
+rm(list=ls())
+gc()
 
