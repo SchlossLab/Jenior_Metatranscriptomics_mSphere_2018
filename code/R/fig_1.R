@@ -112,7 +112,7 @@ text(-4.7, 4.88, 'A', cex=1.4, font=2)
 
 # CFU over time
 par(mar=c(4,4,1,1), las=1, mgp=c(2.5, 0.75, 0))
-plot(0, type='n', xlab='Days Post-Infection', ylab='Total cfu/g Cecal Content', xaxt='n', yaxt='n', xlim=c(0,11), ylim=c(0,10))
+plot(0, type='n', xlab='Days Post-Infection', ylab='Total cfu/g Feces', xaxt='n', yaxt='n', xlim=c(0,11), ylim=c(0,10))
 lines(cfu_median$streptomycin, lwd=2.5, col=strep_col, type='b', pch=19) 
 segments(x0=c(1:11), y0=cfu_q25$streptomycin, x1=c(1:11), y1=cfu_q75$streptomycin, col=strep_col, lwd=2.5)
 lines(cfu_median$cefoperazone, lwd=2.5, col=cef_col, type='b', pch=19) 
