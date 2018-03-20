@@ -14,7 +14,7 @@ clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
 strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
 
 # Output plot
-plot_file <- 'results/figures/figure_5temp.pdf'
+plot_file <- 'results/figures/figure_5CD.pdf'
 
 #--------------------------------------------------------------------------------------------------#
 
@@ -290,8 +290,7 @@ box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2), cex.axis=1.2)
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
-mtext('B', side=2, padj=-13, adj=15, font=2, cex=1.4)
-mtext('A', side=2, padj=-13, adj=11, font=2, cex=1.4)
+mtext('A', side=2, padj=-12, adj=11, font=2, cex=1.6)
 
 # Pathways
 par(mar=c(3,19.75,1,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i', yaxs='i')
@@ -303,8 +302,7 @@ box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2), cex.axis=1.2)
 minor.ticks.axis(1, 10, mn=0, mx=14)
 mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
-mtext('D', side=2, padj=-13, adj=15, font=2, cex=1.4)
-mtext('C', side=2, padj=-13, adj=11, font=2, cex=1.4)
+mtext('B', side=2, padj=-12, adj=11, font=2, cex=1.6)
 
 # Legend plot
 par(mar=c(0,0,0,0))
@@ -318,21 +316,23 @@ legend(x=-9, y=3, legend=c('1. Metabolism of cofactors and vitamins',
                              '7. Chaperones and folding catalysts',
                              '8. Microbial metabolism in diverse environments'),
        pt.cex=0, bty='n', cex=1.5)
-legend(x=-1, y=3, legend=c(expression(italic('C. difficile')),'Mock-infected'), fill='black',
-       density=c(NA, 20), pt.cex=2.3, cex=1.5)
-legend(x=3, y=3.5, legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
+legend(x=-2, y=3, legend=c('Mock-infected', as.expression(bquote(paste(italic('C. difficile'),'-infected')))), 
+       fill='black', density=c(20, NA), pt.cex=2.3, cex=1.5)
+legend(x=5, y=3.5, legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
        pt.bg=c(strep_col,cef_col,clinda_col), pch=22, pt.cex=2.3, cex=1.5)
+
+legend('bottomright', legend=c('Genes','Pathways'), pch=22, pt.cex=0, cex=2, bty='n')
 
 dev.off()
 
 #--------------------------------------------------------------------------------------------------#
 
 #Clean up
-for (dep in deps){
-  pkg <- paste('package:', dep, sep='')
-  detach(pkg, character.only=TRUE)
-}
-setwd(starting_dir)
-rm(list=ls())
-gc()
+#for (dep in deps){
+#  pkg <- paste('package:', dep, sep='')
+#  detach(pkg, character.only=TRUE)
+#}
+#setwd(starting_dir)
+#rm(list=ls())
+#gc()
 
