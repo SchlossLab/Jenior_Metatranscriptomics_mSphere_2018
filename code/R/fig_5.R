@@ -89,19 +89,19 @@ colnames(strep_annotated) <- c('gene', 'strep_630_reads', 'strep_mock_reads','or
 #--------------------------------------------------------------------------------------------------#
 
 # Write supplementary table panels
-#table_s3a <- strep_annotated
-#table_s3a$diff <- NULL
-#colnames(table_s3a) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
-#write.table(table_s3a, file='results/supplement/tables/Table_s3a.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-#table_s3b <- cef_annotated
-#table_s3b$diff <- NULL
-#colnames(table_s3b) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
-#write.table(table_s3b, file='results/supplement/tables/Table_s3b.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-#table_s3c <- clinda_annotated
-#table_s3c$diff <- NULL
-#colnames(table_s3c) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
-#write.table(table_s3c, file='results/supplement/tables/Table_s3c.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-#rm(table_s3a, table_s3b, table_s3c)
+table_s3a <- strep_annotated
+table_s3a$diff <- NULL
+colnames(table_s3a) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
+write.table(table_s3a, file='results/supplement/tables/Table_s3a.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+table_s3b <- cef_annotated
+table_s3b$diff <- NULL
+colnames(table_s3b) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
+write.table(table_s3b, file='results/supplement/tables/Table_s3b.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+table_s3c <- clinda_annotated
+table_s3c$diff <- NULL
+colnames(table_s3c) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
+write.table(table_s3c, file='results/supplement/tables/Table_s3c.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+rm(table_s3a, table_s3b, table_s3c)
 
 # Calculate and take top differences from top 10%
 cef_10 <- round(nrow(cef_annotated) * 0.15)
