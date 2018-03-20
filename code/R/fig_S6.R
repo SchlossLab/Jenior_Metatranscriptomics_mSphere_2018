@@ -26,7 +26,7 @@ strep_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomyci
 noabx_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/conventional.Conventional.metaT.final.pool.norm.txt'
 
 # Output file
-plot_file <- 'results/supplement/figures/figure_S6.pdf'
+plot_file <- 'results/supplement/figures/figure_S6ABCD.pdf'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -340,10 +340,6 @@ strep <- strep[order(strep$Metagenome),]
 clinda <- clinda[order(clinda$Metagenome),] 
 noabx <- noabx[order(noabx$Metagenome),] 
 
-sum(cef$Metagenome)
-sum(strep$Metagenome)
-sum(clinda$Metagenome)
-sum(noabx$Metagenome)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 

@@ -13,13 +13,8 @@ cef_normalized_reads <- 'data/read_mapping/cef_normalized_metaT.tsv'
 clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
 strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
 
-# KEGG pathway annotations for genes
-cef_pathways <- 'data/read_mapping/pathway_expression/cef_pathways.tsv'
-clinda_pathways <- 'data/read_mapping/pathway_expression/clinda_pathways.tsv'
-strep_pathways <- 'data/read_mapping/pathway_expression/strep_pathways.tsv'
-
 # Output plot
-plot_file <- 'results/figures/figure_5.pdf'
+plot_file <- 'results/figures/figure_5temp.pdf'
 
 #--------------------------------------------------------------------------------------------------#
 
@@ -28,11 +23,6 @@ plot_file <- 'results/figures/figure_5.pdf'
 cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
 clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
 strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
-
-# Pooled pathway mappings
-cef_pathways <- read.delim(cef_pathways, sep='\t', header=TRUE, row.names=3)
-clinda_pathways <- read.delim(clinda_pathways, sep='\t', header=TRUE, row.names=3)
-strep_pathways <- read.delim(strep_pathways, sep='\t', header=TRUE, row.names=3)
 
 #--------------------------------------------------------------------------------------------------#
 
@@ -45,385 +35,293 @@ clinda_normalized_reads <- clinda_normalized_reads[!clinda_normalized_reads$orga
 strep_normalized_reads <- strep_normalized_reads[!strep_normalized_reads$organism %in% cdiff_omit,]
 rm(cdiff_omit)
 
-# Find number of genes with organism annotation
-cef_orgs <- as.numeric(length(which(!is.na(cef_normalized_reads$organism))))
-clinda_orgs <- as.numeric(length(which(!is.na(clinda_normalized_reads$organism))))
-strep_orgs <- as.numeric(length(which(!is.na(strep_normalized_reads$organism))))
-all_cef <- as.numeric(nrow(cef_normalized_reads))
-all_clinda <- as.numeric(nrow(clinda_normalized_reads))
-all_strep <- as.numeric(nrow(strep_normalized_reads))
-
 # Screen for those genes that have a gene annotation
 cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', rownames(cef_normalized_reads)),]), ]
 clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', rownames(clinda_normalized_reads)),]), ]
 strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', rownames(strep_normalized_reads)),]), ]
 rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
 
-# Screen out ribosomal genes
+# Screen for genes with no reads
+cef_annotated[,2:3] <- round(cef_annotated[,2:3])
+cef_annotated <- subset(cef_annotated, rowSums(cef_annotated[,2:3]) != 0)
+clinda_annotated[,2:3] <- round(clinda_annotated[,2:3])
+clinda_annotated <- subset(clinda_annotated, rowSums(clinda_annotated[,2:3]) != 0)
+strep_annotated[,2:3] <- round(strep_annotated[,2:3])
+strep_annotated <- subset(strep_annotated, rowSums(strep_annotated[,2:3]) != 0)
+
+# Screen out ribosomal genes + hypothetical, putative, and uncharacterized annotations
 cef_annotated <- subset(cef_annotated, !grepl('Ribosomal_RNA*', cef_annotated$description))
 cef_annotated <- subset(cef_annotated, !grepl('ribosomal_RNA*', cef_annotated$description))
 cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_protein*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('16S_rRNA_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('23S_rRNA_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('uncharacterized_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('putative_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('Predicted_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, description != 'hypothetical_protein')
 clinda_annotated <- subset(clinda_annotated, !grepl('Ribosomal_RNA*', clinda_annotated$description))
 clinda_annotated <- subset(clinda_annotated, !grepl('ribosomal_RNA*', clinda_annotated$description))
 clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_protein*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('16S_rRNA_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('23S_rRNA_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('uncharacterized_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('putative_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('Predicted_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, description != 'hypothetical_protein')
 strep_annotated <- subset(strep_annotated, !grepl('Ribosomal_RNA*', strep_annotated$description))
 strep_annotated <- subset(strep_annotated, !grepl('ribosomal_RNA*', strep_annotated$description))
 strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_RNA*', strep_annotated$description))
-
-# Remove hypothetical and uncharacterized annotations
-cef_annotated <- subset(cef_annotated, description != 'hypothetical_protein')
-cef_annotated <- subset(cef_annotated, description != 'uncharacterized_*')
-clinda_annotated <- subset(clinda_annotated, description != 'hypothetical_protein')
-clinda_annotated <- subset(clinda_annotated, description != 'uncharacterized_*')
+strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_protein*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('16S_rRNA_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('23S_rRNA_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('uncharacterized_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('putative_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('Predicted_*', strep_annotated$description))
 strep_annotated <- subset(strep_annotated, description != 'hypothetical_protein')
-strep_annotated <- subset(strep_annotated, description != 'uncharacterized_*')
 
-# Find annotated gene counts
-cef_genes <- as.numeric(length(cef_annotated$gene))
-clinda_genes <- as.numeric(length(clinda_annotated$gene))
-strep_genes <- as.numeric(length(strep_annotated$gene))
-
-# Find percent of each annotation type (genes vs organisms)
-cef_gene_percent <- (cef_genes / all_cef) * 100
-cef_org_percent <- (cef_orgs / all_cef) * 100
-clinda_gene_percent <- (clinda_genes / all_clinda) * 100
-clinda_org_percent <- (clinda_orgs / all_clinda) * 100
-strep_gene_percent <- (strep_genes / all_strep) * 100
-strep_org_percent <- (strep_orgs / all_strep) * 100  
-
-# Save pathway information
-cef_pathways <- cef_annotated[complete.cases(cef_annotated),]
-clinda_pathways <- clinda_annotated[complete.cases(clinda_annotated),]
-strep_pathways <- strep_annotated[complete.cases(strep_annotated),]
-
-# Aggregate identical genes, regardless of organism
-cef_annotated <- aggregate(cbind(cef_annotated$cef_630_metaT_reads, cef_annotated$cef_mock_metaT_reads), by=list(cef_annotated$description), FUN=sum)
-colnames(cef_annotated) <- c('gene', 'cef_630_reads', 'cef_mock_reads')
-clinda_annotated <- aggregate(cbind(clinda_annotated$clinda_630_metaT_reads, clinda_annotated$clinda_mock_metaT_reads), by=list(clinda_annotated$description), FUN=sum)
-colnames(clinda_annotated) <- c('gene', 'clinda_630_reads', 'clinda_mock_reads')
-strep_annotated <- aggregate(cbind(strep_annotated$strep_630_metaT_reads, strep_annotated$strep_mock_metaT_reads), by=list(strep_annotated$description), FUN=sum)
-colnames(strep_annotated) <- c('gene', 'strep_630_reads', 'strep_mock_reads')
-
-# Aggregate pathways
-cef_pathways <- aggregate(cbind(cef_pathways$cef_630_metaT_reads, cef_pathways$cef_mock_metaT_reads), by=list(cef_pathways$pathways), FUN=sum)
-colnames(cef_pathways) <- c('pathway', 'cef_630_reads', 'cef_mock_reads')
-clinda_pathways <- aggregate(cbind(clinda_pathways$clinda_630_metaT_reads, clinda_pathways$clinda_mock_metaT_reads), by=list(clinda_pathways$pathways), FUN=sum)
-colnames(clinda_pathways) <- c('pathway', 'clinda_630_reads', 'clinda_mock_reads')
-strep_pathways <- aggregate(cbind(strep_pathways$strep_630_metaT_reads, strep_pathways$strep_mock_metaT_reads), by=list(strep_pathways$pathways), FUN=sum)
-colnames(strep_pathways) <- c('pathway', 'strep_630_reads', 'strep_mock_reads')
+# Simplify column names
+colnames(cef_annotated) <- c('gene', 'cef_630_reads', 'cef_mock_reads','organism','description','ko','pathways')
+colnames(clinda_annotated) <- c('gene', 'clinda_630_reads', 'clinda_mock_reads','organism','description','ko','pathways')
+colnames(strep_annotated) <- c('gene', 'strep_630_reads', 'strep_mock_reads','organism','description','ko','pathways')
 
 #--------------------------------------------------------------------------------------------------#
-
-# Calculate differences between infected to mock
-cef_annotated$diff <- abs(cef_annotated$cef_630_reads - cef_annotated$cef_mock_reads)
-clinda_annotated$diff <- abs(clinda_annotated$clinda_630_reads - clinda_annotated$clinda_mock_reads)
-strep_annotated$diff <- abs(strep_annotated$strep_630_reads - strep_annotated$strep_mock_reads)
-cef_pathways$diff <- abs(cef_pathways$cef_630_reads - cef_pathways$cef_mock_reads)
-clinda_pathways$diff <- abs(clinda_pathways$clinda_630_reads - clinda_pathways$clinda_mock_reads)
-strep_pathways$diff <- abs(strep_pathways$strep_630_reads - strep_pathways$strep_mock_reads)
 
 # Write supplementary table panels
-table_s3a <- strep_annotated
-table_s3a$diff <- NULL
-colnames(table_s3a) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
-write.table(table_s3a, file='results/supplement/tables/Table_s3a.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-table_s3b <- cef_annotated
-table_s3b$diff <- NULL
-colnames(table_s3b) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
-write.table(table_s3b, file='results/supplement/tables/Table_s3b.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-table_s3c <- clinda_annotated
-table_s3c$diff <- NULL
-colnames(table_s3c) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
-write.table(table_s3c, file='results/supplement/tables/Table_s3c.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-rm(table_s3a, table_s3b, table_s3c)
+#table_s3a <- strep_annotated
+#table_s3a$diff <- NULL
+#colnames(table_s3a) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
+#write.table(table_s3a, file='results/supplement/tables/Table_s3a.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+#table_s3b <- cef_annotated
+#table_s3b$diff <- NULL
+#colnames(table_s3b) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
+#write.table(table_s3b, file='results/supplement/tables/Table_s3b.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+#table_s3c <- clinda_annotated
+#table_s3c$diff <- NULL
+#colnames(table_s3c) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
+#write.table(table_s3c, file='results/supplement/tables/Table_s3c.tsv', sep='\t', row.names=FALSE, quote=FALSE)
+#rm(table_s3a, table_s3b, table_s3c)
 
-# Log transform expression
-cef_annotated[,c(2:4)] <- log2(cef_annotated[,c(2:4)] + 1)
-clinda_annotated[,c(2:4)] <- log2(clinda_annotated[,c(2:4)] + 1)
-strep_annotated[,c(2:4)] <- log2(strep_annotated[,c(2:4)] + 1)
-cef_pathways[,c(2:4)] <- log2(cef_pathways[,c(2:4)] + 1)
-clinda_pathways[,c(2:4)] <- log2(clinda_pathways[,c(2:4)] + 1)
-strep_pathways[,c(2:4)] <- log2(strep_pathways[,c(2:4)] + 1)
-
-# Rank differences (genes)
-cef_annotated <- cef_annotated[order(-cef_annotated$diff),][c(1:20),]
-clinda_annotated <- clinda_annotated[order(-clinda_annotated$diff),][c(1:20),]
-strep_annotated <- strep_annotated[order(-strep_annotated$diff),][c(1:20),]
-cef_annotated <- cef_annotated[order(cef_annotated$diff),]
-clinda_annotated <- clinda_annotated[order(clinda_annotated$diff),]
-strep_annotated <- strep_annotated[order(strep_annotated$diff),]
+# Calculate and take top differences from top 10%
+cef_10 <- round(nrow(cef_annotated) * 0.15)
+clinda_10 <- round(nrow(clinda_annotated) * 0.15)
+strep_10 <- round(nrow(strep_annotated) * 0.15)
+cef_annotated$diff <- abs(cef_annotated$cef_630_reads - cef_annotated$cef_mock_reads)
+cef_annotated <- cef_annotated[order(-cef_annotated$diff),]
+top_cef_genes <- cef_annotated$gene[1:cef_10]
 cef_annotated$diff <- NULL
+clinda_annotated$diff <- abs(clinda_annotated$clinda_630_reads - clinda_annotated$clinda_mock_reads)
+clinda_annotated <- clinda_annotated[order(-clinda_annotated$diff),]
+top_clinda_genes <- clinda_annotated$gene[1:clinda_10]
 clinda_annotated$diff <- NULL
+strep_annotated$diff <- abs(strep_annotated$strep_630_reads - strep_annotated$strep_mock_reads)
+strep_annotated <- strep_annotated[order(-strep_annotated$diff),]
+top_strep_genes <- strep_annotated$gene[1:strep_10]
 strep_annotated$diff <- NULL
 
-# Exclude the overly broad catagories
-broad <- c('Metabolic_pathways','Biosynthesis_of_secondary_metabolites','Microbial_metabolism_in_diverse_environments',
-           'Biosynthesis_of_antibiotics','Carbon_metabolism','2\\-Oxocarboxylic_acid_metabolism','Fatty_acid_metabolism',
-           'Biosynthesis_of_amino_acids','Degradation_of_aromatic_compounds')
-cef_pathways <- cef_pathways[!cef_pathways$pathway %in% broad,]
-clinda_pathways <- clinda_pathways[!clinda_pathways$pathway %in% broad,]
-strep_pathways <- strep_pathways[!strep_pathways$pathway %in% broad,]
+# Calculate overlap of top differences
+top_cef_clinda_genes <- intersect(top_cef_genes, top_clinda_genes)
+top_cef_strep_genes <- intersect(top_cef_genes, top_strep_genes)
+top_clinda_strep_genes <- intersect(top_clinda_genes, top_strep_genes)
+top_genes <- intersect(top_cef_genes, intersect(top_clinda_genes, top_strep_genes))
+top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_cef_clinda_genes)
+top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_cef_strep_genes)
+top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_genes)
+top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_cef_clinda_genes)
+top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_clinda_strep_genes)
+top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_genes)
+top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_clinda_strep_genes)
+top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_cef_strep_genes)
+top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_genes)
+top_cef_clinda_genes <- as.numeric(length(top_cef_clinda_genes))
+top_cef_strep_genes <- as.numeric(length(top_cef_strep_genes))
+top_clinda_strep_genes <- as.numeric(length(top_clinda_strep_genes))
+top_all_genes <- as.numeric(length(top_genes))
+top_cef_genes <- as.numeric(length(top_cef_genes))
+top_clinda_genes <- as.numeric(length(top_clinda_genes))
+top_strep_genes <- as.numeric(length(top_strep_genes))
 
-# Calculate average pathway expression
-ave_630 <- round(mean(c(cef_pathways$cef_630_reads, clinda_pathways$clinda_630_reads, strep_pathways$strep_630_reads)), 3)
-ave_mock <- round(mean(c(cef_pathways$cef_mock_reads, clinda_pathways$clinda_mock_reads, strep_pathways$strep_mock_reads)), 3)
+# Merge treatment groups
+final_annotated <- merge(strep_annotated, cef_annotated, by='gene', all=TRUE)
+final_annotated <- merge(final_annotated, clinda_annotated, by='gene', all=TRUE)
+final_annotated[is.na(final_annotated)] <- 0 # Undetectable genes set to 0
+final_annotated <- subset(final_annotated, final_annotated$gene %in% top_genes)
+rownames(final_annotated) <- final_annotated$description
+final_annotated$gene <- NULL
+final_annotated$organism.x <- NULL
+final_annotated$description.x <- NULL
+final_annotated$ko.x <- NULL
+final_annotated$pathways.x <- NULL
+final_annotated$organism.y <- NULL
+final_annotated$description.y <- NULL
+final_annotated$ko.y <- NULL
+final_annotated$pathways.y <- NULL
+final_annotated$organism <- NULL
+final_annotated$description <- NULL
+final_annotated$ko <- NULL
+final_annotated$pathways <- NULL
+final_annotated <- log2(final_annotated + 1)
 
-# Find direction of change for pathways
+# Aggregate pathways
+cef_pathways <- subset(cef_annotated, !is.na(cef_annotated$pathways))
+cef_pathways <- aggregate(cbind(cef_pathways$cef_630_reads, cef_pathways$cef_mock_reads), by=list(cef_pathways$pathways), FUN=sum)
+rownames(cef_pathways) <- cef_pathways$Group.1
+cef_pathways$Group.1 <- NULL
+cef_pathways <- subset(cef_pathways, !rownames(cef_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
+colnames(cef_pathways) <- c('cef_630_reads', 'cef_mock_reads')
+clinda_pathways <- subset(clinda_annotated, !is.na(clinda_annotated$pathways))
+clinda_pathways <- aggregate(cbind(clinda_pathways$clinda_630_reads, clinda_pathways$clinda_mock_reads), by=list(clinda_pathways$pathways), FUN=sum)
+rownames(clinda_pathways) <- clinda_pathways$Group.1
+clinda_pathways$Group.1 <- NULL
+clinda_pathways <- subset(clinda_pathways, !rownames(clinda_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
+colnames(clinda_pathways) <- c('clinda_630_reads', 'clinda_mock_reads')
+strep_pathways <- subset(strep_annotated, !is.na(strep_annotated$pathways))
+strep_pathways <- aggregate(cbind(strep_pathways$strep_630_reads, strep_pathways$strep_mock_reads), by=list(strep_pathways$pathways), FUN=sum)
+rownames(strep_pathways) <- strep_pathways$Group.1
+strep_pathways$Group.1 <- NULL
+strep_pathways <- subset(strep_pathways, !rownames(strep_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
+colnames(strep_pathways) <- c('strep_630_reads', 'strep_mock_reads')
+
+# Calculate and take top differences
+cef_10 <- round(nrow(cef_pathways) * 0.15)
+clinda_10 <- round(nrow(clinda_pathways) * 0.15)
+strep_10 <- round(nrow(strep_pathways) * 0.15)
+cef_pathways$diff <- abs(cef_pathways$cef_630_reads - cef_pathways$cef_mock_reads)
 cef_pathways <- cef_pathways[order(-cef_pathways$diff),]
+top_cef_paths <- rownames(cef_pathways[1:cef_10,])
+cef_pathways$diff <- NULL
+clinda_pathways$diff <- abs(clinda_pathways$clinda_630_reads - clinda_pathways$clinda_mock_reads)
 clinda_pathways <- clinda_pathways[order(-clinda_pathways$diff),]
+top_clinda_paths <- rownames(clinda_pathways[1:clinda_10,])
+clinda_pathways$diff <- NULL
+strep_pathways$diff <- abs(strep_pathways$strep_630_reads - strep_pathways$strep_mock_reads)
 strep_pathways <- strep_pathways[order(-strep_pathways$diff),]
-cef_pathways$diff[cef_pathways$cef_630_reads < cef_pathways$cef_mock_reads] <- cef_pathways$diff * -1
-clinda_pathways$diff[clinda_pathways$clinda_630_reads < clinda_pathways$clinda_mock_reads] <- clinda_pathways$diff * -1
-strep_pathways$diff[strep_pathways$strep_630_reads < strep_pathways$strep_mock_reads] <- strep_pathways$diff * -1
+top_strep_paths <- rownames(strep_pathways[1:strep_10,])
+strep_pathways$diff <- NULL
 
-# Format names for plotting
-cef_annotated$gene <- gsub('translation_elongation_factor_P_\\(EF\\-P\\)', 'Translation elongation factor P', cef_annotated$gene)
-cef_annotated$gene <- gsub('_', ' ', cef_annotated$gene)
-cef_annotated$gene <- gsub('mostly Fe transport', 'Iron transport', cef_annotated$gene)
-cef_annotated$gene <- gsub('pyruvate kinase \\(EC\\:2.7\\.1\\.40\\)', 'Pyruvate kinase', cef_annotated$gene)
-cef_annotated$gene <- gsub('phosphopyruvate hydratase', 'Phosphopyruvate hydratase', cef_annotated$gene)
-cef_annotated$gene <- gsub('outer membrane receptor protein', 'Outer membrane receptor protein', cef_annotated$gene)
-cef_annotated$gene <- gsub('Predicted dehydrogenases and related proteins', 'Predicted dehydrogenases', cef_annotated$gene)
-cef_annotated$gene <- gsub('SusC/RagA family TonB-linked outer membrane protein', 'SusC/RagA family TonB-linked protein', cef_annotated$gene)
-cef_annotated$gene <- gsub('SusD family.', 'SusD family protein', cef_annotated$gene)
-cef_annotated$gene <- gsub('methylmalonyl-CoA mutase \\(EC\\:5\\.4\\.99\\.2\\)', 'Methylmalonyl-CoA mutase', cef_annotated$gene)
-cef_annotated$gene <- gsub('two-component system sensor histidine kinase/response regulator', 'Two-component histidine sensor regulator', cef_annotated$gene)
-cef_annotated <- cef_annotated[cef_annotated$gene != '50S ribosomal protein L5',]
-cef_annotated <- cef_annotated[cef_annotated$gene != 'putative',]
-cef_annotated <- cef_annotated[c(1:10),]
-rownames(cef_annotated) <- cef_annotated$gene
-cef_annotated$gene <- NULL
-clinda_annotated$gene <- gsub('_', ' ', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('fructose-bisphosphate aldolase', 'Fructose-bisphosphate aldolase', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('transcriptional regulator Spx', 'Transcriptional regulator Spx', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('glyceraldehyde 3-phosphate dehydrogenase \\(EC\\:1\\.2\\.1\\.12\\)', 'Glyceraldehyde 3-P dehydrogenase', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('Multi Drug ABC transporter transmembrane subunit family protein', 'Multi-Drug ABC transporter subunit', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('cell division initiation protein', 'Cell division initiation protein', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('cell division protein GpsB', 'Cell division protein GpsB', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('pyruvate formate-lyase activating enzyme \\(EC\\:1\\.97\\.1\\.4)', 'Pyruvate formate-lyase activating enzyme', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('phosphoenolpyruvate-protein phosphotransferase', 'Phosphoenolpyruvate phosphotransferase', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('phosphoglycerate mutase', 'Phosphoglycerate mutase', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('phosphopyruvate hydratase', 'Phosphopyruvate hydratase', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('ribosome-associated factor Y', 'Ribosome-associated factor Y', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('acetyltransferase', 'Acetyltransferase', clinda_annotated$gene)
-clinda_annotated$gene <- gsub('thioredoxin', 'Thioredoxin', clinda_annotated$gene)
-clinda_annotated <- clinda_annotated[clinda_annotated$gene != 'uncharacterized LOC100521496',]
-clinda_annotated <- clinda_annotated[clinda_annotated$gene != '30S ribosomal protein S16',]
-clinda_annotated <- clinda_annotated[clinda_annotated$gene != 'HD superfamily hydrolase',]
-clinda_annotated <- clinda_annotated[c(1:10),]
-rownames(clinda_annotated) <- clinda_annotated$gene
-clinda_annotated$gene <- NULL
-strep_annotated$gene <- gsub('_', ' ', strep_annotated$gene)
-strep_annotated$gene <- gsub('glyceraldehyde 3-phosphate dehydrogenase \\(EC\\:1\\.2\\.1\\.12)', 'Glyceraldehyde 3-P dehydrogenase', strep_annotated$gene)
-strep_annotated$gene <- gsub('alcohol dehydrogenase', 'Alcohol dehydrogenase', strep_annotated$gene)
-strep_annotated$gene <- gsub('universal stress protein', 'Universal stress protein', strep_annotated$gene)
-strep_annotated$gene <- gsub('fructose-bisphosphate aldolase', 'Fructose-bisphosphate aldolase', strep_annotated$gene)
-strep_annotated$gene <- gsub('elongation factor Tu \\(EC\\:3\\.6\\.5\\.3)', 'Elongation factor Tu', strep_annotated$gene)
-strep_annotated$gene <- gsub('alkyl hydroperoxide reductase', 'Alkyl hydroperoxide reductase', strep_annotated$gene)
-strep_annotated$gene <- gsub('acetyltransferase', 'Acetyltransferase', strep_annotated$gene)
-strep_annotated$gene <- gsub('cell division initiation protein', 'Cell division initiation protein', strep_annotated$gene)
-strep_annotated$gene <- gsub('phosphoenolpyruvate-protein phosphotransferase', 'Phosphoenolpyruvate phosphotransferase', strep_annotated$gene)
-strep_annotated$gene <- gsub('phosphoglycerate kinase \\(EC\\:2\\.7\\.2\\.3)', 'Phosphoglycerate kinase', strep_annotated$gene)
-strep_annotated$gene <- gsub('phosphoglycerate mutase', 'Phosphoglycerate mutase', strep_annotated$gene)
-strep_annotated$gene <- gsub('transcriptional regulator', 'Transcriptional regulator', strep_annotated$gene)
-strep_annotated <- strep_annotated[strep_annotated$gene != '50S ribosomal protein L12',]
-strep_annotated <- strep_annotated[strep_annotated$gene != '50S ribosomal protein L10',]
-strep_annotated <- strep_annotated[strep_annotated$gene != 'ribosomal protein',]
-strep_annotated <- strep_annotated[c(1:10),]
-rownames(strep_annotated) <- strep_annotated$gene
-strep_annotated$gene <- NULL
-cef_pathways$pathway <- gsub('_', ' ', cef_pathways$pathway)
-cef_pathways$pathway <- gsub(' and ', ' \\& ', cef_pathways$pathway)
-cef_pathways$pathway <- gsub('RNA degradation\\:F', 'RNA f', cef_pathways$pathway)
-cef_pathways <- cef_pathways[cef_pathways$pathway != 'Ribosome:Translation',]
-cef_pathways$pathway <- gsub(':Translation', '', cef_pathways$pathway)
-cef_pathways$pathway <- gsub(':Carbohydrate metabolism', '', cef_pathways$pathway)
-cef_pathways$pathway <- gsub(':Replication & repair', '', cef_pathways$pathway)
-cef_pathways <- cef_pathways[c(1:5),]
-rownames(cef_pathways) <- cef_pathways$pathway
-cef_pathways$pathway <- NULL
-clinda_pathways$pathway <- gsub('_', ' ', clinda_pathways$pathway)
-clinda_pathways$pathway <- gsub(' and ', ' \\& ', clinda_pathways$pathway)
-clinda_pathways$pathway <- gsub('RNA degradation\\:F', 'RNA f', clinda_pathways$pathway)
-clinda_pathways <- clinda_pathways[clinda_pathways$pathway != 'Ribosome:Translation',]
-clinda_pathways <- clinda_pathways[clinda_pathways$pathway != 'Metabolic pathways',]
-clinda_pathways$pathway <- gsub(':Membrane transport', '', clinda_pathways$pathway)
-clinda_pathways$pathway <- gsub(' \\(PTS\\)', '', clinda_pathways$pathway)
-clinda_pathways$pathway <- gsub(':Carbohydrate metabolism', '', clinda_pathways$pathway)
-clinda_pathways$pathway <- gsub(':Energy metabolism:Energy metabolism', '', clinda_pathways$pathway)
-clinda_pathways$pathway <- gsub('Amino sugar & nucleotide sugar metabolism', 'Amino sugar & nucleotide sugar metab.', clinda_pathways$pathway)
-clinda_pathways <- clinda_pathways[c(1:5),]
-rownames(clinda_pathways) <- clinda_pathways$pathway
-clinda_pathways$pathway <- NULL
-strep_pathways$pathway <- gsub('_', ' ', strep_pathways$pathway)
-strep_pathways$pathway <- gsub(' and ', ' \\& ', strep_pathways$pathway)
-strep_pathways$pathway <- gsub('RNA degradation\\:', ' RNA ', strep_pathways$pathway)
-strep_pathways <- strep_pathways[strep_pathways$pathway != 'Ribosome:Translation',]
-strep_pathways <- strep_pathways[strep_pathways$pathway != 'Metabolic pathways',]
-strep_pathways$pathway <- gsub(':Translation', '', strep_pathways$pathway)
-strep_pathways$pathway <- gsub(':Energy metabolism', '', strep_pathways$pathway)
-strep_pathways$pathway <- gsub(':Carbohydrate metabolism', '', strep_pathways$pathway)
-strep_pathways$pathway <- gsub(':Membrane transport', '', strep_pathways$pathway)
-strep_pathways$pathway <- gsub('Amino sugar & nucleotide sugar metabolism', 'Amino sugar & nucleotide sugar metab.', strep_pathways$pathway)
-strep_pathways <- strep_pathways[c(1:5),]
-rownames(strep_pathways) <- strep_pathways$pathway
-strep_pathways$pathway <- NULL
+# Calculate overlap of top differences
+top_cef_clinda_paths <- intersect(top_cef_paths, top_clinda_paths)
+top_cef_strep_paths <- intersect(top_cef_paths, top_strep_paths)
+top_clinda_strep_paths <- intersect(top_clinda_paths, top_strep_paths)
+top_paths <- intersect(top_cef_paths, intersect(top_clinda_paths, top_strep_paths))
+top_cef_paths <- subset(top_cef_paths, !top_cef_paths %in% top_cef_clinda_paths)
+top_cef_paths <- subset(top_cef_paths, !top_cef_paths %in% top_cef_strep_paths)
+top_cef_paths <- subset(top_cef_paths, !top_cef_paths %in% top_paths)
+top_clinda_paths <- subset(top_clinda_paths, !top_clinda_paths %in% top_cef_clinda_paths)
+top_clinda_paths <- subset(top_clinda_paths, !top_clinda_paths %in% top_clinda_strep_paths)
+top_clinda_paths <- subset(top_clinda_paths, !top_clinda_paths %in% top_paths)
+top_strep_paths <- subset(top_strep_paths, !top_strep_paths %in% top_clinda_strep_paths)
+top_strep_paths <- subset(top_strep_paths, !top_strep_paths %in% top_cef_strep_paths)
+top_strep_paths <- subset(top_strep_paths, !top_strep_paths %in% top_paths)
+top_cef_clinda_paths <- as.numeric(length(top_cef_clinda_paths))
+top_cef_strep_paths <- as.numeric(length(top_cef_strep_paths))
+top_clinda_strep_paths <- as.numeric(length(top_clinda_strep_paths))
+top_all_paths <- as.numeric(length(top_paths))
+top_cef_paths <- as.numeric(length(top_cef_paths))
+top_clinda_paths <- as.numeric(length(top_clinda_paths))
+top_strep_paths <- as.numeric(length(top_strep_paths))
 
-# Reorder to plot correctly
-cef_annotated <- cef_annotated[order(cef_annotated$cef_630_reads),]
-clinda_annotated <- clinda_annotated[order(clinda_annotated$clinda_630_reads),]
-strep_annotated <- strep_annotated[order(strep_annotated$strep_630_reads),]
-cef_pathways <- cef_pathways[order(cef_pathways$diff),]
-clinda_pathways <- clinda_pathways[order(clinda_pathways$diff),]
-strep_pathways <- strep_pathways[order(strep_pathways$diff),]
+# Merge treatment groups
+final_pathways <- merge(cef_pathways, clinda_pathways, by='row.names', all=TRUE)
+rownames(final_pathways) <- final_pathways$Row.names
+final_pathways$Row.names <- NULL
+final_pathways <- merge(final_pathways, strep_pathways, by='row.names', all=TRUE)
+rownames(final_pathways) <- final_pathways$Row.names
+final_pathways$Row.names <- NULL
+final_pathways[is.na(final_pathways)] <- 0 # Undetectable genes set to 0
+final_pathways <- subset(final_pathways, rownames(final_pathways) %in% top_paths)
+final_pathways <- log2(final_pathways + 1)
+rm(cef_annotated, clinda_annotated, strep_annotated, 
+   cef_pathways, clinda_pathways, strep_pathways)
 
-# Format genes for plotting
-strep_annotated <- strep_annotated[,c(2,1)]
-cef_annotated <- cef_annotated[,c(2,1)]
-clinda_annotated <- clinda_annotated[,c(2,1)]
-strep_annotated <- as.matrix(t(strep_annotated))
-cef_annotated <- as.matrix(t(cef_annotated))
-clinda_annotated <- as.matrix(t(clinda_annotated))
+# Reformat names
+# genes
+rownames(final_annotated) <- gsub('_', ' ', rownames(final_annotated))
+rownames(final_annotated) <- gsub('\\:cation symporter', '', rownames(final_annotated))
+rownames(final_annotated) <- gsub('glycoside-pentoside-hexuronide', 'symporter', rownames(final_annotated))
+rownames(final_annotated) <- capitalize(rownames(final_annotated))
+# pathways
+path_names <- as.vector(rownames(final_pathways))
+for (x in c(1:length(path_names))) {
+  path_names[x] <- strsplit(path_names[x], split=':')[[1]][1]
+}
+path_names <- gsub('_', ' ', path_names)
+path_names <- gsub('Microbial metabolism in diverse environments', 'Metabolism in diverse environments', path_names)
+path_names <- capitalize(path_names)
+rownames(final_pathways) <- path_names
+rm(path_names)
 
-# Final name changes to add pathways
-colnames(strep_annotated) <- c('(A) ATP synthase subunit B',
-                               '(A) F0F1 ATP synthase subunit A',
-                               'Cell division initiation protein',
-                               '(B,D) L-lactate dehydrogenase',
-                               '(C) Transcriptional regulator',
-                               '(G) Phosphoenolpyruvate phosphotransferase',
-                               '(B) Phosphoglycerate kinase',
-                               '(I) Alkyl hydroperoxide reductase',
-                               '(D) Acetyltransferase',
-                               '(B,F,K) Phosphoglycerate mutase')
-colnames(cef_annotated) <- c('(D,J) 2-isopropylmalate synthase',
-                             '(C,E) Superfamily II DNA and RNA helicases',
-                             '(C) Translation elongation factor P',
-                             'Na+/glucose cotransporter',
-                             'Outer membrane receptor protein',
-                             '(J) Methylmalonyl-CoA mutase',
-                             'DnaK suppressor protein',
-                             'Two-component histidine sensor regulator',
-                             '(H) SusD family protein',
-                             '(B,D) Pyruvate kinase')
-colnames(clinda_annotated) <- c('(A) ATP synthase subunit B',
-                                'Thioredoxin',
-                                '(D) Acetyltransferase',
-                                '(G) Phosphoenolpyruvate phosphotransferase',
-                                '(D) Formate Acetyltransferase',
-                                '(B,F,K) Phosphoglycerate mutase',
-                                'Cell division protein GpsB',
-                                '(D) Pyruvate formate-lyase activating enzyme',
-                                '(B,F) Phosphopyruvate hydratase',
-                                '(C) Ribosome-associated factor Y')
+# Add pathway information to genes
+rownames(final_annotated) <- c('(1) Dps family protein',
+                               '(2,3,8) Formate acetyltransferase',            
+                               '(4) Ribosome-associated factor Y',
+                               '(5,8) Phosphopyruvate hydratase',         
+                               '(6) HD superfamily hydrolase',
+                               'ArsR family transcriptional regulator',
+                               'GPH family symporter',
+                               '(7) Protein grpE')
 
-# Format pathways for plotting
-pathway_names <- c(rev(rownames(strep_pathways)),rownames(cef_pathways),rev(rownames(clinda_pathways)))
-strep_pathways <- c(rev(as.vector(strep_pathways$diff)),0,rep(0,5),0,rep(0,5))
-cef_pathways <- c(rep(0,5),0,as.vector(cef_pathways$diff),0,rep(0,5))
-clinda_pathways <- c(rep(0,5),0,rep(0,5),0,rev(as.vector(clinda_pathways$diff-3)))
+# Reverse row order for plotting
+final_annotated <- final_annotated[nrow(final_annotated):1, ]
+final_pathways <- final_pathways[nrow(final_pathways):1, ]
+
+# Save variances
+gene_var <- RowVar(final_annotated)
+path_var <- RowVar(final_pathways)
 
 #--------------------------------------------------------------------------------------------------#
 
-# Generate figure
-pdf(file=plot_file, width=5, height=11)
-layout(matrix(c(1,1,
-                1,1,
-                2,2,
-                2,2,
-                3,3,
-                3,3,
-                4,4),
-              nrow=7, ncol=2, byrow = TRUE))
+# Generate bar plots
 
-#------------------#
+# Genes
+pdf(file='results/figures/figure_5CD.pdf', width=12, height=8)
+layout(matrix(c(1,2,
+                1,2,
+                3,3),
+              nrow=3, ncol=2, byrow=TRUE))
 
-# Overrepresented pathways
-#par(mar=c(12,4,1,2), las=1, mgp=c(1.6,0.7,0))
-#plot(0, type='n', xlab='', xaxt='n', yaxt='n', 
-#     ylab=as.expression(bquote(paste(Delta,' cDNA Abundance (',log[2],')'))), xlim=c(0,20.5), ylim=c(-16,16))
-#abline(h=0, lwd=1.5)
-#axis(side=2, at=seq(-16,16,4), labels=c(16,12,8,4,0,4,8,12,16))
-#text(x=c(2.2,1.9), y=c(15.7,-15.7), cex=0.7, labels=c('Infection-associated', 'Mock-associated'))
-#legend('top', legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'),
-#       pt.bg=c(strep_col, cef_col, clinda_col), pch=22, pt.cex=1.5, col='black', bty='n')
-#mtext('A', side=2, line=2, las=2, adj=1.7, padj=-5.5, font=2)
-
-# Add groups
-#barplot(strep_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=strep_col, yaxt='n', add=TRUE, xpd=F) # Streptomycin
-#barplot(cef_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=cef_col, yaxt='n', add=TRUE, xpd=F) # Cefoperazone
-#barplot(clinda_pathways, xlim=c(0,20.5), ylim=c(-16,16), col=clinda_col, yaxt='n', add=TRUE, xpd=F) # Clindamycin
-
-# Add average expression lines
-#abline(h=ave_630, lwd=1.2, lty=5)
-#abline(h=-ave_mock, lwd=1.2, lty=5)
-#legend('bottomright', 'Ave. cDNA Abundance', lty=5,lwd=1.2, cex=0.9)
-
-# Add pathway names
-#text(cex=0.9, x=c(1.2,2.3,3.5,4.7,5.9,  8.4,9.5,10.7,11.9,13.1,   15.6,16.7,17.9,19.2,20.5), 
-#     y=-18, pathway_names, xpd=TRUE, srt=60, pos=2)
-
-#------------------#
-
-# Streptomycin
-par(mar=c(3,15,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(strep_annotated, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c('white','black'), cex.names=0.8)
+par(mar=c(3,19.75,1,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i', yaxs='i')
+barplot(as.matrix(t(final_annotated)), xaxt='n', xlim=c(0,14), ylim=c(0,57), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', angle=20, density=c(NA,20),  
+        col=c(strep_col,strep_col,cef_col,cef_col,clinda_col,clinda_col), cex.names=1.4)
+abline(h=seq(7.5,56,7), lty=5, col='black')
 box()
-axis(1, at=seq(0,14,2), label=seq(0,14,2))
+axis(1, at=seq(0,14,2), label=seq(0,14,2), cex.axis=1.2)
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
-title('Streptomycin-pretreated', line=0.5, cex.main=1.2, col.main=strep_col, font.main=2)
-mtext('A', side=2, padj=-10, adj=16, font=2)
-text(x=12.5, y=5.5, 'Infection', cex=1.1)
-legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
-       pch=22, pt.cex=1.5, cex=0.9)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
+mtext('B', side=2, padj=-13, adj=15, font=2, cex=1.4)
+mtext('A', side=2, padj=-13, adj=11, font=2, cex=1.4)
 
-#------------------#
-
-# Cefoperazone
-par(mar=c(3,15,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(cef_annotated, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c('white','black'), cex.names=0.8)
+# Pathways
+par(mar=c(3,19.75,1,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i', yaxs='i')
+barplot(as.matrix(t(final_pathways)), xaxt='n', xlim=c(0,14), ylim=c(0,57), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', angle=20, density=c(NA,20), 
+        col=c(strep_col,strep_col,cef_col,cef_col,clinda_col,clinda_col), cex.names=1.4)
+abline(h=seq(7.5,56,7), lty=5, col='black')
 box()
-axis(1, at=seq(0,14,2), label=seq(0,14,2))
+axis(1, at=seq(0,14,2), label=seq(0,14,2), cex.axis=1.2)
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
-title('Cefoperazone-pretreated', line=0.5, cex.main=1.2, col.main=cef_col, font.main=2)
-mtext('B', side=2, padj=-9, adj=16, font=2)
-text(x=12.5, y=5.5, 'Infection', cex=1.1)
-legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
-       pch=22, pt.cex=1.5, cex=0.9)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
+mtext('D', side=2, padj=-13, adj=15, font=2, cex=1.4)
+mtext('C', side=2, padj=-13, adj=11, font=2, cex=1.4)
 
-#------------------#
-
-# Clindamycin
-par(mar=c(3,15,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(clinda_annotated, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c('white','black'), cex.names=0.8)
-box()
-axis(1, at=seq(0,14,2), label=seq(0,14,2))
-minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.2, cex=0.75)
-title('Clindamycin-pretreated', line=0.5, cex.main=1.2, col.main=clinda_col, font.main=2)
-mtext('C', side=2, padj=-9, adj=16, font=2)
-text(x=12.5, y=5.5, 'Infection', cex=1.1)
-legend('bottomright', legend=c(expression(italic('C. difficile')),'Mock'), pt.bg=c('black','white'), 
-       pch=22, pt.cex=1.5, cex=0.9)
-
-#------------------#
-
-# Pathway legend
-par(mar=c(5,0,1,0))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-12,12), ylim=c(-2,2))
-legend('center', ncol=3, cex=0.75, pt.cex=0.9,
-       pch=c('A','B','C','D','E','F','G','H','I','J','K'),
-       c('Oxidative phosphorylation','Glycolysis / Gluconeogenesis','RNA folding, sorting & degradation',
-         'Pyruvate metabolism','Homologous recombination',
-         'Methane metabolism','Phosphotransferase system','Starch & sucrose metabolism',
-         'Glutathione metabolism','Valine, leucine, and isoleucine biosyn.','Glycine, serine, and threonine metab.'))
-
-text(x=-6.5, y=1.8, expression(paste('Most frequent pathways among genes in ', bold('A-C'), ':')), cex=0.9, xpd=TRUE)
+# Legend plot
+par(mar=c(0,0,0,0))
+plot(0, xaxt='n', yaxt='n', bty='n', pch='', ylab='', xlab='', xlim=c(-10,10), ylim=c(-5,5))
+legend(x=-9, y=3, legend=c('1. Metabolism of cofactors and vitamins',
+                             '2. Pyruvate metabolism',
+                             '3. Propanoate metabolism',
+                             '4. RNA transport',
+                             '5. Glycolysis / Gluconeogenesis',
+                             '6. RNA degradation',
+                             '7. Chaperones and folding catalysts',
+                             '8. Microbial metabolism in diverse environments'),
+       pt.cex=0, bty='n', cex=1.5)
+legend(x=-1, y=3, legend=c(expression(italic('C. difficile')),'Mock-infected'), fill='black',
+       density=c(NA, 20), pt.cex=2.3, cex=1.5)
+legend(x=3, y=3.5, legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
+       pt.bg=c(strep_col,cef_col,clinda_col), pch=22, pt.cex=2.3, cex=1.5)
 
 dev.off()
 
@@ -432,8 +330,9 @@ dev.off()
 #Clean up
 for (dep in deps){
   pkg <- paste('package:', dep, sep='')
-  detach(pkg, character.only = TRUE)
+  detach(pkg, character.only=TRUE)
 }
 setwd(starting_dir)
 rm(list=ls())
 gc()
+
