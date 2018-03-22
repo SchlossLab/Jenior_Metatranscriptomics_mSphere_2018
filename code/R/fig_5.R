@@ -316,7 +316,7 @@ legend(x=-9, y=3, legend=c('1. Metabolism of cofactors and vitamins',
                              '7. Chaperones and folding catalysts',
                              '8. Microbial metabolism in diverse environments'),
        pt.cex=0, bty='n', cex=1.5)
-legend(x=-2, y=3, legend=c('Mock-infected', as.expression(bquote(paste(italic('C. difficile'),'-infected')))), 
+legend(x=-2, y=3, legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
        fill='black', density=c(20, NA), pt.cex=2.3, cex=1.5)
 legend(x=5, y=3.5, legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
        pt.bg=c(strep_col,cef_col,clinda_col), pch=22, pt.cex=2.3, cex=1.5)
@@ -328,11 +328,11 @@ dev.off()
 #--------------------------------------------------------------------------------------------------#
 
 #Clean up
-#for (dep in deps){
-#  pkg <- paste('package:', dep, sep='')
-#  detach(pkg, character.only=TRUE)
-#}
-#setwd(starting_dir)
-#rm(list=ls())
-#gc()
+for (dep in deps){
+  pkg <- paste('package:', dep, sep='')
+  detach(pkg, character.only=TRUE)
+}
+setwd(starting_dir)
+rm(list=ls())
+gc()
 
