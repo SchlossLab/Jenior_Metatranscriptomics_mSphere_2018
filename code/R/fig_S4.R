@@ -18,7 +18,7 @@ strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
 genes <- 'data/gene_names.tsv'
 
 # Output plot
-plot_file <- 'results/supplement/figures/figure_S5.pdf'
+plot_file <- 'results/supplement/figures/figure_S4.pdf'
 
 #--------------------------------------------------------------------------------------------------#
 

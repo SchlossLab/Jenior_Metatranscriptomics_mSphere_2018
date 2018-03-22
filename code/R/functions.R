@@ -93,6 +93,24 @@ dist_xy <- function(x) {
   return(distance)
 } 
 
+# Stepwise rarefaction analysis (order of magnitude)
+stepRarefy <- function(abundVect){
+  options(warn=-1)
+  rareVect <- c()
+  subVect <- c(1)
+  sub_max <- 10^ceiling(log10(signif(as.numeric(sum(abundVect)), digits=1)))
+  current <- 1
+  while (current != sub_max)
+  {
+    current <- current * 10
+    subVect <- c(subVect, current)
+  }
+  for (x in 1:length(subVect)) {
+    rareVect[x] <- as.numeric(sum(as.vector(rrarefy(abundVect, sample=subVect[x])) != 0))
+  }
+  options(warn=0)
+  return(rareVect)
+}
 
 # Plot logarithmic tick marks on axes
 minor.ticks.axis <- function(ax, n, t.ratio=0.5, mn, mx,...){
