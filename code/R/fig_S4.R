@@ -5,339 +5,415 @@ gc()
 
 # Load in functions
 starting_dir <- getwd()
-source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
 
 # Define files
 # Normalized Metatranscriptomes
-noabx_normalized_reads <- 'data/read_mapping/conv_normalized_metaT.tsv'
 cef_normalized_reads <- 'data/read_mapping/cef_normalized_metaT.tsv'
 clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
 strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
-
-# Gene look up table
-genes <- 'data/gene_names.tsv'
+noabx_normalized_reads <- 'data/read_mapping/noabx_normalized_metaT.tsv'
 
 # Output plot
 plot_file <- 'results/supplement/figures/figure_S4.pdf'
+legend_file <- 'results/supplement/figures/figure_S4legend.pdf'
 
 #--------------------------------------------------------------------------------------------------#
 
 # Read in data
 # Normalized Metatranscriptomes
-noabx_normalized_reads <- read.delim(noabx_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
-cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
-clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
-strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE)
-
-# Gene functions
-genes <- read.delim(genes, sep='\t', header=TRUE, stringsAsFactors=FALSE)
+cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
+clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
+strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
+noabx_normalized_reads <- read.delim(noabx_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=6)
 
 #--------------------------------------------------------------------------------------------------#
 
 # Format data
-# Remove excess columns
-noabx_normalized_reads$ko <- NULL
-cef_normalized_reads$ko <- NULL
-clinda_normalized_reads$ko <- NULL
-strep_normalized_reads$ko <- NULL
+
+# Remove C. difficile genes
+cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
+cef_normalized_reads <- cef_normalized_reads[!cef_normalized_reads$organism %in% cdiff_omit,]
+clinda_normalized_reads <- clinda_normalized_reads[!clinda_normalized_reads$organism %in% cdiff_omit,]
+strep_normalized_reads <- strep_normalized_reads[!strep_normalized_reads$organism %in% cdiff_omit,]
+noabx_normalized_reads <- noabx_normalized_reads[!noabx_normalized_reads$organism %in% cdiff_omit,]
+rm(cdiff_omit)
 
 # Screen for those genes that have a gene annotation
-noabx_annotated <- subset(noabx_normalized_reads, gene != '')
-noabx_annotated <- noabx_annotated[!rownames(noabx_annotated) %in% rownames(noabx_annotated[grep('unknown_\\d', noabx_annotated$gene),]), ]
-cef_annotated <- subset(cef_normalized_reads, gene != '')
-cef_annotated <- cef_annotated[!rownames(cef_annotated) %in% rownames(cef_annotated[grep('unknown_\\d', cef_annotated$gene),]), ]
-clinda_annotated <- subset(clinda_normalized_reads, gene != '')
-clinda_annotated <- clinda_annotated[!rownames(clinda_annotated) %in% rownames(clinda_annotated[grep('unknown_\\d', clinda_annotated$gene),]), ]
-strep_annotated <- subset(strep_normalized_reads, gene != '')
-strep_annotated <- strep_annotated[!rownames(strep_annotated) %in% rownames(strep_annotated[grep('unknown_\\d', strep_annotated$gene),]), ]
-rm(noabx_normalized_reads, cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
+cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', rownames(cef_normalized_reads)),]), ]
+clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', rownames(clinda_normalized_reads)),]), ]
+strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', rownames(strep_normalized_reads)),]), ]
+noabx_annotated <- noabx_normalized_reads[!rownames(noabx_normalized_reads) %in% rownames(noabx_normalized_reads[grep('unknown_\\d', rownames(noabx_normalized_reads)),]), ]
+rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads, noabx_normalized_reads)
 
-# Screen out ribosomal genes
-noabx_annotated <- rbind(subset(noabx_annotated, !grepl('rps*', noabx_annotated$gene)),
-                         subset(noabx_annotated, !grepl('rpl*', noabx_annotated$gene)),
-                         subset(noabx_annotated, !grepl('rpm*', noabx_annotated$gene)))
+# Screen for genes with no reads
+cef_annotated[,2:3] <- round(cef_annotated[,2:3])
+cef_annotated <- subset(cef_annotated, rowSums(cef_annotated[,2:3]) != 0)
+clinda_annotated[,2:3] <- round(clinda_annotated[,2:3])
+clinda_annotated <- subset(clinda_annotated, rowSums(clinda_annotated[,2:3]) != 0)
+strep_annotated[,2:3] <- round(strep_annotated[,2:3])
+strep_annotated <- subset(strep_annotated, rowSums(strep_annotated[,2:3]) != 0)
+noabx_annotated[,2] <- round(noabx_annotated[,2])
+noabx_annotated <- subset(noabx_annotated, noabx_annotated[,2] != 0)
 
-cef_annotated <- rbind(subset(cef_annotated, !grepl('rps.', cef_annotated$gene)),
-                       subset(cef_annotated, !grepl('rpl.', cef_annotated$gene)))
-clinda_annotated <- rbind(subset(clinda_annotated, !grepl('rps.', clinda_annotated$gene)),
-                          subset(clinda_annotated, !grepl('rpl.', clinda_annotated$gene)))
-strep_annotated <- rbind(subset(strep_annotated, !grepl('rps.', strep_annotated$gene)),
-                         subset(strep_annotated, !grepl('rpl.', strep_annotated$gene)))
+# Screen out ribosomal genes + hypothetical, putative, and uncharacterized annotations
+cef_annotated <- subset(cef_annotated, !grepl('Ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_protein*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('16S_rRNA_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('23S_rRNA_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('uncharacterized_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('putative_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('Predicted_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, description != 'hypothetical_protein')
+clinda_annotated <- subset(clinda_annotated, !grepl('Ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_protein*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('16S_rRNA_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('23S_rRNA_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('uncharacterized_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('putative_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('Predicted_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, description != 'hypothetical_protein')
+strep_annotated <- subset(strep_annotated, !grepl('Ribosomal_RNA*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('ribosomal_RNA*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_RNA*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_protein*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('16S_rRNA_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('23S_rRNA_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('uncharacterized_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('putative_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('Predicted_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, description != 'hypothetical_protein')
+noabx_annotated <- subset(noabx_annotated, !grepl('Ribosomal_RNA*', noabx_annotated$description))
+noabx_annotated <- subset(noabx_annotated, !grepl('ribosomal_RNA*', noabx_annotated$description))
+noabx_annotated <- subset(noabx_annotated, !grepl('*ribosomal_RNA*', noabx_annotated$description))
+noabx_annotated <- subset(noabx_annotated, !grepl('*ribosomal_protein*', noabx_annotated$description))
+noabx_annotated <- subset(noabx_annotated, !grepl('16S_rRNA_*', noabx_annotated$description))
+noabx_annotated <- subset(noabx_annotated, !grepl('23S_rRNA_*', noabx_annotated$description))
+noabx_annotated <- subset(noabx_annotated, !grepl('uncharacterized_*', noabx_annotated$description))
+noabx_annotated <- subset(noabx_annotated, !grepl('putative_*', noabx_annotated$description))
+noabx_annotated <- subset(noabx_annotated, !grepl('Predicted_*', noabx_annotated$description))
+noabx_annotated <- subset(noabx_annotated, description != 'hypothetical_protein')
 
-# Save pathway information
-all_pathways <- rbind(noabx_annotated[,2:3],cef_annotated[,3:4],clinda_annotated[,3:4],strep_annotated[,3:4])
-all_pathways <- all_pathways[!duplicated(all_pathways$gene), ]
-
-# Reverse log2 transformation temporarily
-noabx_annotated$conv_metaT_reads <- 2 ^ noabx_annotated$conv_metaT_reads
-cef_annotated$cef_630_metaT_reads <- 2 ^ cef_annotated$cef_630_metaT_reads
-cef_annotated$cef_mock_metaT_reads <- 2 ^ cef_annotated$cef_mock_metaT_reads
-clinda_annotated$clinda_630_metaT_reads <- 2 ^ clinda_annotated$clinda_630_metaT_reads
-clinda_annotated$clinda_mock_metaT_reads <- 2 ^ clinda_annotated$clinda_mock_metaT_reads
-strep_annotated$strep_630_metaT_reads <- 2 ^ strep_annotated$strep_630_metaT_reads
-strep_annotated$strep_mock_metaT_reads <- 2 ^ strep_annotated$strep_mock_metaT_reads
-
-# Subset to treatment groups
-noabx_annotated$conv_metaT_reads <- as.numeric(noabx_annotated$conv_metaT_reads)
-cef_630_annotated <- cef_annotated
-cef_630_annotated$cef_630_metaT_reads <- as.numeric(cef_630_annotated$cef_630_metaT_reads)
-cef_630_annotated$cef_mock_metaT_reads <- NULL
-cef_mock_annotated <- cef_annotated
-cef_mock_annotated$cef_mock_metaT_reads <- as.numeric(cef_mock_annotated$cef_mock_metaT_reads)
-cef_mock_annotated$cef_630_metaT_reads <- NULL
-clinda_630_annotated <- clinda_annotated
-clinda_630_annotated$clinda_630_metaT_reads <- as.numeric(clinda_630_annotated$clinda_630_metaT_reads)
-clinda_630_annotated$clinda_mock_metaT_reads <- NULL
-clinda_mock_annotated <- clinda_annotated
-clinda_mock_annotated$clinda_mock_metaT_reads <- as.numeric(clinda_mock_annotated$clinda_mock_metaT_reads)
-clinda_mock_annotated$clinda_630_metaT_reads <- NULL
-strep_630_annotated <- strep_annotated
-strep_630_annotated$strep_630_metaT_reads <- as.numeric(strep_630_annotated$strep_630_metaT_reads)
-strep_630_annotated$strep_mock_metaT_reads <- NULL
-strep_mock_annotated <- strep_annotated
-strep_mock_annotated$strep_mock_metaT_reads <- as.numeric(strep_mock_annotated$strep_mock_metaT_reads)
-strep_mock_annotated$strep_630_metaT_reads <- NULL
-rm(cef_annotated, clinda_annotated, strep_annotated)
-
-# Aggregate identical genes, regardless of organism - retransform
-noabx_annotated <- aggregate(noabx_annotated$conv_metaT_reads, by=list(noabx_annotated$gene), FUN=sum)
-colnames(noabx_annotated) <- c('gene', 'noabx_reads')
-cef_630_annotated <- aggregate(cef_630_annotated$cef_630_metaT_reads, by=list(cef_630_annotated$gene), FUN=sum)
-colnames(cef_630_annotated) <- c('gene', 'cef_630_reads')
-cef_mock_annotated <- aggregate(cef_mock_annotated$cef_mock_metaT_reads, by=list(cef_mock_annotated$gene), FUN=sum)
-colnames(cef_mock_annotated) <- c('gene', 'cef_mock_reads')
-clinda_630_annotated <- aggregate(clinda_630_annotated$clinda_630_metaT_reads, by=list(clinda_630_annotated$gene), FUN=sum)
-colnames(clinda_630_annotated) <- c('gene', 'clinda_630_reads')
-clinda_mock_annotated <- aggregate(clinda_mock_annotated$clinda_mock_metaT_reads, by=list(clinda_mock_annotated$gene), FUN=sum)
-colnames(clinda_mock_annotated) <- c('gene', 'clinda_mock_reads')
-strep_630_annotated <- aggregate(strep_630_annotated$strep_630_metaT_reads, by=list(strep_630_annotated$gene), FUN=sum)
-colnames(strep_630_annotated) <- c('gene', 'strep_630_reads')
-strep_mock_annotated <- aggregate(strep_mock_annotated$strep_mock_metaT_reads, by=list(strep_mock_annotated$gene), FUN=sum)
-colnames(strep_mock_annotated) <- c('gene', 'strep_mock_reads')
+# Simplify column names
+colnames(cef_annotated) <- c('gene', 'cef_630_reads', 'cef_mock_reads','organism','description','ko','pathways')
+colnames(clinda_annotated) <- c('gene', 'clinda_630_reads', 'clinda_mock_reads','organism','description','ko','pathways')
+colnames(strep_annotated) <- c('gene', 'strep_630_reads', 'strep_mock_reads','organism','description','ko','pathways')
+colnames(noabx_annotated) <- c('gene', 'noabx_mock_reads','organism','description','ko','pathways')
 
 #--------------------------------------------------------------------------------------------------#
 
-# Combine each with no antibiotic controls
-cef_630_annotated <- merge(cef_630_annotated, noabx_annotated, by='gene')
-cef_mock_annotated <- merge(cef_mock_annotated, noabx_annotated, by='gene')
-clinda_630_annotated <- merge(clinda_630_annotated, noabx_annotated, by='gene')
-clinda_mock_annotated <- merge(clinda_mock_annotated, noabx_annotated, by='gene')
-strep_630_annotated <- merge(strep_630_annotated, noabx_annotated, by='gene')
-strep_mock_annotated <- merge(strep_mock_annotated, noabx_annotated, by='gene')
-rm(noabx_annotated)
+# Aggregate genes with same annotation
+strep_genes <- aggregate(cbind(strep_annotated$strep_630_reads, strep_annotated$strep_mock_reads), by=list(strep_annotated$description), FUN=sum)
+colnames(strep_genes) <- c('description', 'strep_630_reads', 'strep_mock_reads')
+cef_genes <- aggregate(cbind(cef_annotated$cef_630_reads, cef_annotated$cef_mock_reads), by=list(cef_annotated$description), FUN=sum)
+colnames(cef_genes) <- c('description', 'cef_630_reads', 'cef_mock_reads')
+clinda_genes <- aggregate(cbind(clinda_annotated$clinda_630_reads, clinda_annotated$clinda_mock_reads), by=list(clinda_annotated$description), FUN=sum)
+colnames(clinda_genes) <- c('description', 'clinda_630_reads', 'clinda_mock_reads')
+noabx_genes <- aggregate(noabx_annotated$noabx_mock_reads, by=list(noabx_annotated$description), FUN=sum)
+colnames(noabx_genes) <- c('description', 'noabx_mock_reads')
 
-# Calculate differences in expression and remove those with no change
-cef_630_annotated$difference <- abs(cef_630_annotated$cef_630_reads - cef_630_annotated$noabx_reads)
-cef_630_annotated <- subset(cef_630_annotated, difference > 0)
-cef_mock_annotated$difference <- abs(cef_mock_annotated$cef_mock_reads - cef_mock_annotated$noabx_reads)
-cef_mock_annotated <- subset(cef_mock_annotated, difference > 0)
-clinda_630_annotated$difference <- abs(clinda_630_annotated$clinda_630_reads - clinda_630_annotated$noabx_reads)
-clinda_630_annotated <- subset(clinda_630_annotated, difference > 0)
-clinda_mock_annotated$difference <- abs(clinda_mock_annotated$clinda_mock_reads - clinda_mock_annotated$noabx_reads)
-clinda_mock_annotated <- subset(clinda_mock_annotated, difference > 0)
-strep_630_annotated$difference <- abs(strep_630_annotated$strep_630_reads - strep_630_annotated$noabx_reads)
-strep_630_annotated <- subset(strep_630_annotated, difference > 0)
-strep_mock_annotated$difference <- abs(strep_mock_annotated$strep_mock_reads - strep_mock_annotated$noabx_reads)
-strep_mock_annotated <- subset(strep_mock_annotated, difference > 0)
+# Calculate and take top differences from top 15%
+cef_10 <- round(nrow(cef_genes) * 0.15)
+clinda_10 <- round(nrow(clinda_genes) * 0.15)
+strep_10 <- round(nrow(strep_genes) * 0.15)
+cef_genes$infect_diff <- abs(cef_genes$cef_630_reads - cef_genes$cef_mock_reads)
+cef_genes <- cef_genes[order(-cef_genes$infect_diff),]
+top_cef_genes <- cef_genes$description[1:cef_10]
+cef_genes$infect_diff <- NULL
+clinda_genes$infect_diff <- abs(clinda_genes$clinda_630_reads - clinda_genes$clinda_mock_reads)
+clinda_genes <- clinda_genes[order(-clinda_genes$infect_diff),]
+top_clinda_genes <- clinda_genes$description[1:clinda_10]
+clinda_genes$infect_diff <- NULL
+strep_genes$infect_diff <- abs(strep_genes$strep_630_reads - strep_genes$strep_mock_reads)
+strep_genes <- strep_genes[order(-strep_genes$infect_diff),]
+top_strep_genes <- strep_genes$description[1:strep_10]
+strep_genes$infect_diff <- NULL
 
-# Rank differences and subset to top 15
-cef_630_annotated <- cef_630_annotated[order(-cef_630_annotated$difference),]
-cef_630_annotated$difference <- NULL
-cef_630_top <- cef_630_annotated[1:15,]
-cef_mock_annotated <- cef_mock_annotated[order(-cef_mock_annotated$difference),]
-cef_mock_annotated$difference <- NULL
-cef_mock_top <- cef_mock_annotated[1:15,]
-clinda_630_annotated <- clinda_630_annotated[order(-clinda_630_annotated$difference),]
-clinda_630_annotated$difference <- NULL
-clinda_630_top <- clinda_630_annotated[1:15,]
-clinda_mock_annotated <- clinda_mock_annotated[order(-clinda_mock_annotated$difference),]
-clinda_mock_annotated$difference <- NULL
-clinda_mock_top <- clinda_mock_annotated[1:15,]
-strep_630_annotated <- strep_630_annotated[order(-strep_630_annotated$difference),]
-strep_630_annotated$difference <- NULL
-strep_630_top <- strep_630_annotated[1:15,]
-strep_mock_annotated <- strep_mock_annotated[order(-strep_mock_annotated$difference),]
-strep_mock_annotated$difference <- NULL
-strep_mock_top <- strep_mock_annotated[1:15,]
-rm(cef_630_annotated,cef_mock_annotated,clinda_630_annotated,
-   clinda_mock_annotated,strep_630_annotated,strep_mock_annotated)
+# Calculate overlap of top differences
+top_cef_clinda_genes <- intersect(top_cef_genes, top_clinda_genes)
+top_cef_strep_genes <- intersect(top_cef_genes, top_strep_genes)
+top_clinda_strep_genes <- intersect(top_clinda_genes, top_strep_genes)
+top_genes <- intersect(top_cef_genes, intersect(top_clinda_genes, top_strep_genes))
+top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_cef_clinda_genes)
+top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_cef_strep_genes)
+top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_genes)
+top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_cef_clinda_genes)
+top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_clinda_strep_genes)
+top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_genes)
+top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_clinda_strep_genes)
+top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_cef_strep_genes)
+top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_genes)
+rm(top_cef_clinda_genes, top_cef_strep_genes, top_clinda_strep_genes, top_genes)
 
-# Log transform expression
-cef_630_top[,2:3] <- log2(cef_630_top[,2:3] + 1)
-cef_mock_top[,2:3] <- log2(cef_mock_top[,2:3] + 1)
-clinda_630_top[,2:3] <- log2(clinda_630_top[,2:3] + 1)
-clinda_mock_top[,2:3] <- log2(clinda_mock_top[,2:3] + 1)
-strep_630_top[,2:3] <- log2(strep_630_top[,2:3] + 1)
-strep_mock_top[,2:3] <- log2(strep_mock_top[,2:3] + 1)
+# Get individual gene sets
+top_strep_genes <- subset(strep_genes, strep_genes$description %in% top_strep_genes)
+top_cef_genes <- subset(cef_genes, cef_genes$description %in% top_cef_genes)
+top_clinda_genes <- subset(clinda_genes, clinda_genes$description %in% top_clinda_genes)
+rm(strep_genes, cef_genes, clinda_genes)
 
-# Reassociate with pathway annotations
-cef_630_top_pathways <- merge(cef_630_top, all_pathways, by='gene', all.x=TRUE)
-cef_mock_top_pathways <- merge(cef_mock_top, all_pathways, by='gene', all.x=TRUE)
-clinda_630_top_pathways <- merge(clinda_630_top, all_pathways, by='gene', all.x=TRUE)
-clinda_mock_top_pathways <- merge(clinda_mock_top, all_pathways, by='gene', all.x=TRUE)
-strep_630_top_pathways <- merge(strep_630_top, all_pathways, by='gene', all.x=TRUE)
-strep_mock_top_pathways <- merge(strep_mock_top, all_pathways, by='gene', all.x=TRUE)
-rm(all_pathways)
+# Merge with untreated group
+top_strep_genes <- merge(top_strep_genes, noabx_genes, by='description')
+rownames(top_strep_genes) <- top_strep_genes$description
+top_strep_genes$description <- NULL
+top_cef_genes <- merge(top_cef_genes, noabx_genes, by='description')
+rownames(top_cef_genes) <- top_cef_genes$description
+top_cef_genes$description <- NULL
+top_clinda_genes <- merge(top_clinda_genes, noabx_genes, by='description')
+rownames(top_clinda_genes) <- top_clinda_genes$description
+top_clinda_genes$description <- NULL
+rm(noabx_genes)
 
-# Add rownames
-cef_630_top <- merge(cef_630_top, genes, by='gene', all.x=TRUE)
-cef_630_top$gene <- NULL
-cef_630_top$name <- gsub('_', ' ', cef_630_top$name)
-rownames(cef_630_top) <- cef_630_top$name
-cef_630_top$name <- NULL
-cef_mock_top <- merge(cef_mock_top, genes, by='gene', all.x=TRUE)
-cef_mock_top$gene <- NULL
-cef_mock_top$name <- gsub('_', ' ', cef_mock_top$name)
-rownames(cef_mock_top) <- cef_mock_top$name
-cef_mock_top$name <- NULL
-clinda_630_top <- merge(clinda_630_top, genes, by='gene', all.x=TRUE)
-clinda_630_top$gene <- NULL
-clinda_630_top$name <- gsub('_', ' ', clinda_630_top$name)
-rownames(clinda_630_top) <- clinda_630_top$name
-clinda_630_top$name <- NULL
-clinda_mock_top <- merge(clinda_mock_top, genes, by='gene', all.x=TRUE)
-clinda_mock_top$gene <- NULL
-clinda_mock_top$name <- gsub('_', ' ', clinda_mock_top$name)
-rownames(clinda_mock_top) <- clinda_mock_top$name
-clinda_mock_top$name <- NULL
-strep_630_top <- merge(strep_630_top, genes, by='gene', all.x=TRUE)
-strep_630_top$gene <- NULL
-strep_630_top$name <- gsub('_', ' ', strep_630_top$name)
-rownames(strep_630_top) <- strep_630_top$name
-strep_630_top$name <- NULL
-strep_mock_top <- merge(strep_mock_top, genes, by='gene', all.x=TRUE)
-strep_mock_top$gene <- NULL
-strep_mock_top$name <- gsub('_', ' ', strep_mock_top$name)
-rownames(strep_mock_top) <- strep_mock_top$name
-strep_mock_top$name <- NULL
-rm(genes)
+# Pick top 10 differences between avg. abx-treated and untreated
+top_strep_genes$infect_mean <- rowMeans(top_strep_genes[,2:3])
+top_strep_genes$infect_diff <- abs(top_strep_genes$infect_mean - top_strep_genes$noabx_mock_reads)
+top_strep_genes <- top_strep_genes[order(-top_strep_genes$infect_diff),]
+top_strep_genes <- top_strep_genes[1:11,]
+top_strep_genes <- subset(top_strep_genes, rownames(top_strep_genes) != 'type_I')
+top_strep_genes$infect_diff <- NULL
+top_strep_genes$infect_mean <- NULL
+top_cef_genes$infect_mean <- rowMeans(top_cef_genes[,2:3])
+top_cef_genes$infect_diff <- abs(top_cef_genes$infect_mean - top_cef_genes$noabx_mock_reads)
+top_cef_genes <- top_cef_genes[order(-top_cef_genes$infect_diff),]
+top_cef_genes <- top_cef_genes[1:10,]
+top_cef_genes$infect_diff <- NULL
+top_cef_genes$infect_mean <- NULL
+top_clinda_genes$infect_mean <- rowMeans(top_clinda_genes[,2:3])
+top_clinda_genes$infect_diff <- abs(top_clinda_genes$infect_mean - top_clinda_genes$noabx_mock_reads)
+top_clinda_genes <- top_clinda_genes[order(-top_clinda_genes$infect_diff),]
+top_clinda_genes <- top_clinda_genes[1:11,]
+top_clinda_genes <- subset(top_clinda_genes, rownames(top_clinda_genes) != 'homology_to_Homo_sapiens')
+top_clinda_genes$infect_diff <- NULL
+top_clinda_genes$infect_mean <- NULL
 
-# Reorder by expression in treatment group
-cef_630_top <- cef_630_top[order(cef_630_top$cef_630_reads),]
-cef_mock_top <- cef_mock_top[order(cef_mock_top$cef_mock_reads),]
-clinda_630_top <- clinda_630_top[order(clinda_630_top$clinda_630_reads),]
-clinda_mock_top <- clinda_mock_top[order(clinda_mock_top$clinda_mock_reads),]
-strep_630_top <- strep_630_top[order(strep_630_top$strep_630_reads),]
-strep_mock_top <- strep_mock_top[order(strep_mock_top$strep_mock_reads),]
+# Transform data and format names
+top_strep_genes <- log2(top_strep_genes + 1)
+rownames(top_strep_genes) <- gsub('_', ' ', rownames(top_strep_genes))
+rownames(top_strep_genes) <- gsub(' \\(EC\\:2\\.7\\.9\\.1)', '', rownames(top_strep_genes))
+rownames(top_strep_genes) <- gsub('binding-protein-dependent transport system inner membrane protein', 'transport system inner membrane protein', rownames(top_strep_genes))
+rownames(top_strep_genes) <- capitalize(rownames(top_strep_genes))
+top_cef_genes <- log2(top_cef_genes + 1)
+rownames(top_cef_genes) <- gsub('_', ' ', rownames(top_cef_genes))
+rownames(top_cef_genes) <- gsub(' \\(EF\\-1A\\/EF\\-Tu\\) \\(EC\\:3\\.6\\.5\\.3\\)', '', rownames(top_cef_genes))
+rownames(top_cef_genes) <- gsub('two-component system sensor histidine kinase/response regulator', 'two-component system histidine kinase regulator', rownames(top_cef_genes))
+rownames(top_cef_genes) <- capitalize(rownames(top_cef_genes))
+top_clinda_genes <- log2(top_clinda_genes + 1)
+rownames(top_clinda_genes) <- gsub('_', ' ', rownames(top_clinda_genes))
+rownames(top_clinda_genes) <- gsub(' \\(EC\\:3\\.2\\.1\\.23)', '', rownames(top_clinda_genes))
+rownames(top_clinda_genes) <- capitalize(rownames(top_clinda_genes))
 
-# Convert to matrices for barplots
-cef_630_top <- as.matrix(t(cef_630_top))
-cef_mock_top <- as.matrix(t(cef_mock_top))
-clinda_630_top <- as.matrix(t(clinda_630_top))
-clinda_mock_top <- as.matrix(t(clinda_mock_top))
-strep_630_top <- as.matrix(t(strep_630_top))
-strep_mock_top <- as.matrix(t(strep_mock_top))
+# Reverse row order for plotting
+top_strep_genes <- top_strep_genes[nrow(top_strep_genes):1, ]
+top_cef_genes <- top_cef_genes[nrow(top_cef_genes):1, ]
+top_clinda_genes <- top_clinda_genes[nrow(top_clinda_genes):1, ]
 
-# Reverse the row order so infected plots first
-cef_630_top <- cef_630_top[rev(rownames(cef_630_top)),]
-cef_mock_top <- cef_mock_top[rev(rownames(cef_mock_top)),]
-clinda_630_top <- clinda_630_top[rev(rownames(clinda_630_top)),]
-clinda_mock_top <- clinda_mock_top[rev(rownames(clinda_mock_top)),]
-strep_630_top <- strep_630_top[rev(rownames(strep_630_top)),]
-strep_mock_top <- strep_mock_top[rev(rownames(strep_mock_top)),]
+# Transpose
+top_strep_genes <- as.matrix(t(top_strep_genes))
+top_cef_genes <- as.matrix(t(top_cef_genes))
+top_clinda_genes <- as.matrix(t(top_clinda_genes))
+
+#-------------#
+
+# Aggregate pathways
+cef_pathways <- subset(cef_annotated, !is.na(cef_annotated$pathways))
+cef_pathways <- aggregate(cbind(cef_pathways$cef_630_reads, cef_pathways$cef_mock_reads), by=list(cef_pathways$pathways), FUN=sum)
+rownames(cef_pathways) <- cef_pathways$Group.1
+cef_pathways$Group.1 <- NULL
+cef_pathways <- subset(cef_pathways, !rownames(cef_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
+colnames(cef_pathways) <- c('cef_630_reads', 'cef_mock_reads')
+clinda_pathways <- subset(clinda_annotated, !is.na(clinda_annotated$pathways))
+clinda_pathways <- aggregate(cbind(clinda_pathways$clinda_630_reads, clinda_pathways$clinda_mock_reads), by=list(clinda_pathways$pathways), FUN=sum)
+rownames(clinda_pathways) <- clinda_pathways$Group.1
+clinda_pathways$Group.1 <- NULL
+clinda_pathways <- subset(clinda_pathways, !rownames(clinda_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
+colnames(clinda_pathways) <- c('clinda_630_reads', 'clinda_mock_reads')
+strep_pathways <- subset(strep_annotated, !is.na(strep_annotated$pathways))
+strep_pathways <- aggregate(cbind(strep_pathways$strep_630_reads, strep_pathways$strep_mock_reads), by=list(strep_pathways$pathways), FUN=sum)
+rownames(strep_pathways) <- strep_pathways$Group.1
+strep_pathways$Group.1 <- NULL
+strep_pathways <- subset(strep_pathways, !rownames(strep_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
+colnames(strep_pathways) <- c('strep_630_reads', 'strep_mock_reads')
+noabx_pathways <- subset(noabx_annotated, !is.na(noabx_annotated$pathways))
+noabx_pathways <- aggregate(noabx_pathways$noabx_mock_reads, by=list(noabx_pathways$pathways), FUN=sum)
+rownames(noabx_pathways) <- noabx_pathways$Group.1
+noabx_pathways$Group.1 <- NULL
+noabx_pathways <- subset(noabx_pathways, !rownames(noabx_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
+colnames(noabx_pathways) <- 'noabx_mock_reads'
+rm(cef_annotated, clinda_annotated, strep_annotated, noabx_annotated)
+
+# Calculate and take top differences
+cef_10 <- round(nrow(cef_pathways) * 0.15)
+clinda_10 <- round(nrow(clinda_pathways) * 0.15)
+strep_10 <- round(nrow(strep_pathways) * 0.15)
+cef_pathways$diff <- abs(cef_pathways$cef_630_reads - cef_pathways$cef_mock_reads)
+cef_pathways <- cef_pathways[order(-cef_pathways$diff),]
+top_cef_paths <- rownames(cef_pathways[1:cef_10,])
+cef_pathways$diff <- NULL
+clinda_pathways$diff <- abs(clinda_pathways$clinda_630_reads - clinda_pathways$clinda_mock_reads)
+clinda_pathways <- clinda_pathways[order(-clinda_pathways$diff),]
+top_clinda_paths <- rownames(clinda_pathways[1:clinda_10,])
+clinda_pathways$diff <- NULL
+strep_pathways$diff <- abs(strep_pathways$strep_630_reads - strep_pathways$strep_mock_reads)
+strep_pathways <- strep_pathways[order(-strep_pathways$diff),]
+top_strep_paths <- rownames(strep_pathways[1:strep_10,])
+strep_pathways$diff <- NULL
+
+# Calculate overlap of top differences
+top_cef_clinda_paths <- intersect(top_cef_paths, top_clinda_paths)
+top_cef_strep_paths <- intersect(top_cef_paths, top_strep_paths)
+top_clinda_strep_paths <- intersect(top_clinda_paths, top_strep_paths)
+top_paths <- intersect(top_cef_paths, intersect(top_clinda_paths, top_strep_paths))
+top_cef_paths <- subset(top_cef_paths, !top_cef_paths %in% top_cef_clinda_paths)
+top_cef_paths <- subset(top_cef_paths, !top_cef_paths %in% top_cef_strep_paths)
+top_cef_paths <- subset(top_cef_paths, !top_cef_paths %in% top_paths)
+top_clinda_paths <- subset(top_clinda_paths, !top_clinda_paths %in% top_cef_clinda_paths)
+top_clinda_paths <- subset(top_clinda_paths, !top_clinda_paths %in% top_clinda_strep_paths)
+top_clinda_paths <- subset(top_clinda_paths, !top_clinda_paths %in% top_paths)
+top_strep_paths <- subset(top_strep_paths, !top_strep_paths %in% top_clinda_strep_paths)
+top_strep_paths <- subset(top_strep_paths, !top_strep_paths %in% top_cef_strep_paths)
+top_strep_paths <- subset(top_strep_paths, !top_strep_paths %in% top_paths)
+rm(top_cef_clinda_paths,top_cef_strep_paths,top_clinda_strep_paths,top_paths)
+
+# Get individual gene sets
+top_strep_paths <- subset(strep_pathways, rownames(strep_pathways) %in% top_strep_paths)
+top_cef_paths <- subset(cef_pathways, rownames(cef_pathways) %in% top_cef_paths)
+top_clinda_paths <- subset(clinda_pathways, rownames(clinda_pathways) %in% top_clinda_paths)
+rm(strep_pathways, cef_pathways, clinda_pathways)
+
+# Merge with untreated group
+top_strep_paths <- merge(top_strep_paths, noabx_pathways, by='row.names')
+rownames(top_strep_paths) <- top_strep_paths$Row.names
+top_strep_paths$Row.names <- NULL
+top_cef_paths <- merge(top_cef_paths, noabx_pathways, by='row.names')
+rownames(top_cef_paths) <- top_cef_paths$Row.names
+top_cef_paths$Row.names <- NULL
+top_clinda_paths <- merge(top_clinda_paths, noabx_pathways, by='row.names')
+rownames(top_clinda_paths) <- top_clinda_paths$Row.names
+top_clinda_paths$Row.names <- NULL
+rm(noabx_pathways)
+
+# Transform data and format names
+top_strep_paths <- log2(top_strep_paths + 1)
+rownames(top_strep_paths) <- strsplit(rownames(top_strep_paths), split=':')[[1]][1]
+rownames(top_strep_paths) <- gsub('_', ' ', rownames(top_strep_paths))
+rownames(top_strep_paths) <- capitalize(rownames(top_strep_paths))
+top_cef_paths <- log2(top_cef_paths + 1)
+rownames(top_cef_paths) <- strsplit(rownames(top_cef_paths), split=':')[[1]][1]
+rownames(top_cef_paths) <- gsub('_', ' ', rownames(top_cef_paths))
+rownames(top_cef_paths) <- capitalize(rownames(top_cef_paths))
+path_names <- as.vector(rownames(top_cef_paths))
+for (x in c(1:length(path_names))) {
+  path_names[x] <- strsplit(path_names[x], split=':')[[1]][1]
+}
+rownames(top_cef_paths) <- path_names
+rm(path_names)
+rownames(top_cef_paths) <- gsub('_', ' ', rownames(top_cef_paths))
+rownames(top_cef_paths) <- capitalize(rownames(top_cef_paths))
+top_clinda_paths <- log2(top_clinda_paths + 1)
+path_names <- as.vector(rownames(top_clinda_paths))
+for (x in c(1:length(path_names))) {
+  path_names[x] <- strsplit(path_names[x], split=':')[[1]][1]
+}
+rownames(top_clinda_paths) <- path_names
+rm(path_names)
+rownames(top_clinda_paths) <- gsub('_', ' ', rownames(top_clinda_paths))
+rownames(top_clinda_paths) <- capitalize(rownames(top_clinda_paths))
+
+# Reverse row order for plotting
+top_cef_paths <- top_cef_paths[nrow(top_cef_paths):1, ]
+top_clinda_paths <- top_clinda_paths[nrow(top_clinda_paths):1, ]
+
+# Transpose
+top_strep_paths <- as.matrix(t(top_strep_paths))
+top_cef_paths <- as.matrix(t(top_cef_paths))
+top_clinda_paths <- as.matrix(t(top_clinda_paths))
+
+# Combine for plot
+top_paths <- cbind(top_clinda_paths, top_cef_paths, top_strep_paths)
+# Strep = 1
+# Cef = 7 - 
+# Clinda = 2
+rm(top_strep_paths, top_cef_paths, top_clinda_paths)
 
 #--------------------------------------------------------------------------------------------------#
 
-# Generate figure
-pdf(file=plot_file, width=11, height=12)
-layout(matrix(c(1,1,2,2,3,
-                4,4,5,5,6,
-                7,7,8,8,9),
-              nrow=3, ncol=5, byrow = TRUE))
+# Generate bar plots
+pdf(file=plot_file, width=17, height=8)
+layout(matrix(c(1,2,
+                3,4),
+              nrow=2, ncol=2, byrow=TRUE))
 
-#------------------#
-
-# Streptomycin
-# Mock-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(strep_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, strep_col), cex.names=1) 
+# Genes
+par(mar=c(3,21,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i', yaxs='i')
+# Strep
+barplot(top_strep_genes, xaxt='n', xlim=c(0,14), ylim=c(0,41), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', angle=20, density=c(NA,20,NA),  
+        col=c(strep_col,strep_col,noabx_col))
+abline(h=seq(4.5,40,4), lty=5, col='black')
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
-mtext('A', side=2, padj=-11, adj=18, cex=1.2, font=2)
-
-# 630-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(strep_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE,
-        xlab='', ylab='', col=c(noabx_col, strep_col), cex.names=1) 
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
+mtext('Streptomycin-pretreated (Genes)', side=3)
+mtext('A', side=2, padj=-8, adj=16, font=2, cex=1.6)
+# Cef
+barplot(top_cef_genes, xaxt='n', xlim=c(0,14), ylim=c(0,41), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', angle=20, density=c(NA,20,NA),  
+        col=c(cef_col,cef_col,noabx_col))
+abline(h=seq(4.5,40,4), lty=5, col='black')
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
-mtext('B', side=2, padj=-11, adj=17, cex=1.2, font=2)
-
-# Legend
-par(mar=c(0,0,0,1))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Streptomycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(strep_col,noabx_col), 
-       pch=22, pt.cex=2.4, cex=1.3)
-
-#------------------#
-
-# Cefoperazone
-# Mock-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(cef_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, cef_col), cex.names=1) 
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
+mtext('Cefoperazone-pretreated (Genes)', side=3)
+mtext('B', side=2, padj=-8, adj=16, font=2, cex=1.6)
+# Clinda
+barplot(top_clinda_genes, xaxt='n', xlim=c(0,14), ylim=c(0,41), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', angle=20, density=c(NA,20,NA),  
+        col=c(clinda_col,clinda_col,noabx_col))
+abline(h=seq(4.5,40,4), lty=5, col='black')
 box()
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
-mtext('C', side=2, padj=-11, adj=18, cex=1.2, font=2)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
+mtext('Clindamycin-pretreated (Genes)', side=3)
+mtext('C', side=2, padj=-8, adj=16, font=2, cex=1.6)
 
-# 630-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(cef_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, cef_col), cex.names=1) 
+# Pathways
+barplot(top_paths, xaxt='n', xlim=c(0,14), ylim=c(0,41), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', angle=20, density=c(NA,20,NA), 
+        col=c(clinda_col,clinda_col,noabx_col,
+              clinda_col,clinda_col,noabx_col,
+              cef_col,cef_col,noabx_col,
+              cef_col,cef_col,noabx_col,
+              cef_col,cef_col,noabx_col,
+              cef_col,cef_col,noabx_col,
+              cef_col,cef_col,noabx_col,
+              cef_col,cef_col,noabx_col,
+              cef_col,cef_col,noabx_col,
+              strep_col,strep_col,noabx_col))
+abline(h=36.5, lwd=2, col='black')
+abline(h=8.5, lwd=2, col='black')
 box()
-axis(1, at=seq(0,14,2), label=seq(0,14,2))
+axis(1, at=seq(0,14,2), label=seq(0,14,2), cex.axis=1.2)
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
-mtext('D', side=2, padj=-11, adj=17, cex=1.2, font=2)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
+mtext('All Pretreatments (Pathways)', side=3)
+mtext('D', side=2, padj=-8, adj=16, font=2, cex=1.6)
 
-# Legend
-par(mar=c(0,0,0,1))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Cefoperazone-pretreated','No Antibiotics (No CDI)'), pt.bg=c(cef_col,noabx_col), 
-       pch=22, pt.cex=2.4, cex=1.3)
+dev.off()
 
-#------------------#
-
-# Clindamycin
-# Mock-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(clinda_mock_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, clinda_col), cex.names=1) 
-box()
-axis(1, at=seq(0,14,2), label=seq(0,14,2))
-minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext('Mock-infected', side=3, padj=-0.3, cex=0.9)
-mtext('E', side=2, padj=-11, adj=18, cex=1.2, font=2)
-
-# 630-infected
-par(mar=c(4,16,3,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i')
-barplot(clinda_630_top, xaxt='n', xlim=c(0,14), beside=TRUE, horiz=TRUE, 
-        xlab='', ylab='', col=c(noabx_col, clinda_col), cex.names=1) 
-box()
-axis(1, at=seq(0,14,2), label=seq(0,14,2))
-minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.8)
-mtext(expression(paste(italic('C. difficile'),' 630-infected')), side=3, padj=-0.3, cex=0.9)
-mtext('F', side=2, padj=-11, adj=30, cex=1.2, font=2)
-
-# Legend
-par(mar=c(0,0,0,1))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
-legend('center', legend=c('Clindamycin-pretreated','No Antibiotics (No CDI)'), pt.bg=c(clinda_col,noabx_col), 
-       pch=22, pt.cex=2.4, cex=1.3)
-
+# Legends
+pdf(file=legend_file, width=10, height=5)
+par(mar=c(0,0,0,0))
+plot(0, xaxt='n', yaxt='n', bty='n', pch='', ylab='', xlab='', xlim=c(-10,10), ylim=c(-5,5))
+legend(x=0, y=2, legend=c('Mock-infected',as.expression(bquote(paste(italic('C. difficile'),'-infected')))), 
+       fill='black', density=c(NA, 20), pt.cex=2.3, cex=1.5)
+legend(x=0, y=0, legend=c('No antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
+       pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=22, pt.cex=2.3, cex=1.5)
 dev.off()
 
 #--------------------------------------------------------------------------------------------------#
@@ -345,8 +421,9 @@ dev.off()
 #Clean up
 for (dep in deps){
   pkg <- paste('package:', dep, sep='')
-  detach(pkg, character.only = TRUE)
+  detach(pkg, character.only=TRUE)
 }
 setwd(starting_dir)
 rm(list=ls())
 gc()
+
