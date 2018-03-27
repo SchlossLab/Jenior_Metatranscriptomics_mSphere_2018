@@ -199,7 +199,7 @@ Pooled and quality trimmed transcriptomic (SRA; PRJNA354635) and 16S rRNA gene a
 
 **Supplementary Table 4 | Median scaled intensity of metabolites for each antibiotic pretreatment and infection group** 
 
-**Supplementary Table 5 | Interquartile range of sample variances across datasets with replication generated during this study** 
+**Supplementary Table 5 | Summary statistics across datasets with replication generated during this study** 
 
 
 **References**
