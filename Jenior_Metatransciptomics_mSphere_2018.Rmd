@@ -1,5 +1,5 @@
 ---
-title: "*Clostridium difficile* alters the structure and metabolism of distinct cecal microbiomes during initial infection to promote sustained colonization"
+title: "*Clostridium difficile* alters the structure and metabolism of distinct cecal microbiomes during acute infection to promote sustained colonization"
 csl: msphere.csl
 output:
  word_document:
