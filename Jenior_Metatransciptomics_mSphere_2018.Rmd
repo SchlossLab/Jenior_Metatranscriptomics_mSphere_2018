@@ -181,6 +181,15 @@ abxRF <- function(feature_data){
   return(finalFeat)
 }
 
+# Calculates distance of a point from x=y in 2-d space
+dist_xy <- function(x) {
+  v1 <- c(20,20) - x
+  v2 <- c(0,0) - c(20,20)
+  m <- cbind(v1, v2)
+  distance <- abs(det(m)) / sqrt(sum(v1 * v1))
+  return(distance)
+} 
+
 ```
 
 **Results**
@@ -676,360 +685,28 @@ We then sought to identify changes in those metabolites that were potential mark
 **Infection corresponded with large shifts in the metatranscriptome strongly differ across antibiotic pretreatments.**
 Combined, 16S rRNA gene sequencing and metabolomics results demonstrated that antibiotic pretreatments resulted in distinct bacterial communities that led to altered metabolite profiles. It is also possible that metabolism of the host or *C. difficile* contributed to the differences in the metabolomes during infection. To gain a more specific understanding of how the microbiota or *C. difficile* shaped the metabolic environment, we employed a metagenome-enabled metatranscriptomic shotgun sequencing approach with paired DNA and RNA samples collected from the cecal content of the mice used in the previous analyses. To achieve usable concentrations of bacterial mRNA, and also to obtain informative depths of sequencing  that adequately sampled the diversity in metagenomic and metatranscriptomic libraries (Fig. S6E&F), we were required to performed a combined sequencing effort for each treatment and infection group. To establish confidence in continuing pooled analysis, we calculated within-group sample variance replicates from cfu, otu relative abundance, and untargeted metabolomic (Table S5). Despite limited outliers, this revealed low levels in the median and interquartile range of variance within control and experimental groups at multiple levels of biology.
 
-```{r figure_s5, echo=F, warning=F, message=F, results='hide', cache=F}
-
-setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/')
-
-
-# Define files
-# Metagenomes
-cef_630_metagenome <- 'data/read_mapping/metagenome/cefoperazone_630.Cefoperazone.metaG.final.pool.norm.txt'
-cef_mock_metagenome <- 'data/read_mapping/metagenome/cefoperazone_mock.Cefoperazone.metaG.final.pool.norm.txt'
-clinda_630_metagenome <- 'data/read_mapping/metagenome/clindamycin_630.Clindamycin.metaG.final.pool.norm.txt'
-clinda_mock_metagenome <- 'data/read_mapping/metagenome/clindamycin_mock.Clindamycin.metaG.final.pool.norm.txt'
-strep_630_metagenome <- 'data/read_mapping/metagenome/streptomycin_630.Streptomycin.metaG.final.pool.norm.txt'
-strep_mock_metagenome <- 'data/read_mapping/metagenome/streptomycin_mock.Streptomycin.metaG.final.pool.norm.txt'
-noabx_mock_metagenome <- 'data/read_mapping/metagenome/conventional_mock.Conventional.metaG.final.pool.norm.txt'
-# Metatranscriptomes
-cef_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/cefoperazone_630.Cefoperazone.metaT.final.pool.norm.txt'
-cef_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/cefoperazone_mock.Cefoperazone.metaT.final.pool.norm.txt'
-clinda_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/clindamycin_630.Clindamycin.metaT.final.pool.norm.txt'
-clinda_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/clindamycin_mock.Clindamycin.metaT.final.pool.norm.txt'
-strep_630_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_630.Streptomycin.metaT.final.pool.norm.txt'
-strep_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomycin_mock.Streptomycin.metaT.final.pool.norm.txt'
-noabx_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/conventional.Conventional.metaT.final.pool.norm.txt'
-
-# Output file
-plot_file <- 'results/supplement/figures/figure_S5ABCD.pdf'
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Read in data
-
-# Metagenomes
-cef_630_metagenome <- read.delim(cef_630_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(cef_630_metagenome) <- c('cef_630_metaG_reads')
-cef_mock_metagenome <- read.delim(cef_mock_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(cef_mock_metagenome) <- c('cef_mock_metaG_reads')
-clinda_630_metagenome <- read.delim(clinda_630_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(clinda_630_metagenome) <- c('clinda_630_metaG_reads')
-clinda_mock_metagenome <- read.delim(clinda_mock_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(clinda_mock_metagenome) <- c('clinda_mock_metaG_reads')
-strep_630_metagenome <- read.delim(strep_630_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(strep_630_metagenome) <- c('strep_630_metaG_reads')
-strep_mock_metagenome <- read.delim(strep_mock_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(strep_mock_metagenome) <- c('strep_mock_metaG_reads')
-noabx_mock_metagenome <- read.delim(noabx_mock_metagenome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(noabx_mock_metagenome) <- c('noabx_mock_metaG_reads')
-
-# Metatranscriptomes
-cef_630_metatranscriptome <- read.delim(cef_630_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(cef_630_metatranscriptome) <- c('cef_630_metaT_reads')
-cef_mock_metatranscriptome <- read.delim(cef_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(cef_mock_metatranscriptome) <- c('cef_mock_metaT_reads')
-clinda_630_metatranscriptome <- read.delim(clinda_630_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(clinda_630_metatranscriptome) <- c('clinda_630_metaT_reads')
-clinda_mock_metatranscriptome <- read.delim(clinda_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(clinda_mock_metatranscriptome) <- c('clinda_mock_metaT_reads')
-strep_630_metatranscriptome <- read.delim(strep_630_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(strep_630_metatranscriptome) <- c('strep_630_metaT_reads')
-strep_mock_metatranscriptome <- read.delim(strep_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1, na.strings=c('','NA'))
-colnames(strep_mock_metatranscriptome) <- c('strep_mock_metaT_reads')
-noabx_mock_metatranscriptome <- read.delim(noabx_mock_metatranscriptome, sep='\t', header=FALSE, row.names=1)
-colnames(noabx_mock_metatranscriptome) <- c('noabx_mock_metaT_reads')
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Process and reformat data
-
-# Merge metagenomic and metatranscriptomic data
-cef_raw_reads <- clean_merge(cef_630_metagenome, cef_mock_metagenome)
-cef_raw_reads <- clean_merge(cef_raw_reads, cef_630_metatranscriptome)
-cef_raw_reads <- clean_merge(cef_raw_reads, cef_mock_metatranscriptome)
-clinda_raw_reads <- clean_merge(clinda_630_metagenome, clinda_mock_metagenome)
-clinda_raw_reads <- clean_merge(clinda_raw_reads, clinda_630_metatranscriptome)
-clinda_raw_reads <- clean_merge(clinda_raw_reads, clinda_mock_metatranscriptome)
-strep_raw_reads <- clean_merge(strep_630_metagenome, strep_mock_metagenome)
-strep_raw_reads <- clean_merge(strep_raw_reads, strep_630_metatranscriptome)
-strep_raw_reads <- clean_merge(strep_raw_reads, strep_mock_metatranscriptome)
-noabx_raw_reads <- clean_merge(noabx_mock_metagenome, noabx_mock_metatranscriptome)
-rm(cef_630_metagenome, clinda_630_metagenome, strep_630_metagenome, 
-   cef_mock_metagenome, clinda_mock_metagenome, strep_mock_metagenome,
-   cef_630_metatranscriptome, cef_mock_metatranscriptome, clinda_630_metatranscriptome, 
-   clinda_mock_metatranscriptome, strep_630_metatranscriptome, strep_mock_metatranscriptome,
-   noabx_mock_metagenome, noabx_mock_metatranscriptome)
-
-# Add KEGG annotations
-cef_kegg <- read.delim('data/kegg/cef_formatted.txt', sep='\t', header=TRUE, row.names=1)
-clinda_kegg <- read.delim('data/kegg/clinda_formatted.txt', sep='\t', header=TRUE, row.names=1)
-strep_kegg <- read.delim('data/kegg/strep_formatted.txt', sep='\t', header=TRUE, row.names=1)
-noabx_kegg <- read.delim('data/kegg/noabx_formatted.txt', sep='\t', header=TRUE, row.names=1)
-cef_raw_reads <- clean_merge(cef_raw_reads, cef_kegg)
-clinda_raw_reads <- clean_merge(clinda_raw_reads, clinda_kegg)
-strep_raw_reads <- clean_merge(strep_raw_reads, strep_kegg)
-noabx_raw_reads <- clean_merge(noabx_raw_reads, noabx_kegg)
-rm(cef_kegg, clinda_kegg, strep_kegg, noabx_kegg)
-
-# Remove introduced duplicates
-cef_raw_reads$kegg_hit <- rownames(cef_raw_reads)
-clinda_raw_reads$kegg_hit <- rownames(clinda_raw_reads)
-strep_raw_reads$kegg_hit <- rownames(strep_raw_reads)
-noabx_raw_reads$kegg_hit <- rownames(noabx_raw_reads)
-cef_raw_reads <- cef_raw_reads[!duplicated(cef_raw_reads$kegg_hit),]
-clinda_raw_reads <- clinda_raw_reads[!duplicated(clinda_raw_reads$kegg_hit),]
-strep_raw_reads <- strep_raw_reads[!duplicated(strep_raw_reads$kegg_hit),]
-noabx_raw_reads <- noabx_raw_reads[!duplicated(noabx_raw_reads$kegg_hit),]
-cef_raw_reads$kegg_hit <- NULL
-clinda_raw_reads$kegg_hit <- NULL
-strep_raw_reads$kegg_hit <- NULL
-noabx_raw_reads$kegg_hit <- NULL
-
-# Add KEGG pathways
-pathways <- read.delim('data/kegg/ko_paths.tsv', sep='\t', header=TRUE)
-cef_raw_reads <- merge(cef_raw_reads, pathways, by='ko', all.x=TRUE)
-clinda_raw_reads <- merge(clinda_raw_reads, pathways, by='ko', all.x=TRUE)
-strep_raw_reads <- merge(strep_raw_reads, pathways, by='ko', all.x=TRUE)
-noabx_raw_reads <- merge(noabx_raw_reads, pathways, by='ko', all.x=TRUE)
-rm(pathways)
-
-# Screen for annotated genes
-cef_annotated <- subset(cef_raw_reads, !is.na(organism))
-cef_annotated <- subset(cef_annotated, !description %in% c('unknown_function', 'unlikely', 'hypothetical_protein'))
-cef_annotated <- subset(cef_annotated, !grepl("uncharacterized_", cef_annotated$description))
-clinda_annotated <- subset(clinda_raw_reads, !is.na(organism))
-clinda_annotated <- subset(clinda_annotated, !description %in% c('unknown_function', 'unlikely', 'hypothetical_protein'))
-clinda_annotated <- subset(clinda_annotated, !grepl("uncharacterized_", clinda_annotated$description))
-strep_annotated <- subset(strep_raw_reads, !is.na(organism))
-strep_annotated <- subset(strep_annotated, !description %in% c('unknown_function', 'unlikely', 'hypothetical_protein'))
-strep_annotated <- subset(strep_annotated, !grepl("uncharacterized_", strep_annotated$description))
-noabx_annotated <- subset(noabx_raw_reads, !is.na(organism))
-noabx_annotated <- subset(noabx_annotated, !description %in% c('unknown_function', 'unlikely', 'hypothetical_protein'))
-noabx_annotated <- subset(noabx_annotated, !grepl("uncharacterized_", noabx_annotated$description))
-cef_raw_reads <- cef_annotated
-clinda_raw_reads <- clinda_annotated
-strep_raw_reads <- strep_annotated
-noabx_raw_reads <- noabx_annotated
-rm(cef_annotated, clinda_annotated, strep_annotated, noabx_annotated)
-
-# Separate in groups and aggregate (Remove genes with no metagenomic coverage)
-simp <- read.delim('data/kegg/simp_pathways.tsv', sep='\t', header=TRUE)
-cef_mock_metaG <- as.data.frame(cbind(as.character(cef_raw_reads$cef_mock_metaG_reads), as.character(cef_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(cef_mock_metaG) <- c('abundance', 'pathway')
-cef_mock_metaG$pathway[is.na(cef_mock_metaG$pathway)] <- 'Unannotated'
-cef_mock_metaG$abundance <- as.numeric(cef_mock_metaG$abundance)
-cef_mock_metaG <- merge(cef_mock_metaG, simp, by='pathway')
-cef_630_metaG <- as.data.frame(cbind(as.character(cef_raw_reads$cef_630_metaG_reads), as.character(cef_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(cef_630_metaG) <- c('abundance', 'pathway')
-cef_630_metaG$pathway[is.na(cef_630_metaG$pathway)] <- 'Unannotated'
-cef_630_metaG$abundance <- as.numeric(cef_630_metaG$abundance)
-cef_630_metaG <- merge(cef_630_metaG, simp, by='pathway')
-clinda_mock_metaG <- as.data.frame(cbind(as.character(clinda_raw_reads$clinda_mock_metaG_reads), as.character(clinda_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(clinda_mock_metaG) <- c('abundance', 'pathway')
-clinda_mock_metaG$pathway[is.na(clinda_mock_metaG$pathway)] <- 'Unannotated'
-clinda_mock_metaG$abundance <- as.numeric(clinda_mock_metaG$abundance)
-clinda_mock_metaG <- merge(clinda_mock_metaG, simp, by='pathway')
-clinda_630_metaG <- as.data.frame(cbind(as.character(clinda_raw_reads$clinda_630_metaG_reads), as.character(clinda_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(clinda_630_metaG) <- c('abundance', 'pathway')
-clinda_630_metaG$pathway[is.na(clinda_630_metaG$pathway)] <- 'Unannotated'
-clinda_630_metaG$abundance <- as.numeric(clinda_630_metaG$abundance)
-clinda_630_metaG <- merge(clinda_630_metaG, simp, by='pathway')
-strep_mock_metaG <- as.data.frame(cbind(as.character(strep_raw_reads$strep_mock_metaG_reads), as.character(strep_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(strep_mock_metaG) <- c('abundance', 'pathway')
-strep_mock_metaG$pathway[is.na(strep_mock_metaG$pathway)] <- 'Unannotated'
-strep_mock_metaG$abundance <- as.numeric(strep_mock_metaG$abundance)
-strep_mock_metaG <- merge(strep_mock_metaG, simp, by='pathway')
-strep_630_metaG <- as.data.frame(cbind(as.character(strep_raw_reads$strep_630_metaG_reads), as.character(strep_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(strep_630_metaG) <- c('abundance', 'pathway')
-strep_630_metaG$pathway[is.na(strep_630_metaG$pathway)] <- 'Unannotated'
-strep_630_metaG$abundance <- as.numeric(strep_630_metaG$abundance)
-strep_630_metaG <- merge(strep_630_metaG, simp, by='pathway')
-noabx_mock_metaG <- as.data.frame(cbind(as.character(noabx_raw_reads$noabx_mock_metaG_reads), as.character(noabx_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(noabx_mock_metaG) <- c('abundance', 'pathway')
-noabx_mock_metaG$pathway[is.na(noabx_mock_metaG$pathway)] <- 'Unannotated'
-noabx_mock_metaG$abundance <- as.numeric(noabx_mock_metaG$abundance)
-noabx_mock_metaG <- merge(noabx_mock_metaG, simp, by='pathway')
-cef_mock_metaT <- as.data.frame(cbind(as.character(cef_raw_reads$cef_mock_metaT_reads), as.character(cef_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(cef_mock_metaT) <- c('abundance', 'pathway')
-cef_mock_metaT$pathway[is.na(cef_mock_metaT$pathway)] <- 'Unannotated'
-cef_mock_metaT$abundance <- as.numeric(cef_mock_metaT$abundance)
-cef_mock_metaT <- merge(cef_mock_metaT, simp, by='pathway')
-cef_630_metaT <- as.data.frame(cbind(as.character(cef_raw_reads$cef_630_metaT_reads), as.character(cef_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(cef_630_metaT) <- c('abundance', 'pathway')
-cef_630_metaT$pathway[is.na(cef_630_metaT$pathway)] <- 'Unannotated'
-cef_630_metaT$abundance <- as.numeric(cef_630_metaT$abundance)
-cef_630_metaT <- merge(cef_630_metaT, simp, by='pathway')
-clinda_mock_metaT <- as.data.frame(cbind(as.character(clinda_raw_reads$clinda_mock_metaT_reads), as.character(clinda_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(clinda_mock_metaT) <- c('abundance', 'pathway')
-clinda_mock_metaT$pathway[is.na(clinda_mock_metaT$pathway)] <- 'Unannotated'
-clinda_mock_metaT$abundance <- as.numeric(clinda_mock_metaT$abundance)
-clinda_mock_metaT <- merge(clinda_mock_metaT, simp, by='pathway')
-clinda_630_metaT <- as.data.frame(cbind(as.character(clinda_raw_reads$clinda_630_metaT_reads), as.character(clinda_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(clinda_630_metaT) <- c('abundance', 'pathway')
-clinda_630_metaT$pathway[is.na(clinda_630_metaT$pathway)] <- 'Unannotated'
-clinda_630_metaT$abundance <- as.numeric(clinda_630_metaT$abundance)
-clinda_630_metaT <- merge(clinda_630_metaT, simp, by='pathway')
-strep_mock_metaT <- as.data.frame(cbind(as.character(strep_raw_reads$strep_mock_metaT_reads), as.character(strep_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(strep_mock_metaT) <- c('abundance', 'pathway')
-strep_mock_metaT$pathway[is.na(strep_mock_metaT$pathway)] <- 'Unannotated'
-strep_mock_metaT$abundance <- as.numeric(strep_mock_metaT$abundance)
-strep_mock_metaT <- merge(strep_mock_metaT, simp, by='pathway')
-strep_630_metaT <- as.data.frame(cbind(as.character(strep_raw_reads$strep_630_metaT_reads), as.character(strep_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(strep_630_metaT) <- c('abundance', 'pathway')
-strep_630_metaT$pathway[is.na(strep_630_metaT$pathway)] <- 'Unannotated'
-strep_630_metaT$abundance <- as.numeric(strep_630_metaT$abundance)
-strep_630_metaT <- merge(strep_630_metaT, simp, by='pathway')
-noabx_mock_metaT <- as.data.frame(cbind(as.character(noabx_raw_reads$noabx_mock_metaT_reads), as.character(noabx_raw_reads$pathways)), stringsAsFactors=FALSE)
-colnames(noabx_mock_metaT) <- c('abundance', 'pathway')
-noabx_mock_metaT$pathway[is.na(noabx_mock_metaT$pathway)] <- 'Unannotated'
-noabx_mock_metaT$abundance <- as.numeric(noabx_mock_metaT$abundance)
-noabx_mock_metaT <- merge(noabx_mock_metaT, simp, by='pathway')
-rm(simp, cef_raw_reads, clinda_raw_reads, strep_raw_reads, noabx_raw_reads)
-
-# Remove groups with no reads
-cef_630_metaG <- subset(cef_630_metaG, abundance > 0)
-cef_mock_metaG <- subset(cef_mock_metaG, abundance > 0)
-cef_630_metaT <- subset(cef_630_metaT, abundance > 0)
-cef_mock_metaT <- subset(cef_mock_metaT, abundance > 0)
-strep_630_metaG <- subset(strep_630_metaG, abundance > 0)
-strep_mock_metaG <- subset(strep_mock_metaG, abundance > 0)
-strep_630_metaT <- subset(strep_630_metaT, abundance > 0)
-strep_mock_metaT <- subset(strep_mock_metaT, abundance > 0)
-clinda_630_metaG <- subset(clinda_630_metaG, abundance > 0)
-clinda_mock_metaG <- subset(clinda_mock_metaG, abundance > 0)
-clinda_630_metaT <- subset(clinda_630_metaT, abundance > 0)
-clinda_mock_metaT <- subset(clinda_mock_metaT, abundance > 0)
-noabx_mock_metaG <- subset(noabx_mock_metaG, abundance > 0)
-noabx_mock_metaT <- subset(noabx_mock_metaT, abundance > 0)
-
-# Tabulate results
-cef_mock_metaG <- as.data.frame(table(cef_mock_metaG$simplified))
-cef_mock_metaG <- subset(cef_mock_metaG, Freq != 0)
-cef_630_metaG <- as.data.frame(table(cef_630_metaG$simplified))
-cef_630_metaG <- subset(cef_630_metaG, Freq != 0)
-clinda_mock_metaG <- as.data.frame(table(clinda_mock_metaG$simplified))
-clinda_mock_metaG <- subset(clinda_mock_metaG, Freq != 0)
-clinda_630_metaG <- as.data.frame(table(clinda_630_metaG$simplified))
-clinda_630_metaG <- subset(clinda_630_metaG, Freq != 0)
-strep_mock_metaG <- as.data.frame(table(strep_mock_metaG$simplified))
-strep_mock_metaG <- subset(strep_mock_metaG, Freq != 0)
-strep_630_metaG <- as.data.frame(table(strep_630_metaG$simplified))
-strep_630_metaG <- subset(strep_630_metaG, Freq != 0)
-noabx_mock_metaG <- as.data.frame(table(noabx_mock_metaG$simplified))
-noabx_mock_metaG <- subset(noabx_mock_metaG, Freq != 0)
-cef_mock_metaT <- as.data.frame(table(cef_mock_metaT$simplified))
-cef_mock_metaT <- subset(cef_mock_metaT, Freq != 0)
-cef_630_metaT <- as.data.frame(table(cef_630_metaT$simplified))
-cef_630_metaT <- subset(cef_630_metaT, Freq != 0)
-clinda_mock_metaT <- as.data.frame(table(clinda_mock_metaT$simplified))
-clinda_mock_metaT <- subset(clinda_mock_metaT, Freq != 0)
-clinda_630_metaT <- as.data.frame(table(clinda_630_metaT$simplified))
-clinda_630_metaT <- subset(clinda_630_metaT, Freq != 0)
-strep_mock_metaT <- as.data.frame(table(strep_mock_metaT$simplified))
-strep_mock_metaT <- subset(strep_mock_metaT, Freq != 0)
-strep_630_metaT <- as.data.frame(table(strep_630_metaT$simplified))
-strep_630_metaT <- subset(strep_630_metaT, Freq != 0)
-noabx_mock_metaT <- as.data.frame(table(noabx_mock_metaT$simplified))
-noabx_mock_metaT <- subset(noabx_mock_metaT, Freq != 0)
-
-# Combine treatment types
-cef <- merge(cef_mock_metaG, cef_mock_metaT, by='Var1', all=TRUE)
-colnames(cef) <- c('Var1','cef_mock_metaG','cef_mock_metaT')
-cef <- merge(cef, cef_630_metaT, by='Var1', all=TRUE)
-colnames(cef) <- c('pathway','Metagenome','Mock','CDI')
-cef[is.na(cef)] <- 0
-cef$pathway <- gsub('_', ' ', cef$pathway)
-rownames(cef) <- cef$pathway
-cef$pathway <- NULL
-strep <- merge(strep_mock_metaG, strep_mock_metaT, by='Var1', all=TRUE)
-colnames(strep) <- c('Var1','strep_mock_metaG','strep_mock_metaT')
-strep <- merge(strep, strep_630_metaT, by='Var1', all=TRUE)
-colnames(strep) <- c('pathway','Metagenome','Mock','CDI')
-strep[is.na(strep)] <- 0
-strep$pathway <- gsub('_', ' ', strep$pathway)
-rownames(strep) <- strep$pathway
-strep$pathway <- NULL
-clinda <- merge(clinda_mock_metaG, clinda_mock_metaT, by='Var1', all=TRUE)
-colnames(clinda) <- c('Var1','clinda_mock_metaG','clinda_mock_metaT')
-clinda <- merge(clinda, clinda_630_metaT, by='Var1', all=TRUE)
-colnames(clinda) <- c('pathway','Metagenome','Mock','CDI')
-clinda[is.na(clinda)] <- 0
-clinda$pathway <- gsub('_', ' ', clinda$pathway)
-rownames(clinda) <- clinda$pathway
-clinda$pathway <- NULL
-noabx <- merge(noabx_mock_metaG, noabx_mock_metaT, by='Var1', all=TRUE)
-colnames(noabx) <- c('pathway','Metagenome','Metatranscriptome')
-noabx[is.na(noabx)] <- 0
-noabx$pathway <- gsub('_', ' ', noabx$pathway)
-rownames(noabx) <- noabx$pathway
-noabx$pathway <- NULL
-rm(strep_630_metaG, strep_mock_metaG, cef_630_metaG, cef_mock_metaG, clinda_630_metaG, clinda_mock_metaG, noabx_mock_metaG,
-   strep_630_metaT, strep_mock_metaT, cef_630_metaT, cef_mock_metaT, clinda_630_metaT, clinda_mock_metaT, noabx_mock_metaT)
-
-# Bin low abundance in Other
-cef_sums <- colSums(cef[,1:3])
-cef <- cef[rowSums(cef) > 15,]
-cef_sums <- cef_sums - colSums(cef) 
-cef <- as.data.frame(t(cef))
-cef$Other <- as.numeric(cef_sums)
-cef <- t(cef)
-strep_sums <- colSums(strep[,1:3])
-strep <- strep[rowSums(strep) > 15,]
-strep_sums <- strep_sums - colSums(strep) 
-strep <- as.data.frame(t(strep))
-strep$Other <- as.numeric(strep_sums)
-strep <- t(strep)
-clinda_sums <- colSums(clinda[,1:3])
-clinda <- clinda[rowSums(clinda) > 15,]
-clinda_sums <- clinda_sums - colSums(clinda) 
-clinda <- as.data.frame(t(clinda))
-clinda$Other <- as.numeric(clinda_sums)
-clinda <- t(clinda)
-noabx_sums <- colSums(noabx[,1:2])
-noabx <- noabx[rowSums(noabx) > 15,]
-noabx_sums <- noabx_sums - colSums(noabx) 
-noabx <- as.data.frame(t(noabx))
-noabx$Other <- as.numeric(noabx_sums)
-noabx <- t(noabx)
-
-```
-
 Following sequencing, metagenomic reads from mock-infected cecal communities were assembled *de novo* into contigs and putative genes were identified resulting in 234,868 (streptomycin), 83,534 (cefoperazone), and 35,681 (clindamycin) likely open reading frames in each metagenome. Of these putative genes, 28.5% were able to be annotated with known function KEGG, and many of these annotations were homologs among species within the dataset. Streptomycin pretreatment resulted in a significantly more diverse community (Fig. S1A) than other groups, so a more diverse metagenome was expected. 2408 unique functionally annotated genes were detected in the metagenome resulting from strptomycin pretreatment, at least 1163 more genes than either cefoperazone or clindamycin (Fig. S5). Also, as expected genes with any detectable transcript in any metatranscriptome were a subset of their corresponding metagenome. Metatranscriptomic read abundances were normalized to corresponding metagenomic coverage per gene followed by even subsampling of reads between conditions in order to create an equal standard of comparison across groups and identify genes with the largest increases in transcription above baseline. To highlight the largest magnitude of difference in transcription, we identified the top 15% genes (Fig. 5A) or pathways (Fig. 5B) in each antibiotic pretreatment group with the highest disparity in normalized cDNA abundance between mock and *C. difficile*-infected groups and cross-referenced the pretreatments. Based on the metabolomic results we hypothesized that pathways with the greatest differences would be related to catabolism of metabolites in established *C. difficile* nutrient niches.
 
 ```{r figure_5, echo=F, warning=F, message=F, results='hide', cache=F}
 
-# Normalized Metatranscriptomes
-cef_normalized_reads <- 'data/read_mapping/cef_normalized_metaT.tsv'
-clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
-strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
-
-# Output plot
-plot_file <- 'results/figures/figure_5CD.pdf'
-
-#--------------------------------------------------------------------------------------------------#
-
 # Read in data
 # Normalized Metatranscriptomes
-cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
-clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
-strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
-
-#--------------------------------------------------------------------------------------------------#
+cef_normalized_reads <- read.delim('data/read_mapping/cef_normalized_metaT.tsv', sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
+clinda_normalized_reads <- read.delim('data/read_mapping/clinda_normalized_metaT.tsv', sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
+strep_normalized_reads <- read.delim('data/read_mapping/strep_normalized_metaT.tsv', sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
 
 # Format data
-
 # Remove C. difficile genes
 cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
 cef_normalized_reads <- cef_normalized_reads[!cef_normalized_reads$organism %in% cdiff_omit,]
 clinda_normalized_reads <- clinda_normalized_reads[!clinda_normalized_reads$organism %in% cdiff_omit,]
 strep_normalized_reads <- strep_normalized_reads[!strep_normalized_reads$organism %in% cdiff_omit,]
 rm(cdiff_omit)
-
 # Screen for those genes that have a gene annotation
 cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', rownames(cef_normalized_reads)),]), ]
 clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', rownames(clinda_normalized_reads)),]), ]
 strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', rownames(strep_normalized_reads)),]), ]
 rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
-
 # Screen for genes with no reads
 cef_annotated[,2:3] <- round(cef_annotated[,2:3])
 cef_annotated <- subset(cef_annotated, rowSums(cef_annotated[,2:3]) != 0)
@@ -1037,7 +714,6 @@ clinda_annotated[,2:3] <- round(clinda_annotated[,2:3])
 clinda_annotated <- subset(clinda_annotated, rowSums(clinda_annotated[,2:3]) != 0)
 strep_annotated[,2:3] <- round(strep_annotated[,2:3])
 strep_annotated <- subset(strep_annotated, rowSums(strep_annotated[,2:3]) != 0)
-
 # Screen out ribosomal genes + hypothetical, putative, and uncharacterized annotations
 cef_annotated <- subset(cef_annotated, !grepl('Ribosomal_RNA*', cef_annotated$description))
 cef_annotated <- subset(cef_annotated, !grepl('ribosomal_RNA*', cef_annotated$description))
@@ -1069,30 +745,12 @@ strep_annotated <- subset(strep_annotated, !grepl('uncharacterized_*', strep_ann
 strep_annotated <- subset(strep_annotated, !grepl('putative_*', strep_annotated$description))
 strep_annotated <- subset(strep_annotated, !grepl('Predicted_*', strep_annotated$description))
 strep_annotated <- subset(strep_annotated, description != 'hypothetical_protein')
-
 # Simplify column names
 colnames(cef_annotated) <- c('gene', 'cef_630_reads', 'cef_mock_reads','organism','description','ko','pathways')
 colnames(clinda_annotated) <- c('gene', 'clinda_630_reads', 'clinda_mock_reads','organism','description','ko','pathways')
 colnames(strep_annotated) <- c('gene', 'strep_630_reads', 'strep_mock_reads','organism','description','ko','pathways')
 
-#--------------------------------------------------------------------------------------------------#
-
-# Write supplementary table panels
-table_s3a <- strep_annotated
-table_s3a$diff <- NULL
-colnames(table_s3a) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
-write.table(table_s3a, file='results/supplement/tables/Table_s3a.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-table_s3b <- cef_annotated
-table_s3b$diff <- NULL
-colnames(table_s3b) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
-write.table(table_s3b, file='results/supplement/tables/Table_s3b.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-table_s3c <- clinda_annotated
-table_s3c$diff <- NULL
-colnames(table_s3c) <- c('KEGG_gene_hit','Normalized_cDNA_Reads(Infected)','Normalized_cDNA_Reads(Mock)')
-write.table(table_s3c, file='results/supplement/tables/Table_s3c.tsv', sep='\t', row.names=FALSE, quote=FALSE)
-rm(table_s3a, table_s3b, table_s3c)
-
-# Calculate and take top differences from top 10%
+# Calculate and take top differences
 cef_10 <- round(nrow(cef_annotated) * 0.15)
 clinda_10 <- round(nrow(clinda_annotated) * 0.15)
 strep_10 <- round(nrow(strep_annotated) * 0.15)
@@ -1108,6 +766,7 @@ strep_annotated$diff <- abs(strep_annotated$strep_630_reads - strep_annotated$st
 strep_annotated <- strep_annotated[order(-strep_annotated$diff),]
 top_strep_genes <- strep_annotated$gene[1:strep_10]
 strep_annotated$diff <- NULL
+rm(cef_10, clinda_10, strep_10)
 
 # Calculate overlap of top differences
 top_cef_clinda_genes <- intersect(top_cef_genes, top_clinda_genes)
@@ -1130,27 +789,7 @@ top_all_genes <- as.numeric(length(top_genes))
 top_cef_genes <- as.numeric(length(top_cef_genes))
 top_clinda_genes <- as.numeric(length(top_clinda_genes))
 top_strep_genes <- as.numeric(length(top_strep_genes))
-
-# Merge treatment groups
-final_annotated <- merge(strep_annotated, cef_annotated, by='gene', all=TRUE)
-final_annotated <- merge(final_annotated, clinda_annotated, by='gene', all=TRUE)
-final_annotated[is.na(final_annotated)] <- 0 # Undetectable genes set to 0
-final_annotated <- subset(final_annotated, final_annotated$gene %in% top_genes)
-rownames(final_annotated) <- final_annotated$description
-final_annotated$gene <- NULL
-final_annotated$organism.x <- NULL
-final_annotated$description.x <- NULL
-final_annotated$ko.x <- NULL
-final_annotated$pathways.x <- NULL
-final_annotated$organism.y <- NULL
-final_annotated$description.y <- NULL
-final_annotated$ko.y <- NULL
-final_annotated$pathways.y <- NULL
-final_annotated$organism <- NULL
-final_annotated$description <- NULL
-final_annotated$ko <- NULL
-final_annotated$pathways <- NULL
-final_annotated <- log2(final_annotated + 1)
+rm(top_genes)
 
 # Aggregate pathways
 cef_pathways <- subset(cef_annotated, !is.na(cef_annotated$pathways))
@@ -1171,6 +810,7 @@ rownames(strep_pathways) <- strep_pathways$Group.1
 strep_pathways$Group.1 <- NULL
 strep_pathways <- subset(strep_pathways, !rownames(strep_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
 colnames(strep_pathways) <- c('strep_630_reads', 'strep_mock_reads')
+rm(cef_annotated, clinda_annotated, strep_annotated)
 
 # Calculate and take top differences
 cef_10 <- round(nrow(cef_pathways) * 0.15)
@@ -1188,6 +828,8 @@ strep_pathways$diff <- abs(strep_pathways$strep_630_reads - strep_pathways$strep
 strep_pathways <- strep_pathways[order(-strep_pathways$diff),]
 top_strep_paths <- rownames(strep_pathways[1:strep_10,])
 strep_pathways$diff <- NULL
+rm(cef_10, clinda_10, strep_10,
+   cef_pathways, clinda_pathways, strep_pathways)
 
 # Calculate overlap of top differences
 top_cef_clinda_paths <- intersect(top_cef_paths, top_clinda_paths)
@@ -1210,19 +852,7 @@ top_all_paths <- as.numeric(length(top_paths))
 top_cef_paths <- as.numeric(length(top_cef_paths))
 top_clinda_paths <- as.numeric(length(top_clinda_paths))
 top_strep_paths <- as.numeric(length(top_strep_paths))
-
-# Merge treatment groups
-final_pathways <- merge(cef_pathways, clinda_pathways, by='row.names', all=TRUE)
-rownames(final_pathways) <- final_pathways$Row.names
-final_pathways$Row.names <- NULL
-final_pathways <- merge(final_pathways, strep_pathways, by='row.names', all=TRUE)
-rownames(final_pathways) <- final_pathways$Row.names
-final_pathways$Row.names <- NULL
-final_pathways[is.na(final_pathways)] <- 0 # Undetectable genes set to 0
-final_pathways <- subset(final_pathways, rownames(final_pathways) %in% top_paths)
-final_pathways <- log2(final_pathways + 1)
-rm(cef_annotated, clinda_annotated, strep_annotated, 
-   cef_pathways, clinda_pathways, strep_pathways)
+rm(top_paths)
 
 ```
 
@@ -1230,55 +860,23 @@ This analysis revealed modest conservation of transcriptional changes induced by
 
 ```{r figure_6, echo=F, warning=F, message=F, results='hide', cache=F}
 
-metadata <- 'data/metadata.tsv'
-
-# Normalized Metatranscriptomes
-cef_normalized_reads <- 'data/read_mapping/cef_normalized_metaT.tsv'
-clinda_normalized_reads <- 'data/read_mapping/clinda_normalized_metaT.tsv'
-strep_normalized_reads <- 'data/read_mapping/strep_normalized_metaT.tsv'
-
-# 16S abundances
-genus_shared <- 'data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared'
-genus_tax <- 'data/16S_analysis/all_treatments.genus.final.taxonomy'
-
-# KEGG taxonomy IDs
-kegg_tax <- 'data/kegg/kegg_taxonomy.tsv'
-
-# Taxonomy colors
-tax_colors <- 'data/taxonomy_color.tsv'
-
-# Output plot
-plot_file <- 'results/figures/figure_6.tiff'
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
 # Read in data
-
-# Metadata
-metadata <- read.delim(metadata, sep='\t', header=TRUE, row.names=1)
-
 # Normalized Metatranscriptomes
-cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, row.names=7)
-clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, row.names=7)
-strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, row.names=7)
-  
+cef_normalized_reads <- read.delim('data/read_mapping/cef_normalized_metaT.tsv', sep='\t', header=TRUE, row.names=7)
+clinda_normalized_reads <- read.delim('data/read_mapping/clinda_normalized_metaT.tsv', sep='\t', header=TRUE, row.names=7)
+strep_normalized_reads <- read.delim('data/read_mapping/strep_normalized_metaT.tsv', sep='\t', header=TRUE, row.names=7)
 # KEGG organism file
-kegg_tax <- read.delim(kegg_tax, sep='\t', header=TRUE)
+kegg_tax <- read.delim('data/kegg/kegg_taxonomy.tsv', sep='\t', header=TRUE)
 kegg_tax[] <- lapply(kegg_tax, as.character)
-
 # 16S data
-genus_shared <- read.delim(genus_shared, sep='\t', header=TRUE, row.names=2)
+genus_shared <- read.delim('data/16S_analysis/all_treatments.0.03.unique_list.0.03.filter.0.03.subsample.shared', sep='\t', header=TRUE, row.names=2)
 genus_shared$label <- NULL
 genus_shared$numOtus <- NULL
-genus_tax <- read.delim(genus_tax, sep='\t', header=TRUE)
+genus_tax <- read.delim('data/16S_analysis/all_treatments.genus.final.taxonomy', sep='\t', header=TRUE)
 rownames(genus_tax) <- genus_tax$OTU
 genus_tax$OTU <- NULL
- 
-# Taxonomy colors
-tax_colors <- read.delim(tax_colors, sep='\t', header=TRUE)
-tax_colors[] <- lapply(tax_colors, as.character)
-
-#-------------------------------------------------------------------------------------------------------------------------#
+# Metadata
+metadata <- read.delim('data/metadata.tsv', sep='\t', header=TRUE, row.names=1)
 
 # Format transcription
 cef_normalized_reads$gene <- NULL
@@ -1287,19 +885,17 @@ clinda_normalized_reads$gene <- NULL
 clinda_normalized_reads[,c(1:2)] <- log2(clinda_normalized_reads[,c(1:2)] + 1)
 strep_normalized_reads$gene <- NULL
 strep_normalized_reads[,c(1:2)] <- log2(strep_normalized_reads[,c(1:2)] + 1)
-
 # Remove those genes without an organism annotation
 cef_annotated <- cef_normalized_reads[!is.na(cef_normalized_reads$organism),]
 clinda_annotated <- clinda_normalized_reads[!is.na(clinda_normalized_reads$organism),]
 strep_annotated <- strep_normalized_reads[!is.na(strep_normalized_reads$organism),]
-
+rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
 # Remove any C. difficile genes with transcription only in infected
 cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
 cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% cdiff_omit))
 clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% cdiff_omit))
 strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% cdiff_omit))
 rm(cdiff_omit)
-
 # Remove all possible mammalian genes
 mamm_omit <- c('fab','cfa','ggo','hgl','hsa','mcc','mdo','pon','aml',
                'ptr','rno','shr','ssc','aml','bta','cge','ecb',
@@ -1308,7 +904,6 @@ strep_annotated <- subset(strep_annotated, !(strep_annotated$organism %in% mamm_
 cef_annotated <- subset(cef_annotated, !(cef_annotated$organism %in% mamm_omit))
 clinda_annotated <- subset(clinda_annotated, !(clinda_annotated$organism %in% mamm_omit))
 rm(mamm_omit)
-
 # Calculate correlation coefficients
 strep_corr <- as.character(round(cor.test(strep_annotated[,2], strep_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
 cef_corr <- as.character(round(cor.test(cef_annotated[,2], cef_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
@@ -1348,7 +943,7 @@ clinda_genus$streptomycin <- NULL
 strep_genus <- genus_tax_agg_metadata_shared
 strep_genus$clindamycin <- NULL
 strep_genus$cefoperazone <- NULL
-rm(genus_tax_agg_shared, genus_tax_agg_metadata_shared)
+rm(genus_tax_agg_shared, genus_tax_agg_metadata_shared, metadata)
 
 # Using previously defined lines, find outliers to y = x
 strep_630_outliers <- subset(strep_annotated, strep_annotated$strep_630_metaT_reads > strep_annotated$strep_mock_metaT_reads + 2)
@@ -1357,14 +952,7 @@ cef_630_outliers <- subset(cef_annotated, cef_annotated$cef_630_metaT_reads > ce
 cef_mock_outliers <- subset(cef_annotated, cef_annotated$cef_mock_metaT_reads > cef_annotated$cef_630_metaT_reads + 2)
 clinda_630_outliers <- clinda_annotated[(clinda_annotated$clinda_630_metaT_reads > clinda_annotated$clinda_mock_metaT_reads + 2),]
 clinda_mock_outliers <- clinda_annotated[(clinda_annotated$clinda_mock_metaT_reads > clinda_annotated$clinda_630_metaT_reads + 2),]
-
-# Remove outliers from the rest of the genes
-strep_annotated <- strep_annotated[!row.names(strep_annotated) %in% row.names(strep_630_outliers), ]
-strep_annotated <- strep_annotated[!row.names(strep_annotated) %in% row.names(strep_mock_outliers), ]
-cef_annotated <- cef_annotated[!row.names(cef_annotated) %in% row.names(cef_630_outliers), ]
-cef_annotated <- cef_annotated[!row.names(cef_annotated) %in% row.names(cef_mock_outliers), ]
-clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_630_outliers), ]
-clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_mock_outliers), ]
+rm(strep_annotated, cef_annotated, clinda_annotated)
 
 # Calculate mean distance of outliers to x=y
 dists_630 <- c()
@@ -1375,8 +963,8 @@ dists_mock <- c()
 for (i in 1:nrow(strep_mock_outliers)){
   dists_mock[i] <- dist_xy(c(strep_mock_outliers$strep_630_metaT_reads[i], strep_mock_outliers$strep_mock_metaT_reads[i]))
 }
-round(mean(c(dists_630, dists_mock)), 3)
-as.numeric(length(c(dists_630, dists_mock)))
+strep_mean_dist <- as.character(round(mean(c(dists_630, dists_mock)), 3))
+strep_outs <- as.character(as.numeric(length(c(dists_630, dists_mock))))
 dists_630 <- c()
 for (i in 1:nrow(cef_630_outliers)){
   dists_630[i] <- dist_xy(c(cef_630_outliers$cef_630_metaT_reads[i], cef_630_outliers$cef_mock_metaT_reads[i]))
@@ -1385,8 +973,8 @@ dists_mock <- c()
 for (i in 1:nrow(cef_mock_outliers)){
   dists_mock[i] <- dist_xy(c(cef_mock_outliers$cef_630_metaT_reads[i], cef_mock_outliers$cef_mock_metaT_reads[i]))
 }
-round(mean(c(dists_630, dists_mock)), 3)
-as.numeric(length(c(dists_630, dists_mock)))
+cef_mean_dist <- as.character(round(mean(c(dists_630, dists_mock)), 3))
+cef_outs <- as.character(as.numeric(length(c(dists_630, dists_mock))))
 dists_630 <- c()
 for (i in 1:nrow(clinda_630_outliers)){
   dists_630[i] <- dist_xy(c(clinda_630_outliers$clinda_630_metaT_reads[i], clinda_630_outliers$clinda_mock_metaT_reads[i]))
@@ -1395,13 +983,9 @@ dists_mock <- c()
 for (i in 1:nrow(clinda_mock_outliers)){
   dists_mock[i] <- dist_xy(c(clinda_mock_outliers$clinda_630_metaT_reads[i], clinda_mock_outliers$clinda_mock_metaT_reads[i]))
 }
-round(mean(c(dists_630, dists_mock)), 3)
-as.numeric(length(c(dists_630, dists_mock)))
-rm(dists_630, dists_mock)
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Break down outliers into taxonomic groups
+clinda_mean_dist <- as.character(round(mean(c(dists_630, dists_mock)), 3))
+clinda_outs <- as.character(as.numeric(length(c(dists_630, dists_mock))))
+rm(dists_630, dists_mock, i)
 
 # Drop levels
 strep_630_outliers[] <- lapply(strep_630_outliers, as.character)
@@ -1410,9 +994,6 @@ cef_630_outliers[] <- lapply(cef_630_outliers, as.character)
 cef_mock_outliers[] <- lapply(cef_mock_outliers, as.character)
 clinda_630_outliers[] <- lapply(clinda_630_outliers, as.character)
 clinda_mock_outliers[] <- lapply(clinda_mock_outliers, as.character)
-strep_annotated[] <- lapply(strep_annotated, as.character)
-cef_annotated[] <- lapply(cef_annotated, as.character)
-clinda_annotated[] <- lapply(clinda_annotated, as.character)
 
 # Save KEGG ID names
 strep_630_outliers$kegg_id <- rownames(strep_630_outliers)
@@ -1421,9 +1002,6 @@ cef_630_outliers$kegg_id <- rownames(cef_630_outliers)
 cef_mock_outliers$kegg_id <- rownames(cef_mock_outliers)
 clinda_630_outliers$kegg_id <- rownames(clinda_630_outliers)
 clinda_mock_outliers$kegg_id <- rownames(clinda_mock_outliers)
-strep_annotated$kegg_id <- rownames(strep_annotated)
-cef_annotated$kegg_id <- rownames(cef_annotated)
-clinda_annotated$kegg_id <- rownames(clinda_annotated)
 
 # Merge with KEGG taxonomy
 strep_630_outliers <- merge(x=strep_630_outliers, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
@@ -1450,37 +1028,7 @@ clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=kegg_tax, by.x='organism
 clinda_mock_outliers$org_code <- NULL
 clinda_mock_outliers$clinda_630_metaT_reads <- as.numeric(clinda_mock_outliers$clinda_630_metaT_reads)
 clinda_mock_outliers$clinda_mock_metaT_reads <- as.numeric(clinda_mock_outliers$clinda_mock_metaT_reads)
-strep_annotated <- merge(x=strep_annotated, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
-strep_annotated$org_code <- NULL
-strep_annotated$strep_630_metaT_reads <- as.numeric(strep_annotated$strep_630_metaT_reads)
-strep_annotated$strep_mock_metaT_reads <- as.numeric(strep_annotated$strep_mock_metaT_reads)
-cef_annotated <- merge(x=cef_annotated, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
-cef_annotated$org_code <- NULL
-cef_annotated$cef_630_metaT_reads <- as.numeric(cef_annotated$cef_630_metaT_reads)
-cef_annotated$cef_mock_metaT_reads <- as.numeric(cef_annotated$cef_mock_metaT_reads)
-clinda_annotated <- merge(x=clinda_annotated, y=kegg_tax, by.x='organism', by.y='org_code', all.x=TRUE)
-clinda_annotated$org_code <- NULL
-clinda_annotated$clinda_630_metaT_reads <- as.numeric(clinda_annotated$clinda_630_metaT_reads)
-clinda_annotated$clinda_mock_metaT_reads <- as.numeric(clinda_annotated$clinda_mock_metaT_reads)
 rm(kegg_tax)
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Get points ready for plotting
-
-# Define colors based on genus
-strep_630_outliers <- merge(x=strep_630_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
-strep_630_outliers$color[is.na(strep_630_outliers$color)] <- 'white'
-strep_mock_outliers <- merge(x=strep_mock_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
-strep_mock_outliers$color[is.na(strep_mock_outliers$color)] <- 'white'
-cef_630_outliers <- merge(x=cef_630_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
-cef_630_outliers$color[is.na(cef_630_outliers$color)] <- 'white'
-cef_mock_outliers <- merge(x=cef_mock_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
-cef_mock_outliers$color[is.na(cef_mock_outliers$color)] <- 'white'
-clinda_630_outliers <- merge(x=clinda_630_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
-clinda_630_outliers$color[is.na(clinda_630_outliers$color)] <- 'white'
-clinda_mock_outliers <- merge(x=clinda_mock_outliers, y=tax_colors, by.x='genus', by.y='taxonomy', all.x=TRUE)
-clinda_mock_outliers$color[is.na(clinda_mock_outliers$color)] <- 'white'
 
 # Find difference in expression for outliers
 strep_outliers <- rbind(strep_630_outliers, strep_mock_outliers)
@@ -1493,13 +1041,13 @@ strep_difference <- aggregate(. ~ genus, data=strep_difference, FUN=sum)
 strep_difference <- merge(strep_difference, strep_gene_count, by='genus')
 strep_difference$difference <- strep_difference$difference / strep_difference$count
 strep_difference$count <- NULL
-rm(strep_gene_count)
+rm(strep_gene_count, strep_630_outliers, strep_mock_outliers)
 strep_difference$difference <- log2(as.numeric(as.character(strep_difference$difference)) + 1)
 strep_genus_diff <- merge(strep_genus, strep_difference, by.x='row.names', by.y='genus')
 rownames(strep_genus_diff) <- strep_genus_diff$Row.names
 strep_genus_diff$Row.names <- NULL
 colnames(strep_genus_diff) <- c('relAbund','transcriptChange')
-rm(strep_outliers, strep_difference, strep_genus)
+rm(strep_difference, strep_genus)
 cef_outliers <- rbind(cef_630_outliers, cef_mock_outliers)
 cef_difference <- abs(((2^cef_outliers$cef_mock_metaT_reads) - 1) - ((2^cef_outliers$cef_630_metaT_reads) - 1))
 cef_difference <- as.data.frame(cbind(cef_outliers$genus, cef_difference))
@@ -1510,13 +1058,13 @@ cef_difference <- aggregate(. ~ genus, data=cef_difference, FUN=sum)
 cef_difference <- merge(cef_difference, cef_gene_count, by='genus')
 cef_difference$difference <- cef_difference$difference / cef_difference$count
 cef_difference$count <- NULL
-rm(cef_gene_count)
+rm(cef_gene_count, cef_630_outliers, cef_mock_outliers)
 cef_difference$difference <- log2(as.numeric(as.character(cef_difference$difference)) + 1)
 cef_genus_diff <- merge(cef_genus, cef_difference, by.x='row.names', by.y='genus')
 rownames(cef_genus_diff) <- cef_genus_diff$Row.names
 cef_genus_diff$Row.names <- NULL
 colnames(cef_genus_diff) <- c('relAbund','transcriptChange')
-rm(cef_outliers, cef_difference, cef_genus)
+rm(cef_difference, cef_genus)
 clinda_outliers <- rbind(clinda_630_outliers, clinda_mock_outliers)
 clinda_difference <- abs(((2^clinda_outliers$clinda_mock_metaT_reads) - 1) - ((2^clinda_outliers$clinda_630_metaT_reads) - 1))
 clinda_difference <- as.data.frame(cbind(clinda_outliers$genus, clinda_difference))
@@ -1527,39 +1075,23 @@ clinda_difference <- aggregate(. ~ genus, data=clinda_difference, FUN=sum)
 clinda_difference <- merge(clinda_difference, clinda_gene_count, by='genus')
 clinda_difference$difference <- clinda_difference$difference / clinda_difference$count
 clinda_difference$count <- NULL
-rm(clinda_gene_count)
+rm(clinda_gene_count, clinda_630_outliers, clinda_mock_outliers)
 clinda_difference$difference <- log2(as.numeric(as.character(clinda_difference$difference)) + 1)
 clinda_genus_diff <- merge(clinda_genus, clinda_difference, by.x='row.names', by.y='genus')
 rownames(clinda_genus_diff) <- clinda_genus_diff$Row.names
 clinda_genus_diff$Row.names <- NULL
 colnames(clinda_genus_diff) <- c('relAbund','transcriptChange')
-rm(clinda_outliers, clinda_difference, clinda_genus)
+rm(clinda_difference, clinda_genus)
+rm(strep_outliers, cef_outliers, clinda_outliers)
 
-# Convert relative abundance to categorical variable of ranges
-cef_genus_diff_01 <- subset(cef_genus_diff, cef_genus_diff$relAbund < 0.1)
-cef_genus_diff_01_1 <- subset(cef_genus_diff, cef_genus_diff$relAbund >= 0.1 & cef_genus_diff$relAbund < 1)
-cef_genus_diff_1_10 <- subset(cef_genus_diff, cef_genus_diff$relAbund >= 1 & cef_genus_diff$relAbund <= 10)
-cef_genus_diff_10_100 <- subset(cef_genus_diff, cef_genus_diff$relAbund > 10 & cef_genus_diff$relAbund <= 100)
-rm(cef_genus_diff)
-clinda_genus_diff_01 <- subset(clinda_genus_diff, clinda_genus_diff$relAbund < 0.1)
-clinda_genus_diff_01_1 <- subset(clinda_genus_diff, clinda_genus_diff$relAbund >= 0.1 & clinda_genus_diff$relAbund < 1)
-clinda_genus_diff_1_10 <- subset(clinda_genus_diff, clinda_genus_diff$relAbund >= 1 & clinda_genus_diff$relAbund <= 10)
-clinda_genus_diff_10_100 <- subset(clinda_genus_diff, clinda_genus_diff$relAbund > 10 & clinda_genus_diff$relAbund <= 100)
-rm(clinda_genus_diff)
-strep_genus_diff_01 <- subset(strep_genus_diff, strep_genus_diff$relAbund < 0.1)
-strep_genus_diff_01_1 <- subset(strep_genus_diff, strep_genus_diff$relAbund >= 0.1 & strep_genus_diff$relAbund < 1)
-strep_genus_diff_1_10 <- subset(strep_genus_diff, strep_genus_diff$relAbund >= 1 & strep_genus_diff$relAbund <= 10)
-strep_genus_diff_10_100 <- subset(strep_genus_diff, strep_genus_diff$relAbund > 10 & strep_genus_diff$relAbund <= 100)
-rm(strep_genus_diff)
-
-# Perform some final calculations
 # Spearman correlation of 16S and metatransctiptomic change
-strep_16S_r <- as.character(round(cor.test(strep_difference$transcriptDiff, strep_difference$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
-strep_16S_p <- as.character(round(cor.test(strep_difference$transcriptDiff, strep_difference$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
-cef_16S_r <- as.character(round(cor.test(cef_difference$transcriptDiff, cef_difference$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
-cef_16S_p <- as.character(round(cor.test(cef_difference$transcriptDiff, cef_difference$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
-clinda_16S_r <- as.character(round(cor.test(clinda_difference$transcriptDiff, clinda_difference$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
-clinda_16S_p <- as.character(round(cor.test(clinda_difference$transcriptDiff, clinda_difference$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
+strep_16S_r <- as.character(round(cor.test(strep_genus_diff$transcriptChange, strep_genus_diff$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
+strep_16S_p <- as.character(round(cor.test(strep_genus_diff$transcriptChange, strep_genus_diff$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
+cef_16S_r <- as.character(round(cor.test(cef_genus_diff$transcriptChange, cef_genus_diff$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
+cef_16S_p <- as.character(round(cor.test(cef_genus_diff$transcriptChange, cef_genus_diff$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
+clinda_16S_r <- as.character(round(cor.test(clinda_genus_diff$transcriptChange, clinda_genus_diff$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
+clinda_16S_p <- as.character(round(cor.test(clinda_genus_diff$transcriptChange, clinda_genus_diff$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
+rm(strep_genus_diff, cef_genus_diff, clinda_genus_diff)
 
 ```
 
