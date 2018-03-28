@@ -38,7 +38,7 @@ for (dep in deps){
   } 
   library(dep, verbose=FALSE, character.only=TRUE)
 }
-rm(dep)
+rm(dep, deps)
 # *P* = `r gf_vs_strep_spore_p`
 
 # Filter out columns that have values in at least 3 samples (ignores first column if needed)
@@ -105,8 +105,6 @@ susceptibilityRF <- function(feature_data){
   
   # Filter to significant features (Strobl 2002) and sort
   sigFeatRF <- as.data.frame(subset(featRF, featRF$MeanDecreaseAccuracy > (abs(min(featRF$MeanDecreaseAccuracy)))))
-  featRF <- featRF[order(-featRF$MeanDecreaseAccuracy),]
-  featRF$features <- NULL
   
   # Subset trainng data to significant features
   finalFeat <- training_data[,which(rownames(sigFeatRF) %in% colnames(training_data))]
@@ -114,10 +112,45 @@ susceptibilityRF <- function(feature_data){
   return(finalFeat)
 }
 
+# Significant feature filter with random forest (2 classes only)
+infectionRF <- function(feature_data){
+  
+  # Breiman (2001). Random Forests. Machine Learning.
+  lvls <- as.vector(unique(feature_data$infection))
+  x <- round(length(rownames(feature_data[which(feature_data$infection==lvls[1]),])) * 0.623)
+  y <- round(length(rownames(feature_data[which(feature_data$infection==lvls[2]),])) * 0.623)
+  z <- max(c(round(x / y), round(y / x))) * 3
+  nTrees <- round(ncol(feature_data) - 1) * z
+  mTries <- round(sqrt(ncol(feature_data) - 1))
+  rm(lvls, x, y, z)
+  
+  # Finish reformatting data
+  training_data <- feature_data
+  infection <- training_data$infection
+  infection <- as.factor(infection)
+  training_data$infection <- NULL
+  names(training_data) <- make.names(names(training_data))
+  training_data <- data.matrix(training_data)
+  training_data[is.na(training_data)] <- 0
+  
+  # Run random forest and get MDA values
+  set.seed(906801)
+  modelRF <- randomForest(infection ~ ., data=training_data, 
+                          importance=TRUE, replace=FALSE, err.rate=TRUE, 
+                          ntree=nTrees, mtry=mTries)
+  featRF <- importance(modelRF, type=1)
+  featRF <- as.data.frame(featRF)
+  featRF$features <- rownames(featRF)
+  rm(modelRF)
+  
+  # Filter to significant features (Strobl 2002) and sort
+  sigFeatRF <- as.data.frame(subset(featRF, featRF$MeanDecreaseAccuracy > (abs(min(featRF$MeanDecreaseAccuracy)))))
+  sigFeatRF <- sigFeatRF[order(-sigFeatRF$MeanDecreaseAccuracy),]
+  return(sigFeatRF)
+}
+
 # Significant feature filter with random forest (2 or more classes)
 abxRF <- function(feature_data){
-
-#abx_rf <- featureselect_RF(abx_metabolome, 'abx')
 
   mTries <- round(sqrt(ncol(feature_data) - 1))
 
@@ -141,8 +174,6 @@ abxRF <- function(feature_data){
   
   # Filter to significant features (Strobl 2002) and sort
   sigFeatRF <- as.data.frame(subset(featRF, featRF$MeanDecreaseAccuracy > (abs(min(featRF$MeanDecreaseAccuracy)))))
-  featRF <- featRF[order(-featRF$MeanDecreaseAccuracy),]
-  featRF$features <- NULL
   
   # Subset trainng data to significant features
   finalFeat <- training_data[,which(rownames(sigFeatRF) %in% colnames(training_data))]
@@ -277,7 +308,8 @@ strep_mock_diversity <- diversity(strep_otu[rownames(strep_otu) %in% c('StrepC4M
                                                     'StrepC5M1','StrepC5M2','StrepC5M3',
                                                     'StrepC6M1','StrepC6M2','StrepC6M3'), ], 'invsimpson')
 noabx_diversity <- diversity(shared_otu[rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-                                                    'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ], 'invsimpson')
+                                                    'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ], 
+                             'invsimpson')
 
 # Test differences in diversity
 # Untreated vs abx
@@ -370,9 +402,9 @@ metabolome$abx <- NULL
 metabolome$infection <- NULL
 
 # Calculate significant differences
-noabx_p <- as.character(round(adonis(metabolome[,2:ncol(metabolome)]~factor(metabolome$susceptibility),
+noabx_sus_p <- as.character(round(adonis(metabolome[,2:ncol(metabolome)]~factor(metabolome$susceptibility),
                                      data=metabolome, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3))
-abx_p <- as.character(round(adonis(abx_metabolome[,2:ncol(abx_metabolome)]~factor(abx_metabolome$abx),
+abx_sus_p <- as.character(round(adonis(abx_metabolome[,2:ncol(abx_metabolome)]~factor(abx_metabolome$abx),
                                    data=abx_metabolome, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3))
 metabolome$susceptibility <- NULL
 abx_metabolome$abx <-  NULL
@@ -446,44 +478,25 @@ Following this unsupervised approach for identification of susceptibility marker
 
 ```{r figure_s3, echo=F, warning=F, message=F, results='hide', cache=F}
 
-setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/')
-
-
-# Input Metabolomes
-metabolome_file <- 'data/metabolome/scaled_intensities.log10.tsv'
-
-# Input Metadata
-metadata_file <- 'data/metadata.tsv'
-
-#----------------#
-
 # Read in data
-
 # Metabolomes
-metabolome <- read.delim(metabolome_file, sep='\t', header=TRUE)
-rm(metabolome_file)
-
+metabolome <- read.delim('data/metabolome/scaled_intensities.log10.tsv', sep='\t', header=TRUE)
 # Metadata
-metadata <- read.delim(metadata_file, sep='\t', header=T, row.names=1)
-rm(metadata_file)
-
-#-------------------------------------------------------------------------------------------------------------------------#
+metadata <- read.delim('data/metadata.tsv', sep='\t', header=T, row.names=1)
 
 # Format data
-
 # Metadata
 metadata$type <- NULL
 metadata$cage <- NULL
 metadata$mouse <- NULL
 metadata$gender <- NULL
-
 # Metabolomes
 metabolome <- metabolome[,!colnames(metabolome) %in% c('GfC1M1','GfC1M2','GfC1M3', 
                                                        'GfC2M1','GfC2M2','GfC2M3', 
                                                        'GfC3M1','GfC3M2','GfC3M3', 
                                                        'GfC4M1','GfC4M2','GfC4M3', 
                                                        'GfC5M1','GfC5M2','GfC5M3', 
-                                                       'GfC6M1','GfC6M2','GfC6M3')] # Germfree
+                                                       'GfC6M1','GfC6M2','GfC6M3')] # Remove germfree
 rownames(metabolome) <- metabolome$BIOCHEMICAL
 metabolome$BIOCHEMICAL <- NULL
 metabolome$PUBCHEM <- NULL
@@ -492,55 +505,16 @@ metabolome$SUB_PATHWAY <- NULL
 metabolome$SUPER_PATHWAY <- NULL
 metabolome <- as.data.frame(t(metabolome))
 
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Stats
 # Prep data
 metabolome_subset <- clean_merge(metadata, metabolome)
 inf_subset <- subset(metabolome_subset, abx != 'none')
 inf_subset$susceptibility <- NULL
 inf_subset$abx <- NULL
+rm(metabolome_subset)
 
 # Calculate significant differences
-inf_p <- round(adonis(abx_subset[,2:ncol(inf_subset)]~factor(inf_subset$infection), data=inf_subset, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3)
-
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Calculate axes
-# Metabolome - all
-metabolome_nmds <- metaMDS(metabolome, k=2, trymax=100, distance='bray')$points
-metabolome_nmds <- clean_merge(metadata, metabolome_nmds)
-metabolome_nmds$MDS1 <- metabolome_nmds$MDS1 + 0.15
-metabolome_nmds$MDS2 <- metabolome_nmds$MDS2 - 0.05
-
-# Subset NMDS axes to color points - all
-metabolome_cefoperazone <- subset(metabolome_nmds, abx == 'cefoperazone')
-metabolome_cefoperazone_630 <- subset(metabolome_cefoperazone, infection == '630')
-metabolome_cefoperazone_mock <- subset(metabolome_cefoperazone, infection == 'mock')
-rm(metabolome_cefoperazone)
-metabolome_clindamycin <- subset(metabolome_nmds, abx == 'clindamycin')
-metabolome_clindamycin_630 <- subset(metabolome_clindamycin, infection == '630')
-metabolome_clindamycin_mock <- subset(metabolome_clindamycin, infection == 'mock')
-rm(metabolome_clindamycin)
-metabolome_streptomycin <- subset(metabolome_nmds, abx == 'streptomycin')
-metabolome_streptomycin_630 <- subset(metabolome_streptomycin, infection == '630')
-metabolome_streptomycin_mock <- subset(metabolome_streptomycin, infection == 'mock')
-rm(metabolome_streptomycin)
-metabolome_noantibiotics <- subset(metabolome_nmds, abx == 'none')
-
-
-# Separate analysis for abx only
-abx_metabolome <- metabolome[,!colnames(metabolome) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-                                                           'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5')] # Untreated SPF samples 
-
-# Calculate axes and merge with metadata
-abx_metabolome_nmds <- metaMDS(abx_metabolome, k=2, trymax=100)$points
-abx_metabolome_nmds <- clean_merge(metadata, abx_metabolome_nmds)
-abx_metabolome_nmds$MDS1 <- abx_metabolome_nmds$MDS1 - 0.05
-metabolome_abx_630 <- subset(abx_metabolome_nmds, infection == '630')
-metabolome_abx_mock <- subset(abx_metabolome_nmds, infection == 'mock')
-
-#-------------------------------------------------------------------------------------------------------------------------#
+inf_p <- as.character(round(adonis(inf_subset[,2:ncol(inf_subset)]~factor(inf_subset$infection), data=inf_subset, permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
+rm(inf_subset)
 
 # Feature selection
 # Separate groups
@@ -548,55 +522,37 @@ metabolome <- clean_merge(metadata, metabolome)
 infection_metabolome <- subset(metabolome, abx != 'none')
 infection_metabolome$abx <- NULL
 infection_metabolome$susceptibility <- NULL
-rm(metadata)
+rm(metadata, metabolome)
 
-# Random Forest
-inf_rf <- featureselect_RF(infection_metabolome, 'infection')
-
-# Sort and subset top hits
-inf_rf <- inf_rf[order(-inf_rf$MDA),][1:10,]
+# Random Forest and get top hits
+inf_rf <- infectionRF(infection_metabolome)
+inf_rf <- inf_rf[1:10,]
 
 # Subset concentrations
+colnames(infection_metabolome) <- make.names(colnames(infection_metabolome))
 inf_infection_metabolome <- subset(infection_metabolome, infection == '630')[, inf_rf$feature]
 inf_infection_metabolome$infection <- NULL
 mock_infection_metabolome <- subset(infection_metabolome, infection == 'mock')[, inf_rf$feature]
 mock_infection_metabolome$infection <- NULL
-rm(infection_metabolome)
+rm(infection_metabolome, inf_rf)
 
 # Find significant differences
 infection_pvalues <- c()
 for (i in 1:ncol(inf_infection_metabolome)){infection_pvalues[i] <- wilcox.test(inf_infection_metabolome[,i], mock_infection_metabolome[,i], exact=FALSE)$p.value}
-infection_pvalues <- p.adjust(infection_pvalues, method='BH')
+infection_metabolites <- colnames(inf_infection_metabolome)
+infection_pvalues <- as.character(round(p.adjust(infection_pvalues, method='BH'),3))
+rm(inf_infection_metabolome)
 
 ```
 
 ```{r figure_4, echo=F, warning=F, message=F, results='hide', cache=F}
 
-# Metabolomes
-metabolome <- 'data/metabolome/scaled_intensities.log10.tsv'
-aminovalerate <- '~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/exploratory/aminovalerate.tsv'
-
-# Input Metadata
-metadata <- 'data/metadata.tsv'
-
-# Output files
-plot_abc <- 'results/figures/figure_4abc.pdf'
-plot_d <- 'results/figures/figure_4d.pdf'
-plot_e <- 'results/figures/figure_4e.pdf'
-plot_f <- 'results/figures/figure_4f.pdf'
-plot_g <- 'results/figures/figure_4g.pdf'
-
-#----------------#
-
 # Read in data
 # Metabolomes
-metabolome <- read.delim(metabolome, sep='\t', header=TRUE)
-aminovalerate <- read.delim(aminovalerate, sep='\t', header=T)
-
+metabolome <- read.delim('data/metabolome/scaled_intensities.log10.tsv', sep='\t', header=TRUE)
+aminovalerate <- read.delim('exploratory/aminovalerate.tsv', sep='\t', header=T)
 # Metadata
-metadata <- read.delim(metadata, sep='\t', header=T, row.names=1)
-
-#-------------------------------------------------------------------------------------------------------------------------#
+metadata <- read.delim('data/metadata.tsv', sep='\t', header=T, row.names=1)
 
 # Format data
 # Metadata
@@ -604,7 +560,6 @@ metadata$type <- NULL
 metadata$cage <- NULL
 metadata$mouse <- NULL
 metadata$gender <- NULL
-
 # Metabolomes
 rownames(metabolome) <- metabolome$BIOCHEMICAL
 metabolome$BIOCHEMICAL <- NULL
@@ -614,12 +569,8 @@ metabolome$KEGG <- NULL
 metabolome$SUB_PATHWAY <- NULL
 metabolome$SUPER_PATHWAY <- NULL
 metabolome <- as.data.frame(t(metabolome))
-
 aminovalerate <- subset(aminovalerate, abx != 'germfree')
 
-#-------------------------------------------------------------------------------------------------------------------------#
-
-# Ordination
 # Prep data
 metabolome <- clean_merge(metadata, metabolome)
 metabolome <- subset(metabolome, abx != 'germfree')
@@ -634,116 +585,86 @@ strep_metabolome$abx <- NULL
 strep_metabolome$susceptibility <- NULL
 
 # Calculate significant differences
-strep_p <- round(adonis(strep_metabolome[,2:ncol(strep_metabolome)]~factor(strep_metabolome$infection), data=strep_metabolome, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3)
-strep_metabolome$infection <- NULL
-cef_p <- round(adonis(cef_metabolome[,2:ncol(cef_metabolome)]~factor(cef_metabolome$infection), data=cef_metabolome, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3)
-cef_metabolome$infection <- NULL
-clinda_p <- round(adonis(clinda_metabolome[,2:ncol(clinda_metabolome)]~factor(clinda_metabolome$infection), data=clinda_metabolome, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3)
-clinda_metabolome$infection <- NULL
-
-# Calculate axes and merge with metadata
-cef_metabolome_nmds <- metaMDS(cef_metabolome, k=2, trymax=100)$points
-cef_metabolome_nmds <- clean_merge(metadata, cef_metabolome_nmds)
-clinda_metabolome_nmds <- metaMDS(clinda_metabolome, k=2, trymax=100)$points
-clinda_metabolome_nmds <- clean_merge(metadata, clinda_metabolome_nmds)
-strep_metabolome_nmds <- metaMDS(strep_metabolome, k=2, trymax=100)$points
-strep_metabolome_nmds <- clean_merge(metadata, strep_metabolome_nmds)
-rm(cef_metabolome, clinda_metabolome, strep_metabolome)
-
-# Subset to points for plot
-cef_metabolome_nmds$MDS2 <- cef_metabolome_nmds$MDS2 - 0.02
-clinda_metabolome_nmds$MDS1 <- clinda_metabolome_nmds$MDS1 + 0.1
-clinda_metabolome_nmds$MDS2 <- clinda_metabolome_nmds$MDS2 + 0.02
-cef_metabolome_nmds_630 <- subset(cef_metabolome_nmds, infection == '630')
-cef_metabolome_nmds_mock <- subset(cef_metabolome_nmds, infection == 'mock')
-clinda_metabolome_nmds_630 <- subset(clinda_metabolome_nmds, infection == '630')
-clinda_metabolome_nmds_mock <- subset(clinda_metabolome_nmds, infection == 'mock')
-strep_metabolome_nmds_630 <- subset(strep_metabolome_nmds, infection == '630')
-strep_metabolome_nmds_mock <- subset(strep_metabolome_nmds, infection == 'mock')
-
-# Calculate centroids
-cef_metabolome_centoids <- aggregate(cbind(cef_metabolome_nmds$MDS1,cef_metabolome_nmds$MDS2)~cef_metabolome_nmds$infection, data=cef_metabolome_nmds, mean)
-clinda_metabolome_centoids <- aggregate(cbind(clinda_metabolome_nmds$MDS1,clinda_metabolome_nmds$MDS2)~clinda_metabolome_nmds$infection, data=clinda_metabolome_nmds, mean)
-strep_metabolome_centoids <- aggregate(cbind(strep_metabolome_nmds$MDS1,strep_metabolome_nmds$MDS2)~strep_metabolome_nmds$infection, data=strep_metabolome_nmds, mean)
-
-# Amnovalerate data
-aminovalerate_untreated <- subset(aminovalerate, abx == 'none')
-aminovalerate_untreated$abx <- NULL
-colnames(aminovalerate_untreated) <- c('infection', 'substrate')
-aminovalerate_untreated$infection <- factor(aminovalerate_untreated$infection, levels=c('mock','infected'))
-aminovalerate_cef <- subset(aminovalerate, abx == 'cefoperazone')
-aminovalerate_cef$abx <- NULL
-colnames(aminovalerate_cef) <- c('infection', 'substrate')
-aminovalerate_cef$infection <- factor(aminovalerate_cef$infection, levels=c('mock','infected'))
-aminovalerate_strep <- subset(aminovalerate, abx == 'streptomycin')
-aminovalerate_strep$abx <- NULL
-colnames(aminovalerate_strep) <- c('infection', 'substrate')
-aminovalerate_strep$infection <- factor(aminovalerate_strep$infection, levels=c('mock','infected'))
-aminovalerate_clinda <- subset(aminovalerate, abx == 'clindamycin')
-aminovalerate_clinda$abx <- NULL
-colnames(aminovalerate_clinda) <- c('infection', 'substrate')
-aminovalerate_clinda$infection <- factor(aminovalerate_clinda$infection, levels=c('mock','infected'))
-aminovalerate_gf <- subset(aminovalerate, abx == 'germfree')
-aminovalerate_gf$abx <- NULL
-colnames(aminovalerate_gf) <- c('infection', 'substrate')
-aminovalerate_gf$infection <- factor(aminovalerate_gf$infection, levels=c('mock','infected'))
-rm(aminovalerate)
-
-# Feature selection
-# Separate groups
-cef_metabolome <- subset(metabolome, abx == 'cefoperazone')
-cef_metabolome$abx <- NULL
-cef_metabolome$susceptibility <- NULL
-cef_metabolome$infection <- factor(cef_metabolome$infection)
-clinda_metabolome <- subset(metabolome, abx == 'clindamycin')
-clinda_metabolome$abx <- NULL
-clinda_metabolome$susceptibility <- NULL
-clinda_metabolome$infection <- factor(clinda_metabolome$infection)
-strep_metabolome <- subset(metabolome, abx == 'streptomycin')
-strep_metabolome$abx <- NULL
-strep_metabolome$susceptibility <- NULL
+strep_inf_p <- as.character(round(adonis(strep_metabolome[,2:ncol(strep_metabolome)]~factor(strep_metabolome$infection), data=strep_metabolome, permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
 strep_metabolome$infection <- factor(strep_metabolome$infection)
+cef_inf_p <- as.character(round(adonis(cef_metabolome[,2:ncol(cef_metabolome)]~factor(cef_metabolome$infection), data=cef_metabolome,permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
+cef_metabolome$infection <- factor(cef_metabolome$infection)
+clinda_inf_p <- as.character(round(adonis(clinda_metabolome[,2:ncol(clinda_metabolome)]~factor(clinda_metabolome$infection),data=clinda_metabolome, permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
+clinda_metabolome$infection <- factor(clinda_metabolome$infection)
 rm(metadata, metabolome)
 
+# Aminovalerate data
+av_noabx <- subset(aminovalerate, abx == 'none')$aminovalerate
+av_strep_inf <- subset(aminovalerate, abx == 'streptomycin' & infection == 'infected')$aminovalerate
+av_strep_mock <- subset(aminovalerate, abx == 'streptomycin' & infection == 'mock')$aminovalerate
+av_cef_inf <- subset(aminovalerate, abx == 'cefoperazone' & infection == 'infected')$aminovalerate
+av_cef_mock <- subset(aminovalerate, abx == 'cefoperazone' & infection == 'mock')$aminovalerate
+av_clinda_inf <- subset(aminovalerate, abx == 'clindamycin' & infection == 'infected')$aminovalerate
+av_clinda_mock <- subset(aminovalerate, abx == 'clindamycin' & infection == 'mock')$aminovalerate
+rm(aminovalerate)
+
+# Stats
+av_noabx_pval <- c(wilcox.test(av_noabx, av_strep_inf, exact=FALSE)$p.value,
+                   wilcox.test(av_noabx, av_strep_mock, exact=FALSE)$p.value,
+                   wilcox.test(av_noabx, av_cef_inf, exact=FALSE)$p.value,
+                   wilcox.test(av_noabx, av_cef_mock, exact=FALSE)$p.value,
+                   wilcox.test(av_noabx, av_clinda_inf, exact=FALSE)$p.value,
+                   wilcox.test(av_noabx, av_clinda_mock, exact=FALSE)$p.value)
+av_noabx_pval <- as.character(round(p.adjust(av_noabx_pval, method='BH'), 3))
+rm(av_noabx)
+av_strep_pval <- as.character(round(wilcox.test(av_strep_inf, av_strep_mock, exact=FALSE)$p.value, 3))
+rm(av_strep_inf, av_strep_mock)
+av_cef_pval <- as.character(round(wilcox.test(av_cef_inf, av_cef_mock, exact=FALSE)$p.value, 3))
+rm(av_cef_inf, av_cef_mock)
+av_clinda_pval <- as.character(round(wilcox.test(av_clinda_inf, av_clinda_mock, exact=FALSE)$p.value, 3))
+rm(av_clinda_inf, av_clinda_mock)
+
 # Random Forest
-cef_rf <- featureselect_RF(cef_metabolome, 'infection')
-clinda_rf <- featureselect_RF(clinda_metabolome, 'infection')
-strep_rf <- featureselect_RF(strep_metabolome, 'infection')
+cef_rf <- infectionRF(cef_metabolome)
+clinda_rf <- infectionRF(clinda_metabolome)
+strep_rf <- infectionRF(strep_metabolome)
 
 # Sort and subset top hits
-cef_rf <- cef_rf[order(-cef_rf$MDA),][1:5,]
-clinda_rf <- clinda_rf[order(-clinda_rf$MDA),][1:5,]
-strep_rf <- strep_rf[order(-strep_rf$MDA),][1:5,]
+cef_rf <- cef_rf[1:5,]
+clinda_rf <- clinda_rf[1:5,]
+strep_rf <- strep_rf[1:5,]
 
 # Subset concentrations
+colnames(cef_metabolome) <- make.names(colnames(cef_metabolome))
 inf_cef_metabolome <- subset(cef_metabolome, infection == '630')[, cef_rf$feature]
-inf_cef_metabolome$infection<- NULL
+inf_cef_metabolome$infection <- NULL
 mock_cef_metabolome <- subset(cef_metabolome, infection == 'mock')[, cef_rf$feature]
-mock_cef_metabolome$infection<- NULL
-rm(cef_metabolome)
-
+mock_cef_metabolome$infection <- NULL
+rm(cef_metabolome, cef_rf)
+colnames(clinda_metabolome) <- make.names(colnames(clinda_metabolome))
 inf_clinda_metabolome <- subset(clinda_metabolome, infection == '630')[, clinda_rf$feature]
 inf_clinda_metabolome$infection<- NULL
 mock_clinda_metabolome <- subset(clinda_metabolome, infection == 'mock')[, clinda_rf$feature]
 mock_clinda_metabolome$infection<- NULL
-rm(clinda_metabolome)
-
+rm(clinda_metabolome, clinda_rf)
+colnames(strep_metabolome) <- make.names(colnames(strep_metabolome))
 inf_strep_metabolome <- subset(strep_metabolome, infection == '630')[, strep_rf$feature]
 inf_strep_metabolome$infection<- NULL
 mock_strep_metabolome <- subset(strep_metabolome, infection == 'mock')[, strep_rf$feature]
 mock_strep_metabolome$infection<- NULL
-rm(strep_metabolome)
+rm(strep_metabolome, strep_rf)
 
 # Find significant differences
-cef_pvalues <- c()
-for (i in 1:ncol(inf_cef_metabolome)){cef_pvalues[i] <- wilcox.test(inf_cef_metabolome[,i], mock_cef_metabolome[,i], exact=FALSE)$p.value}
-cef_pvalues <- p.adjust(cef_pvalues, method='BH')
-clinda_pvalues <- c()
-for (i in 1:ncol(inf_clinda_metabolome)){clinda_pvalues[i] <- wilcox.test(inf_clinda_metabolome[,i], mock_clinda_metabolome[,i], exact=FALSE)$p.value}
-pvalues <- p.adjust(clinda_pvalues, method='BH')
-strep_pvalues <- c()
-for (i in 1:ncol(inf_strep_metabolome)){strep_pvalues[i] <- wilcox.test(inf_strep_metabolome[,i], mock_strep_metabolome[,i], exact=FALSE)$p.value}
-strep_pvalues <- p.adjust(strep_pvalues, method='BH')
+cef_inf_metab_pvalues <- c()
+for (i in 1:ncol(inf_cef_metabolome)){cef_inf_metab_pvalues[i] <- wilcox.test(inf_cef_metabolome[,i], mock_cef_metabolome[,i], exact=FALSE)$p.value}
+cef_inf_metab_pvalues <- as.character(round(p.adjust(cef_inf_metab_pvalues, method='BH'),3))
+cef_inf_metab_names <- colnames(inf_cef_metabolome)
+rm(inf_cef_metabolome)
+clinda_inf_metab_pvalues <- c()
+for (i in 1:ncol(inf_clinda_metabolome)){clinda_inf_metab_pvalues[i] <- wilcox.test(inf_clinda_metabolome[,i], mock_clinda_metabolome[,i], exact=FALSE)$p.value}
+clinda_inf_metab_pvalues <- as.character(round(p.adjust(clinda_inf_metab_pvalues, method='BH'),3))
+clinda_inf_metab_names <- colnames(inf_clinda_metabolome)
+rm(inf_clinda_metabolome)
+strep_inf_metab_pvalues <- c()
+for (i in 1:ncol(inf_strep_metabolome)){strep_inf_metab_pvalues[i] <- wilcox.test(inf_strep_metabolome[,i], mock_strep_metabolome[,i], exact=FALSE)$p.value}
+strep_inf_metab_pvalues <- as.character(round(p.adjust(strep_inf_metab_pvalues, method='BH'),3))
+strep_inf_metab_names <- colnames(inf_strep_metabolome)
+rm(inf_strep_metabolome)
 
 ```
 
@@ -756,6 +677,9 @@ We then sought to identify changes in those metabolites that were potential mark
 Combined, 16S rRNA gene sequencing and metabolomics results demonstrated that antibiotic pretreatments resulted in distinct bacterial communities that led to altered metabolite profiles. It is also possible that metabolism of the host or *C. difficile* contributed to the differences in the metabolomes during infection. To gain a more specific understanding of how the microbiota or *C. difficile* shaped the metabolic environment, we employed a metagenome-enabled metatranscriptomic shotgun sequencing approach with paired DNA and RNA samples collected from the cecal content of the mice used in the previous analyses. To achieve usable concentrations of bacterial mRNA, and also to obtain informative depths of sequencing  that adequately sampled the diversity in metagenomic and metatranscriptomic libraries (Fig. S6E&F), we were required to performed a combined sequencing effort for each treatment and infection group. To establish confidence in continuing pooled analysis, we calculated within-group sample variance replicates from cfu, otu relative abundance, and untargeted metabolomic (Table S5). Despite limited outliers, this revealed low levels in the median and interquartile range of variance within control and experimental groups at multiple levels of biology.
 
 ```{r figure_s5, echo=F, warning=F, message=F, results='hide', cache=F}
+
+setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/')
+
 
 # Define files
 # Metagenomes
