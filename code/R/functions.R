@@ -3,7 +3,7 @@
 setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/')
 
 # Load dependencies
-deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'RColorBrewer', 'gplots','viridis', 'scales','Hmisc','VennDiagram')
+deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'AUCRF','RColorBrewer', 'gplots','viridis', 'scales','Hmisc','VennDiagram')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);
@@ -38,7 +38,7 @@ rm_lowVar <- function(data_table) {
 
 # Filter out columns that have values in at least 3 samples (ignores first column if needed)
 filter_table <- function(data) {
-
+  
   drop <- c()
   if (class(data[,1]) != 'character') {
     if (sum(data[,1] != 0) < 3) {
@@ -136,6 +136,34 @@ minor.ticks.axis <- function(ax, n, t.ratio=0.5, mn, mx,...){
   axis(ax,at=minor.ticks,tcl=par("tcl")*t.ratio,labels=FALSE)
 }
 
+abxRF <- function(training_data){
+  
+  mTries <- round(sqrt(ncol(training_data) - 1))
+  
+  # Finish reformatting data
+  abx <- training_data$abx
+  abx <- as.factor(abx)
+  abx <- droplevels(abx)
+  training_data$abx <- NULL
+  
+  # Run random forest and get MDA values
+  set.seed(906801)
+  modelRF <- randomForest(abx ~ ., data=training_data, 
+                          importance=TRUE, replace=FALSE, err.rate=TRUE, mtry=mTries)
+  #featRF <- importance(modelRF, type=1)
+  #featRF <- as.data.frame(featRF)
+  #featRF$features <- rownames(featRF)
+  return(modelRF)
+  
+  # Filter to significant features (Strobl 2002) and sort
+  #sigFeatRF <- as.data.frame(subset(featRF, 
+  #                                  featRF$MeanDecreaseAccuracy > (abs(min(featRF$MeanDecreaseAccuracy)))))
+  #sigFeatRF <- sigFeatRF[order(-sigFeatRF$MeanDecreaseAccuracy),]
+  # Subset trainng data to significant features
+  #finalFeat <- training_data[,which(rownames(sigFeatRF) %in% colnames(training_data))]
+  #rm(training_data, sigFeatRF)
+  #return(sigFeatRF)
+}
 
 # Feature selection with Random Forest (requires 'randomForest' package)
 featureselect_RF <- function(training_data, classes){
@@ -154,9 +182,6 @@ featureselect_RF <- function(training_data, classes){
                                     err.rate=TRUE, ntree=n_trees, mtry=m_tries)
   detach(training_data)
   
-  # Examine OOB error
-  print(data_randomForest)
-  
   # Parse features for significance and sort
   features_RF <- importance(data_randomForest, type=1)
   final_features_RF <- subset(features_RF, features_RF > abs(min(features_RF)))
@@ -168,6 +193,25 @@ featureselect_RF <- function(training_data, classes){
   return(final_features_RF)
 }
 
+# 2 levels only!
+aucrfSusceptibility <- function(training_data){
+  
+  # Format levels of susceptibility for AUCRF
+  colnames(training_data) <- make.names(colnames(training_data))
+  levels <- as.vector(unique(training_data$susceptibility))
+  training_data$susceptibility <- as.character(training_data$susceptibility)
+  training_data$susceptibility[which(training_data$susceptibility==levels[1])] <- 0
+  #print(paste('0 = ', levels[1], sep=''))
+  training_data$susceptibility[which(training_data$susceptibility==levels[2])] <- 1
+  #print(paste('1 = ', levels[2], sep=''))
+  training_data$susceptibility <- as.factor(as.numeric(training_data$susceptibility))
+  rm(levels)
+  
+  # Run AUCRF with reproduceable parameters
+  set.seed(906801)
+  data_RF <- AUCRF(susceptibility ~ ., data=training_data, pdel=0.05, k0=5, ranking='MDA')
+  return(data_RF)
+}
 
 # Reads and formats network data for plotting
 format_network <- function(community_importances, color_pallette){
@@ -248,18 +292,16 @@ format_network <- function(community_importances, color_pallette){
 
 
 # Generates plot for significant differences in metabolite concentrations
-metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, mda, 
-                                  oob, group1, group2, fig_title, treatment_col, fig_label){
+metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
+                                  oob, group1, group2, treatment_col1, treatment_col2){
   
   pdf(file=plot_file, width=4, height=ncol(metabolome1)*1.5)
   layout(matrix(c(1:(ncol(metabolome1)+2)), nrow=(ncol(metabolome1)+2), ncol=1, byrow = TRUE))
   
   par(mar=c(0.2, 0, 0, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE)
   plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
-  text(x=-10.2, y=-3, labels=fig_label, cex=2.4, xpd=TRUE, font=2)
   legend('bottomright', legend=c(group1, group2), bty='n',
-         pt.bg='black', pch=c(1,16), cex=1.2, pt.cex=2, lwd=c(1,1.5), ncol=2)
-  text(x=-4.5, y=-4.5, labels=fig_title, cex=1.2, font=2, col=treatment_col)
+         pt.bg=c(treatment_col1, treatment_col2), pch=21, cex=1.2, pt.cex=2, ncol=2)
   
   par(mar=c(0.2, 2, 0.2, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE, yaxs='i')
   for(i in c(1:(ncol(metabolome1)))){
@@ -268,11 +310,10 @@ metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
     if (xmax > 1000) {while(xmax %% 100 != 0 ){xmax <- xmax + 1}} else if (xmax > 70){while(xmax %% 10 != 0 ){xmax <- xmax + 1}}
     plot(0, type='n', xlab='', ylab='', xaxt='n', yaxt='n', xlim=c(0,xmax), ylim=c(0.3,1.8))
     stripchart(at=1.2, jitter(metabolome1[,i], amount=1e-5), 
-               pch=1, bg=treatment_col, method='jitter', jitter=0.12, cex=2, lwd=2, add=TRUE)
+               pch=21, bg=treatment_col1, method='jitter', jitter=0.12, cex=2, add=TRUE)
     stripchart(at=0.66, jitter(metabolome2[,i], amount=1e-5), 
-               pch=16, bg=treatment_col, method='jitter', jitter=0.12, cex=2, add=TRUE)
-    metabolite <- paste(colnames(metabolome1)[i], ' [',as.character(round(mda[i],3)),']', sep='')
-    legend('topright', legend=metabolite, pch=1, cex=1.3, pt.cex=0, bty='n')
+               pch=21, bg=treatment_col2, method='jitter', jitter=0.12, cex=2, add=TRUE)
+    legend('topright', legend=colnames(metabolome1)[i], pch=1, cex=1.3, pt.cex=0, bty='n')
     if (xmax <= 10) {
       text(x=seq(0,xmax,1), y=0.42, labels=seq(0,xmax,1), cex=1)
       axis(1, at=seq(0,xmax,1), NA, cex.axis=0.8, tck=0.015)
@@ -294,21 +335,17 @@ metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
     }
     segments(median(metabolome1[,i]), 1.03, median(metabolome1[,i]), 1.37, lwd=2.5)
     segments(median(metabolome2[,i]), 0.49, median(metabolome2[,i]), 0.83, lwd=2.5)
-    if (pvalues[i] < 0.001){
-      mtext('*', side=4, font=2, cex=1.2, padj=0.5)
-    } else if (pvalues[i] <= 0.01){
-      mtext('*', side=4, font=2, cex=1.2, padj=0.5)
-    } else if (pvalues[i] <= 0.05){
-      mtext('*', side=4, font=2, cex=1.2, padj=0.5)
+    if (pvalues[i] <= 0.05){
+      mtext('*', side=4, font=2, cex=1.6, padj=0.6)
     } else {
-      mtext('n.s.', side=4)
+      mtext('n.s.', side=4, cex=1.3)
     }
   }
- 
+  
   par(mar=c(0, 0, 0, 0))
   plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
   text(x=0, y=4, labels=expression(paste('Scaled Intensity (',log[10],')')), cex=1.4)
-  text(x=8, y=4.5, labels=paste('OOB Error = ', as.character(oob), '%',sep=''))
+  text(x=8, y=4.5, labels=paste('OOB Error = ', oob, '%',sep=''))
   
   dev.off()
 }

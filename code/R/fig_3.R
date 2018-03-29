@@ -5,7 +5,7 @@ gc()
 
 # Load in functions
 starting_dir <- getwd()
-source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
 
 # Output plot name
 plot_ab <- 'results/figures/figure_3ab.pdf'
@@ -111,40 +111,44 @@ metabolome <- clean_merge(metadata, metabolome)
 abx_metabolome <- subset(metabolome, abx != 'none')
 abx_metabolome$infection <- NULL
 abx_metabolome$susceptibility <- NULL
-abx_metabolome$abx <- factor(abx_metabolome$abx)
 metabolome$infection <- NULL
 metabolome$abx <- NULL
-metabolome$abx <- factor(metabolome$susceptibility)
+
+# Random Forest feature selection/reduction (to 0% OOB)
+colnames(metabolome) <- make.names(colnames(metabolome))
+all_rf <- aucrfSusceptibility(metabolome)
+colnames(abx_metabolome) <- make.names(colnames(abx_metabolome))
+abx_rf <- abxRF(abx_metabolome)
+abx_rf <- importance(abx_rf, type=1)
+abx_rf <- as.data.frame(abx_rf)
+abx_rf$features <- rownames(abx_rf)
+abx_rf <- abx_rf[order(-abx_rf$MeanDecreaseAccuracy),]$features[1:5]
+abx_metabolome <- abx_metabolome[,abx_rf]
+abx_metabolome <- clean_merge(metadata, abx_metabolome)
+abx_metabolome$infection <- NULL
+abx_metabolome$susceptibility <- NULL
 rm(metadata)
+abx_rf <- abxRF(abx_metabolome)
 
-# Random Forest
-all_rf <- featureselect_RF(metabolome, 'susceptibility')
-abx_rf <- featureselect_RF(abx_metabolome, 'abx')
-
-# Sort and subset top hits
-all_rf <- all_rf[order(-all_rf$MDA),][1:7,]
-abx_rf <- abx_rf[order(-abx_rf$MDA),][1:7,]
-
-# Subset concentrations
-res_metabolome <- subset(metabolome, susceptibility == 'resistant')[, all_rf$feature]
+# Get features
+all_rf <- as.character(OptimalSet(all_rf)$Name)
+res_metabolome <- subset(metabolome, susceptibility == 'resistant')[, all_rf]
 res_metabolome$susceptibility <- NULL
-sus_metabolome <- subset(metabolome, susceptibility == 'susceptible')[, all_rf$feature]
+sus_metabolome <- subset(metabolome, susceptibility == 'susceptible')[, all_rf]
 sus_metabolome$susceptibility <- NULL
-rm(metabolome)
-
-cef_abx_metabolome <- subset(abx_metabolome, abx == 'cefoperazone')[, abx_rf$feature]
+rm(metabolome, all_rf)
+cef_abx_metabolome <- subset(abx_metabolome, abx == 'cefoperazone')
 cef_abx_metabolome$abx <- NULL
-clinda_abx_metabolome <- subset(abx_metabolome, abx == 'clindamycin')[, abx_rf$feature]
+clinda_abx_metabolome <- subset(abx_metabolome, abx == 'clindamycin')
 clinda_abx_metabolome$abx <- NULL
-strep_abx_metabolome <- subset(abx_metabolome, abx == 'streptomycin')[, abx_rf$feature]
+strep_abx_metabolome <- subset(abx_metabolome, abx == 'streptomycin')
 strep_abx_metabolome$abx <- NULL
-rm(abx_metabolome)
+rm(abx_metabolome, abx_rf)
 
 # Find significant differences
 resistant_pvalues <- c()
 for (i in 1:ncol(res_metabolome)){resistant_pvalues[i] <- wilcox.test(res_metabolome[,i], sus_metabolome[,i], exact=FALSE)$p.value}
 resistant_pvalues <- p.adjust(resistant_pvalues, method='BH')
-
 abx_pvalues1 <- c()
 for (i in 1:ncol(cef_abx_metabolome)){abx_pvalues1[i] <- wilcox.test(cef_abx_metabolome[,i], clinda_abx_metabolome[,i], exact=FALSE)$p.value}
 abx_pvalues2 <- c()
@@ -152,8 +156,18 @@ for (i in 1:ncol(cef_abx_metabolome)){abx_pvalues2[i] <- wilcox.test(cef_abx_met
 abx_pvalues3 <- c()
 for (i in 1:ncol(clinda_abx_metabolome)){abx_pvalues3[i] <- wilcox.test(clinda_abx_metabolome[,i], strep_abx_metabolome[,i], exact=FALSE)$p.value}
 abx_pvalues1 <- p.adjust(abx_pvalues1, method='BH')
+abx_pvalues1[is.na(abx_pvalues1)] <- 0
 abx_pvalues2 <- p.adjust(abx_pvalues2, method='BH')
+abx_pvalues2[is.na(abx_pvalues2)] <- 0
 abx_pvalues3 <- p.adjust(abx_pvalues3, method='BH')
+abx_pvalues3[is.na(abx_pvalues3)] <- 0
+
+# Reformat metabolite names
+colnames(res_metabolome) <- c("Nudifloramide","N-Acetylproline","Sebacate / Decanedioate","Hyodeoxycholate","Murideoxycholate")
+colnames(sus_metabolome) <- c("Nudifloramide","N-Acetylproline","Sebacate / Decanedioate","Hyodeoxycholate","Murideoxycholate")
+colnames(strep_abx_metabolome) <- c("Nicotinamide","Biotin","Pheophorbide A","gamma-Glutamylmethionine","cis-4-Decenoylcarnitine")
+colnames(cef_abx_metabolome) <- c("Nicotinamide","Biotin","Pheophorbide A","gamma-Glutamylmethionine","cis-4-Decenoylcarnitine")
+colnames(strep_abx_metabolome) <- c("Nicotinamide","Biotin","Pheophorbide A","gamma-Glutamylmethionine","cis-4-Decenoylcarnitine")
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -167,14 +181,18 @@ par(mar=c(4,4,1,1), las=1, mgp=c(2.8,0.75,0))
 plot(x=metabolome_nmds$MDS1, y=metabolome_nmds$MDS2, xlim=c(-0.25,0.25), ylim=c(-0.15,0.15),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
 mtext('A', side=2, line=2, las=2, adj=1.6, padj=-10, cex=2, font=2)
-points(x=metabolome_cefoperazone_mock$MDS1, y=metabolome_cefoperazone_mock$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_clindamycin_mock$MDS1, y=metabolome_clindamycin_mock$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
-points(x=metabolome_streptomycin_mock$MDS1, y=metabolome_streptomycin_mock$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
+points(x=metabolome_cefoperazone_mock$MDS1, y=metabolome_cefoperazone_mock$MDS2, bg='forestgreen', pch=21, cex=2, lwd=1.2)
+points(x=metabolome_clindamycin_mock$MDS1, y=metabolome_clindamycin_mock$MDS2, bg='forestgreen', pch=21, cex=2, lwd=1.2)
+points(x=metabolome_streptomycin_mock$MDS1, y=metabolome_streptomycin_mock$MDS2, bg='forestgreen', pch=21, cex=2, lwd=1.2)
 points(x=metabolome_noantibiotics$MDS1, y=metabolome_noantibiotics$MDS2, bg=noabx_col, pch=21, cex=2, lwd=1.2)
 legend('bottomleft', legend=c('Resistant vs Susceptible', as.expression(bquote(paste(italic('p'),' < 0.001')))), 
        pch=1, cex=1.2, pt.cex=0, bty='n')
-legend('topright', legend=c('No Antibiotic','Streptomycin','Cefoperzone','Clindamycin'), 
-       pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=21, cex=1.2, pt.cex=2.5)
+legend('topright', legend=c('No Antibiotics','Antibiotic-pretreated'), 
+       pt.bg=c(noabx_col,'forestgreen'), pch=21, cex=1.2, pt.cex=2.5)
+legend('topleft', legend='Metabolome Dissimilarity', bty='n', cex=1.2, pt.cex=0)
+box()
+
+mtext('C', side=2, line=2, las=2, adj=1.6, padj=-4, cex=2, font=2)
 
 # Antibiotics individually
 plot(x=abx_metabolome_nmds$MDS1, y=abx_metabolome_nmds$MDS2, xlim=c(-0.15,0.15), ylim=c(-0.15,0.15),
@@ -187,6 +205,10 @@ legend('bottomleft', legend=c('Between Pretreatments', as.expression(bquote(past
        pch=1, cex=1.2, pt.cex=0, bty='n')
 legend('topright', legend=c('Streptomycin','Cefoperzone','Clindamycin'), 
        pt.bg=c(strep_col,cef_col,clinda_col), pch=21, cex=1.2, pt.cex=2.5)
+legend('topleft', legend='Metabolome Dissimilarity', bty='n', cex=1.2, pt.cex=0)
+box()
+
+mtext('D', side=2, line=2, las=2, adj=1.6, padj=-4, cex=2, font=2)
 
 dev.off()
 
@@ -194,8 +216,8 @@ dev.off()
 
 # Feature Selection
 # All abx vs Untreated
-metabolite_stripchart(plot_c, res_metabolome, sus_metabolome, resistant_pvalues, all_rf$MDA, 
-                      0, 'Resistant', 'Susceptible', '', 'white', 'C')
+metabolite_stripchart(plot_c, res_metabolome, sus_metabolome, resistant_pvalues,  
+                      '0.0', 'Resistant', 'Susceptible', noabx_col, 'forestgreen')
 
 # Each antibiotic group
 pdf(file=plot_d, width=4, height=ncol(strep_abx_metabolome)*1.5)
@@ -203,7 +225,6 @@ layout(matrix(c(1:(ncol(strep_abx_metabolome)+2)), nrow=(ncol(strep_abx_metabolo
 
 par(mar=c(0.2, 0, 0, 2), mgp=c(2.3, 0.75, 0), xpd=FALSE)
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
-text(x=-10.2, y=-3, labels='D', cex=2.4, font=2, xpd=TRUE)
 legend('bottomright', legend=c('Streptomycin', 'Cefoperazone', 'Clindamycin'), bty='n',
        pt.bg=c(strep_col,cef_col,clinda_col), pch=21, cex=1.2, pt.cex=2, ncol=3)
 
@@ -218,7 +239,7 @@ for(i in c(1:(ncol(strep_abx_metabolome)))){
              pch=21, bg=cef_col, method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
   stripchart(at=0.66, jitter(clinda_abx_metabolome[,i], amount=1e-5), 
              pch=21, bg=clinda_col, method='jitter', jitter=0.12, cex=2, lwd=0.5, add=TRUE)
-  metabolite <- paste(colnames(strep_abx_metabolome)[i], ' [',as.character(round(abx_rf$MDA[i],3)),']', sep='')
+  metabolite <- colnames(strep_abx_metabolome)[i]
   legend('topright', legend=metabolite, pch=1, cex=1.3, pt.cex=0, bty='n')
   
   mtext('|', side=4, cex=1.6, las=1, adj=-0.3, padj=-0.5)
@@ -231,29 +252,17 @@ for(i in c(1:(ncol(strep_abx_metabolome)))){
   mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=0.5)
   mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=1.5)
   mtext('|', side=4, cex=1.6, las=1, adj=-2.5, padj=1.7)
-  if (abx_pvalues2[i] < 0.001){
-    mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.64)
-  } else if (abx_pvalues2[i] <= 0.01){
-    mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.64)
-  } else if (abx_pvalues2[i] <= 0.05){
+  if (abx_pvalues2[i] <= 0.05){
     mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.64)
   } else {
     mtext('n.s.', cex=0.7, side=4, padj=0.5, adj=0.64)
   }
-  if (abx_pvalues1[i] < 0.001){
-    mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.27)
-  } else if (abx_pvalues1[i] <= 0.01){
-    mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.27)
-  } else if (abx_pvalues1[i] <= 0.05){
+  if (abx_pvalues1[i] <= 0.05){
     mtext('*', side=4, font=2, cex=1, padj=0.8, adj=0.27)
   } else {
     mtext('n.s.', cex=0.7, side=4, padj=0.5, adj=0.27)
   }
-  if (abx_pvalues3[i] < 0.001){
-    mtext('***', side=4, font=2, cex=1, padj=2.2, adj=0.45)
-  } else if (abx_pvalues3[i] <= 0.01){
-    mtext('**', side=4, font=2, cex=1, padj=2.2, adj=0.45)
-  } else if (abx_pvalues3[i] <= 0.05){
+  if (abx_pvalues3[i] <= 0.05){
     mtext('*', side=4, font=2, cex=1, padj=2.2, adj=0.45)
   } else {
     mtext('n.s.', cex=0.7, side=4, padj=2.4, adj=0.45)
@@ -286,7 +295,7 @@ for(i in c(1:(ncol(strep_abx_metabolome)))){
 par(mar=c(0, 0, 0, 0))
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
 text(x=0, y=4, labels=expression(paste('Scaled Intensity (',log[10],')')), cex=1.4)
-text(x=7, y=4.5, labels='OOB Error = 1.85%')
+text(x=7, y=4.5, labels='OOB Error = 0.0%')
 
 dev.off()
 
