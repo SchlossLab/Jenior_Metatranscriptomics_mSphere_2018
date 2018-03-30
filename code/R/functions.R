@@ -165,32 +165,21 @@ abxRF <- function(training_data){
   #return(sigFeatRF)
 }
 
-# Feature selection with Random Forest (requires 'randomForest' package)
-featureselect_RF <- function(training_data, classes){
+# 2 levels only!
+aucrfInfection <- function(training_data){
   
-  attach(training_data)
-  levels <- as.vector(unique(training_data[,classes]))
-  subfactor_1 <- round(length(rownames(training_data[which(training_data[,classes]==levels[1]),])) * 0.623)
-  subfactor_2 <- round(length(rownames(training_data[which(training_data[,classes]==levels[2]),])) * 0.623)
-  factor <- max(c(round(subfactor_1 / subfactor_2), round(subfactor_2 / subfactor_1))) * 3
+  # Format levels of infection for AUCRF
+  levels <- as.vector(unique(training_data$infection))
+  training_data$infection <- as.character(training_data$infection)
+  training_data$infection[which(training_data$infection==levels[1])] <- 0
+  training_data$infection[which(training_data$infection==levels[2])] <- 1
+  training_data$infection <- as.factor(as.numeric(training_data$infection))
+  rm(levels)
   
-  # Breiman (2001). Random Forests. Machine Learning.
-  n_trees <- round(length(colnames(training_data)) - 1) * factor
-  m_tries <- round(sqrt(length(colnames(training_data)) - 1))
-  data_randomForest <- randomForest(classes~., 
-                                    data=training_data, importance=TRUE, replace=FALSE, 
-                                    err.rate=TRUE, ntree=n_trees, mtry=m_tries)
-  detach(training_data)
-  
-  # Parse features for significance and sort
-  features_RF <- importance(data_randomForest, type=1)
-  final_features_RF <- subset(features_RF, features_RF > abs(min(features_RF)))
-  final_features_RF <- final_features_RF[!(rownames(final_features_RF) == classes),]
-  final_features_RF <- as.data.frame(final_features_RF)
-  final_features_RF$feature <- rownames(final_features_RF)
-  colnames(final_features_RF) <- c('MDA','feature')
-  
-  return(final_features_RF)
+  # Run AUCRF with reproduceable parameters
+  set.seed(906801)
+  data_RF <- AUCRF(infection ~ ., data=training_data, pdel=0.05, k0=5, ranking='MDA')
+  return(data_RF)
 }
 
 # 2 levels only!
@@ -293,13 +282,16 @@ format_network <- function(community_importances, color_pallette){
 
 # Generates plot for significant differences in metabolite concentrations
 metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
-                                  oob, group1, group2, treatment_col1, treatment_col2){
+                                  oob, group1, group2, treatment_col1, treatment_col2, titleStr, titleCol){
   
   pdf(file=plot_file, width=4, height=ncol(metabolome1)*1.5)
   layout(matrix(c(1:(ncol(metabolome1)+2)), nrow=(ncol(metabolome1)+2), ncol=1, byrow = TRUE))
   
   par(mar=c(0.2, 0, 0, 1), mgp=c(2.3, 0.75, 0), xpd=FALSE)
   plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
+  
+  text(x=-4.5, y=-4.5, labels=titleStr, cex=1.2, font=2, col=titleCol) 
+  
   legend('bottomright', legend=c(group1, group2), bty='n',
          pt.bg=c(treatment_col1, treatment_col2), pch=21, cex=1.2, pt.cex=2, ncol=2)
   

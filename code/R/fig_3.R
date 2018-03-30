@@ -130,6 +130,13 @@ abx_metabolome$susceptibility <- NULL
 rm(metadata)
 abx_rf <- abxRF(abx_metabolome)
 
+# Get OOB
+all_rf_oob <- all_rf$RFopt
+all_rf_oob <- all_rf_oob$err.rate
+all_rf_oob <- as.character(round(median(all_rf_oob[,1]) * 100, 3))
+abx_rf_oob <- abx_rf$err.rate
+abx_rf_oob <- as.character(round(median(abx_rf_oob[,1]) * 100, 3))
+
 # Get features
 all_rf <- as.character(OptimalSet(all_rf)$Name)
 res_metabolome <- subset(metabolome, susceptibility == 'resistant')[, all_rf]
@@ -217,7 +224,7 @@ dev.off()
 # Feature Selection
 # All abx vs Untreated
 metabolite_stripchart(plot_c, res_metabolome, sus_metabolome, resistant_pvalues,  
-                      '0.0', 'Resistant', 'Susceptible', noabx_col, 'forestgreen')
+                      all_rf_oob, 'Resistant', 'Susceptible', noabx_col, 'forestgreen', '', 'black')
 
 # Each antibiotic group
 pdf(file=plot_d, width=4, height=ncol(strep_abx_metabolome)*1.5)
@@ -295,7 +302,7 @@ for(i in c(1:(ncol(strep_abx_metabolome)))){
 par(mar=c(0, 0, 0, 0))
 plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
 text(x=0, y=4, labels=expression(paste('Scaled Intensity (',log[10],')')), cex=1.4)
-text(x=7, y=4.5, labels='OOB Error = 0.0%')
+text(x=7, y=4.5, paste('OOB Error = ', abx_rf_oob,'%', sep=''))
 
 dev.off()
 
