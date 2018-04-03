@@ -281,8 +281,8 @@ format_network <- function(community_importances, color_pallette){
 
 
 # Generates plot for significant differences in metabolite concentrations
-metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues, 
-                                  oob, group1, group2, treatment_col1, treatment_col2, titleStr, titleCol){
+multiStripchart <- function(plot_file, metabolome1, metabolome2, pvalues, oob, group1, group2, 
+                            treatment_col1, treatment_col2, titleStr, titleCol, formattedNames, xLabel){
   
   pdf(file=plot_file, width=4, height=ncol(metabolome1)*1.5)
   layout(matrix(c(1:(ncol(metabolome1)+2)), nrow=(ncol(metabolome1)+2), ncol=1, byrow = TRUE))
@@ -305,7 +305,8 @@ metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues,
                pch=21, bg=treatment_col1, method='jitter', jitter=0.12, cex=2, add=TRUE)
     stripchart(at=0.66, jitter(metabolome2[,i], amount=1e-5), 
                pch=21, bg=treatment_col2, method='jitter', jitter=0.12, cex=2, add=TRUE)
-    legend('topright', legend=colnames(metabolome1)[i], pch=1, cex=1.3, pt.cex=0, bty='n')
+    box()
+    legend('topright', legend=do.call(expression, formattedNames[i]), pch=1, cex=1.3, pt.cex=0, bty='n')
     if (xmax <= 10) {
       text(x=seq(0,xmax,1), y=0.42, labels=seq(0,xmax,1), cex=1)
       axis(1, at=seq(0,xmax,1), NA, cex.axis=0.8, tck=0.015)
@@ -336,7 +337,7 @@ metabolite_stripchart <- function(plot_file, metabolome1, metabolome2, pvalues,
   
   par(mar=c(0, 0, 0, 0))
   plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
-  text(x=0, y=4, labels=expression(paste('Scaled Intensity (',log[10],')')), cex=1.4)
+  text(x=0, y=4, labels=xLabel, cex=1.4)
   text(x=8, y=4.5, labels=paste('OOB Error = ', oob, '%',sep=''))
   
   dev.off()
