@@ -103,8 +103,8 @@ metabolome_nmds_cef <- subset(metabolome_nmds, abx == 'cefoperazone')
 metabolome_nmds_clinda <- subset(metabolome_nmds, abx == 'clindamycin')
 metabolome_nmds_resistant <- subset(metabolome_nmds, abx == 'none')
 # Calculate centroids
-metabolome_res_centroids <- aggregate(cbind(metabolome_nmds_resistant$MDS1,metabolome_nmds_resistant$MDS2)~metabolome_nmds_resistant$infection, data=metabolome_nmds_resistant, mean)
-metabolome_sus_centroids <- aggregate(cbind(metabolome_nmds_susceptible$MDS1,metabolome_nmds_susceptible$MDS2)~metabolome_nmds_susceptible$infection, data=metabolome_nmds_susceptible, mean)
+metabolome_res_centroids <- aggregate(cbind(metabolome_nmds_resistant$MDS1,metabolome_nmds_resistant$MDS2)~metabolome_nmds_resistant$susceptibility, data=metabolome_nmds_resistant, mean)
+metabolome_sus_centroids <- aggregate(cbind(metabolome_nmds_susceptible$MDS1,metabolome_nmds_susceptible$MDS2)~metabolome_nmds_susceptible$susceptibility, data=metabolome_nmds_susceptible, mean)
 # permANOVA
 metabolome_pval <- adonis(metabolome_dist ~ metabolome$susceptibility, metabolome, perm=999)$aov.tab
 metabolome_pval <- round(metabolome_pval[1,6], 3)
@@ -200,7 +200,7 @@ colnames(sus_metabolome) <- c("Nudifloramide","N-Acetylproline","Sebacate / Deca
 # Top BLAST results
 species <- c("Clostridium aerotolerans","Dialister succinatiphilus",
              "Clostridium saccharolyticum","Clostridium saccharolyticum",
-             "Faecalibacterium prausnitzii")
+             "Ruthenibacterium lactatiformans")
 otu <- c("(OTU42)","(OTU102)","(OTU111)","(OTU115)","(OTU128)")
 formatted_names <- lapply(1:length(species), function(i) bquote(paste(italic(.(species[i])), ' ', .(otu[i]), sep='')))
 rm(species, otu)

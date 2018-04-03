@@ -5,331 +5,256 @@ gc()
 
 # Load in functions
 starting_dir <- getwd()
-source('~/Desktop/Repositories/Jenior_Metatranscriptomics_2016/code/R/functions.R')
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
 
 # Output plot name
-plot_file <- 'results/supplement/figures/figure_S1.pdf'
+plot_ac <- 'results/supplement/figures/figure_S1ac.pdf'
+metabolome_plot <- 'results/supplement/figures/figure_S1d.pdf'
+otu_plot <- 'results/supplement/figures/figure_S1b.pdf'
 
-# Input 0.03 OTU shared file
-shared_otu_file <- 'data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
+# Metabolomes
+metabolome <- 'data/metabolome/scaled_intensities.log10.tsv'
 
-# Input Metadata
-metadata_file <- 'data/metadata.tsv'
+# 16S
+shared_otu <- 'data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared'
+otu_tax <- 'data/16S_analysis/formatted.all_treatments.0.03.cons.taxonomy'
+
+# Metadata
+metadata <- 'data/metadata.tsv'
 
 #----------------#
 
 # Read in data
 
-# 16S data
-shared_otu <- read.delim(shared_otu_file, sep='\t', header=TRUE, row.names=2)
-rm(shared_otu_file)
+# Metabolomes
+metabolome <- read.delim(metabolome, sep='\t', header=TRUE)
+
+# 16S
+shared_otu <- read.delim(shared_otu, sep='\t', header=T, row.names=2)
+shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]  # Remove possible contaminated sample
+shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))] # Remove residual C. difficile OTUs
+shared_otu$numOtus <- NULL
+shared_otu$label <- NULL
+otu_tax <- read.delim(otu_tax, sep='\t', header=T, row.names=1)
 
 # Metadata
-metadata <- read.delim(metadata_file, sep='\t', header=T, row.names=1)
-rm(metadata_file)
+metadata <- read.delim(metadata, sep='\t', header=T, row.names=1)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Format data
 
 # Metadata
-metadata <- metadata[!rownames(metadata) %in% c('CefC5M2'), ] 
 metadata$type <- NULL
 metadata$cage <- NULL
 metadata$mouse <- NULL
 metadata$gender <- NULL
 
-# 16S data
-shared_otu$label <- NULL
-shared_otu$numOtus <- NULL
-shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]
-shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))] # Remove residual C. difficile OTUs
-#shared_otu <- shared_otu[!rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-#                                                       'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ] # Untreated SPF samples
-sub_sample <- ceiling(min(rowSums(shared_otu)) * 0.9) # calculate rarefaction level
-shared_otu <- rrarefy(shared_otu, sub_sample) # subsample shared file
-shared_otu <- filter_table(shared_otu)
-rm(sub_sample)
+# Metabolomes
+metabolome$BIOCHEMICAL <- gsub('_', ' ', metabolome$BIOCHEMICAL)
+rownames(metabolome) <- metabolome$BIOCHEMICAL
+metabolome$BIOCHEMICAL <- NULL
+metabolome$PUBCHEM <- NULL
+metabolome$KEGG <- NULL
+metabolome$SUB_PATHWAY <- NULL
+metabolome$SUPER_PATHWAY <- NULL
+metabolome <- as.data.frame(t(metabolome))
+metabolome <- clean_merge(metadata, metabolome)
+metabolome <- subset(metabolome, abx != 'germfree')
+metabolome <- subset(metabolome, susceptibility == 'susceptible')
+metabolome$abx <- NULL
+metabolome$susceptibility <- NULL
+
+# 16S
+otu_tax$genus <- gsub('_', ' ', otu_tax$genus)
+otu_tax$genus <- gsub('Ruminococcus2', 'Ruminococcus', otu_tax$genus)
+otu_tax$taxon <- paste(otu_tax$genus, otu_tax$OTU.1, sep='_')
+otu_tax$phylum <- NULL
+otu_tax$genus <- NULL
+otu_tax$OTU.1 <- NULL
+shared_otu <- t(shared_otu)
+shared_otu <- clean_merge(otu_tax, shared_otu)
+rownames(shared_otu) <- shared_otu$taxon
+shared_otu$taxon <- NULL
+shared_otu <- t(shared_otu)
+shared_otu <- clean_merge(metadata, shared_otu)
+shared_otu <- subset(shared_otu, abx != 'germfree')
+shared_otu <- subset(shared_otu, susceptibility == 'susceptible')
+shared_otu$abx <- NULL
+shared_otu$susceptibility <- NULL
+rm(otu_tax)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
-# Calculate axes
-# Community structure - all
-otu_nmds <- metaMDS(shared_otu, k=2, trymax=100, distance='bray')$points
+# Ordination analysis
+
+# Metabolome
+#metabolome_dist <- designdist(metabolome[,2:ncol(metabolome)], method='1-(J/(A+B-J))', terms='quadratic', abcd=FALSE) # Theta-YC
+metabolome_dist <- vegdist(metabolome[,2:ncol(metabolome)], method='bray') # Bray-Curtis
+metabolome_nmds <- as.data.frame(metaMDS(metabolome_dist, k=2, trymax=100)$points)
+# Subset NMDS axes to color points
+rownames(metabolome_nmds) <- rownames(metabolome)
+metabolome_nmds <- clean_merge(metadata, metabolome_nmds)
+metabolome_nmds_mock <- subset(metabolome_nmds, infection == 'mock')
+metabolome_nmds_infected <- subset(metabolome_nmds, infection == '630')
+# Calculate centroids
+metabolome_mock_centroids <- aggregate(cbind(metabolome_nmds_mock$MDS1,metabolome_nmds_mock$MDS2)~metabolome_nmds_mock$infection, data=metabolome_nmds_mock, mean)
+metabolome_infected_centroids <- aggregate(cbind(metabolome_nmds_infected$MDS1,metabolome_nmds_infected$MDS2)~metabolome_nmds_infected$infection, data=metabolome_nmds_infected, mean)
+# permANOVA
+metabolome_permANOVA_pval <- adonis(metabolome_dist ~ metabolome$infection, metabolome, perm=999)$aov.tab
+metabolome_permANOVA_pval <- round(metabolome_permANOVA_pval[1,6], 3)
+# Average within group distances
+rm(metabolome_dist)
+
+# 16S
+#otu_dist <- designdist(shared_otu[,2:ncol(shared_otu)], method='1-(J/(A+B-J))', terms='quadratic', abcd=FALSE) # Theta-YC
+otu_dist <- vegdist(shared_otu[,2:ncol(shared_otu)], method='bray') # Bray-Curtis
+otu_nmds <- as.data.frame(metaMDS(otu_dist, k=2, trymax=100)$points)
+# Subset NMDS axes to color points
+rownames(otu_nmds) <- rownames(shared_otu)
 otu_nmds <- clean_merge(metadata, otu_nmds)
-
-# Subset NMDS axes to color points - all
-otu_cefoperazone <- subset(otu_nmds, abx == 'cefoperazone')
-otu_cefoperazone_630 <- subset(otu_cefoperazone, infection == '630')
-otu_cefoperazone_mock <- subset(otu_cefoperazone, infection == 'mock')
-rm(otu_cefoperazone)
-otu_clindamycin <- subset(otu_nmds, abx == 'clindamycin')
-otu_clindamycin_630 <- subset(otu_clindamycin, infection == '630')
-otu_clindamycin_mock <- subset(otu_clindamycin, infection == 'mock')
-rm(otu_clindamycin)
-otu_streptomycin <- subset(otu_nmds, abx == 'streptomycin')
-otu_streptomycin_630 <- subset(otu_streptomycin, infection == '630')
-otu_streptomycin_mock <- subset(otu_streptomycin, infection == 'mock')
-rm(otu_streptomycin)
-otu_noantibiotics <- subset(otu_nmds, abx == 'none')
-
-#----------------#
-
-# Separate plots
-# All abx
-abx_otu <- shared_otu[!rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-                                                   'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ]
-# Individual abx
-cef_otu <- shared_otu[rownames(shared_otu) %in% c('CefC1M1','CefC1M2','CefC1M3',
-                                                  'CefC2M1','CefC2M2','CefC2M3',
-                                                  'CefC3M1','CefC3M2','CefC3M3',
-                                                  'CefC4M1','CefC4M2','CefC4M3',
-                                                  'CefC5M1','CefC5M2','CefC5M3',
-                                                  'CefC6M1','CefC6M2','CefC6M3'), ]
-clinda_otu <- shared_otu[rownames(shared_otu) %in% c('ClindaC1M1','ClindaC1M2','ClindaC1M3',
-                                                     'ClindaC2M1','ClindaC2M2','ClindaC2M3',
-                                                     'ClindaC3M1','ClindaC3M2','ClindaC3M3',
-                                                     'ClindaC4M1','ClindaC4M2','ClindaC4M3',
-                                                     'ClindaC5M1','ClindaC5M2','ClindaC5M3',
-                                                     'ClindaC6M1','ClindaC6M2','ClindaC6M3'), ]
-strep_otu <- shared_otu[rownames(shared_otu) %in% c('StrepC1M1','StrepC1M2','StrepC1M3',
-                                                    'StrepC2M1','StrepC2M2','StrepC2M3',
-                                                    'StrepC3M1','StrepC3M2','StrepC3M3',
-                                                    'StrepC4M1','StrepC4M2','StrepC4M3',
-                                                    'StrepC5M1','StrepC5M2','StrepC5M3',
-                                                    'StrepC6M1','StrepC6M2','StrepC6M3'), ]
-
-# Calculate inv-Simpson diversity
-cef_infected_diversity <- diversity(cef_otu[rownames(cef_otu) %in% c('CefC1M1','CefC1M2','CefC1M3',
-                                                    'CefC2M1','CefC2M2','CefC2M3',
-                                                    'CefC3M1','CefC3M2','CefC3M3'), ], 'invsimpson')
-cef_mock_diversity <- diversity(cef_otu[rownames(cef_otu) %in% c('CefC4M1','CefC4M2','CefC4M3',
-                                                'CefC5M1','CefC5M2','CefC5M3',
-                                                'CefC6M1','CefC6M2','CefC6M3'), ], 'invsimpson')
-clinda_infected_diversity <- diversity(clinda_otu[rownames(clinda_otu) %in% c('ClindaC1M1','ClindaC1M2','ClindaC1M3',
-                                                          'ClindaC2M1','ClindaC2M2','ClindaC2M3',
-                                                          'ClindaC3M1','ClindaC3M2','ClindaC3M3'), ], 'invsimpson')
-clinda_mock_diversity <- diversity(clinda_otu[rownames(clinda_otu) %in% c('ClindaC4M1','ClindaC4M2','ClindaC4M3',
-                                                      'ClindaC5M1','ClindaC5M2','ClindaC5M3',
-                                                      'ClindaC6M1','ClindaC6M2','ClindaC6M3'), ], 'invsimpson')
-strep_infected_diversity <- diversity(strep_otu[rownames(strep_otu) %in% c('StrepC1M1','StrepC1M2','StrepC1M3',
-                                                        'StrepC2M1','StrepC2M2','StrepC2M3',
-                                                        'StrepC3M1','StrepC3M2','StrepC3M3'), ], 'invsimpson')
-strep_mock_diversity <- diversity(strep_otu[rownames(strep_otu) %in% c('StrepC4M1','StrepC4M2','StrepC4M3',
-                                                    'StrepC5M1','StrepC5M2','StrepC5M3',
-                                                    'StrepC6M1','StrepC6M2','StrepC6M3'), ], 'invsimpson')
-noabx_diversity <- diversity(shared_otu[rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-                                                    'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ], 'invsimpson')
-
-# Test differences in diversity
-# Untreated vs abx
-p.adjust(c(wilcox.test(noabx_diversity, cef_infected_diversity, exact=F)$p.value,
-           wilcox.test(noabx_diversity, cef_mock_diversity, exact=F)$p.value,
-           wilcox.test(noabx_diversity, clinda_infected_diversity, exact=F)$p.value,
-           wilcox.test(noabx_diversity, clinda_mock_diversity, exact=F)$p.value,
-           wilcox.test(noabx_diversity, strep_infected_diversity, exact=F)$p.value,
-           wilcox.test(noabx_diversity, strep_mock_diversity, exact=F)$p.value), method='BH')
-# Strep
-wilcox.test(strep_infected_diversity, strep_mock_diversity, exact=F)$p.value
-# Cef
-wilcox.test(cef_infected_diversity, cef_mock_diversity, exact=F)$p.value
-# Clinda
-wilcox.test(clinda_infected_diversity, clinda_mock_diversity, exact=F)$p.value
+otu_nmds_mock <- subset(otu_nmds, infection == 'mock')
+otu_nmds_infected <- subset(otu_nmds, infection == '630')
+# Calculate centroids
+otu_mock_centroids <- aggregate(cbind(otu_nmds_mock$MDS1,otu_nmds_mock$MDS2)~otu_nmds_mock$infection, data=otu_nmds_mock, mean)
+otu_infected_centroids <- aggregate(cbind(otu_nmds_infected$MDS1,otu_nmds_infected$MDS2)~otu_nmds_infected$infection, data=otu_nmds_infected, mean)
+# permANOVA
+otu_permANOVA_pval <- adonis(otu_dist ~ shared_otu$infection, shared_otu, perm=999)$aov.tab
+otu_permANOVA_pval <- round(otu_permANOVA_pval[1,6], 3)
+# Average within group distances
+rm(otu_dist)
 
 
-# Calculate axes and merge with metadata
-abx_otu_nmds <- metaMDS(abx_otu, k=2, trymax=100)$points
-abx_otu_nmds <- clean_merge(metadata, abx_otu_nmds)
-cef_otu_nmds <- metaMDS(cef_otu, k=2, trymax=100)$points
-cef_otu_nmds <- clean_merge(metadata, cef_otu_nmds)
-clinda_otu_nmds <- metaMDS(clinda_otu, k=2, trymax=100)$points
-clinda_otu_nmds <- clean_merge(metadata, clinda_otu_nmds)
-strep_otu_nmds <- metaMDS(strep_otu, k=2, trymax=100)$points
-strep_otu_nmds <- clean_merge(metadata, strep_otu_nmds)
 rm(metadata)
 
-# Calculate significant differences
-otu_p <- as.character(anosim(shared_otu, otu_nmds$susceptibility, permutations=999, distance='bray')$signif)
-otu_r <- as.character(round(anosim(shared_otu, otu_nmds$susceptibility, permutations=999, distance='bray')$statistic, 3))
-abx_otu_p <- as.character(anosim(abx_otu, abx_otu_nmds$abx, permutations=999, distance='bray')$signif)
-abx_otu_r <- as.character(round(anosim(abx_otu, abx_otu_nmds$abx, permutations=999, distance='bray')$statistic, 3))
-cef_otu_p <- as.character(anosim(cef_otu, cef_otu_nmds$infection, permutations=999, distance='bray')$signif)
-cef_otu_r <- as.character(round(anosim(cef_otu, cef_otu_nmds$infection, permutations=999, distance='bray')$statistic, 3))
-clinda_otu_p <- as.character(anosim(clinda_otu, clinda_otu_nmds$infection, permutations=999, distance='bray')$signif)
-clinda_otu_r <- as.character(round(anosim(clinda_otu, clinda_otu_nmds$infection, permutations=999, distance='bray')$statistic, 3))
-strep_otu_p <- as.character(anosim(strep_otu, strep_otu_nmds$infection, permutations=999, distance='bray')$signif)
-strep_otu_r <- as.character(round(anosim(strep_otu, strep_otu_nmds$infection, permutations=999, distance='bray')$statistic, 3))
-rm(cef_otu, clinda_otu, strep_otu)
+#-------------------------------------------------------------------------------------------------------------------------#
 
-# Move points for easier viewing
-strep_otu_nmds$MDS2 <- strep_otu_nmds$MDS2 + 0.2
+# Feature selection
 
-# Subset to points for plot
-otu_abx_cef <- subset(abx_otu_nmds, abx == 'cefoperazone')
-otu_abx_cef_630 <- subset(otu_abx_cef, infection == '630')
-otu_abx_cef_mock <- subset(otu_abx_cef, infection == 'mock')
-rm(otu_abx_cef)
-otu_abx_clinda <- subset(abx_otu_nmds, abx == 'clindamycin')
-otu_abx_clinda_630 <- subset(otu_abx_clinda, infection == '630')
-otu_abx_clinda_mock <- subset(otu_abx_clinda, infection == 'mock')
-rm(otu_abx_clinda)
-otu_abx_strep <- subset(abx_otu_nmds, abx == 'streptomycin')
-otu_abx_strep_630 <- subset(otu_abx_strep, infection == '630')
-otu_abx_strep_mock <- subset(otu_abx_strep, infection == 'mock')
-rm(otu_abx_strep)
-cef_otu_nmds_630 <- subset(cef_otu_nmds, infection == '630')
-cef_otu_nmds_mock <- subset(cef_otu_nmds, infection == 'mock')
-clinda_otu_nmds_630 <- subset(clinda_otu_nmds, infection == '630')
-clinda_otu_nmds_mock <- subset(clinda_otu_nmds, infection == 'mock')
-strep_otu_nmds_630 <- subset(strep_otu_nmds, infection == '630')
-strep_otu_nmds_mock <- subset(strep_otu_nmds, infection == 'mock')
+# Metabolome
+# AUCRF feature selection/reduction (to 0% OOB)
+colnames(metabolome) <- make.names(colnames(metabolome))
+metabolome_aucrf <- aucrfInfection(metabolome)
+# Get OOB
+metabolome_aucrf_oob <- metabolome_aucrf$RFopt
+metabolome_aucrf_oob <- metabolome_aucrf_oob$err.rate
+metabolome_aucrf_oob <- as.character(round(median(metabolome_aucrf_oob[,1]) * 100, 2))
+# Get features
+metabolome_aucrf <- as.character(OptimalSet(metabolome_aucrf)$Name)
+mock_metabolome <- subset(metabolome, infection == 'mock')[, metabolome_aucrf]
+mock_metabolome$infection <- NULL
+infected_metabolome <- subset(metabolome, infection == '630')[, metabolome_aucrf]
+infected_metabolome$sinfection <- NULL
+rm(metabolome, metabolome_aucrf)
+# Find significant differences
+metabolome_pval <- c()
+for (i in 1:ncol(mock_metabolome)){metabolome_pval[i] <- wilcox.test(mock_metabolome[,i], infected_metabolome[,i], exact=FALSE)$p.value}
+metabolome_pval <- as.character(round(p.adjust(metabolome_pval, method='BH'), 4))
 
-# Calculate centroids
-cef_otu_centoids <- aggregate(cbind(cef_otu_nmds$MDS1,cef_otu_nmds$MDS2)~cef_otu_nmds$infection, data=cef_otu_nmds, mean)
-clinda_otu_centoids <- aggregate(cbind(clinda_otu_nmds$MDS1,clinda_otu_nmds$MDS2)~clinda_otu_nmds$infection, data=clinda_otu_nmds, mean)
-strep_otu_centoids <- aggregate(cbind(strep_otu_nmds$MDS1,strep_otu_nmds$MDS2)~strep_otu_nmds$infection, data=strep_otu_nmds, mean)
+# 16S
+# AUCRF feature selection/reduction (to 0% OOB)
+colnames(shared_otu) <- make.names(colnames(shared_otu))
+shared_otu_aucrf <- aucrfInfection(shared_otu)
+# Get OOB
+shared_otu_aucrf_oob <- shared_otu_aucrf$RFopt
+shared_otu_aucrf_oob <- shared_otu_aucrf_oob$err.rate
+shared_otu_aucrf_oob <- as.character(round(median(shared_otu_aucrf_oob[,1]) * 100, 2))
+# Get features
+shared_otu_aucrf <- as.character(OptimalSet(shared_otu_aucrf)$Name)
+mock_shared_otu <- subset(shared_otu, infection == 'mock')[, shared_otu_aucrf]
+mock_shared_otu$infection <- NULL
+infected_shared_otu <- subset(shared_otu, infection == '630')[, shared_otu_aucrf]
+infected_shared_otu$sinfection <- NULL
+rm(shared_otu, shared_otu_aucrf)
+# Find significant differences
+shared_otu_pval <- c()
+for (i in 1:ncol(mock_shared_otu)){shared_otu_pval[i] <- wilcox.test(mock_shared_otu[,i], infected_shared_otu[,i], exact=FALSE)$p.value}
+shared_otu_pval <- as.character(round(p.adjust(shared_otu_pval, method='BH'), 4))
+# Log transform values
+mock_shared_otu <- log10(mock_shared_otu + 1)
+infected_shared_otu <- log10(infected_shared_otu + 1)
+
+#-------------#
+
+# Reformat names to be more human readable
+# Metabolome
+colnames(mock_metabolome) <- c("5-aminovalerate","proline","N2-dimethylguanine","trans-4-hydroxyproline","pro-hydroxy-pro",
+                               "arabonate/xylonate","thioproline","N-acetylthreonine","N-acetylserine","adenine","N-acetylarginine","N-methylproline",
+                               "arabitol/xylitol","N-acetylisoleucine","pipecolate","valine","isoleucine","apigenin-malonyl-beta-D-glucoside",
+                               "N-acetylglucosaminylasparagine","N-acetylphenylalanine","fructose","glucose","delta-tocopherol","leucine")
+colnames(infected_metabolome) <- c("5-aminovalerate","proline","N2-dimethylguanine","trans-4-hydroxyproline","pro-hydroxy-pro",
+                                   "arabonate/xylonate","thioproline","N-acetylthreonine","N-acetylserine","adenine","N-acetylarginine","N-methylproline",
+                                   "arabitol/xylitol","N-acetylisoleucine","pipecolate","valine","isoleucine","apigenin-malonyl-beta-D-glucoside",
+                                   "N-acetylglucosaminylasparagine","N-acetylphenylalanine","fructose","glucose","delta-tocopherol","leucine")
+# 16S
+colnames(mock_shared_otu) <- c("Porphyromonadaceae (OTU32)","Prevotella (OTU24)","Olsenella (OTU20)","Enterococcus (OTU68)","Porphyromonadaceae (OTU5)",
+                               "Barnesiella (OTU147)","Pyramidobacter (OTU145)","Bacteroides (OTU3)","Fusobacterium (OTU100)","Parabacteroides (OTU69)",
+                               "Faecalibacterium (OTU49)","Allobaculum (OTU40)","Collinsella (OTU173)","Oscillibacter (OTU38)","Bifidobacterium (OTU41)",
+                               "Arthrobacter (OTU17)","Enterorhabdus (OTU167)","Escherichia Shigella (OTU2)","Blautia (OTU37)","Clostridium XlVa (OTU91)",
+                               "Ruminococcaceae (OTU99)","Clostridium XlVa (OTU142)","Porphyromonadaceae (OTU13)","Enterobacteriaceae (OTU86)","Ruminococcaceae (OTU171)",
+                               "Clostridiales unclassified (OTU243)","Veillonella (OTU182)","Porphyromonadaceae (OTU9)","Lachnospiraceae (OTU197)","Prevotella (OTU157)",
+                               "Ruminococcus (OTU172)","Bacteroides (OTU27)","Lachnospiraceae (OTU106)","Clostridium XVIII (OTU181)")
+colnames(infected_shared_otu) <- c("Porphyromonadaceae (OTU32)","Prevotella (OTU24)","Olsenella (OTU20)","Enterococcus (OTU68)","Porphyromonadaceae (OTU5)",
+                                   "Barnesiella (OTU147)","Pyramidobacter (OTU145)","Bacteroides (OTU3)","Fusobacterium (OTU100)","Parabacteroides (OTU69)",
+                                   "Faecalibacterium (OTU49)","Allobaculum (OTU40)","Collinsella (OTU173)","Oscillibacter (OTU38)","Bifidobacterium (OTU41)",
+                                   "Arthrobacter (OTU17)","Enterorhabdus (OTU167)","Escherichia Shigella (OTU2)","Blautia (OTU37)","Clostridium XlVa (OTU91)",
+                                   "Ruminococcaceae (OTU99)","Clostridium XlVa (OTU142)","Porphyromonadaceae (OTU13)","Enterobacteriaceae (OTU86)","Ruminococcaceae (OTU171)",
+                                   "Clostridiales unclassified (OTU243)","Veillonella (OTU182)","Porphyromonadaceae (OTU9)","Lachnospiraceae (OTU197)","Prevotella (OTU157)",
+                                   "Ruminococcus (OTU172)","Bacteroides (OTU27)","Lachnospiraceae (OTU106)","Clostridium XVIII (OTU181)")
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Plot the figure
-pdf(file=plot_file, width=12, height=12)
-layout(matrix(c(1,1,1,
-                2,3,4,
-                5,6,7),
-              nrow=3, ncol=3, byrow=TRUE))
+pdf(file=plot_ac, width=12, height=6)
+layout(matrix(c(1,2),
+              nrow=1, ncol=2, byrow=TRUE))
+par(mar=c(5,4,1,1), las=1, mgp=c(2.8,0.75,0))
 
-#-------------------#
+# 16S
+plot(x=otu_nmds$MDS1, y=otu_nmds$MDS2, xlim=c(-0.6,0.6), ylim=c(-0.6,0.6),
+     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
+mtext('A', side=2, line=2, las=2, adj=1.5, padj=-9, cex=2, font=2)
+mtext('B', side=2, line=2, las=2, adj=1.5, padj=14, cex=2, font=2)
+segments(x0=otu_nmds_infected$MDS1, y0=otu_nmds_infected$MDS2, x1=otu_infected_centroids[1,2], y1=otu_infected_centroids[1,3], col='gray30')
+points(x=otu_nmds_infected$MDS1, y=otu_nmds_infected$MDS2, bg='chocolate2', pch=21, cex=2, lwd=1.2)
+segments(x0=otu_nmds_mock$MDS1, y0=otu_nmds_mock$MDS2, x1=otu_mock_centroids[1,2], y1=otu_mock_centroids[1,3], col='gray30')
+points(x=otu_nmds_mock$MDS1, y=otu_nmds_mock$MDS2, bg='darkblue', pch=21, cex=2, lwd=1.2)
+legend('bottomleft', legend=c('Mock vs Infected', as.expression(bquote(paste(italic('p'),' = 0.191')))), 
+       pch=1, cex=1.2, pt.cex=0, bty='n')
+legend('bottomright', legend=c('Mock-infected','C. difficile-infected'), 
+       pt.bg=c('darkblue', 'chocolate2'), pch=21, cex=1.2, pt.cex=2.5)
+legend('topleft', legend='Community Structure', bty='n', cex=1.4, pt.cex=0)
+box()
 
-# Diversity
-par(mar=c(3,4,1,1), mgp=c(2.6,1,0), las=1, yaxs='i', xaxs='r')
-# No abx
-stripchart(at=0.5, noabx_diversity, xlim=c(0,10), ylim=c(0,20), vertical=TRUE, cex.axis=1.4, cex.lab=1.5,
-           pch=21, bg=noabx_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, ylab='Inv. Simpson Diversity')
-segments(x0=0.2, y0=median(noabx_diversity), x1=0.8, y1=median(noabx_diversity), lwd=2.5)
-#Strep
-stripchart(at=2.5, strep_infected_diversity, vertical=TRUE, 
-           pch=21, bg=strep_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
-segments(x0=2.2, y0=median(strep_infected_diversity), x1=2.8, y1=median(strep_infected_diversity), lwd=2.5)
-stripchart(at=3.5, strep_mock_diversity, vertical=TRUE, 
-           pch=21, bg=strep_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
-segments(x0=3.2, y0=median(strep_mock_diversity), x1=3.8, y1=median(strep_mock_diversity), lwd=2.5)
-# Cef
-stripchart(at=5.5, cef_infected_diversity, vertical=TRUE, 
-           pch=21, bg=cef_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
-segments(x0=5.2, y0=median(cef_infected_diversity), x1=5.8, y1=median(cef_infected_diversity), lwd=2.5)
-stripchart(at=6.5, cef_mock_diversity, vertical=TRUE, 
-           pch=21, bg=cef_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
-segments(x0=6.2, y0=median(cef_mock_diversity), x1=6.8, y1=median(cef_mock_diversity), lwd=2.5)
-# Clinda
-stripchart(at=8.5, clinda_infected_diversity, vertical=TRUE, 
-           pch=21, bg=clinda_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
-segments(x0=8.2, y0=median(clinda_infected_diversity), x1=8.8, y1=median(clinda_infected_diversity), lwd=2.5)
-stripchart(at=9.5, clinda_mock_diversity, vertical=TRUE, 
-           pch=21, bg=clinda_col, method='jitter', jitter=0.15, cex=2.5, lwd=1.2, add=TRUE)
-segments(x0=9.2, y0=median(clinda_mock_diversity), x1=9.8, y1=median(clinda_mock_diversity), lwd=2.5)
-mtext('CDI:', side=1, at=-0.5, padj=1, cex=1.1)
-mtext(c('-','+','-','+','-','+','-'), side=1, 
-      at=c(0.5, 2.5,3.5, 5.5,6.5, 8.5,9.5), padj=1, cex=1.3)
-abline(v=c(1.5,4.5,7.5), lty=5)
-mtext('A', side=2, line=2, las=2, adj=1.4, padj=-9.5, cex=1.4, font=2)
-text(x=c(0.5, 2.5,3.5, 5.5,6.5, 8.5,9.5), y=19.5, labels='*', col=noabx_col, cex=2.5, font=2) # Significant difference fromm untreated
-segments(x0=c(5.5,8.5), y0=5, x1=c(6.5,9.5), y1=5, lwd=2.5)
-text(x=c(6,9), y=6, labels='*', cex=2.5, font=2) # Significant difference within groups
-
-#-------------------#
-
-# All groups - NMDS
-par(mar=c(4,4,1,1), las=1, mgp=c(2.5,0.75,0), xaxs='i', yaxs='i')
-plot(x=otu_nmds$MDS1, y=otu_nmds$MDS2, xlim=c(-1.5,2), ylim=c(-1.5,1.5),
-     xlab='NMDS axis 1', ylab='NMDS axis 2', xaxt='n', yaxt='n', pch=19, cex=0.2)
-axis(side=1, at=seq(-1.5,2.0,0.5), labels=seq(-1.5,2.0,0.5))
-axis(side=2, at=seq(-2.0,1.5,0.5), labels=seq(-2.0,1.5,0.5))
-mtext('B', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
-legend('topleft', legend='All groups', pch=1, cex=1.4, pt.cex=0, bty='n')
-points(x=otu_cefoperazone_630$MDS1, y=otu_cefoperazone_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
-points(x=otu_clindamycin_630$MDS1, y=otu_clindamycin_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
-points(x=otu_streptomycin_630$MDS1, y=otu_streptomycin_630$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
-points(x=otu_cefoperazone_mock$MDS1, y=otu_cefoperazone_mock$MDS2, bg=cef_col, pch=24, cex=1.8, lwd=1.2)
-points(x=otu_clindamycin_mock$MDS1, y=otu_clindamycin_mock$MDS2, bg=clinda_col, pch=24, cex=1.8, lwd=1.2)
-points(x=otu_streptomycin_mock$MDS1, y=otu_streptomycin_mock$MDS2, bg=strep_col, pch=24, cex=1.8, lwd=1.2)
-points(x=otu_noantibiotics$MDS1, y=otu_noantibiotics$MDS2, bg=noabx_col, pch=24, cex=1.8, lwd=1.2)
-legend('bottomright', legend=c('Resistant vs Susceptible:',
-                               as.expression(bquote(paste(italic('R'),' = ',.(otu_r)))),
-                               as.expression(bquote(paste(italic('p'),' = ',.(otu_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')
-
-#-------------------#
-
-# Abx only
-plot(x=abx_otu_nmds$MDS1-0.25, y=abx_otu_nmds$MDS2, xlim=c(-1.3,1.3), ylim=c(-1.8,1.8),
-     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('C', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
-legend('topleft', legend='Antibiotic pretreatments only', pch=1, cex=1.4, pt.cex=0, bty='n')
-points(x=otu_abx_cef_630$MDS1-0.25, y=otu_abx_cef_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
-points(x=otu_abx_cef_mock$MDS1-0.25, y=otu_abx_cef_mock$MDS2, bg=cef_col, pch=24, cex=2, lwd=1.2)
-points(x=otu_abx_clinda_630$MDS1-0.25, y=otu_abx_clinda_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
-points(x=otu_abx_clinda_mock$MDS1-0.25, y=otu_abx_clinda_mock$MDS2, bg=clinda_col, pch=24, cex=2, lwd=1.2)
-points(x=otu_abx_strep_630$MDS1-0.25, y=otu_abx_strep_630$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
-points(x=otu_abx_strep_mock$MDS1-0.25, y=otu_abx_strep_mock$MDS2, bg=strep_col, pch=24, cex=2, lwd=1.2)
-legend('bottomright', legend=c('Strep vs Cef vs Clinda:',
-                               as.expression(bquote(paste(italic('R'),' = ',.(abx_otu_r)))),
-                               as.expression(bquote(paste(italic('p'),' = ',.(abx_otu_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')
-
-#-------------------#
-
-# Streptomycin
-plot(x=strep_otu_nmds$MDS1, y=strep_otu_nmds$MDS2, xlim=c(-1.3,1.3), ylim=c(-1.8,1.8),
-     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('D', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
-legend('topleft', legend='Streptomycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
-segments(x0=strep_otu_nmds_630$MDS1, y0=strep_otu_nmds_630$MDS2, x1=strep_otu_centoids[1,2], y1=strep_otu_centoids[1,3], col='gray30')
-segments(x0=strep_otu_nmds_mock$MDS1, y0=strep_otu_nmds_mock$MDS2, x1=strep_otu_centoids[2,2], y1=strep_otu_centoids[2,3], col='gray30')
-points(x=strep_otu_nmds_630$MDS1, y=strep_otu_nmds_630$MDS2, bg=strep_col, pch=21, cex=2, lwd=1.2)
-points(x=strep_otu_nmds_mock$MDS1, y=strep_otu_nmds_mock$MDS2, bg=strep_col, pch=24, cex=2, lwd=1.2)
-legend('bottomright', legend=c('Mock vs Infected:',
-                               as.expression(bquote(paste(italic('R'),' = ',.(strep_otu_r)))),
-                               as.expression(bquote(paste(italic('p'),' = ',.(strep_otu_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')
-
-#-------------------#
-
-# Cefoperazone
-plot(x=cef_otu_nmds$MDS1, y=cef_otu_nmds$MDS2, xlim=c(-1.2,1.2), ylim=c(-0.8,0.8),
-     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('E', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
-legend('topleft', legend='Cefoperazone-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
-segments(x0=cef_otu_nmds_630$MDS1, y0=cef_otu_nmds_630$MDS2, x1=cef_otu_centoids[1,2], y1=cef_otu_centoids[1,3], col='gray30')
-segments(x0=cef_otu_nmds_mock$MDS1, y0=cef_otu_nmds_mock$MDS2, x1=cef_otu_centoids[2,2], y1=cef_otu_centoids[2,3], col='gray30')
-points(x=cef_otu_nmds_630$MDS1, y=cef_otu_nmds_630$MDS2, bg=cef_col, pch=21, cex=2, lwd=1.2)
-points(x=cef_otu_nmds_mock$MDS1, y=cef_otu_nmds_mock$MDS2, bg=cef_col, pch=24, cex=2, lwd=1.2)
-legend('bottomright', legend=c('Mock vs Infected:',
-                               as.expression(bquote(paste(italic('R'),' = ',.(cef_otu_r)))),
-                               as.expression(bquote(paste(italic('p'),' = ',.(cef_otu_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')
-
-#-------------------#
-
-# Clindamycin
-plot(x=clinda_otu_nmds$MDS1, y=clinda_otu_nmds$MDS2, xlim=c(-1.1,1.1), ylim=c(-1.2,1.2),
-     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex=0.2)
-mtext('F', side=2, line=2, las=2, adj=1.4, padj=-9, cex=1.4, font=2)
-legend('topleft', legend='Clindamycin-pretreated', pch=1, cex=1.4, pt.cex=0, bty='n')
-segments(x0=clinda_otu_nmds_630$MDS1, y0=clinda_otu_nmds_630$MDS2, x1=clinda_otu_centoids[1,2], y1=clinda_otu_centoids[1,3], col='gray30')
-segments(x0=clinda_otu_nmds_mock$MDS1, y0=clinda_otu_nmds_mock$MDS2, x1=clinda_otu_centoids[2,2], y1=clinda_otu_centoids[2,3], col='gray30')
-points(x=clinda_otu_nmds_630$MDS1, y=clinda_otu_nmds_630$MDS2, bg=clinda_col, pch=21, cex=2, lwd=1.2)
-points(x=clinda_otu_nmds_mock$MDS1, y=clinda_otu_nmds_mock$MDS2, bg=clinda_col, pch=24, cex=2, lwd=1.2)
-legend('bottomright', legend=c('Mock vs Infected:',
-                               as.expression(bquote(paste(italic('R'),' = ',.(clinda_otu_r)))),
-                               as.expression(bquote(paste(italic('p'),' = ',.(clinda_otu_p))))), pch=1, cex=1.3, pt.cex=0, bty='n')
-
-#-------------------#
-
-# Legends
-par(mar=c(1,1,1,1))
-plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-5,5))
-legend(x=-3, y=3, legend=c('No Antibiotics','Streptomycin-pretreated','Cefoperzone-pretreated','Clindamycin-pretreated'), 
-       pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=22, cex=1.5, pt.cex=2.7)
-legend(x=-2.5, y=0, legend=c(as.expression(bquote(paste(italic('C. difficile'),'-infected'))),'Mock-infected'), 
-       col='black', pch=c(16,17), cex=1.5, pt.cex=c(2.5,2.2))
+# Metabolome
+plot(x=metabolome_nmds$MDS1, y=metabolome_nmds$MDS2, xlim=c(-0.6,0.6), ylim=c(-0.6,0.6),
+     xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
+mtext('C', side=2, line=2, las=2, adj=1.5, padj=-9, cex=2, font=2)
+mtext('D', side=2, line=2, las=2, adj=1.5, padj=14, cex=2, font=2)
+segments(x0=metabolome_nmds_infected$MDS1, y0=metabolome_nmds_infected$MDS2, x1=metabolome_infected_centroids[1,2], y1=metabolome_infected_centroids[1,3], col='gray30')
+points(x=metabolome_nmds_infected$MDS1, y=metabolome_nmds_infected$MDS2, bg='chocolate2', pch=21, cex=2, lwd=1.2)
+segments(x0=metabolome_nmds_mock$MDS1, y0=metabolome_nmds_mock$MDS2, x1=metabolome_mock_centroids[1,2], y1=metabolome_mock_centroids[1,3], col='gray30')
+points(x=metabolome_nmds_mock$MDS1, y=metabolome_nmds_mock$MDS2, bg='darkblue', pch=21, cex=2, lwd=1.2)
+legend('bottomleft', legend=c('Mock vs Infected', as.expression(bquote(paste(italic('p'),' = 0.08')))), 
+       pch=1, cex=1.2, pt.cex=0, bty='n')
+legend('bottomright', legend=c('Mock-infected','C. difficile-infected'), 
+       pt.bg=c('darkblue', 'chocolate2'), pch=21, cex=1.2, pt.cex=2.5)
+legend('topleft', legend='Metabolome', bty='n', cex=1.4, pt.cex=0)
+box()
 
 dev.off()
+
+#---------------#
+
+# Feature selection results
+# 16S
+multiStripchart(otu_plot, mock_shared_otu, infected_shared_otu, shared_otu_pval, shared_otu_aucrf_oob, 
+                'Mock-infected', 'C. difficile-infected', 'darkblue', 'chocolate2', '', 'black', 
+                as.list(colnames(mock_shared_otu)), expression(paste('Relative Abundance (',log[10],')')))
+# Metabolome
+multiStripchart(metabolome_plot, mock_metabolome, infected_metabolome, metabolome_pval, metabolome_aucrf_oob, 
+                'Mock-infected', 'C. difficile-infected', 'darkblue', 'chocolate2', '', 'black',
+                as.list(colnames(mock_metabolome)), expression(paste('Scaled Intensity (',log[10],')')))
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
