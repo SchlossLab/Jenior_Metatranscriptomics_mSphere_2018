@@ -124,7 +124,6 @@ otu_permANOVA_pval <- round(otu_permANOVA_pval[1,6], 3)
 # Average within group distances
 rm(otu_dist)
 
-
 rm(metadata)
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -140,7 +139,10 @@ metabolome_aucrf_oob <- metabolome_aucrf$RFopt
 metabolome_aucrf_oob <- metabolome_aucrf_oob$err.rate
 metabolome_aucrf_oob <- as.character(round(median(metabolome_aucrf_oob[,1]) * 100, 2))
 # Get features
-metabolome_aucrf <- as.character(OptimalSet(metabolome_aucrf)$Name)
+metabolome_aucrf <- as.data.frame(OptimalSet(metabolome_aucrf))
+print(nrow(metabolome_aucrf))
+metabolome_aucrf <- metabolome_aucrf[order(-metabolome_aucrf$Importance), ][1:10,]
+metabolome_aucrf <- as.character(metabolome_aucrf$Name)
 mock_metabolome <- subset(metabolome, infection == 'mock')[, metabolome_aucrf]
 mock_metabolome$infection <- NULL
 infected_metabolome <- subset(metabolome, infection == '630')[, metabolome_aucrf]
@@ -160,7 +162,10 @@ shared_otu_aucrf_oob <- shared_otu_aucrf$RFopt
 shared_otu_aucrf_oob <- shared_otu_aucrf_oob$err.rate
 shared_otu_aucrf_oob <- as.character(round(median(shared_otu_aucrf_oob[,1]) * 100, 2))
 # Get features
-shared_otu_aucrf <- as.character(OptimalSet(shared_otu_aucrf)$Name)
+shared_otu_aucrf <- as.data.frame(OptimalSet(shared_otu_aucrf))
+print(nrow(shared_otu_aucrf))
+shared_otu_aucrf <- shared_otu_aucrf[order(-shared_otu_aucrf$Importance), ][1:10,]
+shared_otu_aucrf <- as.character(shared_otu_aucrf$Name)
 mock_shared_otu <- subset(shared_otu, infection == 'mock')[, shared_otu_aucrf]
 mock_shared_otu$infection <- NULL
 infected_shared_otu <- subset(shared_otu, infection == '630')[, shared_otu_aucrf]
@@ -179,28 +184,14 @@ infected_shared_otu <- log10(infected_shared_otu + 1)
 # Reformat names to be more human readable
 # Metabolome
 colnames(mock_metabolome) <- c("5-aminovalerate","proline","N2-dimethylguanine","trans-4-hydroxyproline","pro-hydroxy-pro",
-                               "arabonate/xylonate","thioproline","N-acetylthreonine","N-acetylserine","adenine","N-acetylarginine","N-methylproline",
-                               "arabitol/xylitol","N-acetylisoleucine","pipecolate","valine","isoleucine","apigenin-malonyl-beta-D-glucoside",
-                               "N-acetylglucosaminylasparagine","N-acetylphenylalanine","fructose","glucose","delta-tocopherol","leucine")
+                               "arabonate/xylonate","thioproline","N-acetylthreonine","N-acetylserine","adenine")
 colnames(infected_metabolome) <- c("5-aminovalerate","proline","N2-dimethylguanine","trans-4-hydroxyproline","pro-hydroxy-pro",
-                                   "arabonate/xylonate","thioproline","N-acetylthreonine","N-acetylserine","adenine","N-acetylarginine","N-methylproline",
-                                   "arabitol/xylitol","N-acetylisoleucine","pipecolate","valine","isoleucine","apigenin-malonyl-beta-D-glucoside",
-                                   "N-acetylglucosaminylasparagine","N-acetylphenylalanine","fructose","glucose","delta-tocopherol","leucine")
+                                   "arabonate/xylonate","thioproline","N-acetylthreonine","N-acetylserine","adenine")
 # 16S
 colnames(mock_shared_otu) <- c("Porphyromonadaceae (OTU32)","Prevotella (OTU24)","Olsenella (OTU20)","Enterococcus (OTU68)","Porphyromonadaceae (OTU5)",
-                               "Barnesiella (OTU147)","Pyramidobacter (OTU145)","Bacteroides (OTU3)","Fusobacterium (OTU100)","Parabacteroides (OTU69)",
-                               "Faecalibacterium (OTU49)","Allobaculum (OTU40)","Collinsella (OTU173)","Oscillibacter (OTU38)","Bifidobacterium (OTU41)",
-                               "Arthrobacter (OTU17)","Enterorhabdus (OTU167)","Escherichia Shigella (OTU2)","Blautia (OTU37)","Clostridium XlVa (OTU91)",
-                               "Ruminococcaceae (OTU99)","Clostridium XlVa (OTU142)","Porphyromonadaceae (OTU13)","Enterobacteriaceae (OTU86)","Ruminococcaceae (OTU171)",
-                               "Clostridiales unclassified (OTU243)","Veillonella (OTU182)","Porphyromonadaceae (OTU9)","Lachnospiraceae (OTU197)","Prevotella (OTU157)",
-                               "Ruminococcus (OTU172)","Bacteroides (OTU27)","Lachnospiraceae (OTU106)","Clostridium XVIII (OTU181)")
+                               "Barnesiella (OTU147)","Pyramidobacter (OTU145)","Bacteroides (OTU3)","Fusobacterium (OTU100)","Parabacteroides (OTU69)")
 colnames(infected_shared_otu) <- c("Porphyromonadaceae (OTU32)","Prevotella (OTU24)","Olsenella (OTU20)","Enterococcus (OTU68)","Porphyromonadaceae (OTU5)",
-                                   "Barnesiella (OTU147)","Pyramidobacter (OTU145)","Bacteroides (OTU3)","Fusobacterium (OTU100)","Parabacteroides (OTU69)",
-                                   "Faecalibacterium (OTU49)","Allobaculum (OTU40)","Collinsella (OTU173)","Oscillibacter (OTU38)","Bifidobacterium (OTU41)",
-                                   "Arthrobacter (OTU17)","Enterorhabdus (OTU167)","Escherichia Shigella (OTU2)","Blautia (OTU37)","Clostridium XlVa (OTU91)",
-                                   "Ruminococcaceae (OTU99)","Clostridium XlVa (OTU142)","Porphyromonadaceae (OTU13)","Enterobacteriaceae (OTU86)","Ruminococcaceae (OTU171)",
-                                   "Clostridiales unclassified (OTU243)","Veillonella (OTU182)","Porphyromonadaceae (OTU9)","Lachnospiraceae (OTU197)","Prevotella (OTU157)",
-                                   "Ruminococcus (OTU172)","Bacteroides (OTU27)","Lachnospiraceae (OTU106)","Clostridium XVIII (OTU181)")
+                                   "Barnesiella (OTU147)","Pyramidobacter (OTU145)","Bacteroides (OTU3)","Fusobacterium (OTU100)","Parabacteroides (OTU69)")
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
