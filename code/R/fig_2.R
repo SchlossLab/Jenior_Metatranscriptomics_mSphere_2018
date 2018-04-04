@@ -88,7 +88,7 @@ rm(otu_tax)
 
 # Ordination analysis
 
-# Metabolome
+# Metabolome - 728 metabolites
 #metabolome_dist <- designdist(metabolome[,2:ncol(metabolome)], method='1-(J/(A+B-J))', terms='quadratic', abcd=FALSE) # Theta-YC
 metabolome_dist <- vegdist(metabolome[,2:ncol(metabolome)], method='bray') # Bray-Curtis
 metabolome_nmds <- as.data.frame(metaMDS(metabolome_dist, k=2, trymax=100)$points)
@@ -116,7 +116,7 @@ rm(metabolome_dist)
 
 
 
-# 16S
+# 16S - 810 OTUs
 #otu_dist <- designdist(shared_otu[,2:ncol(shared_otu)], method='1-(J/(A+B-J))', terms='quadratic', abcd=FALSE) # Theta-YC
 otu_dist <- vegdist(shared_otu[,2:ncol(shared_otu)], method='bray') # Bray-Curtis
 otu_nmds <- as.data.frame(metaMDS(otu_dist, k=2, trymax=100)$points)

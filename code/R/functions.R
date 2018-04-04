@@ -340,6 +340,6 @@ multiStripchart <- function(plot_file, metabolome1, metabolome2, pvalues, oob, g
   text(x=0, y=4, labels=xLabel, cex=1.4)
   text(x=8, y=4.5, labels=paste('OOB Error = ', oob, '%',sep=''))
   
-  dev.off()
 }
+
 
