@@ -342,4 +342,152 @@ multiStripchart <- function(plot_file, metabolome1, metabolome2, pvalues, oob, g
   
 }
 
+# Function for panels of metabolite differences
+metabolitePlot <- function(resistant, 
+                           strep_mock, strep_630,
+                           cef_mock, cef_630,
+                           clinda_mock, clinda_630,
+                           index, panelLab){
+  # Get metabolite name
+  metabolite <- colnames(resistant)[index]
+  # Make sure everything is numeric
+  resistant <- data.frame(apply(resistant, 2, function(x) as.numeric(as.character(x))))
+  strep_mock <- data.frame(apply(strep_mock, 2, function(x) as.numeric(as.character(x))))
+  strep_630 <- data.frame(apply(strep_630, 2, function(x) as.numeric(as.character(x))))
+  cef_mock <- data.frame(apply(cef_mock, 2, function(x) as.numeric(as.character(x))))
+  cef_630 <- data.frame(apply(cef_630, 2, function(x) as.numeric(as.character(x))))
+  clinda_mock <- data.frame(apply(clinda_mock, 2, function(x) as.numeric(as.character(x))))
+  clinda_630 <- data.frame(apply(clinda_630, 2, function(x) as.numeric(as.character(x))))
+  # Find y-maximum
+  yLimit <- round(max(max(resistant[,index]), 
+                      max(strep_mock[,index]), max(strep_630[,index]),
+                      max(cef_mock[,index]), max(cef_630[,index]), 
+                      max(clinda_mock[,index]), max(clinda_630[,index]))) + 3
+  # Calculate p-values
+  res_strep_mock_pval <- round(wilcox.test(resistant[,index], strep_mock[,index], exact=FALSE)$p.value, 3)
+  res_strep_630_pval <- round(wilcox.test(resistant[,index], strep_630[,index], exact=FALSE)$p.value, 3)
+  res_cef_mock_pval <- round(wilcox.test(resistant[,index], cef_mock[,index], exact=FALSE)$p.value, 3)
+  res_cef_630_pval <- round(wilcox.test(resistant[,index], cef_630[,index], exact=FALSE)$p.value, 3)
+  res_clinda_mock_pval <- round(wilcox.test(resistant[,index], clinda_mock[,index], exact=FALSE)$p.value, 3)
+  res_clinda_630_pval <- round(wilcox.test(resistant[,index], clinda_630[,index], exact=FALSE)$p.value, 3)
+  res_pval <- c(res_strep_mock_pval, res_strep_630_pval, res_cef_mock_pval, 
+                res_cef_630_pval, res_clinda_mock_pval, res_clinda_630_pval)
+  res_pval <- p.adjust(res_pval, method='BH')
+  res_strep_mock_pval <- res_pval[1]
+  res_strep_630_pval <- res_pval[2]
+  res_cef_mock_pval <- res_pval[3]
+  res_cef_630_pval <- res_pval[4]
+  res_clinda_mock_pval <- res_pval[5]
+  res_clinda_630_pval <- res_pval[6]
+  strep_mock_630_pval <- round(wilcox.test(strep_mock[,index], strep_630[,index], exact=FALSE)$p.value, 3)
+  cef_mock_630_pval <- round(wilcox.test(cef_mock[,index], cef_630[,index], exact=FALSE)$p.value, 3)
+  clinda_mock_630_pval <- round(wilcox.test(clinda_mock[,index], clinda_630[,index], exact=FALSE)$p.value, 3)
+  
+  par(mar=c(3,4,1.5,1), xpd=FALSE, las=1, mgp=c(2.5,0.7,0))
+  stripchart(resistant[,index], at=0.5, vertical=T, pch=21, lwd=2,
+             xaxt='n', bg=noabx_col, ylim=c(0,yLimit), xlim=c(0.25,5.25),
+             cex=2, ylab='', method='jitter', jitter=0.1, cex.axis=1.4)
+  
+  stripchart(strep_mock[,index], at=1.5, vertical=T, pch=21, lwd=2,
+             xaxt='n', bg=strep_col, ylim=c(0,yLimit), xlim=c(0.25,5.25),
+             cex=2, ylab='', method='jitter', jitter=0.1, cex.axis=1.4, add=TRUE)
+  stripchart(strep_630[,index], at=2, vertical=T, pch=21, lwd=2,
+             xaxt='n', bg=strep_col, ylim=c(0,yLimit), xlim=c(0.25,5.25),
+             cex=2, ylab='', method='jitter', jitter=0.1, cex.axis=1.4, add=TRUE)
+  
+  stripchart(cef_mock[,index], at=3, vertical=T, pch=21, lwd=2,
+             xaxt='n', bg=cef_col, ylim=c(0,yLimit), xlim=c(0.25,5.25),
+             cex=2, ylab='', method='jitter', jitter=0.1, cex.axis=1.4, add=TRUE)
+  stripchart(cef_630[,index], at=3.5, vertical=T, pch=21, lwd=2,
+             xaxt='n', bg=cef_col, ylim=c(0,yLimit), xlim=c(0.25,5.25),
+             cex=2, ylab='', method='jitter', jitter=0.1, cex.axis=1.4, add=TRUE)
+  
+  stripchart(clinda_mock[,index], at=4.5, vertical=T, pch=21, lwd=2,
+             xaxt='n', bg=clinda_col, ylim=c(0,yLimit), xlim=c(0.25,5.25),
+             cex=2, ylab='', method='jitter', jitter=0.1, cex.axis=1.4, add=TRUE)
+  stripchart(clinda_630[,index], at=5, vertical=T, pch=21, lwd=2,
+             xaxt='n', bg=clinda_col, ylim=c(0,yLimit), xlim=c(0.25,5.25),
+             cex=2, ylab='', method='jitter', jitter=0.1, cex.axis=1.4, add=TRUE)
+  abline(v=c(1,2.5,4), lty=5)
+  mtext(text=expression(paste('Scaled Intensity (',log[10],')')), side=2, cex=1.1, las=0, padj=-1.5)
+  mtext(panelLab, side=2, line=2, las=2, adj=1, padj=-8, cex=1.6, font=2)
+  mtext(c('CDI:','Group:'), side=1, at=-0.3, padj=c(0.35,2.55), cex=0.7, xpd=TRUE)
+  mtext(c('-','-','+','-','+','-','+'), side=1, 
+        at=c(0.5,1.5,2,3,3.5,4.5,5), padj=0.3, cex=1.1)
+  mtext(c('No Antibiotics','Streptomycin','Cefoperazone','Clindamycin'), side=1, 
+        at=c(0.5,1.75,3.25,4.75), padj=2, cex=0.8)
+  
+  # Medians
+  segments(x0=c(0.3,1.3,1.8,2.8,3.3,4.3,4.8), x1=c(0.7,1.7,2.2,3.2,3.7,4.7,5.2),
+           y0=c(median(resistant[,index]),
+                median(strep_mock[,index]), median(strep_630[,index]),
+                median(cef_mock[,index]), median(cef_630[,index]),
+                median(clinda_mock[,index]), median(clinda_630[,index])),
+           y1=c(median(resistant[,index]),
+                median(strep_mock[,index]), median(strep_630[,index]),
+                median(cef_mock[,index]), median(cef_630[,index]),
+                median(clinda_mock[,index]), median(clinda_630[,index])),
+           lwd=3)
+  segments(x0=c(1.5,3,4.5), y0=yLimit-2, x1=c(2,3.5,5), y1=yLimit-2, lwd=2)
+  
+  # Add significance
+  # VS Resistant
+  res_strep_mock_pval[is.nan(res_strep_mock_pval)] <- 0
+  if (res_strep_mock_pval <= 0.05) {
+    mtext('*', font=2, cex=2, side=3, padj=0.4, adj=0.25, col='chartreuse4')
+  } else {
+    mtext('n.s.', cex=1, side=3, padj=-0.2, adj=0.25, col='chartreuse4')
+  }
+  res_strep_630_pval[is.nan(res_strep_630_pval)] <- 0
+  if (res_strep_630_pval <= 0.05) {
+    mtext('*', font=2, cex=2, side=3, padj=0.4, adj=0.35, col='chartreuse4')
+  } else {
+    mtext('n.s.', cex=1, side=3, padj=-0.2, adj=0.35, col='chartreuse4')
+  }
+  res_cef_mock_pval[is.nan(res_cef_mock_pval)] <- 0
+  if (res_cef_mock_pval <= 0.05) {
+    mtext('*', font=2, cex=2, side=3, padj=0.4, adj=0.54, col='chartreuse4')
+  } else {
+    mtext('n.s.', cex=1, side=3, padj=-0.2, adj=0.54, col='chartreuse4')
+  }
+  res_cef_630_pval[is.nan(res_cef_630_pval)] <- 0
+  if (res_cef_630_pval <= 0.05) {
+    mtext('*', font=2, cex=2, side=3, padj=0.4, adj=0.64, col='chartreuse4')
+  } else {
+    mtext('n.s.', cex=1, side=3, padj=-0.2, adj=0.64, col='chartreuse4')
+  }
+  res_clinda_mock_pval[is.nan(res_clinda_mock_pval)] <- 0
+  if (res_clinda_mock_pval <= 0.05) {
+    mtext('*', font=2, cex=2, side=3, padj=0.4, adj=0.83, col='chartreuse4')
+  } else {
+    mtext('n.s.', cex=1, side=3, padj=-0.2, adj=0.83, col='chartreuse4')
+  }
+  res_clinda_630_pval[is.nan(res_clinda_630_pval)] <- 0
+  if (res_clinda_630_pval <= 0.05) {
+    mtext('*', font=2, cex=2, side=3, padj=0.4, adj=0.93, col='chartreuse4')
+  } else {
+    mtext('n.s.', cex=1, side=3, padj=-0.2, adj=0.93, col='chartreuse4')
+  }
+  # Within pretreatments
+  strep_mock_630_pval[is.nan(strep_mock_630_pval)] <- 0
+  if (strep_mock_630_pval <= 0.05) {
+    text(x=1.75, y=yLimit-1.7, '*', font=2, cex=2.3)
+  } else {
+    text(x=1.75, y=yLimit-1.7, 'n.s.', cex=1.5)
+  }
+  cef_mock_630_pval[is.nan(cef_mock_630_pval)] <- 0
+  if (cef_mock_630_pval <= 0.05) {
+    text(x=3.25, y=yLimit-1.7, '*', font=2, cex=2.3)
+  } else {
+    text(x=3.25, y=yLimit-1.7, 'n.s.', cex=1.5)
+  }
+  clinda_mock_630_pval[is.nan(clinda_mock_630_pval)] <- 0
+  if (clinda_mock_630_pval <= 0.05) {
+    text(x=4.75, y=yLimit-1.7, '*', font=2, cex=2.3)
+  } else {
+    text(x=4.75, y=yLimit-1.7, 'n.s.', cex=1.5)
+  }
+  legend('topright', legend=metabolite, pt.cex=0, cex=1.3, box.lwd=0, box.col="white", bg = "white")
+  box(lwd=2)
+}
 
