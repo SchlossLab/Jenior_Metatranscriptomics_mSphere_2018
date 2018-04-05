@@ -331,7 +331,7 @@ multiStripchart <- function(plot_file, metabolome1, metabolome2, pvalues, oob, g
     if (pvalues[i] <= 0.05){
       mtext('*', side=4, font=2, cex=1.6, padj=0.6)
     } else {
-      mtext('n.s.', side=4, cex=1.3)
+      mtext('n.s.', side=4, cex=0.9)
     }
   }
   
@@ -339,7 +339,7 @@ multiStripchart <- function(plot_file, metabolome1, metabolome2, pvalues, oob, g
   plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-10,10), ylim=c(-5,5))
   text(x=0, y=4, labels=xLabel, cex=1.4)
   text(x=8, y=4.5, labels=paste('OOB Error = ', oob, '%',sep=''))
-  
+  dev.off()
 }
 
 # Function for panels of metabolite differences
@@ -487,7 +487,7 @@ metabolitePlot <- function(resistant,
   } else {
     text(x=4.75, y=yLimit-1.7, 'n.s.', cex=1.5)
   }
-  legend('topright', legend=metabolite, pt.cex=0, cex=1.3, box.lwd=0, box.col="white", bg = "white")
+  legend('topright', legend=metabolite, pt.cex=0, cex=1.3, box.lwd=1, box.col="black", bg="white")
   box(lwd=2)
 }
 

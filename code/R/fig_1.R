@@ -185,7 +185,7 @@ legend('bottomleft', legend='18 hours post-infection', bty='n', pt.cex=0)
 box()
 text(c(0.1,0.6,1.1,1.6), -2.1, adj = 0, srt=45, xpd = TRUE, font=2,
      labels=c('No Antibiotics','Streptomycin','Cefoperazone','Clindamycin'),
-     col=c(noabx_col,strep_col, cef_col, clinda_col))
+     col='black')
 
 # Median lines
 segments(x0=c(0.3, 0.8, 1.3, 1.8), 
@@ -212,7 +212,7 @@ box()
 axis(side=2, at=seq(0,100,20), labels=c('0%','20%','40%','60%','80%','100%'), tick=FALSE, las=1)
 abline(h=c(20,40,60,80), lty=2)
 mtext(c('No Antibiotics','Streptomycin','Cefoperazone','Clindamycin'), font=2,
-      side=1, at=c(4,18,36,55), adj=0.5, padj=1, cex=0.7, col=c('black',strep_col, cef_col, clinda_col))
+      side=1, at=c(4,18,36,55), adj=0.5, padj=1, cex=0.7, col='black')
 mtext('C', side=2, line=2, las=2, adj=1.4, padj=-9.8, cex=1.4, font=2)
 
 #-----------#
