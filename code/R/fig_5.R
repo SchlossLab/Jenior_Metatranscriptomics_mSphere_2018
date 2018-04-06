@@ -211,15 +211,15 @@ clearedVcolonized_overlap_top <- intersect(intersect(rownames(strep_minority), r
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Get data ready for plotting
-strep_minority$pathway <- rownames(strep_minority)
-colnames(strep_minority) <- c('infected','mock','pathway')
-cef_minority$pathway <- rownames(cef_minority)
-colnames(cef_minority) <- c('infected','mock','pathway')
-clinda_minority$pathway <- rownames(clinda_minority)
-colnames(clinda_minority) <- c('infected','mock','pathway')
-minority_pathways <- as.data.frame(rbind(strep_minority, cef_minority, clinda_minority))
-minority_pathways$colors <- c(rep(strep_col,nrow(strep_minority)), rep(cef_col,nrow(cef_minority)), rep(clinda_col,nrow(clinda_minority)))
-rm(strep_minority, cef_minority, clinda_minority)
+#strep_minority$pathway <- rownames(strep_minority)
+#colnames(strep_minority) <- c('infected','mock','pathway',)
+#cef_minority$pathway <- rownames(cef_minority)
+#colnames(cef_minority) <- c('infected','mock','pathway')
+#clinda_minority$pathway <- rownames(clinda_minority)
+#colnames(clinda_minority) <- c('infected','mock','pathway')
+#minority_pathways <- as.data.frame(rbind(strep_minority, cef_minority, clinda_minority))
+#minority_pathways$colors <- c(rep(strep_col,nrow(strep_minority)), rep(cef_col,nrow(cef_minority)), rep(clinda_col,nrow(clinda_minority)))
+#rm(strep_minority, cef_minority, clinda_minority)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
