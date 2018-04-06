@@ -84,7 +84,7 @@ rm(shared_family)
 
 # Bin lowly abundant OTUs into an 'Other' category
 relabund_family[relabund_family < 1] <- 0
-relabund_family <- relabund_family[, colSums(relabund_family != 0) > 0]
+relabund_family <- relabund_family[, which(colSums(relabund_family) > 0)]
 top_otus <- colnames(relabund_family)
 
 # Subset family-level taxonomy
@@ -161,6 +161,7 @@ axis(side=2, at=seq(0,10,1), labels=c(0, parse(text=paste(rep(10,10), '^', seq(1
 legend(x=1.7, y=4, legend=c('Streptomycin', 'Cefoperazone', 'Clindamycin', 'No Antibiotics'),
        pch=16, col=c(strep_col, cef_col, clinda_col, noabx_col), cex=0.9, pt.cex=1.5)
 mtext('A', side=2, line=2, las=2, adj=1.4, padj=-9.2, cex=1.4, font=2)
+box(lwd=1.5)
 
 #-----------------------------#
 
@@ -182,7 +183,7 @@ abline(h=2, lwd=1.5, col='gray30', lty=5) # LOD
 axis(side=2, at=seq(0,9,1), labels=c(0, parse(text=paste(rep(10,9), '^', seq(1,9,1), sep=''))), las=1)
 text(x=c(1,1.5,2), y=rep(9,3), labels=rep('*',3), font=2, cex=2)
 legend('bottomleft', legend='18 hours post-infection', bty='n', pt.cex=0)
-box()
+box(lwd=1.5)
 text(c(0.1,0.6,1.1,1.6), -2.1, adj = 0, srt=45, xpd = TRUE, font=2,
      labels=c('No Antibiotics','Streptomycin','Cefoperazone','Clindamycin'),
      col='black')
@@ -208,7 +209,7 @@ mtext('B', side=2, line=2, las=2, adj=1, padj=-9, cex=1.4, font=2)
 par(mar=c(3,4,1,1), mgp=c(2.5, 0.25, 0), new=FALSE, xpd=FALSE)
 barplot(t(rev(relabund_family)), col=rev(taxonomy_family$color), yaxt='n', xaxt='n', cex.lab=1.3,
         ylim=c(0,100), ylab='Relative Abundance', cex.names=1.2, space=0)
-box()
+box(lwd=1.5)
 axis(side=2, at=seq(0,100,20), labels=c('0%','20%','40%','60%','80%','100%'), tick=FALSE, las=1)
 abline(h=c(20,40,60,80), lty=2)
 mtext(c('No Antibiotics','Streptomycin','Cefoperazone','Clindamycin'), font=2,
