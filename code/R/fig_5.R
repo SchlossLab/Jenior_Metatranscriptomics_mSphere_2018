@@ -167,12 +167,15 @@ cef_minority$pathways <- NULL
 clinda_minority <- aggregate(. ~ pathways, data=clinda_minority, FUN=sum)
 rownames(clinda_minority) <- clinda_minority$pathways
 clinda_minority$pathways <- NULL
-# Rank differences
+# Remove groups with no difference and rank differences
 strep_minority$abs_diff <- abs(strep_minority[,1] - strep_minority[,2])
+strep_minority <- subset(strep_minority, abs_diff != 0)
 strep_minority <- strep_minority[order(-strep_minority$abs_diff),]
 cef_minority$abs_diff <- abs(cef_minority[,1] - cef_minority[,2])
+cef_minority <- subset(cef_minority, abs_diff != 0)
 cef_minority <- cef_minority[order(-cef_minority$abs_diff),]
 clinda_minority$abs_diff <- abs(clinda_minority[,1] - clinda_minority[,2])
+clinda_minority <- subset(clinda_minority, abs_diff != 0)
 clinda_minority <- clinda_minority[order(-clinda_minority$abs_diff),]
 # Remove useless pathways
 strep_minority <- subset(strep_minority, !rownames(strep_minority) %in% c('Ribosome','Metabolic pathways'))
@@ -208,17 +211,20 @@ clearedVcolonized_overlap_top <- intersect(intersect(rownames(strep_minority), r
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Get data ready for plotting
-
-
-
-
-
-
+strep_minority$pathway <- rownames(strep_minority)
+colnames(strep_minority) <- c('infected','mock','pathway')
+cef_minority$pathway <- rownames(cef_minority)
+colnames(cef_minority) <- c('infected','mock','pathway')
+clinda_minority$pathway <- rownames(clinda_minority)
+colnames(clinda_minority) <- c('infected','mock','pathway')
+minority_pathways <- as.data.frame(rbind(strep_minority, cef_minority, clinda_minority))
+minority_pathways$colors <- c(rep(strep_col,nrow(strep_minority)), rep(cef_col,nrow(cef_minority)), rep(clinda_col,nrow(clinda_minority)))
+rm(strep_minority, cef_minority, clinda_minority)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Generate figure
-pdf(filename=plot_file, width=12, height=5)
+pdf(filename=plot_file, width=15, height=5)
 layout(matrix(c(1,
                 2,
                 3), 
@@ -227,6 +233,19 @@ par(mar=c(4, 4, 1, 1), mgp=c(3,0.7,0))
 
 #-------------------#
 
+
+# Streptomycin
+
+
+
+
+# Cefoperazone
+
+
+abline(h=, lty=1) # separates cleared and colonized
+
+
+# Clindamycin
 
 
 
