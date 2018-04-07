@@ -211,46 +211,36 @@ clearedVcolonized_overlap_top <- intersect(intersect(rownames(strep_minority), r
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Get data ready for plotting
-#strep_minority$pathway <- rownames(strep_minority)
-#colnames(strep_minority) <- c('infected','mock','pathway',)
-#cef_minority$pathway <- rownames(cef_minority)
-#colnames(cef_minority) <- c('infected','mock','pathway')
-#clinda_minority$pathway <- rownames(clinda_minority)
-#colnames(clinda_minority) <- c('infected','mock','pathway')
-#minority_pathways <- as.data.frame(rbind(strep_minority, cef_minority, clinda_minority))
-#minority_pathways$colors <- c(rep(strep_col,nrow(strep_minority)), rep(cef_col,nrow(cef_minority)), rep(clinda_col,nrow(clinda_minority)))
-#rm(strep_minority, cef_minority, clinda_minority)
+strep_minority$pathway <- rownames(strep_minority)
+colnames(strep_minority) <- c('infected','mock','pathway')
+cef_minority$pathway <- rownames(cef_minority)
+colnames(cef_minority) <- c('infected','mock','pathway')
+clinda_minority$pathway <- rownames(clinda_minority)
+colnames(clinda_minority) <- c('infected','mock','pathway')
+minority_pathways <- as.data.frame(rbind(clinda_minority, cef_minority, strep_minority))
+pathway_names <- minority_pathways$pathway
+minority_pathways$pathway <- NULL
+minority_pathways <- as.matrix(t(minority_pathways))
+treatment_colors <- c(rep(clinda_col,nrow(clinda_minority)*2), rep(cef_col,nrow(cef_minority)*2), rep(strep_col,nrow(strep_minority)*2))
+rm(strep_minority, cef_minority, clinda_minority)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Generate figure
-pdf(filename=plot_file, width=15, height=5)
-layout(matrix(c(1,
-                2,
-                3), 
-              nrow=3, ncol=1, byrow = TRUE))
-par(mar=c(4, 4, 1, 1), mgp=c(3,0.7,0))
-
-#-------------------#
-
-
-# Streptomycin
-
-
-
-
-# Cefoperazone
-
-
-abline(h=, lty=1) # separates cleared and colonized
-
-
-# Clindamycin
-
-
-
-
-
+pdf(file=plot_file, width=10, height=20)
+par(mar=c(3,19,2,1), mgp=c(2.5, 0.75, 0), las=1, xaxs='i', yaxs='i')
+barplot(minority_pathways, xaxt='n', xlim=c(0,10), ylim=c(0,127), beside=TRUE, horiz=TRUE, 
+        xlab='', ylab='', angle=20, density=c(NA,30),  
+        col=treatment_colors)
+axis(1, at=seq(0,14,2), label=seq(0,14,2))
+minor.ticks.axis(1, 10, mn=0, mx=14)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
+abline(h=42.5, lwd=1.5) # separates cleared and colonized
+box(lwd=1.5)
+legend('topright', legend=c('Streptomycin','Cefoperazone','Clindamycin'), 
+       pt.bg=c(strep_col,cef_col,clinda_col), pch=22, pt.cex=2.5, cex=1.5)
+legend(x=, y=, legend=c('Mock-infected',as.expression(bquote(paste(italic('C. difficile'),'-infected')))), 
+       fill='black', density=c(NA, 20), pt.cex=2.3, cex=1.5)
 dev.off()
 
 #-------------------------------------------------------------------------------------------------------------------------#
