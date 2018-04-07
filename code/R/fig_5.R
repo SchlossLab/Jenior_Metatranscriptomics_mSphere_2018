@@ -197,8 +197,11 @@ cef_minority <- log2(cef_minority + 1)
 clinda_minority <- log2(clinda_minority + 1)
 # Subset to top hits at level of minimum between groups
 path_level <- as.numeric(min(nrow(strep_minority), nrow(cef_minority), nrow(clinda_minority)))
+
 strep_minority <- strep_minority[1:path_level,]
+
 cef_minority <- cef_minority[1:path_level,]
+
 clinda_minority <- clinda_minority[1:path_level,]
 rm(path_level)
 # Calculate overlap of most altered pathways
@@ -234,13 +237,14 @@ barplot(minority_pathways, xaxt='n', xlim=c(0,10), ylim=c(0,127), beside=TRUE, h
         col=treatment_colors)
 axis(1, at=seq(0,14,2), label=seq(0,14,2))
 minor.ticks.axis(1, 10, mn=0, mx=14)
-mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=0.9)
-abline(h=42.5, lwd=1.5) # separates cleared and colonized
-box(lwd=1.5)
+mtext(expression(paste('Metagenome-normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=1.1)
+text(x=c(9,9), y=c(44,41), labels=c('Colonized', 'Cleared'), font=2, cex=1.2)
 legend('topright', legend=c('Streptomycin','Cefoperazone','Clindamycin'), 
        pt.bg=c(strep_col,cef_col,clinda_col), pch=22, pt.cex=2.5, cex=1.5)
 legend(x=, y=, legend=c('Mock-infected',as.expression(bquote(paste(italic('C. difficile'),'-infected')))), 
        fill='black', density=c(NA, 20), pt.cex=2.3, cex=1.5)
+abline(h=42.5, lwd=1.5) # separates cleared and colonized
+box(lwd=1.5)
 dev.off()
 
 #-------------------------------------------------------------------------------------------------------------------------#
