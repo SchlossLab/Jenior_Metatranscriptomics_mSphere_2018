@@ -249,6 +249,9 @@ path_level <- as.numeric(min(nrow(strep_minority), nrow(cef_minority), nrow(clin
 strep_minority <- strep_minority[1:path_level,]
 cef_minority <- cef_minority[1:path_level,]
 clinda_minority <- clinda_minority[1:path_level,]
+strep_minority <- strep_minority[order(strep_minority$abs_diff),]
+cef_minority <- cef_minority[order(cef_minority$abs_diff),]
+clinda_minority <- clinda_minority[order(clinda_minority$abs_diff),]
 rm(path_level)
 # Calculate magnitube of transcriptional change in minority groups within each treatment
 strep_difference <- sum(strep_minority$abs_diff)
@@ -271,13 +274,8 @@ minority_pathways <- as.matrix(t(minority_pathways))
 treatment_colors <- c(rep(c(clinda_col,noabx_col), nrow(clinda_minority)), 
                       rep(c(cef_col,noabx_col), nrow(cef_minority)),
                       rep(c(strep_col,noabx_col), nrow(strep_minority)))
-pathway_names <- c("Phosphotransferase system (PTS)","Starch and sucrose metabolism","Two-component system","Pentose phosphate pathway",
-                   "Fructose and mannose metabolism","RNA degradation","Amino sugar and nucleotide sugar metabolism","Carbon metabolism",
-                   "Histidine metabolism","ABC transporters","Bacterial secretion system","Glycolysis / Gluconeogenesis",
-                   "Phosphotransferase system (PTS)","Ascorbate and aldarate metabolism","Flagellar assembly","Glyoxylate and dicarboxylate metabolism",
-                   "Pyrimidine metabolism","Biosynthesis of amino acids","Peptidoglycan biosynthesis","Glycerophospholipid metabolism",
-                   "Protein export","Amino sugar and nucleotide sugar metabolism","Glycerolipid metabolism","Purine metabolism",
-                   "RNA degradation","Thiamine metabolism","Bacterial secretion system")
+pathway_names <- colnames(minority_pathways)
+pathway_names <- gsub('1','',pathway_names)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
