@@ -1,8 +1,0 @@
-User Defined Parameters
-KO expression file: olsenella_DNA.streptomycin_mock_RNA.final.pool.norm.ko.txt
-Graph name: olsenella_mock
-KEGG ortholog nodes: 302
-Substrate nodes: 544
-Probability distribution generated: yes
-Permutations: 1000
-Duration: 3 seconds
