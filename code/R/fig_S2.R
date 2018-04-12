@@ -97,9 +97,6 @@ rownames(metabolome_nmds) <- rownames(metabolome)
 metabolome_nmds <- clean_merge(metadata, metabolome_nmds)
 metabolome_nmds_mock <- subset(metabolome_nmds, infection == 'mock')
 metabolome_nmds_infected <- subset(metabolome_nmds, infection == '630')
-# Calculate centroids
-metabolome_mock_centroids <- aggregate(cbind(metabolome_nmds_mock$MDS1,metabolome_nmds_mock$MDS2)~metabolome_nmds_mock$infection, data=metabolome_nmds_mock, mean)
-metabolome_infected_centroids <- aggregate(cbind(metabolome_nmds_infected$MDS1,metabolome_nmds_infected$MDS2)~metabolome_nmds_infected$infection, data=metabolome_nmds_infected, mean)
 # permANOVA
 metabolome_permANOVA_pval <- adonis(metabolome_dist ~ metabolome$infection, metabolome, perm=999)$aov.tab
 metabolome_permANOVA_pval <- round(metabolome_permANOVA_pval[1,6], 3)
@@ -115,9 +112,6 @@ rownames(otu_nmds) <- rownames(shared_otu)
 otu_nmds <- clean_merge(metadata, otu_nmds)
 otu_nmds_mock <- subset(otu_nmds, infection == 'mock')
 otu_nmds_infected <- subset(otu_nmds, infection == '630')
-# Calculate centroids
-otu_mock_centroids <- aggregate(cbind(otu_nmds_mock$MDS1,otu_nmds_mock$MDS2)~otu_nmds_mock$infection, data=otu_nmds_mock, mean)
-otu_infected_centroids <- aggregate(cbind(otu_nmds_infected$MDS1,otu_nmds_infected$MDS2)~otu_nmds_infected$infection, data=otu_nmds_infected, mean)
 # permANOVA
 otu_permANOVA_pval <- adonis(otu_dist ~ shared_otu$infection, shared_otu, perm=999)$aov.tab
 otu_permANOVA_pval <- round(otu_permANOVA_pval[1,6], 3)
@@ -206,9 +200,7 @@ plot(x=otu_nmds$MDS1, y=otu_nmds$MDS2, xlim=c(-0.6,0.6), ylim=c(-0.6,0.6),
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
 mtext('A', side=2, line=2, las=2, adj=1.5, padj=-9, cex=2, font=2)
 mtext('B', side=2, line=2, las=2, adj=1.5, padj=14, cex=2, font=2)
-segments(x0=otu_nmds_infected$MDS1, y0=otu_nmds_infected$MDS2, x1=otu_infected_centroids[1,2], y1=otu_infected_centroids[1,3], col='gray30')
 points(x=otu_nmds_infected$MDS1, y=otu_nmds_infected$MDS2, bg='chocolate2', pch=21, cex=2, lwd=1.2)
-segments(x0=otu_nmds_mock$MDS1, y0=otu_nmds_mock$MDS2, x1=otu_mock_centroids[1,2], y1=otu_mock_centroids[1,3], col='gray30')
 points(x=otu_nmds_mock$MDS1, y=otu_nmds_mock$MDS2, bg='darkblue', pch=21, cex=2, lwd=1.2)
 legend('bottomleft', legend=c('Mock vs Infected', as.expression(bquote(paste(italic('p'),' = 0.191')))), 
        pch=1, cex=1.2, pt.cex=0, bty='n')
@@ -222,9 +214,7 @@ plot(x=metabolome_nmds$MDS1, y=metabolome_nmds$MDS2, xlim=c(-0.6,0.6), ylim=c(-0
      xlab='NMDS axis 1', ylab='NMDS axis 2', pch=19, cex.axis=1.2, cex.lab=1.2)
 mtext('C', side=2, line=2, las=2, adj=1.5, padj=-9, cex=2, font=2)
 mtext('D', side=2, line=2, las=2, adj=1.5, padj=14, cex=2, font=2)
-segments(x0=metabolome_nmds_infected$MDS1, y0=metabolome_nmds_infected$MDS2, x1=metabolome_infected_centroids[1,2], y1=metabolome_infected_centroids[1,3], col='gray30')
 points(x=metabolome_nmds_infected$MDS1, y=metabolome_nmds_infected$MDS2, bg='chocolate2', pch=21, cex=2, lwd=1.2)
-segments(x0=metabolome_nmds_mock$MDS1, y0=metabolome_nmds_mock$MDS2, x1=metabolome_mock_centroids[1,2], y1=metabolome_mock_centroids[1,3], col='gray30')
 points(x=metabolome_nmds_mock$MDS1, y=metabolome_nmds_mock$MDS2, bg='darkblue', pch=21, cex=2, lwd=1.2)
 legend('bottomleft', legend=c('Mock vs Infected', as.expression(bquote(paste(italic('p'),' = 0.08')))), 
        pch=1, cex=1.2, pt.cex=0, bty='n')

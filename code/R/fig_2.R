@@ -126,7 +126,7 @@ metabolome_cleared_centroids <- aggregate(cbind(metabolome_nmds_cleared$MDS1, me
 metabolome_colonized_centroids <- aggregate(cbind(metabolome_nmds_colonized$MDS1, metabolome_nmds_colonized$MDS2)~metabolome_nmds_colonized$clearance, data=metabolome_nmds_colonized, mean)
 # permANOVA
 metabolome_permANOVA_pval <- adonis(metabolome_dist ~ metabolome$clearance, metabolome, perm=999)$aov.tab
-metabolome_permANOVA_pval <- round(metabolome_pval[1,6], 3)
+metabolome_permANOVA_pval <- round(metabolome_permANOVA_pval[1,6], 3)
 # Average within group distances
 rm(metabolome_dist)
 
@@ -148,7 +148,7 @@ otu_cleared_centroids <- aggregate(cbind(otu_nmds_cleared$MDS1, otu_nmds_cleared
 otu_colonized_centroids <- aggregate(cbind(otu_nmds_colonized$MDS1, otu_nmds_colonized$MDS2)~otu_nmds_colonized$clearance, data=otu_nmds_colonized, mean)
 # permANOVA
 otu_permANOVA_pval <- adonis(otu_dist ~ shared_otu$clearance, shared_otu, perm=999)$aov.tab
-otu_permANOVA_pval <- round(otu_pval[1,6], 3)
+otu_permANOVA_pval <- round(otu_permANOVA_pval[1,6], 3)
 # Average within group distances
 rm(otu_dist)
 
@@ -215,7 +215,7 @@ species <- c("Escherichia coli",
              "Turicibacter sanguinis",
              "Arthrobacter spp.",
              "Bacteroides caecimuris",
-             "Lactobacillus reuteri")
+             "Lactobacillus spp.")
 formatted_names <- lapply(1:length(species), function(i) bquote(paste(italic(.(species[i])), ' ', .(otu[i]), sep='')))
 rm(species, otu)
 
