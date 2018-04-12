@@ -378,9 +378,9 @@ clinda_minority_genes$product <- NULL
 # Pathways
 #minority_pathways <- as.data.frame(rbind(clinda_minority_pathways, cef_minority_pathways, strep_minority_pathways))
 #minority_pathways <- as.matrix(t(minority_pathways))
-#treatment_colors <- c(rep(c(clinda_col,clinda_col,noabx_col), nrow(clinda_minority_pathways)), 
-#                      rep(c(cef_col,cef_col,noabx_col), nrow(cef_minority_pathways)),
-#                      rep(c(strep_col,strep_col,noabx_col), nrow(strep_minority_pathways)))
+#treatment_colors <- c(rep(c(clinda_col,clinda_col,'gray70'), nrow(clinda_minority_pathways)), 
+#                      rep(c(cef_col,cef_col,'gray70'), nrow(cef_minority_pathways)),
+#                      rep(c(strep_col,strep_col,'gray70'), nrow(strep_minority_pathways)))
 #pathway_names <- c("Base excision repair","Glycerophospholipid metabolism","Pentose phosphate pathway","Fructose and mannose metabolism",
 #                   "Starch and sucrose metabolism","Glycolysis / Gluconeogenesis","Microbial metabolism in diverse environments","Two-component system",
 #                   "Phosphotransferase system (PTS)","ABC transporters","Tyrosine metabolism","Cysteine and methionine metabolism",
@@ -393,9 +393,9 @@ clinda_minority_genes$product <- NULL
 # Genes
 minority_genes <- as.data.frame(rbind(clinda_minority_genes, cef_minority_genes, strep_minority_genes))
 minority_genes <- as.matrix(t(minority_genes))
-treatment_colors <- c(rep(c(clinda_col,clinda_col,noabx_col), nrow(clinda_minority_genes)), 
-                      rep(c(cef_col,cef_col,noabx_col), nrow(cef_minority_genes)),
-                      rep(c(strep_col,strep_col,noabx_col), nrow(strep_minority_genes)))
+treatment_colors <- c(rep(c(clinda_col,clinda_col,'gray70'), nrow(clinda_minority_genes)), 
+                      rep(c(cef_col,cef_col,'gray70'), nrow(cef_minority_genes)),
+                      rep(c(strep_col,strep_col,'gray70'), nrow(strep_minority_genes)))
 gene_names <- c("1-Phosphofructokinase [J]","6-phospho-beta-glucosidase [E,F]",
                 "Arginase [I]","Deoxyribose-phosphate aldolase [K]",
                 "DNA-binding response regulator [G]","Formate acetyltransferase [H]",
@@ -431,8 +431,8 @@ axis(side=2, labels=gene_names, at=seq(2,86,3), tick=FALSE, cex.axis=1.7)
 mtext(expression(paste('Normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=1.8)
 abline(h=seq(3.4,84.4,3), lty=2)
 legend('topright', legend=c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
-       pt.bg=c(noabx_col,strep_col,cef_col,clinda_col), pch=22, pt.cex=3.3, cex=2, box.lwd=1, box.col="black", bg="white")
-legend(x=7.2, y=78.25, legend=c('630-infected','Mock-infected'), angle=20, density=c(20,NA), 
+       pt.bg=c('gray70',strep_col,cef_col,clinda_col), pch=22, pt.cex=3.3, cex=2, box.lwd=1, box.col="black", bg="white")
+legend(x=6.6, y=78.25, legend=c('630-infected','Mock-infected'), angle=20, density=c(20,NA), 
        pt.cex=3.3, cex=2, box.lwd=1, box.col="black", bg="white")
 box()
 dev.off()
@@ -441,7 +441,7 @@ dev.off()
 pdf(file=legend_file, width=40, height=10)
 par(mar=c(0,0,0,0))
 plot(0, type='n', xlim=c(-25,25), ylim=c(-6,6), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
-legend('center', legend=pathways, pt.cex=0, cex=3, ncol=3)
+legend('center', legend=pathways, pt.cex=0, cex=3, ncol=3, box.lwd=2)
 dev.off()
 
 #-------------------------------------------------------------------------------------------------------------------------#
