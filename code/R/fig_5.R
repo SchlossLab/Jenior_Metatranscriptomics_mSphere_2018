@@ -26,8 +26,7 @@ genus_tax <- 'data/16S_analysis/all_treatments.genus.final.taxonomy'
 kegg_tax <- 'data/kegg/kegg_taxonomy.tsv'
 
 # Output plot
-plot_file <- 'results/figures/figure_5_main.pdf'
-legend_file <- 'results/figures/figure_5_legend.pdf'
+plot_file <- 'results/figures/figure_5.pdf'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -421,27 +420,28 @@ pathways <- c('A. RNA degradation','B. Glycerolipid metabolism','C. Galactose me
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Generate figure
-pdf(file=plot_file, width=15, height=20)
-par(mar=c(5,26,1,2), mgp=c(2.5, 0.75, 0), las=1, xaxs='i', yaxs='i')
+pdf(file=plot_file, width=10, height=20)
+layout(matrix(c(1,1,1,1,1,2), nrow=6, ncol=1, byrow = TRUE))
+
+par(mar=c(5,26.7,1,2), mgp=c(2.5, 0.9, 0), las=1, xaxs='i', yaxs='i')
 barplot(minority_genes, xaxt='n', yaxt='n', xlim=c(0,10), ylim=c(0,88), beside=TRUE, horiz=TRUE, width=0.75,
         xlab='', ylab='', col=treatment_colors, cex.axis=1.2, angle=20, density=c(NA,20,NA))
 axis(1, at=seq(0,10,2), label=seq(0,10,2), cex.axis=1.6)
 minor.ticks.axis(1, 10, mn=0, mx=10)
-axis(side=2, labels=gene_names, at=seq(2,86,3), tick=FALSE, cex.axis=1.7)
-mtext(expression(paste('Normalized cDNA Reads (',log[2],')')), side=1, padj=2.5, cex=1.8)
+axis(side=2, labels=gene_names, at=seq(2,86,3), tick=FALSE, cex.axis=1.8)
+mtext(expression(paste('Normalized Metatranscriptomic Reads (',log[2],')')), side=1, padj=2.5, cex=1.7)
 abline(h=seq(3.4,84.4,3), lty=2)
 legend('topright', legend=c('No Antibiotics','Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
        pt.bg=c('gray70',strep_col,cef_col,clinda_col), pch=22, pt.cex=3.3, cex=2, box.lwd=1, box.col="black", bg="white")
-legend(x=6.6, y=78.25, legend=c('630-infected','Mock-infected'), angle=20, density=c(20,NA), 
+legend(x=6.6, y=80.3, legend=c('630-infected','Mock-infected'), angle=20, density=c(20,NA), 
        pt.cex=3.3, cex=2, box.lwd=1, box.col="black", bg="white")
-box()
-dev.off()
+box(lwd=1.5)
 
 # Pathway legend
-pdf(file=legend_file, width=40, height=10)
-par(mar=c(0,0,0,0))
-plot(0, type='n', xlim=c(-25,25), ylim=c(-6,6), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
-legend('center', legend=pathways, pt.cex=0, cex=3, ncol=3, box.lwd=2)
+par(mar=c(0,0,0,0), xpd=TRUE)
+plot(0, type='n', xlim=c(-25,25), ylim=c(-3,3), xaxt='n', yaxt='n', xlab='', ylab='', bty="n")
+legend(x=-24.7, y=2.5, legend=pathways, pt.cex=0, cex=1.2, ncol=3)
+
 dev.off()
 
 #-------------------------------------------------------------------------------------------------------------------------#

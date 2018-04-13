@@ -365,6 +365,20 @@ strep_genus_diff_1_10 <- subset(strep_genus_diff, strep_genus_diff$relAbund >= 1
 strep_genus_diff_10_100 <- subset(strep_genus_diff, strep_genus_diff$relAbund > 10 & strep_genus_diff$relAbund <= 100)
 rm(strep_genus_diff)
 
+#----------------------------------------------------------------------------------#
+
+# Statistical testing
+p_vals <- p.adjust(c(wilcox.test(x=cef_genus_diff_01$transcriptChange, y=strep_genus_diff_01$transcriptChange, exact=FALSE)$p.value,
+                     wilcox.test(x=cef_genus_diff_01$transcriptChange, y=clinda_genus_diff_01$transcriptChange, exact=FALSE)$p.value,
+                     wilcox.test(x=strep_genus_diff_01$transcriptChange, y=clinda_genus_diff_01$transcriptChange, exact=FALSE)$p.value), 
+                   method='BH')
+cef_strep_pval <- as.character(round(p_vals[1], 3))
+cef_clinda_pval <- as.character(round(p_vals[2], 3))
+strep_clinda_pval <- as.character(round(p_vals[3], 3))
+rm(p_vals)
+
+#----------------------------------------------------------------------------------#
+
 # Subset out other bacteria group
 strep_630_outliers_other <- subset(strep_630_outliers, color == 'white')
 strep_630_outliers <- subset(strep_630_outliers, color != 'white')

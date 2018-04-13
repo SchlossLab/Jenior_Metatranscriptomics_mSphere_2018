@@ -350,14 +350,7 @@ metabolitePlot <- function(resistant,
                            index, panelLab){
   # Get metabolite name
   metabolite <- colnames(resistant)[index]
-  # Make sure everything is numeric
-  resistant <- data.frame(apply(resistant, 2, function(x) as.numeric(as.character(x))))
-  strep_mock <- data.frame(apply(strep_mock, 2, function(x) as.numeric(as.character(x))))
-  strep_630 <- data.frame(apply(strep_630, 2, function(x) as.numeric(as.character(x))))
-  cef_mock <- data.frame(apply(cef_mock, 2, function(x) as.numeric(as.character(x))))
-  cef_630 <- data.frame(apply(cef_630, 2, function(x) as.numeric(as.character(x))))
-  clinda_mock <- data.frame(apply(clinda_mock, 2, function(x) as.numeric(as.character(x))))
-  clinda_630 <- data.frame(apply(clinda_630, 2, function(x) as.numeric(as.character(x))))
+
   # Find y-maximum
   yLimit <- round(max(max(resistant[,index]), 
                       max(strep_mock[,index]), max(strep_630[,index]),

@@ -65,7 +65,7 @@ stickland_aa <- c('proline','trans.4.hydroxyproline',
                   'aspartate','serine','threonine','cysteine',
                   'arginine','glutamate','asparagine','glycine','valine','leucine','isoleucine',
                   'methionine','phenylalanine','alanine')
-stickland_carboxy <- c('X5.aminovalerate')
+stickland_carboxy <- c('X5.aminovalerate','alanine')
 
 # Get metabolites in Stickland fermentation pathway
 metabolome_aa <- metabolome[, c('abx','infection', stickland_aa)]
@@ -88,8 +88,8 @@ colnames(resistant_metabolome_aa) <- c('Proline','4-Hydroxyproline',
                                        'Methionine','Phenylalanine','Alanine')
 colnames(metabolome_carboxy) <- c('abx','infection',
                                   '5-Aminovalerate')
-colnames(resistant_metabolome_carboxy) <- c('5-Aminovalerate')
-
+colnames(resistant_metabolome_carboxy) <- c('5-Aminovalerate','alanine')
+resistant_metabolome_carboxy$alanine <- NULL
 
 #------------#
 
@@ -158,15 +158,13 @@ for (x in 1:ncol(resistant_metabolome_aa)) {
 }
 dev.off()
 
-pdf(file=carboxy_plot, width=5, height=4)
-metabolitePlot(resistant_metabolome_carboxy, 
-                 metabolome_carboxy_mock_strep, metabolome_carboxy_infected_strep,
-                 metabolome_carboxy_mock_cef, metabolome_carboxy_infected_cef,
-                 metabolome_carboxy_mock_clinda, metabolome_carboxy_infected_clinda,
-                 1, '')
+pdf(file=carboxy_plot, width=6, height=5)
+metabolitePlot(resistant_metabolome_carboxy,
+               metabolome_carboxy_mock_strep, metabolome_carboxy_infected_strep,
+               metabolome_carboxy_mock_cef, metabolome_carboxy_infected_cef,
+               metabolome_carboxy_mock_clinda, metabolome_carboxy_infected_clinda,
+               1, '')
 dev.off()
-
-
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
