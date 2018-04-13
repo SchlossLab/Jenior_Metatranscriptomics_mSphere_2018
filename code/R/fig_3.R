@@ -28,7 +28,7 @@ kegg_tax <- 'data/kegg/kegg_taxonomy.tsv'
 tax_colors <- 'data/taxonomy_color.tsv'
 
 # Output plot
-plot_file <- 'results/figures/figure_4.pdf'
+plot_file <- 'results/figures/figure_3.tiff'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -41,7 +41,7 @@ metadata <- read.delim(metadata, sep='\t', header=TRUE, row.names=1)
 cef_normalized_reads <- read.delim(cef_normalized_reads, sep='\t', header=TRUE, row.names=7)
 clinda_normalized_reads <- read.delim(clinda_normalized_reads, sep='\t', header=TRUE, row.names=7)
 strep_normalized_reads <- read.delim(strep_normalized_reads, sep='\t', header=TRUE, row.names=7)
-
+  
 # KEGG organism file
 kegg_tax <- read.delim(kegg_tax, sep='\t', header=TRUE)
 kegg_tax[] <- lapply(kegg_tax, as.character)
@@ -53,7 +53,7 @@ genus_shared$numOtus <- NULL
 genus_tax <- read.delim(genus_tax, sep='\t', header=TRUE)
 rownames(genus_tax) <- genus_tax$OTU
 genus_tax$OTU <- NULL
-
+ 
 # Taxonomy colors
 tax_colors <- read.delim(tax_colors, sep='\t', header=TRUE)
 tax_colors[] <- lapply(tax_colors, as.character)
@@ -276,16 +276,10 @@ strep_difference$count <- NULL
 rm(strep_gene_count)
 strep_difference$difference <- log2(as.numeric(as.character(strep_difference$difference)) + 1)
 strep_genus_diff <- merge(strep_genus, strep_difference, by.x='row.names', by.y='genus')
-strep_extra <- subset(strep_difference, genus %in% c("Cellulosilyticum",'Butyrivibrio','Dorea',"Lactococcus","Alistipes","Odoribacter","Staphylococcus","Streptococcus","Roseburia","Ruminococcus","Porphyromonas","Faecalibacterium"))
-strep_extra$streptomycin <- rep(0.001, nrow(strep_extra))
-strep_extra <- strep_extra[,c(1,3,2)]
-colnames(strep_extra) <- c('Row.names','streptomycin','difference')
-strep_genus_diff <- as.data.frame(rbind(strep_genus_diff, strep_extra))
-strep_genus_diff <- strep_genus_diff[match(unique(strep_genus_diff$Row.names), strep_genus_diff$Row.names),]
 rownames(strep_genus_diff) <- strep_genus_diff$Row.names
 strep_genus_diff$Row.names <- NULL
 colnames(strep_genus_diff) <- c('relAbund','transcriptChange')
-rm(strep_outliers, strep_difference, strep_genus, strep_extra)
+rm(strep_outliers, strep_difference, strep_genus)
 cef_outliers <- rbind(cef_630_outliers, cef_mock_outliers)
 cef_difference <- abs(((2^cef_outliers$cef_mock_metaT_reads) - 1) - ((2^cef_outliers$cef_630_metaT_reads) - 1))
 cef_difference <- as.data.frame(cbind(cef_outliers$genus, cef_difference))
@@ -299,12 +293,6 @@ cef_difference$count <- NULL
 rm(cef_gene_count)
 cef_difference$difference <- log2(as.numeric(as.character(cef_difference$difference)) + 1)
 cef_genus_diff <- merge(cef_genus, cef_difference, by.x='row.names', by.y='genus')
-cef_extra <- subset(cef_difference, genus %in% c('Escherichia', "Porphyromonas","Ruminococcus","Clostridium","Lactococcus","Odoribacter","Prevotella"))
-cef_extra$ceftomycin <- rep(0.001, nrow(cef_extra))
-cef_extra <- cef_extra[,c(1,3,2)]
-colnames(cef_extra) <- c('Row.names','ceftomycin','difference')
-cef_genus_diff <- as.data.frame(rbind(cef_genus_diff, cef_extra))
-cef_genus_diff <- cef_genus_diff[match(unique(cef_genus_diff$Row.names), cef_genus_diff$Row.names),]
 rownames(cef_genus_diff) <- cef_genus_diff$Row.names
 cef_genus_diff$Row.names <- NULL
 colnames(cef_genus_diff) <- c('relAbund','transcriptChange')
@@ -322,12 +310,6 @@ clinda_difference$count <- NULL
 rm(clinda_gene_count)
 clinda_difference$difference <- log2(as.numeric(as.character(clinda_difference$difference)) + 1)
 clinda_genus_diff <- merge(clinda_genus, clinda_difference, by.x='row.names', by.y='genus')
-clinda_extra <- subset(clinda_difference, genus %in% c("Cellulosilyticum","Unclassified_Clostridiales","Clostridium","Lactococcus",'Butyrivibrio','Dorea','Roseburia','Bacteroides',"Prevotella","Ruminococcus","Porphyromonas","Faecalibacterium"))
-clinda_extra$clindatomycin <- rep(0.001, nrow(clinda_extra))
-clinda_extra <- clinda_extra[,c(1,3,2)]
-colnames(clinda_extra) <- c('Row.names','clindatomycin','difference')
-clinda_genus_diff <- as.data.frame(rbind(clinda_genus_diff, clinda_extra))
-clinda_genus_diff <- clinda_genus_diff[match(unique(clinda_genus_diff$Row.names), clinda_genus_diff$Row.names),]
 rownames(clinda_genus_diff) <- clinda_genus_diff$Row.names
 clinda_genus_diff$Row.names <- NULL
 colnames(clinda_genus_diff) <- c('relAbund','transcriptChange')
@@ -410,90 +392,138 @@ clinda_mock_ecoli <- subset(clinda_mock_outliers, color == '#CCCC00')
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
+# Perform some final calculations
+
+# Spearman correlation of 16S and metatransctiptomic change
+strep_16S_r <- as.character(round(cor.test(strep_difference$transcriptDiff, strep_difference$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
+strep_16S_p <- as.character(round(cor.test(strep_difference$transcriptDiff, strep_difference$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
+cef_16S_r <- as.character(round(cor.test(cef_difference$transcriptDiff, cef_difference$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
+cef_16S_p <- as.character(round(cor.test(cef_difference$transcriptDiff, cef_difference$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
+clinda_16S_r <- as.character(round(cor.test(clinda_difference$transcriptDiff, clinda_difference$relAbund, method='spearman', exact=FALSE)$estimate, digits=5))
+clinda_16S_p <- as.character(round(cor.test(clinda_difference$transcriptDiff, clinda_difference$relAbund, method='spearman', exact=FALSE)$p.value, digits=5))
+
+#-------------------------------------------------------------------------------------------------------------------------#
+
 # Plot the figure
-pdf(file=plot_file, width=13, height=7)
+tiff(filename=plot_file, width=10, height=10, units='in', 
+     res=300, pointsize=12, compression='none')
+layout(matrix(c(1,2,
+                3,4), 
+              nrow=2, ncol=2, byrow = TRUE))
+par(mar=c(5, 5, 1, 1), mgp=c(3,0.7,0))
 
-# Transcript abundance by species abundance
-par(mar=c(5, 5, 2, 2), yaxs='i')
-plot(1, type='n', ylim=c(0,15), xlim=c(0,8),
-     ylab='', xlab='', xaxt='n', yaxt='n', las=1)
-axis(1, at=c(1,3,5,7), label=c('<=0.1%','>0.1% and <=1%','>1% and <=10%','>10% and <=100%'), 
-     tick=FALSE, cex.axis=1.4, font=2)
-axis(2, at=c(0,5,10,15), cex.axis=1.5, las=1)
-mtext('Genus-level Relative Abundance (16S)', side=1, padj=3, cex=1.4)
-mtext(expression(paste('Absolute Difference in Metatranscriptome (',log[2],')')), side=2, padj=-2, cex=1.4)
-minor.ticks.axis(2, 20, mn=0, mx=25)
-abline(v=c(2,4,6), lwd=2)
-abline(v=c(0.5,1,1.5), lwd=2, lty=5, col=c(strep_col,cef_col,clinda_col))
-abline(v=c(2.5,3,3.5), lwd=2, lty=5, col=c(strep_col,cef_col,clinda_col))
-abline(v=c(4.5,5,5.5), lwd=2, lty=5, col=c(strep_col,cef_col,clinda_col))
-abline(v=c(6.5,7,7.5), lwd=2, lty=5, col=c(strep_col,cef_col,clinda_col))
+#-------------------#
+
+# Streptomycin
+plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
+filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
 box(lwd=2)
+points(x=strep_annotated$strep_mock_metaT_reads, y=strep_annotated$strep_630_metaT_reads, pch=20, cex=1.3, col='gray40')
+segments(-2, -2, 14, 14, lty=2)
+axis(1, at=seq(0,12,2), label=seq(0,12,2), cex=1.3)
+axis(2, at=seq(0,12,2), label=seq(0,12,2), cex=1.3, las=1)
+minor.ticks.axis(1, 10, mn=0, mx=12)
+minor.ticks.axis(2, 10, mn=0, mx=12)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.25, cex=0.9)
+mtext('Mock-Infected', side=1, padj=3.7, font=2)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-1.75, cex=0.9)
+mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2)
+legend('topleft', c('Streptomycin-pretreated', as.expression(bquote(paste(italic('R'),' = ',.(strep_corr))))), 
+       bty='n', cex=1.3, text.col=c(strep_col,'black'))
+mtext('A', side=2, line=2, las=2, adj=1, padj=-9, cex=1.7, font=2)
 
-# <0.1%
-strep_01_n <- as.numeric(nrow(strep_genus_diff_01))
-text(x=0.35, y=0.5, strep_01_n, cex=1.4)
-other <- subset(strep_genus_diff_01, strep_genus_diff_01$color == 'white')
-strep_genus_diff_01 <- subset(strep_genus_diff_01, strep_genus_diff_01$color != 'white')
-stripchart(at=0.5, other$transcriptChange, pch=21, bg=other$color, 
-           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=0.5, rev(strep_genus_diff_01$transcriptChange), pch=21, bg=rev(strep_genus_diff_01$color), 
-           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-temp <- subset(strep_genus_diff_01, rownames(strep_genus_diff_01) %in% c('Lactococcus','Roseburia','Prevotella','Akkermansia','Bifidobacterium') )
-stripchart(at=0.5, temp$transcriptChange, pch=21, bg=temp$color, 
-           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+points(x=strep_630_outliers_other$strep_mock_metaT_reads, y=strep_630_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_630_outliers_other$color)
+points(x=strep_mock_outliers_other$strep_mock_metaT_reads, y=strep_mock_outliers_other$strep_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=strep_mock_outliers_other$color)
+points(x=strep_630_outliers$strep_mock_metaT_reads, y=strep_630_outliers$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_outliers$color, col='gray10')
+points(x=strep_mock_outliers$strep_mock_metaT_reads, y=strep_mock_outliers$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_outliers$color, col='gray10')
+points(x=strep_630_actino$strep_mock_metaT_reads, y=strep_630_actino$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_actino$color, col='gray10')
+points(x=strep_mock_actino$strep_mock_metaT_reads, y=strep_mock_actino$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_actino$color, col='gray10')
+points(x=strep_630_archeae$strep_mock_metaT_reads, y=strep_630_archeae$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_630_archeae$color, col='gray10')
+points(x=strep_mock_archeae$strep_mock_metaT_reads, y=strep_mock_archeae$strep_630_metaT_reads, cex=1.7, pch=21, bg=strep_mock_archeae$color, col='gray10')
 
-cef_01_n <- as.numeric(nrow(cef_genus_diff_01))
-text(x=0.85, y=0.5, cef_01_n, cex=1.4)
-other <- subset(cef_genus_diff_01, cef_genus_diff_01$color == 'white')
-cef_genus_diff_01 <- subset(cef_genus_diff_01, cef_genus_diff_01$color != 'white')
-stripchart(at=1, other$transcriptChange, pch=21, bg=other$color, 
-           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=1, cef_genus_diff_01$transcriptChange, pch=21, bg=cef_genus_diff_01$color, 
-           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-temp <- subset(cef_genus_diff_01, rownames(cef_genus_diff_01) %in% c('Allistipes','Odoribacter','Parabacteroides') )
-stripchart(at=1, temp$transcriptChange, pch=21, bg=temp$color, 
-           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+#-------------------#
 
-clinda_01_n <- as.numeric(nrow(clinda_genus_diff_01))
-text(x=1.35, y=0.5, clinda_01_n, cex=1.4)
-other <- subset(clinda_genus_diff_01, clinda_genus_diff_01$color == 'white')
-clinda_genus_diff_01 <- subset(clinda_genus_diff_01, clinda_genus_diff_01$color != 'white')
-stripchart(at=1.5, other$transcriptChange, pch=21, bg=other$color, 
-           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=1.5, clinda_genus_diff_01$transcriptChange, pch=21, bg=clinda_genus_diff_01$color, 
-           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-temp <- subset(clinda_genus_diff_01, rownames(clinda_genus_diff_01) %in% c('Bifidobacterium','Parabacteroides') )
-stripchart(at=1.5, temp$transcriptChange, pch=21, bg=temp$color, 
-           method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+# Cefoperazone
+plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
+filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
+box(lwd=2)
+points(x=cef_annotated$cef_mock_metaT_reads, y=cef_annotated$cef_630_metaT_reads, pch=20, cex=1.3, col='gray40')
+segments(-2, -2, 14, 14, lty=2)
+axis(1, at=seq(0,12,2), label=seq(0,12,2), cex=1.3)
+axis(2, at=seq(0,12,2), label=seq(0,12,2), cex=1.3, las=1)
+minor.ticks.axis(1, 10, mn=0, mx=12)
+minor.ticks.axis(2, 10, mn=0, mx=12)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.25, cex=0.9)
+mtext('Mock-Infected', side=1, padj=3.7, font=2)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-1.75, cex=0.9)
+mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2)
+legend('topleft', c('Cefoperazone-pretreated', as.expression(bquote(paste(italic('R'),' = ',.(cef_corr))))), 
+       bty='n', cex=1.3, text.col=c(cef_col,'black'))
+mtext('B', side=2, line=2, las=2, adj=1, padj=-9, cex=1.7, font=2)
 
-# >0.1% and <1%
-stripchart(at=2.5, strep_genus_diff_01_1$transcriptChange, pch=21, bg=strep_genus_diff_01_1$color, 
-           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=3, cef_genus_diff_01_1$transcriptChange, pch=21, bg=cef_genus_diff_01_1$color, 
-           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=3.5, clinda_genus_diff_01_1$transcriptChange, pch=21, bg=clinda_genus_diff_01_1$color, 
-           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+points(x=cef_630_outliers_other$cef_mock_metaT_reads, y=cef_630_outliers_other$cef_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=cef_630_outliers_other$color)
+points(x=cef_mock_outliers_other$cef_mock_metaT_reads, y=cef_mock_outliers_other$cef_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=cef_mock_outliers_other$color)
+points(x=cef_630_outliers$cef_mock_metaT_reads, y=cef_630_outliers$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_outliers$color, col='gray10')
+points(x=cef_mock_outliers$cef_mock_metaT_reads, y=cef_mock_outliers$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_outliers$color, col='gray10')
+points(x=cef_630_actino$cef_mock_metaT_reads, y=cef_630_actino$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_actino$color, col='gray10')
+points(x=cef_mock_actino$cef_mock_metaT_reads, y=cef_mock_actino$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_actino$color, col='gray10')
+points(x=cef_630_archeae$cef_mock_metaT_reads, y=cef_630_archeae$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_630_archeae$color, col='gray10')
+points(x=cef_mock_archeae$cef_mock_metaT_reads, y=cef_mock_archeae$cef_630_metaT_reads, cex=1.7, pch=21, bg=cef_mock_archeae$color, col='gray10')
 
-# >1% and <10%
-stripchart(at=4.5, strep_genus_diff_1_10$transcriptChange, pch=21, bg=strep_genus_diff_1_10$color, 
-           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=5, cef_genus_diff_1_10$transcriptChange, pch=21, bg=cef_genus_diff_1_10$color, 
-           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=5.5, clinda_genus_diff_1_10$transcriptChange, pch=21, bg=clinda_genus_diff_1_10$color, 
-           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+#-------------------#
 
-# >10% and <100%
-stripchart(at=6.5, strep_genus_diff_10_100$transcriptChange, pch=21, bg=strep_genus_diff_10_100$color, 
-           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=7, cef_genus_diff_10_100$transcriptChange, pch=21, bg=cef_genus_diff_10_100$color, 
-           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
-stripchart(at=7.5, clinda_genus_diff_10_100$transcriptChange, pch=21, bg=clinda_genus_diff_10_100$color, 
-           cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+# Clindamycin
+plot(0, type='n', xlim=c(0,12), ylim=c(0,12), pch=20, xaxt='n', yaxt='n', xlab='', ylab='')
+filledrectangle(wx=20, wy=2.8, col='gray80', mid=c(6,6), angle=45)
+box(lwd=2)
+points(x=clinda_annotated$clinda_mock_metaT_reads, y=clinda_annotated$clinda_630_metaT_reads, pch=20, cex=1.3, col='gray40')
+segments(-2, -2, 14, 14, lty=2)
+axis(1, at=seq(0,12,2), label=seq(0,12,2), cex=1.3)
+axis(2, at=seq(0,12,2), label=seq(0,12,2), cex=1.3, las=1)
+minor.ticks.axis(1, 10, mn=0, mx=12)
+minor.ticks.axis(2, 10, mn=0, mx=12)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=1, padj=2.25, cex=0.9)
+mtext('Mock-Infected', side=1, padj=3.7, font=2)
+mtext(expression(paste('Normalized cDNA Abundance (',log[2],')')), side=2, padj=-1.75, cex=0.9)
+mtext(expression(bolditalic('C. difficile')~bold('-Infected')), side=2, padj=-3.5, font=2)
+legend('topleft', c('Clindamycin-pretreated', as.expression(bquote(paste(italic('R'),' = ',.(clinda_corr))))), 
+       bty='n', cex=1.3, text.col=c(clinda_col,'black'))
+mtext('C', side=2, line=2, las=2, adj=1, padj=-9, cex=1.7, font=2)
 
-par(xpd=TRUE)
-legend(x=0.25, y=16.5, legend=c('Streptomycin-pretreated','Cefoperazone-pretreated','Clindamycin-pretreated'), 
-       bty='n', col=c(strep_col,cef_col,clinda_col), pch=c(1,16), cex=1.5, pt.cex=0, lty=5, lwd=2.5, ncol=3)
+points(x=clinda_630_outliers_other$clinda_mock_metaT_reads, y=clinda_630_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_630_outliers_other$color)
+points(x=clinda_mock_outliers_other$clinda_mock_metaT_reads, y=clinda_mock_outliers_other$clinda_630_metaT_reads, cex=1.7, pch=21, col='gray10', lwd=1.5, bg=clinda_mock_outliers_other$color)
+points(x=clinda_630_outliers$clinda_mock_metaT_reads, y=clinda_630_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_outliers$color, col='gray10')
+points(x=clinda_mock_outliers$clinda_mock_metaT_reads, y=clinda_mock_outliers$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_mock_outliers$color, col='gray10')
+points(x=clinda_630_actino$clinda_mock_metaT_reads, y=clinda_630_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_actino$color, col='gray10')
+points(x=clinda_mock_actino$clinda_mock_metaT_reads, y=clinda_mock_actino$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_mock_actino$color, col='gray10')
+points(x=clinda_630_archeae$clinda_mock_metaT_reads, y=clinda_630_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_630_archeae$color, col='gray10')
+points(x=clinda_mock_archeae$clinda_mock_metaT_reads, y=clinda_mock_archeae$clinda_630_metaT_reads, cex=1.7, pch=21, bg=clinda_mock_archeae$color, col='gray10')
+
+#-------------------#
+
+# Taxonomic group legend
+par(mar=c(0,1,3,0))
+plot(0, type='n', axes=FALSE, xlab='', ylab='', xlim=c(-5,5), ylim=c(-10,10))
+rect(xleft=-4.5, ybottom=10, xright=3.5, ytop=-5.5, border='black')
+
+# Left side
+text(x=c(-3,-3,1,1,1,1,0.5), y=c(9,2.4,9,5.5,2.4,0,-2.4), labels=c('Bacteroidetes', 'Firmicutes','Actinobacteria','Proteobacteria','Verrucomicrobia','Other Bacteria', 'Archeae'), cex=1.2) # Phyla
+text(x=-2.5, y=c(8.3,7.6,6.9,6.2,5.5,4.8), labels=c('Allistipes','Bacteroides','Odoribacter','Parabacteroides','Prevotella','Porphymonas'), cex=0.9, font=3) # Bacteroietes
+points(x=rep(-1.1,6), y=c(8.3,7.6,6.9,6.2,5.5,4.8), pch=22, cex=2.1, col='black', bg=c('#000099','#0000CC','#0000FF','#3333FF','#6666FF','#9999FF')) # blues
+text(x=-2.5, y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), labels=c('Clostridium','Enterococcus','Eubacterium','Lactobacillus','Lactococcus','Roseburia','Ruminococcus','Staphylococcus','Streptococcus'), cex=0.9, font=3) # Firmicutes
+points(x=rep(-1.1,9), y=c(1.7,1,0.3,-0.4,-1.1,-1.8,-2.5,-3.2,-3.9), pch=22, cex=2.1, col='black', bg=c('#330000','#660000','#990000','#CC0000','#FF0000','#FF3333','#FF6666','#FF9999','#FFCCCC')) # reds
+
+# Right side
+text(x=1.45, y=c(8.3,7.6,6.9), labels=c('Bifidobacterium','Corynebacterium','Olsenella'), cex=0.9, font=3) # Actinobacteria
+points(x=rep(2.75,3), y=c(8.3,7.6,6.9), pch=22, cex=2.2, col='black', bg=c('#006600','#009900','#33FF33')) # greens
+text(x=1.5, y=4.8, labels='Escherichia', cex=0.9, font=3) # Proteobacteria
+points(x=2.75, y=4.8, pch=22, cex=2.2, col='black', bg='#CCCC00') # yellow
+text(x=1.5, y=1.7, labels='Akkermansia', cex=0.9, font=3) # Verrucomicrobia
+points(x=2.75, y=1.7, pch=22, cex=2.2, col='black', bg='#990099') # purple
+text(x=1.5, y=-0.85, labels='<=0.01% Each', cex=0.9) # Other bacteria
+points(x=2.75, y=-0.85, pch=22, cex=2.2, col='black', bg='white') # Other Bacteria - white
+text(x=1.3, y=-3.1, labels='Methanobrevibacter', cex=0.9, font=3) # Archeae
+points(x=2.75, y=-3.1, pch=22, cex=2.2, col='black', bg='#FF8000') # orange
 
 dev.off()
 
