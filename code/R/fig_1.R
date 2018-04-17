@@ -14,7 +14,6 @@ cfu <- 'data/cfu_time.tsv'
 shared_family_file <- 'data/16S_analysis/all_treatments.family.subsample.shared'
 taxonomy_family_file <- 'data/16S_analysis/all_treatments.family.cons.format.taxonomy'
 
-
 # Define output files
 plot_file <- 'results/figures/figure_1.pdf'
 
@@ -136,7 +135,7 @@ rm(metadata, empty_columns)
 
 # Set up multi-panel figure
 pdf(file=plot_file, width=12, height=4)
-layout(matrix(c(1,2,3,3,4),
+layout(matrix(c(1,2,2,3,4),
               nrow=1, ncol=5, byrow = TRUE))
 minor_ticks <- c(0.18,0.34,0.48,0.6,0.7,0.78,0.84,0.9,0.94,0.98)
 short_ticks <- c(log10(strep_size/1000)-0.33,log10(strep_size/1000)-0.2,log10(strep_size/1000)-0.1,log10(strep_size/1000)-0.05)
@@ -162,6 +161,32 @@ legend(x=1.7, y=4, legend=c('Streptomycin', 'Cefoperazone', 'Clindamycin', 'No A
        pch=16, col=c(strep_col, cef_col, clinda_col, noabx_col), cex=0.9, pt.cex=1.5)
 mtext('A', side=2, line=2, las=2, adj=1.4, padj=-9.2, cex=1.4, font=2)
 box(lwd=1.5)
+
+#-----------------------------#
+
+# Family-level phylotype bar chart
+par(mar=c(3,4,1,1), mgp=c(2.5, 0.25, 0), new=FALSE, xpd=FALSE)
+barplot(t(rev(relabund_family)), col=rev(taxonomy_family$color), yaxt='n', xaxt='n', cex.lab=1.3,
+        ylim=c(0,100), ylab='Relative Abundance', cex.names=1.2, space=0)
+box(lwd=1.5)
+axis(side=2, at=seq(0,100,20), labels=c('0%','20%','40%','60%','80%','100%'), tick=FALSE, las=1)
+abline(h=c(20,40,60,80), lty=2)
+mtext(c('No Antibiotics','Streptomycin','Cefoperazone','Clindamycin'), font=2,
+      side=1, at=c(4,18,36,55), adj=0.5, padj=1, cex=0.7, col='black')
+mtext('B', side=2, line=2, las=2, adj=1.4, padj=-9.8, cex=1.4, font=2)
+
+# Create a figure legend in empty plot
+par(mar=c(0,0,0,1))
+plot(0, type='n', ylim=c(-10,10), xlim=c(5,5), ylab='', xlab='', xaxt='n', yaxt='n', axes=FALSE)
+legend('right', legend=taxonomy_family$family, pt.bg=taxonomy_family$color, 
+       pch=22, pt.cex=2, cex=0.9, bty='n')
+# Add in phylum classifications
+segments(x0=rep(4.45,5), x1=rep(4.45,5), 
+         y0=c(5.65,4.9,1.7, -2.75,-4), y1=c(5.25,2.2,-2.25, -3.55,-4.4), 
+         lwd=3) # vertical
+text(x=rep(3.7,5), y=c(5.45,3.5,-0.3,-3.15,-4.15), cex=0.9,
+     labels=c('Actinobacteria', 'Bacteroidetes', 'Firmicutes', 'Proteobacteria', 'Verrucomicrobia'))
+text(x=c(3.75,5.5), y=-7, labels=c('Phylum','Family'), cex=1.1, font=2, xpd=TRUE)
 
 #-----------------------------#
 
@@ -201,35 +226,8 @@ segments(x0=c(0.3, 0.8, 1.3, 1.8),
               as.numeric(median(clinda_veg))), 
          lwd=3)
 
-mtext('B', side=2, line=2, las=2, adj=1, padj=-9, cex=1.4, font=2)
+mtext('C', side=2, line=2, las=2, adj=1, padj=-9, cex=1.4, font=2)
 
-#-----------------------------#
-
-# Family-level phylotype bar chart
-par(mar=c(3,4,1,1), mgp=c(2.5, 0.25, 0), new=FALSE, xpd=FALSE)
-barplot(t(rev(relabund_family)), col=rev(taxonomy_family$color), yaxt='n', xaxt='n', cex.lab=1.3,
-        ylim=c(0,100), ylab='Relative Abundance', cex.names=1.2, space=0)
-box(lwd=1.5)
-axis(side=2, at=seq(0,100,20), labels=c('0%','20%','40%','60%','80%','100%'), tick=FALSE, las=1)
-abline(h=c(20,40,60,80), lty=2)
-mtext(c('No Antibiotics','Streptomycin','Cefoperazone','Clindamycin'), font=2,
-      side=1, at=c(4,18,36,55), adj=0.5, padj=1, cex=0.7, col='black')
-mtext('C', side=2, line=2, las=2, adj=1.4, padj=-9.8, cex=1.4, font=2)
-
-#-----------#
-
-# Create a figure legend in empty plot
-par(mar=c(0,0,0,1))
-plot(0, type='n', ylim=c(-10,10), xlim=c(5,5), ylab='', xlab='', xaxt='n', yaxt='n', axes=FALSE)
-legend('right', legend=taxonomy_family$family, pt.bg=taxonomy_family$color, 
-       pch=22, pt.cex=2, cex=0.9, bty='n')
-# Add in phylum classifications
-segments(x0=rep(4.45,5), x1=rep(4.45,5), 
-         y0=c(5.65,4.9,1.7, -2.75,-4), y1=c(5.25,2.2,-2.25, -3.55,-4.4), 
-         lwd=3) # vertical
-text(x=rep(3.7,5), y=c(5.45,3.5,-0.3,-3.15,-4.15), cex=0.9,
-     labels=c('Actinobacteria', 'Bacteroidetes', 'Firmicutes', 'Proteobacteria', 'Verrucomicrobia'))
-text(x=c(3.75,5.5), y=-7, labels=c('Phylum','Family'), cex=1.1, font=2, xpd=TRUE)
 
 dev.off()
 

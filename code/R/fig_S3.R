@@ -8,7 +8,7 @@ gc()
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
 
 # Output plot name
-fig3_plot <- 'results/supplement/figures/figure_3.pdf'
+plot_file <- 'results/supplement/figures/figure_S3.pdf'
 
 # Input Metabolomes
 metabolome <- 'data/metabolome/scaled_intensities.log10.tsv'
@@ -61,110 +61,93 @@ metabolome <- subset(metabolome, abx != 'none')
 metabolome$susceptibility <- NULL
 
 # Stickland metabolites
-stickland_aa <- c('proline','trans.4.hydroxyproline',
-                  'aspartate','serine','threonine','cysteine',
-                  'arginine','glutamate','asparagine','glycine','valine','leucine','isoleucine',
-                  'methionine','phenylalanine','alanine')
-stickland_carboxy <- c('X5.aminovalerate','alanine')
+stick <- c('proline','trans.4.hydroxyproline','glycine','X5.aminovalerate')
+other_aa <- c('aspartate','serine','threonine','cysteine',
+              'arginine','glutamate','asparagine','valine',
+              'leucine','isoleucine','methionine','phenylalanine','alanine')
 
 # Get metabolites in Stickland fermentation pathway
-metabolome_aa <- metabolome[, c('abx','infection', stickland_aa)]
-metabolome_carboxy <- metabolome[, c('abx','infection',stickland_carboxy)]
-resistant_metabolome_aa <- resistant_metabolome[, stickland_aa]
-resistant_metabolome_carboxy <- resistant_metabolome[, stickland_carboxy]
-rm(metabolome, resistant_metabolome, stickland_aa, stickland_carboxy)
-
-#------------#
+stickland <- metabolome[, c('abx','infection', stick)]
+otherAA <- metabolome[, c('abx','infection',other_aa)]
+resistant_stickland <- resistant_metabolome[, stick]
+resistant_other <- resistant_metabolome[, other_aa]
+rm(metabolome, resistant_metabolome, stick, other_aa)
 
 # Reformat metabolite names
-colnames(metabolome_aa) <- c('abx','infection',
-                             'Proline','4-Hydroxyproline',
-                             'Aspartate','Serine','Threonine','Cysteine',
-                             'Arginine','Glutamate','Asparagine','Glycine','Valine','Leucine','Isoleucine',
-                             'Methionine','Phenylalanine','Alanine')
-colnames(resistant_metabolome_aa) <- c('Proline','4-Hydroxyproline',
-                                       'Aspartate','Serine','Threonine','Cysteine',
-                                       'Arginine','Glutamate','Asparagine','Glycine','Valine','Leucine','Isoleucine',
-                                       'Methionine','Phenylalanine','Alanine')
-colnames(metabolome_carboxy) <- c('abx','infection',
-                                  '5-Aminovalerate')
-colnames(resistant_metabolome_carboxy) <- c('5-Aminovalerate','alanine')
-resistant_metabolome_carboxy$alanine <- NULL
+colnames(stickland) <- c('abx','infection','Proline','4-Hydroxyproline','Glycine','5-Aminovalerate')
+colnames(resistant_stickland) <- c('Proline','4-Hydroxyproline','Glycine','5-Aminovalerate')
 
 #------------#
 
 # Subset groups to mock and infected
-metabolome_aa_mock <- subset(metabolome_aa, infection == 'mock')
-metabolome_aa_mock$infection <- NULL
-metabolome_aa_mock_strep <- subset(metabolome_aa_mock, abx == 'streptomycin')
-metabolome_aa_mock_strep$abx <- NULL
-metabolome_aa_mock_cef <- subset(metabolome_aa_mock, abx == 'cefoperazone')
-metabolome_aa_mock_cef$abx <- NULL
-metabolome_aa_mock_clinda <- subset(metabolome_aa_mock, abx == 'clindamycin')
-metabolome_aa_mock_clinda$abx <- NULL
-rm(metabolome_aa_mock)
-metabolome_aa_infected <- subset(metabolome_aa, infection == '630')
-metabolome_aa_infected$infection <- NULL
-metabolome_aa_infected_strep <- subset(metabolome_aa_infected, abx == 'streptomycin')
-metabolome_aa_infected_strep$abx <- NULL
-metabolome_aa_infected_cef <- subset(metabolome_aa_infected, abx == 'cefoperazone')
-metabolome_aa_infected_cef$abx <- NULL
-metabolome_aa_infected_clinda <- subset(metabolome_aa_infected, abx == 'clindamycin')
-metabolome_aa_infected_clinda$abx <- NULL
-rm(metabolome_aa_infected)
+stickland_mock <- subset(stickland, infection == 'mock')
+stickland_mock$infection <- NULL
+stickland_mock_strep <- subset(stickland_mock, abx == 'streptomycin')
+stickland_mock_strep$abx <- NULL
+stickland_mock_cef <- subset(stickland_mock, abx == 'cefoperazone')
+stickland_mock_cef$abx <- NULL
+stickland_mock_clinda <- subset(stickland_mock, abx == 'clindamycin')
+stickland_mock_clinda$abx <- NULL
+rm(stickland_mock)
+stickland_infected <- subset(stickland, infection == '630')
+stickland_infected$infection <- NULL
+stickland_infected_strep <- subset(stickland_infected, abx == 'streptomycin')
+stickland_infected_strep$abx <- NULL
+stickland_infected_cef <- subset(stickland_infected, abx == 'cefoperazone')
+stickland_infected_cef$abx <- NULL
+stickland_infected_clinda <- subset(stickland_infected, abx == 'clindamycin')
+stickland_infected_clinda$abx <- NULL
+rm(stickland_infected)
 
-metabolome_carboxy_mock <- subset(metabolome_carboxy, infection == 'mock')
-metabolome_carboxy_mock$infection <- NULL
-metabolome_carboxy_mock_strep <- subset(metabolome_carboxy_mock, abx == 'streptomycin')
-metabolome_carboxy_mock_strep$abx <- NULL
-metabolome_carboxy_mock_cef <- subset(metabolome_carboxy_mock, abx == 'cefoperazone')
-metabolome_carboxy_mock_cef$abx <- NULL
-metabolome_carboxy_mock_clinda <- subset(metabolome_carboxy_mock, abx == 'clindamycin')
-metabolome_carboxy_mock_clinda$abx <- NULL
-rm(metabolome_carboxy_mock)
-metabolome_carboxy_infected <- subset(metabolome_carboxy, infection == '630')
-metabolome_carboxy_infected$infection <- NULL
-metabolome_carboxy_infected <- subset(metabolome_carboxy, infection == '630')
-metabolome_carboxy_infected$infection <- NULL
-metabolome_carboxy_infected_strep <- subset(metabolome_carboxy_infected, abx == 'streptomycin')
-metabolome_carboxy_infected_strep$abx <- NULL
-metabolome_carboxy_infected_cef <- subset(metabolome_carboxy_infected, abx == 'cefoperazone')
-metabolome_carboxy_infected_cef$abx <- NULL
-metabolome_carboxy_infected_clinda <- subset(metabolome_carboxy_infected, abx == 'clindamycin')
-metabolome_carboxy_infected_clinda$abx <- NULL
-rm(metabolome_carboxy_infected)
-
-rm(metadata, metabolome_aa, metabolome_carboxy)
+otherAA_mock <- subset(otherAA, infection == 'mock')
+otherAA_mock$infection <- NULL
+otherAA_mock_strep <- subset(otherAA_mock, abx == 'streptomycin')
+otherAA_mock_strep$abx <- NULL
+otherAA_mock_cef <- subset(otherAA_mock, abx == 'cefoperazone')
+otherAA_mock_cef$abx <- NULL
+otherAA_mock_clinda <- subset(otherAA_mock, abx == 'clindamycin')
+otherAA_mock_clinda$abx <- NULL
+rm(otherAA_mock)
+otherAA_infected <- subset(otherAA, infection == '630')
+otherAA_infected$infection <- NULL
+otherAA_infected <- subset(otherAA, infection == '630')
+otherAA_infected$infection <- NULL
+otherAA_infected_strep <- subset(otherAA_infected, abx == 'streptomycin')
+otherAA_infected_strep$abx <- NULL
+otherAA_infected_cef <- subset(otherAA_infected, abx == 'cefoperazone')
+otherAA_infected_cef$abx <- NULL
+otherAA_infected_clinda <- subset(otherAA_infected, abx == 'clindamycin')
+otherAA_infected_clinda$abx <- NULL
+rm(otherAA_infected)
+rm(metadata, stickland, otherAA)
 
 #-------------------------------------------------------------------------------------------------------------------------#
-alphabet <- c('A','B','C','D','E','F','G','H','I','J','K','L','M',
-              'N','O','P','Q','R','S','T','U','V','W','X','Y','Z')
-aa_plot <- 'results/supplement/figures/figure_S3A.pdf'
-carboxy_plot <- 'results/supplement/figures/figure_S3B.pdf'
+alphabet <- c('A','B','C','D')
 
 # Plot the figure
-pdf(file=aa_plot, width=20, height=16)
-layout(matrix(c(1,2,3,4,
-                5,6,7,8,
-                9,10,11,12,
-                13,14,15,16),
-              nrow=4, ncol=4, byrow=TRUE))
-for (x in 1:ncol(resistant_metabolome_aa)) {
-  metabolitePlot(resistant_metabolome_aa, 
-                 metabolome_aa_mock_strep, metabolome_aa_infected_strep,
-                 metabolome_aa_mock_cef, metabolome_aa_infected_cef,
-                 metabolome_aa_mock_clinda, metabolome_aa_infected_clinda,
-                 x, '')
+pdf(file=plot_file, width=10, height=8)
+layout(matrix(c(1,2,
+                3,4),
+              nrow=2, ncol=2, byrow=TRUE))
+for (x in 1:ncol(resistant_stickland)) {
+  metabolitePlot(resistant_stickland, 
+                 stickland_mock_strep, stickland_infected_strep,
+                 stickland_mock_cef, stickland_infected_cef,
+                 stickland_mock_clinda, stickland_infected_clinda,
+                 x, alphabet[x])
 }
 dev.off()
 
-pdf(file=carboxy_plot, width=6, height=5)
-metabolitePlot(resistant_metabolome_carboxy,
-               metabolome_carboxy_mock_strep, metabolome_carboxy_infected_strep,
-               metabolome_carboxy_mock_cef, metabolome_carboxy_infected_cef,
-               metabolome_carboxy_mock_clinda, metabolome_carboxy_infected_clinda,
-               1, '')
-dev.off()
+#-------------------------------------------------------------------------------------------------------------------------#
+
+# Assemble supplemental table
+
+
+
+
+
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------#
 

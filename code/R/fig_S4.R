@@ -26,7 +26,7 @@ strep_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/streptomyci
 noabx_mock_metatranscriptome <- 'data/read_mapping/metatranscriptome/conventional.Conventional.metaT.final.pool.norm.txt'
 
 # Output file
-plot_file <- 'results/supplement/figures/figure_S5ABCD.pdf'
+plot_file <- 'results/supplement/figures/figure_S4.pdf'
 
 #-------------------------------------------------------------------------------------------------------------------------#
 

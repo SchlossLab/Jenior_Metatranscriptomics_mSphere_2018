@@ -196,213 +196,108 @@ dist_xy <- function(x) {
 ```{r figure_1, echo=F, warning=F, message=F, results='hide', cache=F}
 
 # Load in data
+metadata <- read.delim('data/metadata.tsv', sep='\t', header=T, row.names=1)
+metadata <- subset(metadata, type == 'conventional') # remove germfree
+metadata$type <- NULL
+metadata$cage <- NULL
+metadata$mouse <- NULL
+metadata$gender <- NULL
 wetlab <- read.delim('data/wetlab_assays.tsv', sep='\t', header=T, row.names=1)
+cfu <- read.delim('data/cfu_time.tsv', sep='\t', header=TRUE)
 
 # Format wetlab assay data
 wetlab <- subset(wetlab, infection == '630') # Remove uninfected controls
 wetlab <- subset(wetlab, treatment != 'germfree') # Remove germfree
 wetlab$infection <- NULL
+wetlab$cfu_spore <- NULL
+wetlab$toxin_titer <- NULL
 wetlab$cfu_vegetative <- as.numeric(wetlab$cfu_vegetative)
 wetlab$cfu_vegetative[wetlab$cfu_vegetative == 0] <- 100
-wetlab$cfu_spore <- as.numeric(wetlab$cfu_spore)
-wetlab$cfu_spore[wetlab$cfu_spore == 0] <- 100
-wetlab$toxin_titer <- as.numeric(wetlab$toxin_titer)
-
-# Separate datasets
-strep_veg <- subset(wetlab, treatment == 'streptomycin')$cfu_vegetative
-strep_spore <- subset(wetlab, treatment == 'streptomycin')$cfu_spore
-strep_tox <- subset(wetlab, treatment == 'streptomycin')$toxin_titer
-cef_veg <- subset(wetlab, treatment == 'cefoperazone')$cfu_vegetative
-cef_spore <- subset(wetlab, treatment == 'cefoperazone')$cfu_spore
-cef_tox <- subset(wetlab, treatment == 'cefoperazone')$toxin_titer
-clinda_veg <- subset(wetlab, treatment == 'clindamycin')$cfu_vegetative
-clinda_spore <- subset(wetlab, treatment == 'clindamycin')$cfu_spore
-clinda_tox <- subset(wetlab, treatment == 'clindamycin')$toxin_titer
-noabx_veg <- subset(wetlab, treatment == 'conventional')$cfu_vegetative
-noabx_spore <- subset(wetlab, treatment == 'conventional')$cfu_spore
-noabx_tox <- subset(wetlab, treatment == 'conventional')$toxin_titer
+wetlab$cfu_vegetative <- log10(wetlab$cfu_vegetative)
+wetlab$treatment <- droplevels(wetlab$treatment)
+wetlab$treatment <- factor(wetlab$treatment, levels=c('conventional', 'streptomycin', 'cefoperazone', 'clindamycin'))
+wetlab$cfu_vegetative[wetlab$cfu_vegetative <= 2.0] <- 1.7 # Undetectable points below LOD
+noabx_veg <- as.numeric(subset(wetlab, treatment == 'conventional')$cfu_vegetative)
+strep_veg <- as.numeric(subset(wetlab, treatment == 'streptomycin')$cfu_vegetative)
+cef_veg <- as.numeric(subset(wetlab, treatment == 'cefoperazone')$cfu_vegetative)
+clinda_veg <- as.numeric(subset(wetlab, treatment == 'clindamycin')$cfu_vegetative)
 rm(wetlab)
+# Significance testing
+p_val <- p.adjust(c(wilcox.test(noabx_veg, strep_veg, exact=FALSE)$p.value,
+                    wilcox.test(noabx_veg, cef_veg, exact=FALSE)$p.value,
+                    wilcox.test(noabx_veg, clinda_veg, exact=FALSE)$p.value),
+                  method='BH')
+veg_pval <- as.character(max(round(p_val, 3)))
+rm(noabx_veg, strep_veg, cef_veg, clinda_veg, p_val)
 
-# Calculate differences
-# Vegetative
-veg_pval <- p.adjust(c(wilcox.test(noabx_veg, strep_veg, exact=F)$p.value,
-                       wilcox.test(noabx_veg, cef_veg, exact=F)$p.value,
-                       wilcox.test(noabx_veg, clinda_veg, exact=F)$p.value), method='BH')
-# Spores
-spore_pval <- p.adjust(c(wilcox.test(noabx_spore, strep_spore, exact=F)$p.value,
-                       wilcox.test(noabx_spore, cef_spore, exact=F)$p.value,
-                       wilcox.test(noabx_spore, clinda_spore, exact=F)$p.value), method='BH')
-# Toxin titer
-tox_pval <- p.adjust(c(wilcox.test(noabx_tox, strep_tox, exact=F)$p.value,
-                       wilcox.test(noabx_tox, cef_tox, exact=F)$p.value,
-                       wilcox.test(noabx_tox, clinda_tox, exact=F)$p.value), method='BH')
-p_values <- c(veg_pval, spore_pval, tox_pval)
-wetlab_pval <- round(max(p_values), 3)
-rm(p_values, veg_pval, spore_pval, tox_pval)
+# Format CFU over time
+cfu <- cfu[,c(1,11)]
+strep_stoolCFU <- subset(cfu, abx == 'streptomycin')[,2]
+cef_stoolCFU <- subset(cfu, abx == 'cefoperazone')[,2]
+clinda_stoolCFU <- subset(cfu, abx == 'clindamycin')[,2]
+rm(cfu)
+# Significance testing
+p_val <- p.adjust(c(wilcox.test(strep_stoolCFU, clinda_stoolCFU, exact=FALSE)$p.value,
+                    wilcox.test(cef_stoolCFU, clinda_stoolCFU, exact=FALSE)$p.value),
+                  method='BH')
+stoolCFU_pval <- as.character(max(round(p_val, 3)))
+rm(strep_stoolCFU, cef_stoolCFU, clinda_stoolCFU, p_val)
 
 ```
 
+**Distinct antibiotic pretreatments are associated with alternative community structures that are equally susceptible to initial *C. difficile* colonization, but differ in patterns of clearance.**
+In previous work from our laboratory it was found that when conventionally-reared SPF mice were pretreated with one of three different antibiotics (streptomycin, cefoperazone, and clindamycin; Table S1) to sensitize the animals to *C. difficile* colonization, each pretreatment was associated with altered patterns of *C. difficile* virulence factor expression [@Jenior2017]. Briefly, these drugs were chosen for not only the ability to to reduce *C. difficile* colonization resistance in a mouse model [@Schubert2015], but also for distinct and significant impacts on the structure and diversity of the cecal microbiota (Fig. 1A) [@Jenior2017]. In each antibiotic pretreatment model, we observed equally high levels of *C. difficile* colonization on the day after infection, however,*C. difficile* fell below the limit of detection in only clindamycin-pretreated mice over the subsequent 9 days while the other two pretreatments remained highly colonized (*p* = `r stoolCFU_pval`; Fig. 1A). We hypothesized that this occurred in the clindamycin-pretreated mice because the resultant intestinal community occupied niche space with greater overlap to that of *C. difficile*. 
 
-```{r figure_s1, echo=F, warning=F, message=F, results='hide', cache=F}
+Earlier publications have demonstrated that *C. difficile* virulence factor expression is regulated by availability of certain nutrients in the environment [@Bouillaut2015], so we first sought to measure spore and toxin production. We chose to focus all downstream experimentation on 18-hours post-infection to the assess behavior of *C. difficile* directly prior to the reduction in detectable *C. difficile*. This end point corresponded with a previous study where *C. difficile* reached maximum cecal vegetative cell load with few detectable spores [@Koenigsknecht2015]. We also elected to examine cecal content because it was more likely to be a site of active bacterial metabolism compared to stool and would allow for an assessment of functional differences in the microbiota. At 18 hours after infection, we found that communities indeed remained highly differentiated from untreated controls measured by 16S rRNA gene sequencing of the V4 region, classified to the family-level (Fig. 1B). The composition of streptomycin-pretreated communities was more variable between cages, but was generally enriched for members of phylum *Bacteroidetes*. Cefoperazone and clindamycin-pretreated cecal communities were consistently dominated by members of the *Lactobacillaceae* and *Enterobacteriaceae* families, respectively. Despite variation in the community structures, there were no significant differences in the number of vegetative cells between any antibiotic-pretreatment group (Fig. 1C). All susceptible mice were colonized with ~1x10^8^ vegetative colony forming units (cfu) per gram of cecal content and untreated mice maintained *C. difficile* colonization resistance. We have also perviously demonstrated that both *C. difficile* spore production and toxin activity differ between these pretreatment regimes [@Jenior2017]. As both processes have been linked to environmental concentrations of specific growth nutrients [@Bouillaut2015], these results suggested that despite high initial *C. difficile* colonization the microbiomes across pretreatments may vary in available nutrients or profiles of competitors for those niches. 
+
+```{r figure_2, echo=F, warning=F, message=F, results='hide', cache=F}
+
+aucrfClearance <- function(training_data){
+  # Format levels of susceptibility for AUCRF
+  colnames(training_data) <- make.names(colnames(training_data))
+  levels <- as.vector(unique(training_data$clearance))
+  training_data$clearance <- as.character(training_data$clearance)
+  training_data$clearance[which(training_data$clearance==levels[1])] <- 0
+  training_data$clearance[which(training_data$clearance==levels[2])] <- 1
+  training_data$clearance <- as.factor(as.numeric(training_data$clearance))
+  rm(levels)
+  # Run AUCRF with reproduceable parameters
+  set.seed(906801)
+  data_RF <- AUCRF(clearance ~ ., data=training_data, pdel=0.05, k0=5, ranking='MDA')
+  return(data_RF)
+}
+
+#----------------#
 
 # Read in data
-# 16S data
-shared_otu <- read.delim('data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared', sep='\t', header=TRUE, row.names=2)
-# Metadata
-metadata <- read.delim('data/metadata.tsv', sep='\t', header=T, row.names=1)
-
-# Format data
-# Metadata
-metadata <- metadata[!rownames(metadata) %in% c('CefC5M2'), ] 
-metadata$type <- NULL
-metadata$cage <- NULL
-metadata$mouse <- NULL
-metadata$gender <- NULL
-# 16S data
-shared_otu$label <- NULL
-shared_otu$numOtus <- NULL
-shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]
-
-# Remove residual C. difficile OTUs
-cdiff_otu <- shared_otu[,(names(shared_otu) %in% c('Otu0004','Otu0308'))]
-cdiff_otu <- clean_merge(metadata, cdiff_otu)
-cdiff_otu <- subset(cdiff_otu, infection == '630')
-cdiff_otu <- as.numeric(sum(sum(cdiff_otu$Otu0004) + sum(cdiff_otu$Otu0308)))
-shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))]
-other_otu <- clean_merge(metadata, shared_otu)
-other_otu <- subset(other_otu, infection == '630')
-other_otu$abx <- NULL
-other_otu$infection <- NULL
-other_otu$susceptibility <- NULL
-other_otu <- as.numeric(sum(colSums(other_otu)))
-cdiff_percent <- as.character(round((cdiff_otu / other_otu) * 100, 2)) # Calculate % removed reads
-rm(cdiff_otu, other_otu)
-
-# Subsample shared file
-sub_sample <- ceiling(min(rowSums(shared_otu)) * 0.9) # calculate rarefaction level
-shared_otu <- rrarefy(shared_otu, sub_sample) # subsample shared file
-shared_otu <- filter_table(shared_otu)
-rm(sub_sample)
-
-# Calculate axes
-# Community structure - all
-otu_nmds <- metaMDS(shared_otu, k=2, trymax=100, distance='bray')$points
-otu_nmds <- clean_merge(metadata, otu_nmds)
-
-# All abx
-abx_otu <- shared_otu[!rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-                                                   'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ]
-# Individual abx
-cef_otu <- shared_otu[rownames(shared_otu) %in% c('CefC1M1','CefC1M2','CefC1M3',
-                                                  'CefC2M1','CefC2M2','CefC2M3',
-                                                  'CefC3M1','CefC3M2','CefC3M3',
-                                                  'CefC4M1','CefC4M2','CefC4M3',
-                                                  'CefC5M1','CefC5M2','CefC5M3',
-                                                  'CefC6M1','CefC6M2','CefC6M3'), ]
-clinda_otu <- shared_otu[rownames(shared_otu) %in% c('ClindaC1M1','ClindaC1M2','ClindaC1M3',
-                                                     'ClindaC2M1','ClindaC2M2','ClindaC2M3',
-                                                     'ClindaC3M1','ClindaC3M2','ClindaC3M3',
-                                                     'ClindaC4M1','ClindaC4M2','ClindaC4M3',
-                                                     'ClindaC5M1','ClindaC5M2','ClindaC5M3',
-                                                     'ClindaC6M1','ClindaC6M2','ClindaC6M3'), ]
-strep_otu <- shared_otu[rownames(shared_otu) %in% c('StrepC1M1','StrepC1M2','StrepC1M3',
-                                                    'StrepC2M1','StrepC2M2','StrepC2M3',
-                                                    'StrepC3M1','StrepC3M2','StrepC3M3',
-                                                    'StrepC4M1','StrepC4M2','StrepC4M3',
-                                                    'StrepC5M1','StrepC5M2','StrepC5M3',
-                                                    'StrepC6M1','StrepC6M2','StrepC6M3'), ]
-
-# Calculate inv-Simpson diversity (alpha)
-cef_infected_diversity <- diversity(cef_otu[rownames(cef_otu) %in% c('CefC1M1','CefC1M2','CefC1M3',
-                                                    'CefC2M1','CefC2M2','CefC2M3',
-                                                    'CefC3M1','CefC3M2','CefC3M3'), ], 'invsimpson')
-cef_mock_diversity <- diversity(cef_otu[rownames(cef_otu) %in% c('CefC4M1','CefC4M2','CefC4M3',
-                                                'CefC5M1','CefC5M2','CefC5M3',
-                                                'CefC6M1','CefC6M2','CefC6M3'), ], 'invsimpson')
-clinda_infected_diversity <- diversity(clinda_otu[rownames(clinda_otu) %in% c('ClindaC1M1','ClindaC1M2','ClindaC1M3',
-                                                          'ClindaC2M1','ClindaC2M2','ClindaC2M3',
-                                                          'ClindaC3M1','ClindaC3M2','ClindaC3M3'), ], 'invsimpson')
-clinda_mock_diversity <- diversity(clinda_otu[rownames(clinda_otu) %in% c('ClindaC4M1','ClindaC4M2','ClindaC4M3',
-                                                      'ClindaC5M1','ClindaC5M2','ClindaC5M3',
-                                                      'ClindaC6M1','ClindaC6M2','ClindaC6M3'), ], 'invsimpson')
-strep_infected_diversity <- diversity(strep_otu[rownames(strep_otu) %in% c('StrepC1M1','StrepC1M2','StrepC1M3',
-                                                        'StrepC2M1','StrepC2M2','StrepC2M3',
-                                                        'StrepC3M1','StrepC3M2','StrepC3M3'), ], 'invsimpson')
-strep_mock_diversity <- diversity(strep_otu[rownames(strep_otu) %in% c('StrepC4M1','StrepC4M2','StrepC4M3',
-                                                    'StrepC5M1','StrepC5M2','StrepC5M3',
-                                                    'StrepC6M1','StrepC6M2','StrepC6M3'), ], 'invsimpson')
-noabx_diversity <- diversity(shared_otu[rownames(shared_otu) %in% c('ConvC1M1','ConvC1M2','ConvC1M3','ConvC1M4',
-                                                    'ConvC2M1','ConvC2M2','ConvC2M3','ConvC2M4','ConvC2M5'), ], 
-                             'invsimpson')
-
-# Test differences in diversity
-# Untreated vs abx
-noabx_div_pval <- p.adjust(c(wilcox.test(noabx_diversity, cef_infected_diversity, exact=F)$p.value,
-                             wilcox.test(noabx_diversity, cef_mock_diversity, exact=F)$p.value,
-                             wilcox.test(noabx_diversity, clinda_infected_diversity, exact=F)$p.value,
-                             wilcox.test(noabx_diversity, clinda_mock_diversity, exact=F)$p.value,
-                             wilcox.test(noabx_diversity, strep_infected_diversity, exact=F)$p.value,
-                             wilcox.test(noabx_diversity, strep_mock_diversity, exact=F)$p.value), method='BH')
-noabx_div_pval <- as.character(max(round(noabx_div_pval, 3)))
-strep_div_pval <- round(wilcox.test(strep_infected_diversity, strep_mock_diversity, exact=F)$p.value, 3)
-cef_div_pval <- round(wilcox.test(cef_infected_diversity, cef_mock_diversity, exact=F)$p.value, 3)
-clinda_div_pval <- round(wilcox.test(clinda_infected_diversity, clinda_mock_diversity, exact=F)$p.value, 3)
-abx_div_pval <- as.character(max(c(strep_div_pval,cef_div_pval,clinda_div_pval)))
-rm(strep_infected_diversity, strep_mock_diversity, cef_infected_diversity, cef_mock_diversity, 
-   clinda_infected_diversity, clinda_mock_diversity, noabx_diversity,
-   strep_div_pval, cef_div_pval, clinda_div_pval)
-
-# Calculate axes and merge with metadata
-abx_otu_nmds <- metaMDS(abx_otu, k=2, trymax=100)$points
-abx_otu_nmds <- clean_merge(metadata, abx_otu_nmds)
-cef_otu_nmds <- metaMDS(cef_otu, k=2, trymax=100)$points
-cef_otu_nmds <- clean_merge(metadata, cef_otu_nmds)
-clinda_otu_nmds <- metaMDS(clinda_otu, k=2, trymax=100)$points
-clinda_otu_nmds <- clean_merge(metadata, clinda_otu_nmds)
-strep_otu_nmds <- metaMDS(strep_otu, k=2, trymax=100)$points
-strep_otu_nmds <- clean_merge(metadata, strep_otu_nmds)
-rm(metadata)
-
-# Calculate significant differences
-otu_p <- as.character(round(anosim(shared_otu, otu_nmds$susceptibility, permutations=999, distance='bray')$signif, 3))
-otu_r <- as.character(round(abs(anosim(shared_otu, otu_nmds$susceptibility, permutations=999, distance='bray')$statistic), 3))
-abx_otu_p <- as.character(round(anosim(abx_otu, abx_otu_nmds$abx, permutations=999, distance='bray')$signif, 3))
-abx_otu_r <- as.character(round(abs(anosim(abx_otu, abx_otu_nmds$abx, permutations=999, distance='bray')$statistic), 3))
-cef_otu_p <- as.character(round(anosim(cef_otu, cef_otu_nmds$infection, permutations=999, distance='bray')$signif, 3))
-cef_otu_r <- as.character(round(abs(anosim(cef_otu, cef_otu_nmds$infection, permutations=999, distance='bray')$statistic), 3))
-clinda_otu_p <- as.character(round(anosim(clinda_otu, clinda_otu_nmds$infection, permutations=999, distance='bray')$signif, 3))
-clinda_otu_r <- as.character(round(abs(anosim(clinda_otu, clinda_otu_nmds$infection, permutations=999, distance='bray')$statistic), 3))
-strep_otu_p <- as.character(round(anosim(strep_otu, strep_otu_nmds$infection, permutations=999, distance='bray')$signif, 3))
-strep_otu_r <- as.character(round(abs(anosim(strep_otu, strep_otu_nmds$infection, permutations=999, distance='bray')$statistic), 3))
-rm(abx_otu, cef_otu, clinda_otu, strep_otu, shared_otu, 
-    otu_nmds, abx_otu_nmds, cef_otu_nmds, clinda_otu_nmds, strep_otu_nmds)
-
-```
-
-**Distinct antibiotic pretreatments are associated with different patterns of clearance and virulence factor expression.**
-In previous work from our laboratory it was found that when conventionally-reared SPF mice were pretreated with one of three different antibiotics (streptomycin, cefoperazone, and clindamycin; Table S1) to sensitize the animals to *C. difficile* colonization, each pretreatment was associated with altered patterns of *C. difficile* virulence factor expression (Fig. 1A) [@Jenior2017]. Briefly, these drugs were chosen for not only the ability to to reduce *C. difficile* colonization resistance in a mouse model [@Schubert2015], but also for distinct and significant impacts on the structure and diversity of the cecal microbiota (all *p* < `r noabx_div_pval`; Fig. S1A), as well as differential patterns of *C. difficile* str. 630 clearance following initial infection as quantified from stool (Fig. 1B). In each antibiotic pretreatment model, we observed equally high levels of *C. difficile* colonization on the day after infection. Out of the three pretreatment regimes however, *C. difficile* fell below the limit of detection in only clindamycin-pretreated mice over the subsequent 8 days while the other two pretreatments remained highly colonized. We hypothesized that this occurred in the clindamycin-pretreated mice because the resultant intestinal community occupied niche space with greater overlap to that of *C. difficile*. 
-
-Earlier publications have demonstrated that *C. difficile* virulence factor expression is regulated by availability of certain nutrients in the environment [@Bouillaut2015], so we first sought to measure spore and toxin production. We chose to focus all downstream experimentation on 18-hours post-infection to the assess behavior of *C. difficile* directly prior to the reduction in detectable *C. difficile*. This end point corresponded with a previous study where *C. difficile* reached maximum cecal vegetative cell load with few detectable spores [@Koenigsknecht2015]. We also elected to examine cecal content because it was more likely to be a site of active bacterial metabolism compared to stool and would allow for an assessment of functional differences in the microbiota. At 18 hours after infection, there were no significant differences in the number of vegetative cells between any antibiotic-pretreatment group. All susceptible mice were colonized with ~1x10^8^ vegetative colony forming units (cfu) per gram of cecal content and untreated mice maintained *C. difficile* colonization resistance (Fig. 1C). We also measured both spore production and toxin activity as activation of both processes has been linked to environmental concentrations of specific growth nutrients [@Bouillaut2015]. Despite having similar vegetative *C. difficile* load, varying levels of both cfu due to spores and toxin titer were observed across each of the antibiotic pretreatments prior to the onset of detectable inflammation in the epithelium [@Koenigsknecht2015]. These results suggested that despite high initial *C. difficile* colonization, the microbiomes across pretreatments may vary in available nutrients or profiles of competitors for those niches. In order to maintain consistency for our investigation of these communities, we performed all subsequent analyses utilizing cecal content collected during the previously described experiments.
-
-***C. difficile* colonization corresponded with significantly altered cecal community structures.**
-It has not yet been established whether *C. difficile* colonization impacts the structure of the gut microbiota during infection in susceptible mice. To evaluate changes in bacterial population abundances in response to antibiotic perturbation and *C. difficile* colonization, we sequenced the V4 region of the 16S rRNA gene from the cecal content of both mock and *C. difficile*-infected mice across antibiotic pretreatment models. To focus our analysis specifically on the surrounding bacterial communities we removed all *C. difficile* 16S rRNA gene sequences, which represented `r cdiff_percent`% of sequencing reads across infection groups. We confirmed that each antibiotic pretreatment significantly impacted both cecal community structure and diversity compared to untreated control mice (*p* < `r otu_p`, Fig. S1A & S1B). We then established that each antibiotic pretreatment induced distinct and significant shifts in the community structure (*p* < `r abx_otu_p`, Fig. S1C). The composition of streptomycin-pretreated communities was more variable between cages, but was generally enriched for members of phylum *Bacteroidetes* (Fig. 2A). Cefoperazone and clindamycin-pretreated cecal communities were consistently dominated by members of the *Lactobacillaceae* and *Enterobacteriaceae* families, respectively (Fig. 2A). Despite variation in the community structures generated by streptomycin pretreatment, all communities were colonized by *C. difficile* to the same level (Fig. 1B, 1C, & S1).
-
-Next, we measured the effect that *C. difficile* colonization had on overall community structure and composition within each of the antibiotic groups individually. We found that the structure of both streptomycin and clindamycin-pretreated infected communities were significantly different from their corresponding uninfected controls (streptomycin *p* = `r strep_otu_p`, Fig. S1D; clindamycin *p* = `r clinda_otu_p`, Fig. S1F). Cefoperazone-pretreated communities did not significantly differ from their control group (Fig. S1E). Utilizing LEfSe differential abundant feature detection [@Segata2011], we identified 16 OTUs that discriminated between infected and uninfected communities in at least one antibiotic pretreatment (Fig. 2BCD); however, these OTUs were generally near the limit of detection and very few were present across multiple groups tested. This suggested that CDI susceptible communities were only modestly impacted by the presence of *C. difficile*.
-
-```{r figure_3, echo=F, warning=F, message=F, results='hide', cache=F}
 
 # Metabolomes
 metabolome <- read.delim('data/metabolome/scaled_intensities.log10.tsv', sep='\t', header=TRUE)
 
+# 16S
+shared_otu <- read.delim('data/16S_analysis/all_treatments.0.03.unique_list.conventional.shared', sep='\t', header=T, row.names=2)
+shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]  # Remove possible contaminated sample
+cdf_otu <- shared_otu[,(names(shared_otu) %in% c('Otu0004','Otu0308'))] 
+shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))] # Remove residual C. difficile OTUs
+shared_noncdf <- subset(shared_otu, rowSums(cdf_otu) != 0)
+cdf_otu <- subset(cdf_otu, rowSums(cdf_otu) != 0)
+cdf_percent <- as.character(round(mean(rowSums(cdf_otu) / rowSums(shared_noncdf)) * 100, 3))
+rm(cdf_otu, shared_noncdf)
+shared_otu$numOtus <- NULL
+shared_otu$label <- NULL
+otu_tax <- read.delim('data/16S_analysis/formatted.all_treatments.0.03.cons.taxonomy', sep='\t', header=T, row.names=1)
+
 # Metadata
 metadata <- read.delim('data/metadata.tsv', sep='\t', header=T, row.names=1)
 
-# Format data
 # Metadata
 metadata$type <- NULL
 metadata$cage <- NULL
 metadata$mouse <- NULL
 metadata$gender <- NULL
+metadata$clearance <- c(rep('colonized',18), rep('cleared',18), rep('colonized',18),
+                        rep('mock',12), rep('colonized',18))
+
 # Metabolomes
 metabolome$BIOCHEMICAL <- gsub('_', ' ', metabolome$BIOCHEMICAL)
 rownames(metabolome) <- metabolome$BIOCHEMICAL
@@ -412,511 +307,98 @@ metabolome$KEGG <- NULL
 metabolome$SUB_PATHWAY <- NULL
 metabolome$SUPER_PATHWAY <- NULL
 metabolome <- as.data.frame(t(metabolome))
-
-# Stats
-# Prep data
 metabolome <- clean_merge(metadata, metabolome)
 metabolome <- subset(metabolome, abx != 'germfree')
+metabolome <- subset(metabolome, abx != 'none')
 metabolome <- subset(metabolome, infection == 'mock')
-abx_metabolome <- subset(metabolome, abx != 'none')
-abx_metabolome$infection <- NULL
-abx_metabolome$susceptibility <- NULL
 metabolome$abx <- NULL
+metabolome$susceptibility <- NULL
 metabolome$infection <- NULL
 
-# Calculate significant differences
-noabx_sus_p <- as.character(round(adonis(metabolome[,2:ncol(metabolome)]~factor(metabolome$susceptibility),
-                                     data=metabolome, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3))
-if (noabx_sus_p == '0') {
-noabx_sus_p = '0.001'
-}
+# 16S
+otu_tax$genus <- gsub('_', ' ', otu_tax$genus)
+otu_tax$genus <- gsub('Ruminococcus2', 'Ruminococcus', otu_tax$genus)
+otu_tax$taxon <- paste(otu_tax$genus, otu_tax$OTU.1, sep='_')
+otu_tax$phylum <- NULL
+otu_tax$genus <- NULL
+otu_tax$OTU.1 <- NULL
+shared_otu <- t(shared_otu)
+shared_otu <- clean_merge(otu_tax, shared_otu)
+rownames(shared_otu) <- shared_otu$taxon
+shared_otu$taxon <- NULL
+shared_otu <- t(shared_otu)
+shared_otu <- clean_merge(metadata, shared_otu)
+shared_otu <- subset(shared_otu, abx != 'germfree')
+shared_otu <- subset(shared_otu, abx != 'none')
+shared_otu <- subset(shared_otu, infection == 'mock')
+shared_otu$abx <- NULL
+shared_otu$susceptibility <- NULL
+shared_otu$infection <- NULL
+rm(otu_tax, metadata)
 
-abx_sus_p <- as.character(round(adonis(abx_metabolome[,2:ncol(abx_metabolome)]~factor(abx_metabolome$abx),
-                                   data=abx_metabolome, permutations=10000, method='jaccard')$aov.tab[[6]][1], 3))
-metabolome$susceptibility <- NULL
-abx_metabolome$abx <-  NULL
+
+# Ordination analysis
+
+# Metabolome - 728 metabolites
+#metabolome_dist <- designdist(metabolome[,2:ncol(metabolome)], method='1-(J/(A+B-J))', terms='quadratic', abcd=FALSE) # Theta-YC
+metabolome_dist <- vegdist(metabolome[,2:ncol(metabolome)], method='bray') # Bray-Curtis
+# permANOVA
+metabolome_permANOVA_pval <- adonis(metabolome_dist ~ metabolome$clearance, metabolome, perm=999)$aov.tab[[6]][1]
+metabolome_permANOVA_pval <- as.character(round(metabolome_permANOVA_pval[1,6], 3))
+# Average within group distances
+rm(metabolome_dist)
+
+# 16S - 810 OTUs
+#otu_dist <- designdist(shared_otu[,2:ncol(shared_otu)], method='1-(J/(A+B-J))', terms='quadratic', abcd=FALSE) # Theta-YC
+otu_dist <- vegdist(shared_otu[,2:ncol(shared_otu)], method='bray') # Bray-Curtis
+# permANOVA
+otu_permANOVA_pval <- adonis(otu_dist ~ shared_otu$clearance, shared_otu, perm=999)$aov.tab[[6]][1]
+otu_permANOVA_pval <- as.character(round(otu_permANOVA_pval[1,6], 3))
+rm(otu_dist)
+rm(metadata)
+
+#---------#
 
 # Feature selection
-# Separate groups
-metabolome <- clean_merge(metadata, metabolome)
-abx_metabolome <- subset(metabolome, abx != 'none')
-abx_metabolome$infection <- NULL
-abx_metabolome$susceptibility <- NULL
-abx_metabolome$abx <- factor(abx_metabolome$abx)
-metabolome$infection <- NULL
-metabolome$abx <- NULL
-metabolome$abx <- factor(metabolome$susceptibility)
 
-# Random Forest
-all_rf <- susceptibilityRF(metabolome)
-abx_rf <- abxRF(abx_metabolome)
-rm(metabolome, abx_metabolome)
+# Metabolome
+# AUCRF feature selection/reduction (to 0% OOB)
+colnames(metabolome) <- make.names(colnames(metabolome))
+metabolome_aucrf <- aucrfClearance(metabolome)
+# Get OOB
+metabolome_aucrf_oob <- metabolome_aucrf$RFopt
+metabolome_aucrf_oob <- metabolome_aucrf_oob$err.rate
+metabolome_aucrf_oob <- as.character(round(median(metabolome_aucrf_oob[,1]) * 100, 3))
+rm(metabolome_aucrf, metabolome)
 
-# Subset concentrations
-all_rf <- clean_merge(metadata, all_rf)
-res_metabolome <- subset(all_rf, susceptibility == 'resistant')
-res_metabolome$susceptibility <- NULL
-res_metabolome$abx <- NULL
-res_metabolome$infection <- NULL
-sus_metabolome <- subset(all_rf, susceptibility == 'susceptible')
-sus_metabolome$susceptibility <- NULL
-sus_metabolome$abx <- NULL
-sus_metabolome$infection <- NULL
-abx_rf <- clean_merge(metadata, abx_rf)
-cef_abx_metabolome <- subset(abx_rf, abx == 'cefoperazone')
-cef_abx_metabolome$abx <- NULL
-cef_abx_metabolome$infection <- NULL
-cef_abx_metabolome$susceptibility <- NULL
-clinda_abx_metabolome <- subset(abx_rf, abx == 'clindamycin')
-clinda_abx_metabolome$abx <- NULL
-clinda_abx_metabolome$infection <- NULL
-clinda_abx_metabolome$susceptibility <- NULL
-strep_abx_metabolome <- subset(abx_rf, abx == 'streptomycin')
-strep_abx_metabolome$abx <- NULL
-strep_abx_metabolome$infection <- NULL
-strep_abx_metabolome$susceptibility <- NULL
-rm(all_rf, abx_rf, metadata)
-
-# Find significant differences
-resistant_pvalues <- c()
-for (i in 1:ncol(res_metabolome)){resistant_pvalues[i] <- wilcox.test(res_metabolome[,i], sus_metabolome[,i], exact=FALSE)$p.value}
-resistant_pvalues <- as.character(max(round(p.adjust(resistant_pvalues, method='BH'),3)))
-rm(res_metabolome, sus_metabolome)
-
-abx_pvalues1 <- c()
-for (i in 1:ncol(cef_abx_metabolome)){abx_pvalues1[i] <- wilcox.test(cef_abx_metabolome[,i], clinda_abx_metabolome[,i], exact=FALSE)$p.value}
-abx_pvalues2 <- c()
-for (i in 1:ncol(cef_abx_metabolome)){abx_pvalues2[i] <- wilcox.test(cef_abx_metabolome[,i], strep_abx_metabolome[,i], exact=FALSE)$p.value}
-abx_pvalues3 <- c()
-for (i in 1:ncol(clinda_abx_metabolome)){abx_pvalues3[i] <- wilcox.test(clinda_abx_metabolome[,i], strep_abx_metabolome[,i], exact=FALSE)$p.value}
-abx_pvalues1 <- as.character(max(round(p.adjust(abx_pvalues1, method='BH'),3)))
-abx_pvalues2 <- as.character(max(round(p.adjust(abx_pvalues2, method='BH'),3)))
-abx_pvalues3 <- as.character(max(round(p.adjust(abx_pvalues3, method='BH'),3)))
-rm(strep_abx_metabolome, cef_abx_metabolome, clinda_abx_metabolome)
+# 16S
+# AUCRF feature selection/reduction (to 0% OOB)
+colnames(shared_otu) <- make.names(colnames(shared_otu))
+shared_otu_aucrf <- aucrfClearance(shared_otu)
+# Get OOB
+shared_otu_aucrf_oob <- shared_otu_aucrf$RFopt
+shared_otu_aucrf_oob <- shared_otu_aucrf_oob$err.rate
+shared_otu_aucrf_oob <- as.character(round(median(shared_otu_aucrf_oob[,1]) * 100, 3))
+rm(shared_otu, shared_otu_aucrf)
 
 ```
 
-**Distinct antibiotic classes lead to enrichment of alternative *C. difficile* nutrient niches.**
-Pretreatment with antibiotics not only alters the structure of the resident microbiota, but also has a dramatic impact on the intestinal metabolome [@Antunes2011; @Jump2014; @Theriot2014]. To test the metabolic features of the altered communities, we performed untargeted metabolomic analysis on the cecal contents that were also utilized in the 16S rRNA gene sequencing. A total of 727 distinct metabolites were identified. First, we characterized the differences between the metabolomes of the mock-infected communities to measure the impact of antibiotic pretreatment that generated *C. difficile*-susceptible conditions (Fig. 3). All of the antibiotic pretreatments significantly altered the cecal metabolome compared to untreated, *C. difficile*-resistant mice as quantified by Bray-Curtis dissimilarity (*p* < `r noabx_sus_p`; Fig. 3A). As with the differences between resistant and susceptible states, the patterns of specific metabolite concentrations diverged depending on the antibiotic pretreatment (Fig. 3). These results demonstrated that each pretreatment lead to distinct susceptible metabolomic environments.
+**Multiple biological signatures in the bacterial community and metabolome differentiate cecal microbiomes that remained colonized by *C. difficile* from those that do not.**
+Pretreatment with antibiotics not only alters the structure of the resident microbiota, but also has a dramatic impact on the intestinal metabolome [@Antunes2011; @Jump2014; @Theriot2014]. To understand the ramifications each antibiotic had on the cecal metabolomic environment, we performed untargeted metabolomic analysis on the cecal contents that were also utilized in the 16S rRNA gene sequencing. A total of 727 distinct metabolites were identified through these means. In combination with our 16S results, we first characterized the differences between the microbiomes (microbiota, plus associated metabolome) of the mock-infected animals to quantify possible drivers of communities that go on to clear infection. To focus our analysis on ascertaining changes in discrete populations within the microbiota, we generated Operational Taxonmic Units (OTUs) clustered at 97% similarility which historically corresponds with species-level classification. We also removed all *C. difficile* 16S rRNA gene sequences, which represented an average of `r cdf_percent`% sequencing reads across infection groups to eliminate its direct impact in downstream calculation. Using these methods we discovered that the Bray-Curtis dissimialrity of both the community structure (*p* < `r otu_permANOVA_pval`) and metabolome (*p* < `r metabolome_permANOVA_pval`) significantly differ between cleared and colonized groups early during infection (Fig. 2A & 2C). These results partially supported the hypothesis that the cecal environment created by clindamycin pretreatment was highly divergent from the other groups, and likely contributed to the clearance seen in the subsequent days.
 
-We were interested in identifying those metabolites that best indicate the changes induced by antibiotic pretreatment, and potentially contributing sensitivity to *C. difficile* colonization. Standard analyses revealed large numbers of individual metabolites with significant differences between groups, so we employed an implementation of the Random Forest machine-learning algorithm [@Calle2011] to identify the smallest subset of metabolites most able to differentiate states. This technique revealed 5 metabolites that together correctly classified all metabolomes as either resistant or susceptible (Fig. 3C). The first 2 are significantly elevated in susceptible metabolomes (*p* < `resistant_pvalues`). Acetlyproline has been previously shown to be a growth substrate of *C. difficile* through Stickland fermentation [@Fonknechten2010], and may be indicate a universal marker of CDI susceptibility. Interestingly nudifloramide, or N-methyl-2-pyridone-5-carboxamide, is an end product of NAD degradation which has been associated with multiple unrelated intestinal disease states [@Rutkowski2003;@Mayneris-Perxachs2016] and may be a general indicator of dysbiosis in the GI tract. The remaining 3 (sebacate, hyodeoxycholate, and murideoxycholate) are all related to secondary bile acids [@Semba2017] indicating a possible decrease in vegetative growth inhibitors across susceptible animals [Theriot2015]. These data support the hypothesis that amino acid catabolism is disrupted at a community-level following antibiotic pretreatment and may suggest open nutrient niches for *C. difficile*. 
+To uncover the specific drivers at each level of biology, we then utilized Random Forest machine learning to identify the minimal subset of features that successfully differentiate microbiomes that clear infection and and those that remain colonized after blinded cross-validation (AUCRF) [@Calle2011]. At the level of community membership (16S rRNA sequencing), it resulted it 5 OTUs which correctly classified all samples to their corresponding groups (Fig. 2B; Out-of-bag error= `r shared_otu_aucrf_oob`%). After obtaining the representative sequence of each resultant OTU, we were able to assign species-level classification to 3 out of 5 with high confidence (E-value < 1e -5). Interesingly, these OTUs are not consitently dominant in antibiotic pretreated communities yet differences in their abundance are highly informative for distinguishing communities that clear *C. difficile*. Similarly, machine learning with metabolomic results also revealed 5 metabolites which give a model that correctly differentiates the groups (Fig. 2D; Out-of-bag error= `r metabolome_aucrf_oob`%). Together these results further support that the environment of the cecum, even early during infection, is distinct between groups that clear the infection and those that maintain *C. difficile* at high levels. Furthermore, results from machine learning analysis indicate that it may be members in the minority of relative abundance that have disproportionate influence on the clearance patterns observed between pretreatment regimes.
 
-We then applied the same approach to distinguish antibiotic pretreatment groups from each other (Fig. 3D). This featured 5 additional metabolites able to correctly classify susceptible environments, and highlighted the metabolic diversity inherent in each of these microbiomes. As the distinct antibiotics permitted survival of separate bacterial groups (Fig. 2A), likely with varied nutrient catabolism strategies, that each may compete with *C. difficile* along different axes. Further analysis of metabolites which have been shown to be deeply connected to the life cycle of *C. difficile* [@Theriot2014;@Sorg2010;@Buffie2014], also indicated high degrees of variablility between these environments. Together, our results supported that each susceptible environment was distinguishable from the others, with its own subset of enriched *C. difficile* growth substrates (Fig. 2B-C). This could be an indication that particular competitors were eliminated during antibiotic pretreatment, or those community members normally responsible for the consumption of these metabolites have altered their metabolic program to exploit alternative nutrient sources.
+```{r figure_s123, echo=F, warning=F, message=F, results='hide', cache=F}
 
 
-```{r figure_s3, echo=F, warning=F, message=F, results='hide', cache=F}
 
-# Read in data
-# Metabolomes
-metabolome <- read.delim('data/metabolome/scaled_intensities.log10.tsv', sep='\t', header=TRUE)
-# Metadata
-metadata <- read.delim('data/metadata.tsv', sep='\t', header=T, row.names=1)
-
-# Format data
-# Metadata
-metadata$type <- NULL
-metadata$cage <- NULL
-metadata$mouse <- NULL
-metadata$gender <- NULL
-# Metabolomes
-metabolome <- metabolome[,!colnames(metabolome) %in% c('GfC1M1','GfC1M2','GfC1M3', 
-                                                       'GfC2M1','GfC2M2','GfC2M3', 
-                                                       'GfC3M1','GfC3M2','GfC3M3', 
-                                                       'GfC4M1','GfC4M2','GfC4M3', 
-                                                       'GfC5M1','GfC5M2','GfC5M3', 
-                                                       'GfC6M1','GfC6M2','GfC6M3')] # Remove germfree
-rownames(metabolome) <- metabolome$BIOCHEMICAL
-metabolome$BIOCHEMICAL <- NULL
-metabolome$PUBCHEM <- NULL
-metabolome$KEGG <- NULL
-metabolome$SUB_PATHWAY <- NULL
-metabolome$SUPER_PATHWAY <- NULL
-metabolome <- as.data.frame(t(metabolome))
-
-# Prep data
-metabolome <- clean_merge(metadata, metabolome)
-infection_metabolome <- subset(metabolome, abx != 'none')
-infection_metabolome$abx <- NULL
-infection_metabolome$susceptibility <- NULL
-rm(metadata, metabolome)
-
-# Calculate significant differences
-inf_p <- as.character(round(adonis(infection_metabolome[,2:ncol(infection_metabolome)]~factor(infection_metabolome$infection), data=infection_metabolome, permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
-
-# Random Forest and get top hits
-inf_rf <- infectionRF(infection_metabolome)
-inf_rf <- inf_rf[1:10,]
-
-# Subset concentrations
-colnames(infection_metabolome) <- make.names(colnames(infection_metabolome))
-inf_infection_metabolome <- subset(infection_metabolome, infection == '630')[, inf_rf$feature]
-inf_infection_metabolome$infection <- NULL
-mock_infection_metabolome <- subset(infection_metabolome, infection == 'mock')[, inf_rf$feature]
-mock_infection_metabolome$infection <- NULL
-rm(infection_metabolome, inf_rf)
-
-# Find significant differences
-infection_pvalues <- c()
-for (i in 1:ncol(inf_infection_metabolome)){infection_pvalues[i] <- wilcox.test(inf_infection_metabolome[,i], mock_infection_metabolome[,i], exact=FALSE)$p.value}
-infection_metabolites <- colnames(inf_infection_metabolome)
-infection_pvalues <- as.character(round(max(p.adjust(infection_pvalues, method='BH')),3))
-infection_pvalues
-if (infection_pvalues == '0') {
-infection_pvalues = '0.001'
-}
-rm(inf_infection_metabolome)
 
 ```
 
-```{r figure_4, echo=F, warning=F, message=F, results='hide', cache=F}
+**Amino-acid metabolism by *C. difficile* appears important for sustained colonization across susceptible environments**
+It has been recently established that the catabolism of amino acids (Stickland fermentation) by *C. difficile* may be a critical nutrient niche occupied by the pathogen early during infection in one antibiotic pretreament model of CDI [@Theriot2018]. We were interested to observe if this trend was maintained across multiple distinct gut environments where *C. difficile* was permitted to colonize. Utilizing the previously described approaches, we assessed the the distinction between any antibiotic-preated, mock-infected microbiomes and those of untreated, *C. difficile*-resistant animals. Not only was a Stickland substrate increased across susceptible environments but several secondary bile acids, which have been shown to be negatively correlated with *C. difficile* susceptibility were decreased (Fig. S1B). Additionally, mutliple members of Clostridia which are also capable of metabolizing amino acids for growth were selected by AUCRF and were significantly decreased during susceptibility (Fig. S1A). Conversely, we also performed a similar analysis to investigate changes induced by *C. difficile* colonization itself in these susceptible conditions. This revealed that although CDI alone did not induce significant shifts in the global community structure or metabolome (Fig. S2 A & C; *p* < `r _pval`), several features were able to discriminate infected and uninfected microbiomes with relative accuracy. This analysis highlighted numerous known *C. difficile* growth substrates as enriched in all pretreatments including 6 Stickland substrates, 4 of which are proline conjugates, along with another corbon source arabonate/xlyonate (Fig. S2D). Furthermore 5-aminovalerate, the most common endproduct of Stickland fermentation, was significantly increased during infection in almost all metabolomes measured. More discrete inspection of these specific metabolites revealed that clindamycin pretreatment was only condition where both the inputs and outputs of Stickland fermentation were less abundant compared to controls (Fig. S3). These results strongly support Stickland fermentation as a primary nutritional strategy of *C. difficile* early in infection.
 
-# Read in data
-# Metabolomes
-metabolome <- read.delim('data/metabolome/scaled_intensities.log10.tsv', sep='\t', header=TRUE)
-aminovalerate <- read.delim('exploratory/aminovalerate.tsv', sep='\t', header=T)
-# Metadata
-metadata <- read.delim('data/metadata.tsv', sep='\t', header=T, row.names=1)
-
-# Format data
-# Metadata
-metadata$type <- NULL
-metadata$cage <- NULL
-metadata$mouse <- NULL
-metadata$gender <- NULL
-# Metabolomes
-rownames(metabolome) <- metabolome$BIOCHEMICAL
-metabolome$BIOCHEMICAL <- NULL
-metabolome_metadata <- metabolome[,c(1:4)]
-metabolome$PUBCHEM <- NULL
-metabolome$KEGG <- NULL
-metabolome$SUB_PATHWAY <- NULL
-metabolome$SUPER_PATHWAY <- NULL
-metabolome <- as.data.frame(t(metabolome))
-aminovalerate <- subset(aminovalerate, abx != 'germfree')
-
-# Prep data
-metabolome <- clean_merge(metadata, metabolome)
-metabolome <- subset(metabolome, abx != 'germfree')
-cef_metabolome <- subset(metabolome, abx == 'cefoperazone')
-cef_metabolome$abx <- NULL
-cef_metabolome$susceptibility <- NULL
-clinda_metabolome <- subset(metabolome, abx == 'clindamycin')
-clinda_metabolome$abx <- NULL
-clinda_metabolome$susceptibility <- NULL
-strep_metabolome <- subset(metabolome, abx == 'streptomycin')
-strep_metabolome$abx <- NULL
-strep_metabolome$susceptibility <- NULL
-
-# Calculate significant differences
-strep_inf_p <- as.character(round(adonis(strep_metabolome[,2:ncol(strep_metabolome)]~factor(strep_metabolome$infection), data=strep_metabolome, permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
-strep_metabolome$infection <- factor(strep_metabolome$infection)
-cef_inf_p <- as.character(round(adonis(cef_metabolome[,2:ncol(cef_metabolome)]~factor(cef_metabolome$infection), data=cef_metabolome,permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
-cef_metabolome$infection <- factor(cef_metabolome$infection)
-clinda_inf_p <- as.character(round(adonis(clinda_metabolome[,2:ncol(clinda_metabolome)]~factor(clinda_metabolome$infection),data=clinda_metabolome, permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
-clinda_metabolome$infection <- factor(clinda_metabolome$infection)
-rm(metadata, metabolome)
-
-# Aminovalerate data
-av_noabx <- subset(aminovalerate, abx == 'none')$aminovalerate
-av_strep_inf <- subset(aminovalerate, abx == 'streptomycin' & infection == 'infected')$aminovalerate
-av_strep_mock <- subset(aminovalerate, abx == 'streptomycin' & infection == 'mock')$aminovalerate
-av_cef_inf <- subset(aminovalerate, abx == 'cefoperazone' & infection == 'infected')$aminovalerate
-av_cef_mock <- subset(aminovalerate, abx == 'cefoperazone' & infection == 'mock')$aminovalerate
-av_clinda_inf <- subset(aminovalerate, abx == 'clindamycin' & infection == 'infected')$aminovalerate
-av_clinda_mock <- subset(aminovalerate, abx == 'clindamycin' & infection == 'mock')$aminovalerate
-rm(aminovalerate)
-
-# Stats
-av_noabx_pval <- c(wilcox.test(av_noabx, av_strep_inf, exact=FALSE)$p.value,
-                   wilcox.test(av_noabx, av_strep_mock, exact=FALSE)$p.value,
-                   wilcox.test(av_noabx, av_cef_inf, exact=FALSE)$p.value,
-                   wilcox.test(av_noabx, av_cef_mock, exact=FALSE)$p.value,
-                   wilcox.test(av_noabx, av_clinda_inf, exact=FALSE)$p.value,
-                   wilcox.test(av_noabx, av_clinda_mock, exact=FALSE)$p.value)
-av_noabx_pval <- round(p.adjust(av_noabx_pval, method='BH'), 3)
-
-
-av_noabx_mock_pval <- as.character(max(c(av_noabx_pval[2], av_noabx_pval[4], av_noabx_pval[6])))
-
-rm(av_noabx)
-av_strep_pval <- as.character(round(wilcox.test(av_strep_inf, av_strep_mock, exact=FALSE)$p.value, 3))
-rm(av_strep_inf, av_strep_mock)
-av_cef_pval <- as.character(round(wilcox.test(av_cef_inf, av_cef_mock, exact=FALSE)$p.value, 3))
-rm(av_cef_inf, av_cef_mock)
-av_clinda_pval <- as.character(round(wilcox.test(av_clinda_inf, av_clinda_mock, exact=FALSE)$p.value, 3))
-rm(av_clinda_inf, av_clinda_mock)
-
-# Random Forest
-cef_rf <- infectionRF(cef_metabolome)
-clinda_rf <- infectionRF(clinda_metabolome)
-strep_rf <- infectionRF(strep_metabolome)
-
-# Sort and subset top hits
-cef_rf <- cef_rf[1:5,]
-clinda_rf <- clinda_rf[1:5,]
-strep_rf <- strep_rf[1:5,]
-
-# Subset concentrations
-colnames(cef_metabolome) <- make.names(colnames(cef_metabolome))
-inf_cef_metabolome <- subset(cef_metabolome, infection == '630')[, cef_rf$feature]
-inf_cef_metabolome$infection <- NULL
-mock_cef_metabolome <- subset(cef_metabolome, infection == 'mock')[, cef_rf$feature]
-mock_cef_metabolome$infection <- NULL
-rm(cef_metabolome, cef_rf)
-colnames(clinda_metabolome) <- make.names(colnames(clinda_metabolome))
-inf_clinda_metabolome <- subset(clinda_metabolome, infection == '630')[, clinda_rf$feature]
-inf_clinda_metabolome$infection<- NULL
-mock_clinda_metabolome <- subset(clinda_metabolome, infection == 'mock')[, clinda_rf$feature]
-mock_clinda_metabolome$infection<- NULL
-rm(clinda_metabolome, clinda_rf)
-colnames(strep_metabolome) <- make.names(colnames(strep_metabolome))
-inf_strep_metabolome <- subset(strep_metabolome, infection == '630')[, strep_rf$feature]
-inf_strep_metabolome$infection<- NULL
-mock_strep_metabolome <- subset(strep_metabolome, infection == 'mock')[, strep_rf$feature]
-mock_strep_metabolome$infection<- NULL
-rm(strep_metabolome, strep_rf)
-
-# Find significant differences
-cef_inf_metab_pvalues <- c()
-for (i in 1:ncol(inf_cef_metabolome)){cef_inf_metab_pvalues[i] <- wilcox.test(inf_cef_metabolome[,i], mock_cef_metabolome[,i], exact=FALSE)$p.value}
-cef_inf_metab_pvalues <- as.character(round(p.adjust(cef_inf_metab_pvalues, method='BH'),3))
-cef_inf_metab_names <- colnames(inf_cef_metabolome)
-rm(inf_cef_metabolome)
-clinda_inf_metab_pvalues <- c()
-for (i in 1:ncol(inf_clinda_metabolome)){clinda_inf_metab_pvalues[i] <- wilcox.test(inf_clinda_metabolome[,i], mock_clinda_metabolome[,i], exact=FALSE)$p.value}
-clinda_inf_metab_pvalues <- as.character(round(p.adjust(clinda_inf_metab_pvalues, method='BH'),3))
-clinda_inf_metab_names <- colnames(inf_clinda_metabolome)
-rm(inf_clinda_metabolome)
-strep_inf_metab_pvalues <- c()
-for (i in 1:ncol(inf_strep_metabolome)){strep_inf_metab_pvalues[i] <- wilcox.test(inf_strep_metabolome[,i], mock_strep_metabolome[,i], exact=FALSE)$p.value}
-strep_inf_metab_pvalues <- as.character(round(p.adjust(strep_inf_metab_pvalues, method='BH'),3))
-strep_inf_metab_names <- colnames(inf_strep_metabolome)
-rm(inf_strep_metabolome)
-
-```
-
-
-```{r figure_s2d, echo=F, warning=F, message=F, results='hide', cache=F}
-
-# Read in data
-aminovalerate <- read.delim('exploratory/aminovalerate.tsv', sep='\t', header=T)
-
-# Subset data
-aminovalerate <- subset(aminovalerate, abx == 'germfree')
-aminovalerate$infection <- as.factor(aminovalerate$infection)
-aminovalerate$aminovalerate <- as.numeric(aminovalerate$aminovalerate)
-aminovalerate$abx <- NULL
-
-# Test differences
-amv_pval <- round(wilcox.test(as.numeric(subset(aminovalerate, infection == 'infected')$aminovalerate), 
-                              as.numeric(subset(aminovalerate, infection == 'mock')$aminovalerate), 
-                              exact=FALSE)$p.value, 4)
-amv_pval <- as.character(amv_pval)
-rm(aminovalerate)
-
-```
-
-***C. difficile* colonization induced distinct metabolomic changes of each pretreatment group.**
-Following the changes to the cecal metabolome in response to antibiotic pretreatment, we assessed the degree to which *C. difficile* colonization altered the cecal metabolome. We hypothesized that the introduction of a new competitor, *C. difficile*, would impact the metabolome either through its own metabolism or by shifting the metabolism of surrounding community members. First, we compared the dissimilarity of cecal metabolomes from all mice across pretreatment groups, and were unable to detect a consistent difference between groups (*p* = `r inf_p`; Fig. S3A). We moved on to individual antibiotic groups and found that both streptomycin (*p* = `r strep_inf_p`) and cefoperazone (*p* = `r cef_inf_p`) pretreated metabolomes deviated significantly from that of mock infection (Fig. 4A-4B). However, clindamycin-pretreated cecal metabolomes were not significantly altered by the presence of the pathogen (*p* = `r clinda_inf_p`; Fig. 4C). These results diverged from what was seen in the paired OTU relative abundance results where instead the cecal community structure of mice pretreated with cefoperazone was unchanged and clindamycin-pretreated communities were significantly different (Fig. S1). Interestingly, streptomycin-pretreated microbiomes were significantly altered by *C. difficile* infection at both the OTU and metabolomic levels (Fig. 4A & S1D). Together, these data indicated that shifts in population within the cecal microbiota were not implicitly associated with concordant changes in the metabolome. 
-
-
-
-We then sought to identify changes in those metabolites that were potential markers of *C. difficile* infection through a unified analysis across all models tested. To accomplish this, we again applied the Random Forest machine-learning approach. The resultant models were able to reliably classify infected and uninfected mice in both streptomycin and cefoperazone pretreatments (Fig. 4D-E, Out-of-bag error = 0%). 
-
-
-
-
-ectoine helps bacteria with osmotic stress []...(Fig. 4E).
-
-
-
-
-
-However, infection did not provide for the same level of discrimination in clindamycin-pretre45ted mice (Fig. 4F, Out-of-bag error = 5.56%). 
-
-While these data supported our hypothesis that each antibiotic pretreatment also drove the generation of unique metabolic environments, it was not possible to attribute many other specific changes to altered microbiota or host activity.
-
-
-Interestingly, only 5-aminovalerate appeared multiple times as an optimal discriminatory metabolite across pretreatments. This molecule is a known byproduct of D-proline Stickland fermentation by *C. difficile* [@Bouillaut2013;@Neumann-Schaal2015]. Presence of 5-aminovalerate appears to be dependent on the metabolism of *C. difficile* as concentrations were significantly lower in antibiotic-pretreated, mock-infected animals (*p* < `r av_noabx_mock_pval`; Fig. 4G). Conversely, it was highly abundant in most infected animals compared to both susceptible and resistant controls. Furthermore, 5-aminovalerate only became detectable in the cecum of germfree mice after infection by *C. difficile* str. 630 (*p* < `amv_pval`; Fig. S2D). However, exclusively in clindamycin-pretreatment where CDI was quickly became undetectable, did the concentration of 5-aminovalerate remain near undetectable in a subset of samples. *C. difficile* is able to catabolize proline along with glycine through a set of paired biochemical reactions known as Stickland fermentation. Along these lines, proline and 3 proline-conjugated amino acids were all significantly decreased during infection (*p* < `r infection_pvalues`; Fig. S3B). These combined results demonstrated that while distinct metabolic challenges may exist in each susceptible metabolome, Stickland fermentation could be a preferred energy acquisition pathway for *C. difficile* *in vivo*. 
-
-
-**Infection corresponded with large shifts in the metatranscriptome strongly differ across antibiotic pretreatments.**
-Combined, 16S rRNA gene sequencing and metabolomics results demonstrated that antibiotic pretreatments resulted in distinct bacterial communities that led to altered metabolite profiles. It is also possible that metabolism of the host or *C. difficile* contributed to the differences in the metabolomes during infection. To gain a more specific understanding of how the microbiota or *C. difficile* shaped the metabolic environment, we employed a metagenome-enabled metatranscriptomic shotgun sequencing approach with paired DNA and RNA samples collected from the cecal content of the mice used in the previous analyses. To achieve usable concentrations of bacterial mRNA, and also to obtain informative depths of sequencing  that adequately sampled the diversity in metagenomic and metatranscriptomic libraries (Fig. S6E&F), we were required to performed a combined sequencing effort for each treatment and infection group. To establish confidence in continuing pooled analysis, we calculated within-group sample variance replicates from cfu, otu relative abundance, and untargeted metabolomic (Table S5). Despite limited outliers, this revealed low levels in the median and interquartile range of variance within control and experimental groups at multiple levels of biology.
-
-Following sequencing, metagenomic reads from mock-infected cecal communities were assembled *de novo* into contigs and putative genes were identified resulting in 234,868 (streptomycin), 83,534 (cefoperazone), and 35,681 (clindamycin) likely open reading frames in each metagenome. Of these putative genes, 28.5% were able to be annotated with known function KEGG, and many of these annotations were homologs among species within the dataset. Streptomycin pretreatment resulted in a significantly more diverse community (Fig. S1A) than other groups, so a more diverse metagenome was expected. 2408 unique functionally annotated genes were detected in the metagenome resulting from strptomycin pretreatment, at least 1163 more genes than either cefoperazone or clindamycin (Fig. S5). Also, as expected genes with any detectable transcript in any metatranscriptome were a subset of their corresponding metagenome. Metatranscriptomic read abundances were normalized to corresponding metagenomic coverage per gene followed by even subsampling of reads between conditions in order to create an equal standard of comparison across groups and identify genes with the largest increases in transcription above baseline. To highlight the largest magnitude of difference in transcription, we identified the top 15% genes (Fig. 5A) or pathways (Fig. 5B) in each antibiotic pretreatment group with the highest disparity in normalized cDNA abundance between mock and *C. difficile*-infected groups and cross-referenced the pretreatments. Based on the metabolomic results we hypothesized that pathways with the greatest differences would be related to catabolism of metabolites in established *C. difficile* nutrient niches.
-
-```{r figure_5, echo=F, warning=F, message=F, results='hide', cache=F}
-
-# Read in data
-# Normalized Metatranscriptomes
-cef_normalized_reads <- read.delim('data/read_mapping/cef_normalized_metaT.tsv', sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
-clinda_normalized_reads <- read.delim('data/read_mapping/clinda_normalized_metaT.tsv', sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
-strep_normalized_reads <- read.delim('data/read_mapping/strep_normalized_metaT.tsv', sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
-
-# Format data
-# Remove C. difficile genes
-cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
-cef_normalized_reads <- cef_normalized_reads[!cef_normalized_reads$organism %in% cdiff_omit,]
-clinda_normalized_reads <- clinda_normalized_reads[!clinda_normalized_reads$organism %in% cdiff_omit,]
-strep_normalized_reads <- strep_normalized_reads[!strep_normalized_reads$organism %in% cdiff_omit,]
-rm(cdiff_omit)
-# Screen for those genes that have a gene annotation
-cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', rownames(cef_normalized_reads)),]), ]
-clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', rownames(clinda_normalized_reads)),]), ]
-strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', rownames(strep_normalized_reads)),]), ]
-rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
-# Screen for genes with no reads
-cef_annotated[,2:3] <- round(cef_annotated[,2:3])
-cef_annotated <- subset(cef_annotated, rowSums(cef_annotated[,2:3]) != 0)
-clinda_annotated[,2:3] <- round(clinda_annotated[,2:3])
-clinda_annotated <- subset(clinda_annotated, rowSums(clinda_annotated[,2:3]) != 0)
-strep_annotated[,2:3] <- round(strep_annotated[,2:3])
-strep_annotated <- subset(strep_annotated, rowSums(strep_annotated[,2:3]) != 0)
-# Screen out ribosomal genes + hypothetical, putative, and uncharacterized annotations
-cef_annotated <- subset(cef_annotated, !grepl('Ribosomal_RNA*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, !grepl('ribosomal_RNA*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_RNA*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_protein*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, !grepl('16S_rRNA_*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, !grepl('23S_rRNA_*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, !grepl('uncharacterized_*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, !grepl('putative_*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, !grepl('Predicted_*', cef_annotated$description))
-cef_annotated <- subset(cef_annotated, description != 'hypothetical_protein')
-clinda_annotated <- subset(clinda_annotated, !grepl('Ribosomal_RNA*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('ribosomal_RNA*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_RNA*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_protein*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('16S_rRNA_*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('23S_rRNA_*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('uncharacterized_*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('putative_*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, !grepl('Predicted_*', clinda_annotated$description))
-clinda_annotated <- subset(clinda_annotated, description != 'hypothetical_protein')
-strep_annotated <- subset(strep_annotated, !grepl('Ribosomal_RNA*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('ribosomal_RNA*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_RNA*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_protein*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('16S_rRNA_*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('23S_rRNA_*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('uncharacterized_*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('putative_*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, !grepl('Predicted_*', strep_annotated$description))
-strep_annotated <- subset(strep_annotated, description != 'hypothetical_protein')
-# Simplify column names
-colnames(cef_annotated) <- c('gene', 'cef_630_reads', 'cef_mock_reads','organism','description','ko','pathways')
-colnames(clinda_annotated) <- c('gene', 'clinda_630_reads', 'clinda_mock_reads','organism','description','ko','pathways')
-colnames(strep_annotated) <- c('gene', 'strep_630_reads', 'strep_mock_reads','organism','description','ko','pathways')
-
-# Calculate and take top differences
-cef_10 <- round(nrow(cef_annotated) * 0.15)
-clinda_10 <- round(nrow(clinda_annotated) * 0.15)
-strep_10 <- round(nrow(strep_annotated) * 0.15)
-cef_annotated$diff <- abs(cef_annotated$cef_630_reads - cef_annotated$cef_mock_reads)
-cef_annotated <- cef_annotated[order(-cef_annotated$diff),]
-top_cef_genes <- cef_annotated$gene[1:cef_10]
-cef_annotated$diff <- NULL
-clinda_annotated$diff <- abs(clinda_annotated$clinda_630_reads - clinda_annotated$clinda_mock_reads)
-clinda_annotated <- clinda_annotated[order(-clinda_annotated$diff),]
-top_clinda_genes <- clinda_annotated$gene[1:clinda_10]
-clinda_annotated$diff <- NULL
-strep_annotated$diff <- abs(strep_annotated$strep_630_reads - strep_annotated$strep_mock_reads)
-strep_annotated <- strep_annotated[order(-strep_annotated$diff),]
-top_strep_genes <- strep_annotated$gene[1:strep_10]
-strep_annotated$diff <- NULL
-rm(cef_10, clinda_10, strep_10)
-
-# Calculate overlap of top differences
-top_cef_clinda_genes <- intersect(top_cef_genes, top_clinda_genes)
-top_cef_strep_genes <- intersect(top_cef_genes, top_strep_genes)
-top_clinda_strep_genes <- intersect(top_clinda_genes, top_strep_genes)
-top_genes <- intersect(top_cef_genes, intersect(top_clinda_genes, top_strep_genes))
-top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_cef_clinda_genes)
-top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_cef_strep_genes)
-top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_genes)
-top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_cef_clinda_genes)
-top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_clinda_strep_genes)
-top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_genes)
-top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_clinda_strep_genes)
-top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_cef_strep_genes)
-top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_genes)
-top_cef_clinda_genes <- as.character(as.numeric(length(top_cef_clinda_genes)))
-top_cef_strep_genes <- as.character(as.numeric(length(top_cef_strep_genes)))
-top_clinda_strep_genes <- as.character(as.numeric(length(top_clinda_strep_genes)))
-top_all_genes <- as.character(as.numeric(length(top_genes)))
-top_cef_genes <- as.character(as.numeric(length(top_cef_genes)))
-top_clinda_genes <- as.character(as.numeric(length(top_clinda_genes)))
-top_strep_genes <- as.character(as.numeric(length(top_strep_genes)))
-rm(top_genes)
-
-# Aggregate pathways
-cef_pathways <- subset(cef_annotated, !is.na(cef_annotated$pathways))
-cef_pathways <- aggregate(cbind(cef_pathways$cef_630_reads, cef_pathways$cef_mock_reads), by=list(cef_pathways$pathways), FUN=sum)
-rownames(cef_pathways) <- cef_pathways$Group.1
-cef_pathways$Group.1 <- NULL
-cef_pathways <- subset(cef_pathways, !rownames(cef_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
-colnames(cef_pathways) <- c('cef_630_reads', 'cef_mock_reads')
-clinda_pathways <- subset(clinda_annotated, !is.na(clinda_annotated$pathways))
-clinda_pathways <- aggregate(cbind(clinda_pathways$clinda_630_reads, clinda_pathways$clinda_mock_reads), by=list(clinda_pathways$pathways), FUN=sum)
-rownames(clinda_pathways) <- clinda_pathways$Group.1
-clinda_pathways$Group.1 <- NULL
-clinda_pathways <- subset(clinda_pathways, !rownames(clinda_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
-colnames(clinda_pathways) <- c('clinda_630_reads', 'clinda_mock_reads')
-strep_pathways <- subset(strep_annotated, !is.na(strep_annotated$pathways))
-strep_pathways <- aggregate(cbind(strep_pathways$strep_630_reads, strep_pathways$strep_mock_reads), by=list(strep_pathways$pathways), FUN=sum)
-rownames(strep_pathways) <- strep_pathways$Group.1
-strep_pathways$Group.1 <- NULL
-strep_pathways <- subset(strep_pathways, !rownames(strep_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
-colnames(strep_pathways) <- c('strep_630_reads', 'strep_mock_reads')
-rm(cef_annotated, clinda_annotated, strep_annotated)
-
-# Calculate and take top differences
-cef_10 <- round(nrow(cef_pathways) * 0.15)
-clinda_10 <- round(nrow(clinda_pathways) * 0.15)
-strep_10 <- round(nrow(strep_pathways) * 0.15)
-cef_pathways$diff <- abs(cef_pathways$cef_630_reads - cef_pathways$cef_mock_reads)
-cef_pathways <- cef_pathways[order(-cef_pathways$diff),]
-top_cef_paths <- rownames(cef_pathways[1:cef_10,])
-cef_pathways$diff <- NULL
-clinda_pathways$diff <- abs(clinda_pathways$clinda_630_reads - clinda_pathways$clinda_mock_reads)
-clinda_pathways <- clinda_pathways[order(-clinda_pathways$diff),]
-top_clinda_paths <- rownames(clinda_pathways[1:clinda_10,])
-clinda_pathways$diff <- NULL
-strep_pathways$diff <- abs(strep_pathways$strep_630_reads - strep_pathways$strep_mock_reads)
-strep_pathways <- strep_pathways[order(-strep_pathways$diff),]
-top_strep_paths <- rownames(strep_pathways[1:strep_10,])
-strep_pathways$diff <- NULL
-rm(cef_10, clinda_10, strep_10,
-   cef_pathways, clinda_pathways, strep_pathways)
-
-# Calculate overlap of top differences
-top_cef_clinda_paths <- intersect(top_cef_paths, top_clinda_paths)
-top_cef_strep_paths <- intersect(top_cef_paths, top_strep_paths)
-top_clinda_strep_paths <- intersect(top_clinda_paths, top_strep_paths)
-top_paths <- intersect(top_cef_paths, intersect(top_clinda_paths, top_strep_paths))
-top_cef_paths <- subset(top_cef_paths, !top_cef_paths %in% top_cef_clinda_paths)
-top_cef_paths <- subset(top_cef_paths, !top_cef_paths %in% top_cef_strep_paths)
-top_cef_paths <- subset(top_cef_paths, !top_cef_paths %in% top_paths)
-top_clinda_paths <- subset(top_clinda_paths, !top_clinda_paths %in% top_cef_clinda_paths)
-top_clinda_paths <- subset(top_clinda_paths, !top_clinda_paths %in% top_clinda_strep_paths)
-top_clinda_paths <- subset(top_clinda_paths, !top_clinda_paths %in% top_paths)
-top_strep_paths <- subset(top_strep_paths, !top_strep_paths %in% top_clinda_strep_paths)
-top_strep_paths <- subset(top_strep_paths, !top_strep_paths %in% top_cef_strep_paths)
-top_strep_paths <- subset(top_strep_paths, !top_strep_paths %in% top_paths)
-top_cef_clinda_paths <- as.character(as.numeric(length(top_cef_clinda_paths)))
-top_cef_strep_paths <- as.character(as.numeric(length(top_cef_strep_paths)))
-top_clinda_strep_paths <- as.character(as.numeric(length(top_clinda_strep_paths)))
-top_all_paths <- as.character(as.numeric(length(top_paths)))
-top_cef_paths <- as.character(as.numeric(length(top_cef_paths)))
-top_clinda_paths <- as.character(as.numeric(length(top_clinda_paths)))
-top_strep_paths <- as.character(as.numeric(length(top_strep_paths)))
-rm(top_paths)
-
-```
-
-This analysis revealed modest conservation of transcriptional changes induced by *C. difficile* colonization across the antibiotic pretreatments. This trend was partially driven by significant differences in community membership (Fig. 2A), and consequently the metagenomic repertoire available for transcription. The most stark finding was that only 8 genes were among those shared across pretreatment groups (Fig. 5A). Although mice receiving the streptomycin and clindamycin pretreatments shared a large number of altered genes, cefoperazone-pretreated mice shared relatively few with the metatranscriptome of the other pretreament groups. This result was likely due to large differences in community compositions. Upon inspection of the `r top_all_genes` genes that were shared across the three pretreatment groups, a Dps family protein gene was the most varied in transcription. The protein product of this gene is associated with DNA protection and iron binding under periods of environmental stress [@Ilari2000]. Furthermore, formate acetyltransferase and phosphopyruvate hydratase are highly varied in their transcription and are central nodes of metabolism, which lend themselves to the hypothesis that the microbiota must process energy sources differently in the presence of *C. difficile*. Pathway-level analysis revealed a larger proportion of overlap between pretreatments than at the gene-level (Fig. 5B). Among these differences, the greatest degree of change was in ABC transporter transcription further supported large-scale shifts in nutrient import across the individual communities. More to this point, numerous genes for transport of simple carbohydrates and glycolysis were also differentially overrepresented in infected conditions across pretreatment groups when compared to mock-infection mice (Fig. S4). Among other pathways in the shared differences grouping, the microbial metabolism in diverse environments KEGG category is a broad classification that includes genes for not only carbohydrate and amino acid catabolism, but also the degradation and metabolism of xenobiotics. Inclusion of this category supports the hypothesis that the microbiota may be restructuring energy acquisition strategies or dealing with additional metabolites introduced due to pathogen colonization. Parallel to these results, large changes in oxidative phosphorylation as well as starch/sucrose metabolism also indicate modification of nutrient niche segregation between mock and infected states that may drive the ability of *C. difficile* to persist. Together, these shifts demonstrated that *C. difficile* colonization is associated with substantial changes in the transcription of nutrient acquisition pathways, which vary greatly between antibiotic-induced susceptible states.
-
-```{r figure_6, echo=F, warning=F, message=F, results='hide', cache=F}
+```{r figure_3, echo=F, warning=F, message=F, results='hide', cache=F}
 
 # Read in data
 # Normalized Metatranscriptomes
@@ -1153,6 +635,364 @@ rm(strep_genus_diff, cef_genus_diff, clinda_genus_diff)
 
 ```
 
+**Infection corresponded with large shifts in the metatranscriptome strongly differ across antibiotic pretreatments.**
+Despite shared signal between community structure and metabolome in the cecal environments of interest, it is difficult to connect specific microbes with changes in concentration of particular metabolites that may ultimately influence the duration of infection. To gain a more specific understanding of how the microbiota or *C. difficile* shaped the metabolic environment, we employed a metagenome-enabled metatranscriptomic shotgun sequencing approach with paired DNA and RNA samples collected from the cecal content of the mice used in the previous analyses. To achieve usable concentrations of bacterial mRNA, and also to obtain informative depths of sequencing  that adequately sampled the diversity in metagenomic and metatranscriptomic libraries (Fig. S6E&F), we were required to performed a combined sequencing effort for each treatment and infection group. To establish confidence in continuing pooled analysis, we calculated within-group sample variance replicates from cfu, otu relative abundance, and untargeted metabolomic (Table S5). Despite limited outliers, this revealed low levels in the median and interquartile range of variance within control and experimental groups at multiple levels of biology.
+
+Following sequencing, metagenomic reads from mock-infected cecal communities were assembled *de novo* into contigs and putative genes were identified resulting in 234,868 (streptomycin), 83,534 (cefoperazone), and 35,681 (clindamycin) likely open reading frames in each metagenome. Of these putative genes, 28.5% were able to be annotated with known function KEGG, and many of these annotations were homologs among species within the dataset. Streptomycin pretreatment resulted in a significantly more diverse community (Fig. S1A) than other groups, so a more diverse metagenome was expected. 2408 unique functionally annotated genes were detected in the metagenome resulting from strptomycin pretreatment, at least 1163 more genes than either cefoperazone or clindamycin (Fig. S5). Also, as expected genes with any detectable transcript in any metatranscriptome were a subset of their corresponding metagenome. Metatranscriptomic read abundances were normalized to corresponding metagenomic coverage per gene followed by even subsampling of reads between conditions in order to create an equal standard of comparison across groups and identify genes with the largest increases in transcription above baseline. 
+
+
+
+To highlight the largest magnitude of difference in transcription, we identified the top 15% genes (Fig. 5A) or pathways (Fig. 5B) in each antibiotic pretreatment group with the highest disparity in normalized cDNA abundance between mock and *C. difficile*-infected groups and cross-referenced the pretreatments. Based on the metabolomic results we hypothesized that pathways with the greatest differences would be related to catabolism of metabolites in established *C. difficile* nutrient niches.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+We were interested in identifying those metabolites that best indicate the changes induced by antibiotic pretreatment, and potentially contributing sensitivity to *C. difficile* colonization. Standard analyses revealed large numbers of individual metabolites with significant differences between groups, so we employed an implementation of the Random Forest machine-learning algorithm [@Calle2011] to identify the smallest subset of metabolites most able to differentiate states. This technique revealed 5 metabolites that together correctly classified all metabolomes as either resistant or susceptible (Fig. 3C). The first 2 are significantly elevated in susceptible metabolomes (*p* < `resistant_pvalues`). Acetlyproline has been previously shown to be a growth substrate of *C. difficile* through Stickland fermentation [@Fonknechten2010], and may be indicate a universal marker of CDI susceptibility. Interestingly nudifloramide, or N-methyl-2-pyridone-5-carboxamide, is an end product of NAD degradation which has been associated with multiple unrelated intestinal disease states [@Rutkowski2003;@Mayneris-Perxachs2016] and may be a general indicator of dysbiosis in the GI tract. The remaining 3 (sebacate, hyodeoxycholate, and murideoxycholate) are all related to secondary bile acids [@Semba2017] indicating a possible decrease in vegetative growth inhibitors across susceptible animals [Theriot2015]. These data support the hypothesis that amino acid catabolism is disrupted at a community-level following antibiotic pretreatment and may suggest open nutrient niches for *C. difficile*. 
+
+We then applied the same approach to distinguish antibiotic pretreatment groups from each other (Fig. 3D). This featured 5 additional metabolites able to correctly classify susceptible environments, and highlighted the metabolic diversity inherent in each of these microbiomes. As the distinct antibiotics permitted survival of separate bacterial groups (Fig. 2A), likely with varied nutrient catabolism strategies, that each may compete with *C. difficile* along different axes. Further analysis of metabolites which have been shown to be deeply connected to the life cycle of *C. difficile* [@Theriot2014;@Sorg2010;@Buffie2014], also indicated high degrees of variablility between these environments. Together, our results supported that each susceptible environment was distinguishable from the others, with its own subset of enriched *C. difficile* growth substrates (Fig. 2B-C). This could be an indication that particular competitors were eliminated during antibiotic pretreatment, or those community members normally responsible for the consumption of these metabolites have altered their metabolic program to exploit alternative nutrient sources.
+
+
+```{r figure_s3, echo=F, warning=F, message=F, results='hide', cache=F}
+
+```
+
+```{r figure_4, echo=F, warning=F, message=F, results='hide', cache=F}
+
+# Read in data
+# Metabolomes
+metabolome <- read.delim('data/metabolome/scaled_intensities.log10.tsv', sep='\t', header=TRUE)
+aminovalerate <- read.delim('exploratory/aminovalerate.tsv', sep='\t', header=T)
+# Metadata
+metadata <- read.delim('data/metadata.tsv', sep='\t', header=T, row.names=1)
+
+# Format data
+# Metadata
+metadata$type <- NULL
+metadata$cage <- NULL
+metadata$mouse <- NULL
+metadata$gender <- NULL
+# Metabolomes
+rownames(metabolome) <- metabolome$BIOCHEMICAL
+metabolome$BIOCHEMICAL <- NULL
+metabolome_metadata <- metabolome[,c(1:4)]
+metabolome$PUBCHEM <- NULL
+metabolome$KEGG <- NULL
+metabolome$SUB_PATHWAY <- NULL
+metabolome$SUPER_PATHWAY <- NULL
+metabolome <- as.data.frame(t(metabolome))
+aminovalerate <- subset(aminovalerate, abx != 'germfree')
+
+# Prep data
+metabolome <- clean_merge(metadata, metabolome)
+metabolome <- subset(metabolome, abx != 'germfree')
+cef_metabolome <- subset(metabolome, abx == 'cefoperazone')
+cef_metabolome$abx <- NULL
+cef_metabolome$susceptibility <- NULL
+clinda_metabolome <- subset(metabolome, abx == 'clindamycin')
+clinda_metabolome$abx <- NULL
+clinda_metabolome$susceptibility <- NULL
+strep_metabolome <- subset(metabolome, abx == 'streptomycin')
+strep_metabolome$abx <- NULL
+strep_metabolome$susceptibility <- NULL
+
+# Calculate significant differences
+strep_inf_p <- as.character(round(adonis(strep_metabolome[,2:ncol(strep_metabolome)]~factor(strep_metabolome$infection), data=strep_metabolome, permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
+strep_metabolome$infection <- factor(strep_metabolome$infection)
+cef_inf_p <- as.character(round(adonis(cef_metabolome[,2:ncol(cef_metabolome)]~factor(cef_metabolome$infection), data=cef_metabolome,permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
+cef_metabolome$infection <- factor(cef_metabolome$infection)
+clinda_inf_p <- as.character(round(adonis(clinda_metabolome[,2:ncol(clinda_metabolome)]~factor(clinda_metabolome$infection),data=clinda_metabolome, permutations=999, method='jaccard')$aov.tab[[6]][1], 3))
+clinda_metabolome$infection <- factor(clinda_metabolome$infection)
+rm(metadata, metabolome)
+
+# Aminovalerate data
+av_noabx <- subset(aminovalerate, abx == 'none')$aminovalerate
+av_strep_inf <- subset(aminovalerate, abx == 'streptomycin' & infection == 'infected')$aminovalerate
+av_strep_mock <- subset(aminovalerate, abx == 'streptomycin' & infection == 'mock')$aminovalerate
+av_cef_inf <- subset(aminovalerate, abx == 'cefoperazone' & infection == 'infected')$aminovalerate
+av_cef_mock <- subset(aminovalerate, abx == 'cefoperazone' & infection == 'mock')$aminovalerate
+av_clinda_inf <- subset(aminovalerate, abx == 'clindamycin' & infection == 'infected')$aminovalerate
+av_clinda_mock <- subset(aminovalerate, abx == 'clindamycin' & infection == 'mock')$aminovalerate
+rm(aminovalerate)
+
+# Stats
+av_noabx_pval <- c(wilcox.test(av_noabx, av_strep_inf, exact=FALSE)$p.value,
+                   wilcox.test(av_noabx, av_strep_mock, exact=FALSE)$p.value,
+                   wilcox.test(av_noabx, av_cef_inf, exact=FALSE)$p.value,
+                   wilcox.test(av_noabx, av_cef_mock, exact=FALSE)$p.value,
+                   wilcox.test(av_noabx, av_clinda_inf, exact=FALSE)$p.value,
+                   wilcox.test(av_noabx, av_clinda_mock, exact=FALSE)$p.value)
+av_noabx_pval <- round(p.adjust(av_noabx_pval, method='BH'), 3)
+
+
+av_noabx_mock_pval <- as.character(max(c(av_noabx_pval[2], av_noabx_pval[4], av_noabx_pval[6])))
+
+rm(av_noabx)
+av_strep_pval <- as.character(round(wilcox.test(av_strep_inf, av_strep_mock, exact=FALSE)$p.value, 3))
+rm(av_strep_inf, av_strep_mock)
+av_cef_pval <- as.character(round(wilcox.test(av_cef_inf, av_cef_mock, exact=FALSE)$p.value, 3))
+rm(av_cef_inf, av_cef_mock)
+av_clinda_pval <- as.character(round(wilcox.test(av_clinda_inf, av_clinda_mock, exact=FALSE)$p.value, 3))
+rm(av_clinda_inf, av_clinda_mock)
+
+# Random Forest
+cef_rf <- infectionRF(cef_metabolome)
+clinda_rf <- infectionRF(clinda_metabolome)
+strep_rf <- infectionRF(strep_metabolome)
+
+# Sort and subset top hits
+cef_rf <- cef_rf[1:5,]
+clinda_rf <- clinda_rf[1:5,]
+strep_rf <- strep_rf[1:5,]
+
+# Subset concentrations
+colnames(cef_metabolome) <- make.names(colnames(cef_metabolome))
+inf_cef_metabolome <- subset(cef_metabolome, infection == '630')[, cef_rf$feature]
+inf_cef_metabolome$infection <- NULL
+mock_cef_metabolome <- subset(cef_metabolome, infection == 'mock')[, cef_rf$feature]
+mock_cef_metabolome$infection <- NULL
+rm(cef_metabolome, cef_rf)
+colnames(clinda_metabolome) <- make.names(colnames(clinda_metabolome))
+inf_clinda_metabolome <- subset(clinda_metabolome, infection == '630')[, clinda_rf$feature]
+inf_clinda_metabolome$infection<- NULL
+mock_clinda_metabolome <- subset(clinda_metabolome, infection == 'mock')[, clinda_rf$feature]
+mock_clinda_metabolome$infection<- NULL
+rm(clinda_metabolome, clinda_rf)
+colnames(strep_metabolome) <- make.names(colnames(strep_metabolome))
+inf_strep_metabolome <- subset(strep_metabolome, infection == '630')[, strep_rf$feature]
+inf_strep_metabolome$infection<- NULL
+mock_strep_metabolome <- subset(strep_metabolome, infection == 'mock')[, strep_rf$feature]
+mock_strep_metabolome$infection<- NULL
+rm(strep_metabolome, strep_rf)
+
+# Find significant differences
+cef_inf_metab_pvalues <- c()
+for (i in 1:ncol(inf_cef_metabolome)){cef_inf_metab_pvalues[i] <- wilcox.test(inf_cef_metabolome[,i], mock_cef_metabolome[,i], exact=FALSE)$p.value}
+cef_inf_metab_pvalues <- as.character(round(p.adjust(cef_inf_metab_pvalues, method='BH'),3))
+cef_inf_metab_names <- colnames(inf_cef_metabolome)
+rm(inf_cef_metabolome)
+clinda_inf_metab_pvalues <- c()
+for (i in 1:ncol(inf_clinda_metabolome)){clinda_inf_metab_pvalues[i] <- wilcox.test(inf_clinda_metabolome[,i], mock_clinda_metabolome[,i], exact=FALSE)$p.value}
+clinda_inf_metab_pvalues <- as.character(round(p.adjust(clinda_inf_metab_pvalues, method='BH'),3))
+clinda_inf_metab_names <- colnames(inf_clinda_metabolome)
+rm(inf_clinda_metabolome)
+strep_inf_metab_pvalues <- c()
+for (i in 1:ncol(inf_strep_metabolome)){strep_inf_metab_pvalues[i] <- wilcox.test(inf_strep_metabolome[,i], mock_strep_metabolome[,i], exact=FALSE)$p.value}
+strep_inf_metab_pvalues <- as.character(round(p.adjust(strep_inf_metab_pvalues, method='BH'),3))
+strep_inf_metab_names <- colnames(inf_strep_metabolome)
+rm(inf_strep_metabolome)
+
+```
+
+
+```{r figure_s2d, echo=F, warning=F, message=F, results='hide', cache=F}
+
+# Read in data
+aminovalerate <- read.delim('exploratory/aminovalerate.tsv', sep='\t', header=T)
+
+# Subset data
+aminovalerate <- subset(aminovalerate, abx == 'germfree')
+aminovalerate$infection <- as.factor(aminovalerate$infection)
+aminovalerate$aminovalerate <- as.numeric(aminovalerate$aminovalerate)
+aminovalerate$abx <- NULL
+
+# Test differences
+amv_pval <- round(wilcox.test(as.numeric(subset(aminovalerate, infection == 'infected')$aminovalerate), 
+                              as.numeric(subset(aminovalerate, infection == 'mock')$aminovalerate), 
+                              exact=FALSE)$p.value, 4)
+amv_pval <- as.character(amv_pval)
+rm(aminovalerate)
+
+```
+
+***C. difficile* colonization induced distinct metabolomic changes of each pretreatment group.**
+Following the changes to the cecal metabolome in response to antibiotic pretreatment, we assessed the degree to which *C. difficile* colonization altered the cecal metabolome. We hypothesized that the introduction of a new competitor, *C. difficile*, would impact the metabolome either through its own metabolism or by shifting the metabolism of surrounding community members. First, we compared the dissimilarity of cecal metabolomes from all mice across pretreatment groups, and were unable to detect a consistent difference between groups (*p* = `r inf_p`; Fig. S3A). We moved on to individual antibiotic groups and found that both streptomycin (*p* = `r strep_inf_p`) and cefoperazone (*p* = `r cef_inf_p`) pretreated metabolomes deviated significantly from that of mock infection (Fig. 4A-4B). However, clindamycin-pretreated cecal metabolomes were not significantly altered by the presence of the pathogen (*p* = `r clinda_inf_p`; Fig. 4C). These results diverged from what was seen in the paired OTU relative abundance results where instead the cecal community structure of mice pretreated with cefoperazone was unchanged and clindamycin-pretreated communities were significantly different (Fig. S1). Interestingly, streptomycin-pretreated microbiomes were significantly altered by *C. difficile* infection at both the OTU and metabolomic levels (Fig. 4A & S1D). Together, these data indicated that shifts in population within the cecal microbiota were not implicitly associated with concordant changes in the metabolome. 
+
+
+
+We then sought to identify changes in those metabolites that were potential markers of *C. difficile* infection through a unified analysis across all models tested. To accomplish this, we again applied the Random Forest machine-learning approach. The resultant models were able to reliably classify infected and uninfected mice in both streptomycin and cefoperazone pretreatments (Fig. 4D-E, Out-of-bag error = 0%). 
+
+
+
+
+ectoine helps bacteria with osmotic stress []...(Fig. 4E).
+
+
+
+
+
+However, infection did not provide for the same level of discrimination in clindamycin-pretre45ted mice (Fig. 4F, Out-of-bag error = 5.56%). 
+
+While these data supported our hypothesis that each antibiotic pretreatment also drove the generation of unique metabolic environments, it was not possible to attribute many other specific changes to altered microbiota or host activity.
+
+
+Interestingly, only 5-aminovalerate appeared multiple times as an optimal discriminatory metabolite across pretreatments. This molecule is a known byproduct of D-proline Stickland fermentation by *C. difficile* [@Bouillaut2013;@Neumann-Schaal2015]. Presence of 5-aminovalerate appears to be dependent on the metabolism of *C. difficile* as concentrations were significantly lower in antibiotic-pretreated, mock-infected animals (*p* < `r av_noabx_mock_pval`; Fig. 4G). Conversely, it was highly abundant in most infected animals compared to both susceptible and resistant controls. Furthermore, 5-aminovalerate only became detectable in the cecum of germfree mice after infection by *C. difficile* str. 630 (*p* < `amv_pval`; Fig. S2D). However, exclusively in clindamycin-pretreatment where CDI was quickly became undetectable, did the concentration of 5-aminovalerate remain near undetectable in a subset of samples. *C. difficile* is able to catabolize proline along with glycine through a set of paired biochemical reactions known as Stickland fermentation. Along these lines, proline and 3 proline-conjugated amino acids were all significantly decreased during infection (*p* < `r infection_pvalues`; Fig. S3B). These combined results demonstrated that while distinct metabolic challenges may exist in each susceptible metabolome, Stickland fermentation could be a preferred energy acquisition pathway for *C. difficile* *in vivo*. 
+
+
+
+
+```{r figure_5, echo=F, warning=F, message=F, results='hide', cache=F}
+
+# Read in data
+# Normalized Metatranscriptomes
+cef_normalized_reads <- read.delim('data/read_mapping/cef_normalized_metaT.tsv', sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
+clinda_normalized_reads <- read.delim('data/read_mapping/clinda_normalized_metaT.tsv', sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
+strep_normalized_reads <- read.delim('data/read_mapping/strep_normalized_metaT.tsv', sep='\t', header=TRUE, stringsAsFactors=FALSE, row.names=7)
+
+# Format data
+# Remove C. difficile genes
+cdiff_omit <- c('cdf','pdc','cdc','cdl','pdf')
+cef_normalized_reads <- cef_normalized_reads[!cef_normalized_reads$organism %in% cdiff_omit,]
+clinda_normalized_reads <- clinda_normalized_reads[!clinda_normalized_reads$organism %in% cdiff_omit,]
+strep_normalized_reads <- strep_normalized_reads[!strep_normalized_reads$organism %in% cdiff_omit,]
+rm(cdiff_omit)
+# Screen for those genes that have a gene annotation
+cef_annotated <- cef_normalized_reads[!rownames(cef_normalized_reads) %in% rownames(cef_normalized_reads[grep('unknown_\\d', rownames(cef_normalized_reads)),]), ]
+clinda_annotated <- clinda_normalized_reads[!rownames(clinda_normalized_reads) %in% rownames(clinda_normalized_reads[grep('unknown_\\d', rownames(clinda_normalized_reads)),]), ]
+strep_annotated <- strep_normalized_reads[!rownames(strep_normalized_reads) %in% rownames(strep_normalized_reads[grep('unknown_\\d', rownames(strep_normalized_reads)),]), ]
+rm(cef_normalized_reads, clinda_normalized_reads, strep_normalized_reads)
+# Screen for genes with no reads
+cef_annotated[,2:3] <- round(cef_annotated[,2:3])
+cef_annotated <- subset(cef_annotated, rowSums(cef_annotated[,2:3]) != 0)
+clinda_annotated[,2:3] <- round(clinda_annotated[,2:3])
+clinda_annotated <- subset(clinda_annotated, rowSums(clinda_annotated[,2:3]) != 0)
+strep_annotated[,2:3] <- round(strep_annotated[,2:3])
+strep_annotated <- subset(strep_annotated, rowSums(strep_annotated[,2:3]) != 0)
+# Screen out ribosomal genes + hypothetical, putative, and uncharacterized annotations
+cef_annotated <- subset(cef_annotated, !grepl('Ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_RNA*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('*ribosomal_protein*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('16S_rRNA_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('23S_rRNA_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('uncharacterized_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('putative_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, !grepl('Predicted_*', cef_annotated$description))
+cef_annotated <- subset(cef_annotated, description != 'hypothetical_protein')
+clinda_annotated <- subset(clinda_annotated, !grepl('Ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_RNA*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('*ribosomal_protein*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('16S_rRNA_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('23S_rRNA_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('uncharacterized_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('putative_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, !grepl('Predicted_*', clinda_annotated$description))
+clinda_annotated <- subset(clinda_annotated, description != 'hypothetical_protein')
+strep_annotated <- subset(strep_annotated, !grepl('Ribosomal_RNA*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('ribosomal_RNA*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_RNA*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('*ribosomal_protein*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('16S_rRNA_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('23S_rRNA_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('uncharacterized_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('putative_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, !grepl('Predicted_*', strep_annotated$description))
+strep_annotated <- subset(strep_annotated, description != 'hypothetical_protein')
+# Simplify column names
+colnames(cef_annotated) <- c('gene', 'cef_630_reads', 'cef_mock_reads','organism','description','ko','pathways')
+colnames(clinda_annotated) <- c('gene', 'clinda_630_reads', 'clinda_mock_reads','organism','description','ko','pathways')
+colnames(strep_annotated) <- c('gene', 'strep_630_reads', 'strep_mock_reads','organism','description','ko','pathways')
+
+# Calculate and take top differences
+cef_10 <- round(nrow(cef_annotated) * 0.15)
+clinda_10 <- round(nrow(clinda_annotated) * 0.15)
+strep_10 <- round(nrow(strep_annotated) * 0.15)
+cef_annotated$diff <- abs(cef_annotated$cef_630_reads - cef_annotated$cef_mock_reads)
+cef_annotated <- cef_annotated[order(-cef_annotated$diff),]
+top_cef_genes <- cef_annotated$gene[1:cef_10]
+cef_annotated$diff <- NULL
+clinda_annotated$diff <- abs(clinda_annotated$clinda_630_reads - clinda_annotated$clinda_mock_reads)
+clinda_annotated <- clinda_annotated[order(-clinda_annotated$diff),]
+top_clinda_genes <- clinda_annotated$gene[1:clinda_10]
+clinda_annotated$diff <- NULL
+strep_annotated$diff <- abs(strep_annotated$strep_630_reads - strep_annotated$strep_mock_reads)
+strep_annotated <- strep_annotated[order(-strep_annotated$diff),]
+top_strep_genes <- strep_annotated$gene[1:strep_10]
+strep_annotated$diff <- NULL
+rm(cef_10, clinda_10, strep_10)
+
+# Calculate overlap of top differences
+top_cef_clinda_genes <- intersect(top_cef_genes, top_clinda_genes)
+top_cef_strep_genes <- intersect(top_cef_genes, top_strep_genes)
+top_clinda_strep_genes <- intersect(top_clinda_genes, top_strep_genes)
+top_genes <- intersect(top_cef_genes, intersect(top_clinda_genes, top_strep_genes))
+top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_cef_clinda_genes)
+top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_cef_strep_genes)
+top_cef_genes <- subset(top_cef_genes, !top_cef_genes %in% top_genes)
+top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_cef_clinda_genes)
+top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_clinda_strep_genes)
+top_clinda_genes <- subset(top_clinda_genes, !top_clinda_genes %in% top_genes)
+top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_clinda_strep_genes)
+top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_cef_strep_genes)
+top_strep_genes <- subset(top_strep_genes, !top_strep_genes %in% top_genes)
+top_cef_clinda_genes <- as.character(as.numeric(length(top_cef_clinda_genes)))
+top_cef_strep_genes <- as.character(as.numeric(length(top_cef_strep_genes)))
+top_clinda_strep_genes <- as.character(as.numeric(length(top_clinda_strep_genes)))
+top_all_genes <- as.character(as.numeric(length(top_genes)))
+top_cef_genes <- as.character(as.numeric(length(top_cef_genes)))
+top_clinda_genes <- as.character(as.numeric(length(top_clinda_genes)))
+top_strep_genes <- as.character(as.numeric(length(top_strep_genes)))
+rm(top_genes)
+
+# Aggregate pathways
+cef_pathways <- subset(cef_annotated, !is.na(cef_annotated$pathways))
+cef_pathways <- aggregate(cbind(cef_pathways$cef_630_reads, cef_pathways$cef_mock_reads), by=list(cef_pathways$pathways), FUN=sum)
+rownames(cef_pathways) <- cef_pathways$Group.1
+cef_pathways$Group.1 <- NULL
+cef_pathways <- subset(cef_pathways, !rownames(cef_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
+colnames(cef_pathways) <- c('cef_630_reads', 'cef_mock_reads')
+clinda_pathways <- subset(clinda_annotated, !is.na(clinda_annotated$pathways))
+clinda_pathways <- aggregate(cbind(clinda_pathways$clinda_630_reads, clinda_pathways$clinda_mock_reads), by=list(clinda_pathways$pathways), FUN=sum)
+rownames(clinda_pathways) <- clinda_pathways$Group.1
+clinda_pathways$Group.1 <- NULL
+clinda_pathways <- subset(clinda_pathways, !rownames(clinda_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
+colnames(clinda_pathways) <- c('clinda_630_reads', 'clinda_mock_reads')
+strep_pathways <- subset(strep_annotated, !is.na(strep_annotated$pathways))
+strep_pathways <- aggregate(cbind(strep_pathways$strep_630_reads, strep_pathways$strep_mock_reads), by=list(strep_pathways$pathways), FUN=sum)
+rownames(strep_pathways) <- strep_pathways$Group.1
+strep_pathways$Group.1 <- NULL
+strep_pathways <- subset(strep_pathways, !rownames(strep_pathways) %in% c('Ribosome:Translation','Metabolic_pathways'))
+colnames(strep_pathways) <- c('strep_630_reads', 'strep_mock_reads')
+rm(cef_annotated, clinda_annotated, strep_annotated)
+
+# Calculate and take top differences
+cef_10 <- round(nrow(cef_pathways) * 0.15)
+clinda_10 <- round(nrow(clinda_pathways) * 0.15)
+strep_10 <- round(nrow(strep_pathways) * 0.15)
+cef_pathways$diff <- abs(cef_pathways$cef_630_reads - cef_pathways$cef_mock_reads)
+cef_pathways <- cef_pathways[order(-cef_pathways$diff),]
+top_cef_paths <- rownames(cef_pathways[1:cef_10,])
+cef_pathways$diff <- NULL
+clinda_pathways$diff <- abs(clinda_pathways$clinda_630_reads - clinda_pathways$clinda_mock_reads)
+clinda_pathways <- clinda_pathways[order(-clinda_pathways$diff),]
+top_clinda_paths <- rownames(clinda_pathways[1:clinda_10,])
+clinda_pathways$diff <- NULL
+strep_pathways$diff <- abs(strep_pathways$strep_630_reads - strep_pathways$strep_mock_reads)
+strep_pathways <- strep_pathways[order(-strep_pathways$diff),]
+top_strep_paths <- rownames(strep_pathways[1:strep_10,])
+strep_pathways$diff <- NULL
+rm(cef_10, clinda_10, strep_10,
+   cef_pathways, clinda_pathways, strep_pathways)
+
+
+
+```
+
+This analysis revealed modest conservation of transcriptional changes induced by *C. difficile* colonization across the antibiotic pretreatments. This trend was partially driven by significant differences in community membership (Fig. 2A), and consequently the metagenomic repertoire available for transcription. The most stark finding was that only 8 genes were among those shared across pretreatment groups (Fig. 5A). Although mice receiving the streptomycin and clindamycin pretreatments shared a large number of altered genes, cefoperazone-pretreated mice shared relatively few with the metatranscriptome of the other pretreament groups. This result was likely due to large differences in community compositions. Upon inspection of the `r top_all_genes` genes that were shared across the three pretreatment groups, a Dps family protein gene was the most varied in transcription. The protein product of this gene is associated with DNA protection and iron binding under periods of environmental stress [@Ilari2000]. Furthermore, formate acetyltransferase and phosphopyruvate hydratase are highly varied in their transcription and are central nodes of metabolism, which lend themselves to the hypothesis that the microbiota must process energy sources differently in the presence of *C. difficile*. Pathway-level analysis revealed a larger proportion of overlap between pretreatments than at the gene-level (Fig. 5B). Among these differences, the greatest degree of change was in ABC transporter transcription further supported large-scale shifts in nutrient import across the individual communities. More to this point, numerous genes for transport of simple carbohydrates and glycolysis were also differentially overrepresented in infected conditions across pretreatment groups when compared to mock-infection mice (Fig. S4). Among other pathways in the shared differences grouping, the microbial metabolism in diverse environments KEGG category is a broad classification that includes genes for not only carbohydrate and amino acid catabolism, but also the degradation and metabolism of xenobiotics. Inclusion of this category supports the hypothesis that the microbiota may be restructuring energy acquisition strategies or dealing with additional metabolites introduced due to pathogen colonization. Parallel to these results, large changes in oxidative phosphorylation as well as starch/sucrose metabolism also indicate modification of nutrient niche segregation between mock and infected states that may drive the ability of *C. difficile* to persist. Together, these shifts demonstrated that *C. difficile* colonization is associated with substantial changes in the transcription of nutrient acquisition pathways, which vary greatly between antibiotic-induced susceptible states.
+
 ***C. difficile* colonization disproportionately impacted the gene transcription of low-abundance bacterial taxa.**
 As not all bacterial taxa share identical metabolic capabilities, we hypothesized that transcription in specific subsets of bacteria were differentially affected by the presence or metabolic activity of *C. difficile*. We sought to delineate the transcriptomic contributions of separate bacterial taxa within each metatranscriptomic dataset. To accomplish this we utilized the genus level taxonomic information associated with each KEGG annotation to identify which group likely contributed a given gene to the metagenome. Many genes in the KEGG database are annotated as hypothetical or uncharacterized but still possess a taxonomic annotation. This resulted in substantially more genes from the total being conserved for analysis in each group. With these data, we narrowed the focus to transcription for genera that represented >0.01% of genes receiving taxonomic annotations in any of the metagenomic assemblies. Final metatranscriptomic abundances were then obtained by dividing the cDNA totals of each gene by its metagenomic coverage in order to normalize for abundance of the contributing bacterial taxa. We then directly compared the normalized cDNA abundances for each gene between infected and uninfected states for each antibiotic pretreatment and applied Spearman correlation to identify distinct patterns of transcription (Fig. 6A-C). This resulted in `r strep_outs` genes that had an average distance of `r strep_mean_dist` units of deviation (UD) associated with streptomycin-pretreatment, `r cef_outs` genes at an average distance `r cef_mean_dist` UD with cefoperazone-pretreatment, and only `r clinda_outs` outliers at an average distance of `r clinda_mean_dist` UD in clindamycin-pretreatment. Overall, the clindamycin pretreatment was associated with the fewest transcription outliers between uninfected and infection conditions compared with those of the other antibiotic groups. This indicated that the gene transcription in the clindamycin-pretreated community was not significantly altered in the presence of *C. difficile*.
 
@@ -1197,7 +1037,7 @@ Several groups have attempted to identify single bacterial species or limited st
 
 **Acknowledgments**
 
-The authors would like to acknowledge Charles Koumpouras for assistance with DNA extractions and metabolomic sample preparation. We would also like to acknowledge members of the University of Michigan Germfree Mouse Center, University of Michigan Sequencing Core, and Metabolon for their assistance in experimental design, execution, and data collection. Thank you also to Greg Medlock and Maureen Carey for input on details of the analysis.
+The authors would like to acknowledge Charles Koumpouras for assistance with DNA extractions and metabolomic sample preparation. We would also like to acknowledge members of the University of Michigan Germfree Mouse Center, University of Michigan Sequencing Core, and Metabolon for their assistance in experimental design, execution, and data collection. 
 
 **Author Affiliations**
 **Department of Microbiology and Immunology, University of Michigan, Ann Arbor, Michigan.**
@@ -1224,25 +1064,16 @@ Pooled and quality trimmed transcriptomic (SRA; PRJNA354635) and 16S rRNA gene a
 
 **Figure 1 | Distinct antibiotic pretreatments have differential impacts on *C. difficile* colonization and cecal microbiota community structure.** **(A)** *C. difficile* 630 cfu in stool of infected mice following each antibiotic-pretreated group over 10 days of infection. Median and interquartile range are shown for each time point. Both cefoperzone and streptomycin pretreatments had more significantly detectable cfu on the final day of detectable cfu associated with clindamycin-pretreatment (*p* < 0.001). **(B)** Quantification of terminal vegetative *C. difficile* cfu in cecal content across 18 hour colonization models. Black lines indicate median values and each pretreatment group had significantly greater detectable cfu than no antibiotic controls. Significant differences in A & C were determined by Wilcoxon rank-sum test with Benjamni-Hochberg correction when necessary. The limit of detection was used in place of undetectable values for statistical testing. **(C)** Relative abundance of family-level OTU taxonomic classification in each pretreatment group. 
 
-**Figure 2 | Both cecal community structure and metabolomes significantly differ between antibiotic pretreatments that go on to 
- clear *C. difficile* colonization and those that do not.**
+**Figure 2 | Significant differences in cecal community structure and metabolomes track with downstream *C. difficile* clearance across antibiotic pretreatment regimes.** **(A)** NMDS ordination of Bray-Curtis distances between OTU relative abundances from colonized and cleared mice. **(B)** Relative abundance of OTUs included the optimal model generated by AUCRF discriminating colonized and cleared mice cecal microbitoa. **(C)** NMDS ordination of Bray-Curtis distances between metabolites abundances from colonized and cleared mice. **(D)** Scaled intensity of metabolites included the optimal model generated by AUCRF discriminating colonized and cleared mice cecal microbitoa. Differences for ordinations in A & C were calculated using permANOVA. Significant differences in B & D were determined by Wilcoxon rank-sum test with Benjamni-Hochberg correction.
 
-**(A)** NMDS ordination of Bray-Curtis distances between OTU relative abundances from colonized and cleared mice. 
+**Figure 3 | *C. difficile* colonization alters gene transcription of taxonomic groups differentially between antibiotic pretreatments.** Each point represents a unique gene from the respective metagenomic assembly. Coordinates were determined by the log~2~-transformed transcription level of each gene between *C. difficile*-infected and mock-infected conditions. Metatranscriptomic read abundances were normalized to their associated metagenomic coverage. Outliers were defined using linear correlation and a squared residual cutoff of 2. Distance of outliers to the x=y line were also calculated and represented in unites of deviation or UD. Colored indicate genus of origin, and gray areas denote genes with consistent transcription between conditions (defined by outlier analysis). Antibiotic pretreatments; **(A)** Streptomycin-pretreated, **(B)** Cefoperazone-pretreated, and **(C)** Clindamycin-pretreated. 
 
-**(B)** Relative abundance of OTUs included the optimal model generated by AUCRF discriminating colonized and cleared mice cecal microbitoa.
+**Figure 4 | Majority of metatranscriptomic changes are focused within minority members of each microbiota.** Absolute difference in metatranscriptomic reads contributed by each genus in pretreatments between mock and *C. difficile*-infected conditions. Colored lines denoted antibiotic pretreatment. Each point represents all transcript contributed by that genus in each pretreatment group. Numbers at the base of pretreatment lines in the first panel represent the quantity of genera in each group as some points are obscured.
 
-**(C)** NMDS ordination of Bray-Curtis distances between metabolites abundances from colonized and cleared mice.
-**(D)** Scaled intensity of metabolites included the optimal model generated by AUCRF discriminating colonized and cleared mice cecal microbitoa.
-
-Differences for ordinations calculated using AMOVA (*p* < 0.001).
+**Figure 5 | Changes due to infection in transcription of genes for certain metabolic pathways are overrepresented in the minority taxa.** 
 
 
-
-**Figure 2 | Impact of *C. difficile* colonization on gut microbiota community composition.** **(A)** Relative abundance of family-level taxonomic classification for OTUs in each pretreatment group. **(B-D)** Discriminating OTUs with LEfSe analysis between Mock and *C. difficile*-infected communities within each pretreatment group, *p*-values from LEfSe are shown on the left with taxonomic information (all *p* < 0.05). Relative abundance of the respective OTUs from each mouse along with medians are shown for each pretreatment group. 
-
-**Figure 3 | .** 
-
-**Figure 4 | *C. difficile* colonization alters gene transcription of taxonomic groups differentially between antibiotic pretreatments.** **(A-C)** Each point represents a unique gene from the respective metagenomic assembly. Coordinates were determined by the log~2~-transformed transcription level of each gene between *C. difficile*-infected and mock-infected conditions. Metatranscriptomic read abundances were normalized to their associated metagenomic coverage. Outliers were defined using linear correlation and a squared residual cutoff of 2. Distance of outliers to the x=y line were also calculated and represented in unites of deviation or UD. Colored indicate genus of origin, and gray areas denote genes with consistent transcription between conditions (defined by outlier analysis). Antibiotic pretreatments; (A) Streptomycin-pretreated, (B) Cefoperazone-pretreated, and (C) Clindamycin-pretreated. **(D)** Absolute difference in metatranscriptomic reads contributed by each genus in pretreatments between mock and *C. difficile*-infected conditions. Colored lines denoted antibiotic pretreatment. Each point represents all transcript contributed by that genus in each pretreatment group. Numbers at the base of pretreatment lines in the ≤0.1% panel represent the quantity of genera in each group as some points are obscured.
+Venn diagrams showing the overlap in top 15% of differentially transcribed individual genes **(A)** or pathways **(B)** respectively in each antibiotic preatretment between CDI and mock infections. Below each venn diagram are the corresponding genes/pathways contained in the central shared regions for all three pretreatments. Solid colored bars indicated *C. difficile* infection and dashed bars are mock infected, separate colors denoted sntibiotic pretreatment. Genes/pathways are ranked in terms of decreasing sample variance between all analyzed groups. Genes are also labeled with numbers indicated membership in KEGG pathways (pathway legend below).
 
 
 
@@ -1250,15 +1081,18 @@ Differences for ordinations calculated using AMOVA (*p* < 0.001).
 
 
 
-Metabolomic markers of infection susceptibility.** Results from UPLC/MS metabolomic analysis of cecal content from mice also used in previous analyses. Only mock-infected metabolomic results were included this analysis to identify markers of susceptibility. **(A-B)** NMDS ordinations of Bray-Curtis distances comparing the cecal metabolome dissimilarity of mice receiving no pretreatment or one of the three distinct classes of antibiotics. (A) Metabolomes of resistant mice are significantly different from antibiotic pretreated animals (*p* < 0.001). (B) Antibiotic pretreated metabolomes and also significantly distinct from one another (*p* < 0.001). Significant differences for NMDS analyses were calculated with AMOVA. **(C-D)** Scaled intensities for minimum subset of metabolites from random forest feature selection that correctly discriminate all groups from A-B (Out-of-bag error = 0%). (C) Metabolites that distinguish cecal content from mice resistant to *C. difficile* colonization from susceptible (antibiotis-pretreated) animals. (D) Metabolites that differentiate antibiotic pretreatment groups. Asterisks indicate significant difference by Wilcoxon rank-sum test with Benjamini-Hochberg correction.
+
+
+
+
+**Metabolomic markers of infection susceptibility.** Results from UPLC/MS metabolomic analysis of cecal content from mice also used in previous analyses. Only mock-infected metabolomic results were included this analysis to identify markers of susceptibility. **(A-B)** NMDS ordinations of Bray-Curtis distances comparing the cecal metabolome dissimilarity of mice receiving no pretreatment or one of the three distinct classes of antibiotics. (A) Metabolomes of resistant mice are significantly different from antibiotic pretreated animals (*p* < 0.001). (B) Antibiotic pretreated metabolomes and also significantly distinct from one another (*p* < 0.001). Significant differences for NMDS analyses were calculated with AMOVA. **(C-D)** Scaled intensities for minimum subset of metabolites from random forest feature selection that correctly discriminate all groups from A-B (Out-of-bag error = 0%). (C) Metabolites that distinguish cecal content from mice resistant to *C. difficile* colonization from susceptible (antibiotis-pretreated) animals. (D) Metabolites that differentiate antibiotic pretreatment groups. Asterisks indicate significant difference by Wilcoxon rank-sum test with Benjamini-Hochberg correction.
+
 
 
 **Figure 4 | Differential effects of CDI on the cecal metabolome.** **(A-C)** NMDS ordinations of Bray-Curtis distances comparing infection groups within each antibiotic pretreatment; (A) Streptomycin, (B) Cefoperazone, and (C) Clindamycin. Significant differences were determined by AMOVA. **(D-F)** Relative concentrations of metabolites with highest Mean Decrease Accuracy (MDA) from Random Forest feature selection to discriminate between Mock and *C. difficile*-infected conditions within each antibiotic pretreatment. Respective MDA is labeled in brackets next to each metabolite name and out of bag error from internal cross-validation of each model is labeled under the plotting area. (D) Streptomycin pretreatment, (E) Cefoperazone pretreatment, and (F) Clindamycin pretreatment. **(G)** Relative concentrations of 5-aminovalerate across all experimental and control groups. Significant differences are labeled along the right axis and were calculated with Wilcoxon rank-sum test with Benjamini-Hochberg correction.
 
-**Figure 5 | Genes and pathways with largest degree of change in metatranscriptome associated with CDI.** Venn diagrams showing the overlap in top 15% of differentially transcribed individual genes **(A)** or pathways **(B)** respectively in each antibiotic preatretment between CDI and mock infections. Below each venn diagram are the corresponding genes/pathways contained in the central shared regions for all three pretreatments. Solid colored bars indicated *C. difficile* infection and dashed bars are mock infected, separate colors denoted sntibiotic pretreatment. Genes/pathways are ranked in terms of decreasing sample variance between all analyzed groups. Genes are also labeled with numbers indicated membership in KEGG pathways (pathway legend below).
 
-
-
+**Figure 2 | Impact of *C. difficile* colonization on gut microbiota community composition.** **(A)** Relative abundance of family-level taxonomic classification for OTUs in each pretreatment group. **(B-D)** Discriminating OTUs with LEfSe analysis between Mock and *C. difficile*-infected communities within each pretreatment group, *p*-values from LEfSe are shown on the left with taxonomic information (all *p* < 0.05). Relative abundance of the respective OTUs from each mouse along with medians are shown for each pretreatment group. 
 **Supplementary Figure 1 | Impact of antibiotic pretreatment and *C. difficile* infection on cecal bacterial community structure.** **(A)** Inverse-Simpson diversity of cecal communities from all pretreatment groups. Gray stars indicate significant difference from no antibiotic controls (all *p* < 0.001). Black stars denote within pretreatment group significant difference between mock and *C. difficile*-infected communities. Differences were calculated using Wilcoxon rank-sum test with Benjamini-Hochberg correction. NMDS ordinations of Bray-Curtis distances comparing the groups labeled in the bottom left of each plotting area. **(B)** Antibiotic-pretreated compared to Untreated controls and **(C)** comparison between only antibiotic pretreatment groups. **(D-F)** Within antibiotic pretreatment comparisons for the effect of *C. difficile* colonization on community structure. Significant differences and correlation coefficients for ordination analyses were found using ANOSIM.
 
 **Supplementary Figure 2 | Relative concentrations of select metabolite groups in each group** Metabolites included in this analysis were chosen based on their previously published links to *C. difficile* physiology or susceptibility to infection. Groups are as follows; **(A)** Bile acids, **(B)** Carbohydrates, and **(C)** Amino Acids. Significant differences were determined by Wilcoxon rank-sum test with Benjamini-Hochberg correction.
@@ -1268,6 +1102,12 @@ Metabolomic markers of infection susceptibility.** Results from UPLC/MS metabolo
 **Supplementary Figure 4 | Largest discrete gene and pathway, metatranscriptomic differences between antibiotic pretreatments and resistant microbiota**  Included are the top 10 genes from unique subsections of venn diagrams from each pretreatment group in Figure 5A-B. Genes/Pathways with the largest disparity compared the metatranscriptome from the cecal community of untreated mice. Panels for gene-level analysis are as follows; **(A)** Streptomycin-pretreatment, **(B)** Cefoperazone-pretreatment, and **(C)** Clindamycin-pretreatment. **(D)** Pathway-level annotations for unique groupings in Figure 5B.
 
 **Supplementary Figure 5 | Unique genes with functional annotation detectable within each metagenome and metatranscriptome** Genes in each datasets were derived from respective metagenomic assemblies, with only those genes that mapped to a KEGG pathway-level annotation. Results are shown as follows: **(A)** Untreated, **(B)** Streptomycin-pretreated, **(C)** Cefoperazone-pretreated, and **(D)** Clindamycin-pretreated mice. Each panel includes that treatments' unique genes from metagenomic assembly and genes that recruited at least one cDNA read from the corresponding metatranscriptomes. Collector's curves from rarefaction analysis of reads mapped to genes from **(E)** metagenomes and **(F)** metatranscriptomes.
+
+
+
+
+
+
 
 **Supplementary Table 1 | Chosen antibiotic pretreatment regimes** Antibiotic classes, mechanisms, and dosage information for each pretreatment.
 

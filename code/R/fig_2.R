@@ -47,9 +47,14 @@ metabolome <- read.delim(metabolome, sep='\t', header=TRUE)
 # 16S
 shared_otu <- read.delim(shared_otu, sep='\t', header=T, row.names=2)
 shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]  # Remove possible contaminated sample
+cdf_otu <- shared_otu[,(names(shared_otu) %in% c('Otu0004','Otu0308'))] 
 shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))] # Remove residual C. difficile OTUs
 shared_otu$numOtus <- NULL
 shared_otu$label <- NULL
+shared_noncdf <- subset(shared_otu, rowSums(cdf_otu) != 0)
+cdf_otu <- subset(cdf_otu, rowSums(cdf_otu) != 0)
+cdf_percent <- as.character(round(mean(rowSums(cdf_otu) / rowSums(shared_noncdf)) * 100, 3))
+rm(cdf_otu, shared_noncdf)
 otu_tax <- read.delim(otu_tax, sep='\t', header=T, row.names=1)
 
 # Metadata
