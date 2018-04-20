@@ -94,7 +94,7 @@ strep_corr <- as.character(round(cor.test(strep_annotated[,2], strep_annotated[,
 cef_corr <- as.character(round(cor.test(cef_annotated[,2], cef_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
 clinda_corr <- as.character(round(cor.test(clinda_annotated[,2], clinda_annotated[,1], method='spearman', exact=FALSE)$estimate, digits=3))
 
-# Collate transcript abundances at genus-level 
+# Collate 16S abundances at genus-level 
 genus_shared <- t(genus_shared)
 genus_tax_shared <- merge(genus_tax, genus_shared, by='row.names')
 genus_tax_shared$Row.names <- NULL
@@ -104,7 +104,7 @@ genus_tax_agg_shared$Genus <- NULL
 genus_tax_agg_shared <- t(genus_tax_agg_shared)
 rm(genus_tax, genus_shared, genus_tax_shared)
 
-# Combine with metadata and collate within treatment
+# Combine with metadata, subset to correct groups
 genus_tax_agg_metadata_shared <- merge(metadata, genus_tax_agg_shared, by='row.names')
 genus_tax_agg_metadata_shared$Row.names <- NULL
 genus_tax_agg_metadata_shared$cage <- NULL
@@ -114,6 +114,67 @@ genus_tax_agg_metadata_shared$type <- NULL
 genus_tax_agg_metadata_shared$susceptibility <- NULL
 genus_tax_agg_metadata_shared$infection <- NULL
 genus_tax_agg_metadata_shared <- subset(genus_tax_agg_metadata_shared, genus_tax_agg_metadata_shared$abx %in% c('cefoperazone','clindamycin','streptomycin'))
+
+# Compare richness of lowest abundance genera
+strep_shared <- subset(genus_tax_agg_metadata_shared, abx == 'streptomycin')
+strep_shared$abx <- NULL
+strep_shared <- (strep_shared / rowSums(strep_shared)) * 100
+strep_otu_medians <- apply(strep_shared, 2, median)
+strep_shared <- strep_shared[,which(strep_otu_medians <= 1)]
+strep_otu_medians <- apply(strep_shared, 2, median)
+strep_shared <- strep_shared[,which(strep_otu_medians > 0)]
+strep_minority_genera <- as.numeric(ncol(strep_shared))
+strep_shared <- as.data.frame(t(strep_shared))
+cef_shared <- subset(genus_tax_agg_metadata_shared, abx == 'cefoperazone')
+cef_shared$abx <- NULL
+cef_shared <- (cef_shared / rowSums(cef_shared)) * 100
+cef_otu_medians <- apply(cef_shared, 2, median)
+cef_shared <- cef_shared[,which(cef_otu_medians <= 1)]
+cef_otu_medians <- apply(cef_shared, 2, median)
+cef_shared <- cef_shared[,which(cef_otu_medians > 0)]
+cef_minority_genera <- as.numeric(ncol(cef_shared))
+cef_shared <- as.data.frame(t(cef_shared))
+clinda_shared <- subset(genus_tax_agg_metadata_shared, abx == 'clindamycin')
+clinda_shared$abx <- NULL
+clinda_shared <- (clinda_shared / rowSums(clinda_shared)) * 100
+clinda_otu_medians <- apply(clinda_shared, 2, median)
+clinda_shared <- clinda_shared[,which(clinda_otu_medians <= 1)]
+clinda_otu_medians <- apply(clinda_shared, 2, median)
+clinda_shared <- clinda_shared[,which(clinda_otu_medians > 0)]
+clinda_minority_genera <- as.numeric(ncol(clinda_shared))
+clinda_shared <- as.data.frame(t(clinda_shared))
+rm(strep_otu_medians, cef_otu_medians, clinda_otu_medians)
+
+# Combine shared tables and and compare jaccard beta diversity
+strep_cef_shared <- merge(strep_shared, cef_shared, by='row.names', all=TRUE)
+rownames(strep_cef_shared) <- strep_cef_shared$Row.names
+strep_cef_shared$Row.names <- NULL
+strep_cef_shared[is.na(strep_cef_shared)] <- 0
+strep_cef_shared <- as.data.frame(t(strep_cef_shared))
+strep_cef_dist <- vegdist(strep_cef_shared, method='jaccard')
+strep_cef_shared$abx <- c(rep('strep',ncol(strep_shared)), rep('cef', ncol(cef_shared)))
+strep_cef_jaccard_pval <- as.character(round(adonis(strep_cef_dist ~ strep_cef_shared$abx, strep_cef_shared[,1:ncol(strep_cef_shared)-1], perm=999)$aov.tab[[6]][1], 3))
+rm(strep_cef_shared, strep_cef_dist)
+strep_clinda_shared <- merge(strep_shared, clinda_shared, by='row.names', all=TRUE)
+rownames(strep_clinda_shared) <- strep_clinda_shared$Row.names
+strep_clinda_shared$Row.names <- NULL
+strep_clinda_shared[is.na(strep_clinda_shared)] <- 0
+strep_clinda_shared <- as.data.frame(t(strep_clinda_shared))
+strep_clinda_dist <- vegdist(strep_clinda_shared, method='jaccard')
+strep_clinda_shared$abx <- c(rep('strep',ncol(strep_shared)), rep('clinda', ncol(clinda_shared)))
+strep_clinda_jaccard_pval <- as.character(round(adonis(strep_clinda_dist ~ strep_clinda_shared$abx, strep_clinda_shared[,1:ncol(strep_clinda_shared)-1], perm=999)$aov.tab[[6]][1], 3))
+rm(strep_clinda_shared, strep_clinda_dist)
+cef_clinda_shared <- merge(cef_shared, clinda_shared, by='row.names', all=TRUE)
+rownames(cef_clinda_shared) <- cef_clinda_shared$Row.names
+cef_clinda_shared$Row.names <- NULL
+cef_clinda_shared[is.na(cef_clinda_shared)] <- 0
+cef_clinda_shared <- as.data.frame(t(cef_clinda_shared))
+cef_clinda_dist <- vegdist(cef_clinda_shared, method='jaccard')
+cef_clinda_shared$abx <- c(rep('cef',ncol(cef_shared)), rep('clinda', ncol(clinda_shared)))
+cef_clinda_jaccard_pval <- as.character(round(adonis(cef_clinda_dist ~ cef_clinda_shared$abx, cef_clinda_shared[,1:ncol(cef_clinda_shared)-1], perm=999)$aov.tab[[6]][1], 3))
+rm(cef_clinda_shared, cef_clinda_dist)
+
+# Collate within treatment
 genus_tax_agg_metadata_shared <- aggregate(. ~ abx, data=genus_tax_agg_metadata_shared, FUN=median)
 rownames(genus_tax_agg_metadata_shared) <- genus_tax_agg_metadata_shared$abx
 genus_tax_agg_metadata_shared$abx <- NULL
@@ -145,39 +206,6 @@ cef_annotated <- cef_annotated[!row.names(cef_annotated) %in% row.names(cef_630_
 cef_annotated <- cef_annotated[!row.names(cef_annotated) %in% row.names(cef_mock_outliers), ]
 clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_630_outliers), ]
 clinda_annotated <- clinda_annotated[!row.names(clinda_annotated) %in% row.names(clinda_mock_outliers), ]
-
-# Calculate mean distance of outliers to x=y
-dists_630 <- c()
-for (i in 1:nrow(strep_630_outliers)){
-  dists_630[i] <- dist_xy(c(strep_630_outliers$strep_630_metaT_reads[i], strep_630_outliers$strep_mock_metaT_reads[i]))
-}
-dists_mock <- c()
-for (i in 1:nrow(strep_mock_outliers)){
-  dists_mock[i] <- dist_xy(c(strep_mock_outliers$strep_630_metaT_reads[i], strep_mock_outliers$strep_mock_metaT_reads[i]))
-}
-round(mean(c(dists_630, dists_mock)), 3)
-as.numeric(length(c(dists_630, dists_mock)))
-dists_630 <- c()
-for (i in 1:nrow(cef_630_outliers)){
-  dists_630[i] <- dist_xy(c(cef_630_outliers$cef_630_metaT_reads[i], cef_630_outliers$cef_mock_metaT_reads[i]))
-}
-dists_mock <- c()
-for (i in 1:nrow(cef_mock_outliers)){
-  dists_mock[i] <- dist_xy(c(cef_mock_outliers$cef_630_metaT_reads[i], cef_mock_outliers$cef_mock_metaT_reads[i]))
-}
-round(mean(c(dists_630, dists_mock)), 3)
-as.numeric(length(c(dists_630, dists_mock)))
-dists_630 <- c()
-for (i in 1:nrow(clinda_630_outliers)){
-  dists_630[i] <- dist_xy(c(clinda_630_outliers$clinda_630_metaT_reads[i], clinda_630_outliers$clinda_mock_metaT_reads[i]))
-}
-dists_mock <- c()
-for (i in 1:nrow(clinda_mock_outliers)){
-  dists_mock[i] <- dist_xy(c(clinda_mock_outliers$clinda_630_metaT_reads[i], clinda_mock_outliers$clinda_mock_metaT_reads[i]))
-}
-round(mean(c(dists_630, dists_mock)), 3)
-as.numeric(length(c(dists_630, dists_mock)))
-rm(dists_630, dists_mock)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -364,20 +392,6 @@ strep_genus_diff_01_1 <- subset(strep_genus_diff, strep_genus_diff$relAbund >= 0
 strep_genus_diff_1_10 <- subset(strep_genus_diff, strep_genus_diff$relAbund >= 1 & strep_genus_diff$relAbund <= 10)
 strep_genus_diff_10_100 <- subset(strep_genus_diff, strep_genus_diff$relAbund > 10 & strep_genus_diff$relAbund <= 100)
 rm(strep_genus_diff)
-
-#----------------------------------------------------------------------------------#
-
-# Statistical testing
-p_vals <- p.adjust(c(wilcox.test(x=cef_genus_diff_01$transcriptChange, y=strep_genus_diff_01$transcriptChange, exact=FALSE)$p.value,
-                     wilcox.test(x=cef_genus_diff_01$transcriptChange, y=clinda_genus_diff_01$transcriptChange, exact=FALSE)$p.value,
-                     wilcox.test(x=strep_genus_diff_01$transcriptChange, y=clinda_genus_diff_01$transcriptChange, exact=FALSE)$p.value), 
-                   method='BH')
-cef_strep_pval <- as.character(round(p_vals[1], 3))
-cef_clinda_pval <- as.character(round(p_vals[2], 3))
-strep_clinda_pval <- as.character(round(p_vals[3], 3))
-rm(p_vals)
-
-#----------------------------------------------------------------------------------#
 
 # Subset out other bacteria group
 strep_630_outliers_other <- subset(strep_630_outliers, color == 'white')

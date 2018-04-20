@@ -61,10 +61,18 @@ metabolome <- subset(metabolome, abx != 'none')
 metabolome$susceptibility <- NULL
 
 # Stickland metabolites
+<<<<<<< HEAD
 stick <- c('proline','trans.4.hydroxyproline','glycine','X5.aminovalerate')
 other_aa <- c('aspartate','serine','threonine','cysteine',
               'arginine','glutamate','asparagine','valine',
               'leucine','isoleucine','methionine','phenylalanine','alanine')
+=======
+stickland_aa <- c('proline','trans.4.hydroxyproline',
+                  'aspartate','serine','threonine','cysteine',
+                  'arginine','glutamate','asparagine','glycine','valine','leucine','isoleucine',
+                  'methionine','phenylalanine','alanine')
+stickland_carboxy <- c('X5.aminovalerate')
+>>>>>>> parent of d39be29... finalizing figures
 
 # Get metabolites in Stickland fermentation pathway
 stickland <- metabolome[, c('abx','infection', stick)]
@@ -74,8 +82,24 @@ resistant_other <- resistant_metabolome[, other_aa]
 rm(metabolome, resistant_metabolome, stick, other_aa)
 
 # Reformat metabolite names
+<<<<<<< HEAD
 colnames(stickland) <- c('abx','infection','Proline','4-Hydroxyproline','Glycine','5-Aminovalerate')
 colnames(resistant_stickland) <- c('Proline','4-Hydroxyproline','Glycine','5-Aminovalerate')
+=======
+colnames(metabolome_aa) <- c('abx','infection',
+                             'Proline','4-Hydroxyproline',
+                             'Aspartate','Serine','Threonine','Cysteine',
+                             'Arginine','Glutamate','Asparagine','Glycine','Valine','Leucine','Isoleucine',
+                             'Methionine','Phenylalanine','Alanine')
+colnames(resistant_metabolome_aa) <- c('Proline','4-Hydroxyproline',
+                                       'Aspartate','Serine','Threonine','Cysteine',
+                                       'Arginine','Glutamate','Asparagine','Glycine','Valine','Leucine','Isoleucine',
+                                       'Methionine','Phenylalanine','Alanine')
+colnames(metabolome_carboxy) <- c('abx','infection',
+                                  '5-Aminovalerate')
+colnames(resistant_metabolome_carboxy) <- c('5-Aminovalerate')
+
+>>>>>>> parent of d39be29... finalizing figures
 
 #------------#
 
@@ -138,6 +162,7 @@ for (x in 1:ncol(resistant_stickland)) {
 }
 dev.off()
 
+<<<<<<< HEAD
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Assemble supplemental table
@@ -146,6 +171,17 @@ dev.off()
 
 
 
+
+
+=======
+pdf(file=carboxy_plot, width=5, height=4)
+metabolitePlot(resistant_metabolome_carboxy, 
+                 metabolome_carboxy_mock_strep, metabolome_carboxy_infected_strep,
+                 metabolome_carboxy_mock_cef, metabolome_carboxy_infected_cef,
+                 metabolome_carboxy_mock_clinda, metabolome_carboxy_infected_clinda,
+                 1, '')
+dev.off()
+>>>>>>> parent of d39be29... finalizing figures
 
 
 
