@@ -1380,7 +1380,7 @@ Based on the previous combine metabolomic and metatranscriptomic results, we hyp
 
 This revealed...
 
-Larger number of genes associated with starch and sucrose acquisition are reduced during infection in both streptomycin and cefoperazone pretreatments.
+Larger number of genes associated with galactose and amino sugar acquisition are reduced during infection in both streptomycin and cefoperazone pretreatments.
 
 add phylotyping to methods section
 
