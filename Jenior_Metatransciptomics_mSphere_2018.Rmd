@@ -1374,54 +1374,28 @@ clinda_minority_genes <- log2(clinda_minority_genes + 1)
 
 ```
 
-Specific transcriptomic chnges in the minority bacterial taxa
-
-
-Based on the metabolomic results we hypothesized that pathways with the greatest differences would be related to catabolism of metabolites in established *C. difficile* nutrient niches.
-
-
-
-
-We were interested in identifying those metabolites that best indicate the changes induced by antibiotic pretreatment, and potentially contributing sensitivity to *C. difficile* colonization. Standard analyses revealed large numbers of individual metabolites with significant differences between groups, so we employed an implementation of the Random Forest machine-learning algorithm [@Calle2011] to identify the smallest subset of metabolites most able to differentiate states. This technique revealed 5 metabolites that together correctly classified all metabolomes as either resistant or susceptible (Fig. 3C). The first 2 are significantly elevated in susceptible metabolomes (*p* < `resistant_pvalues`). Acetlyproline has been previously shown to be a growth substrate of *C. difficile* through Stickland fermentation [@Fonknechten2010], and may be indicate a universal marker of CDI susceptibility. Interestingly nudifloramide, or N-methyl-2-pyridone-5-carboxamide, is an end product of NAD degradation which has been associated with multiple unrelated intestinal disease states [@Rutkowski2003;@Mayneris-Perxachs2016] and may be a general indicator of dysbiosis in the GI tract. The remaining 3 (sebacate, hyodeoxycholate, and murideoxycholate) are all related to secondary bile acids [@Semba2017] indicating a possible decrease in vegetative growth inhibitors across susceptible animals [Theriot2015]. These data support the hypothesis that amino acid catabolism is disrupted at a community-level following antibiotic pretreatment and may suggest open nutrient niches for *C. difficile*. 
-
-We then applied the same approach to distinguish antibiotic pretreatment groups from each other (Fig. 3D). This featured 5 additional metabolites able to correctly classify susceptible environments, and highlighted the metabolic diversity inherent in each of these microbiomes. As the distinct antibiotics permitted survival of separate bacterial groups (Fig. 2A), likely with varied nutrient catabolism strategies, that each may compete with *C. difficile* along different axes. Further analysis of metabolites which have been shown to be deeply connected to the life cycle of *C. difficile* [@Theriot2014;@Sorg2010;@Buffie2014], also indicated high degrees of variablility between these environments. Together, our results supported that each susceptible environment was distinguishable from the others, with its own subset of enriched *C. difficile* growth substrates (Fig. 2B-C). This could be an indication that particular competitors were eliminated during antibiotic pretreatment, or those community members normally responsible for the consumption of these metabolites have altered their metabolic program to exploit alternative nutrient sources.
-
-
-
-
-
-
-***C. difficile* colonization induced distinct metabolomic changes of each pretreatment group.**
-Following the changes to the cecal metabolome in response to antibiotic pretreatment, we assessed the degree to which *C. difficile* colonization altered the cecal metabolome. We hypothesized that the introduction of a new competitor, *C. difficile*, would impact the metabolome either through its own metabolism or by shifting the metabolism of surrounding community members. First, we compared the dissimilarity of cecal metabolomes from all mice across pretreatment groups, and were unable to detect a consistent difference between groups (*p* = `r inf_p`; Fig. S3A). We moved on to individual antibiotic groups and found that both streptomycin (*p* = `r strep_inf_p`) and cefoperazone (*p* = `r cef_inf_p`) pretreated metabolomes deviated significantly from that of mock infection (Fig. 4A-4B). However, clindamycin-pretreated cecal metabolomes were not significantly altered by the presence of the pathogen (*p* = `r clinda_inf_p`; Fig. 4C). These results diverged from what was seen in the paired OTU relative abundance results where instead the cecal community structure of mice pretreated with cefoperazone was unchanged and clindamycin-pretreated communities were significantly different (Fig. S1). Interestingly, streptomycin-pretreated microbiomes were significantly altered by *C. difficile* infection at both the OTU and metabolomic levels (Fig. 4A & S1D). Together, these data indicated that shifts in population within the cecal microbiota were not implicitly associated with concordant changes in the metabolome. 
-
-
-
-We then sought to identify changes in those metabolites that were potential markers of *C. difficile* infection through a unified analysis across all models tested. To accomplish this, we again applied the Random Forest machine-learning approach. The resultant models were able to reliably classify infected and uninfected mice in both streptomycin and cefoperazone pretreatments (Fig. 4D-E, Out-of-bag error = 0%). 
-
-
-However, infection did not provide for the same level of discrimination in clindamycin-pretreated mice (Fig. 4F, Out-of-bag error = 5.56%). 
-
-While these data supported our hypothesis that each antibiotic pretreatment also drove the generation of unique metabolic environments, it was not possible to attribute many other specific changes to altered microbiota or host activity.
-
-
-
-
-```{r figure_5, echo=F, warning=F, message=F, results='hide', cache=F}
-
-
-
-
-```
-
-
-This analysis revealed modest conservation of transcriptional changes induced by *C. difficile* colonization across the antibiotic pretreatments. This trend was partially driven by significant differences in community membership (Fig. 2A), and consequently the metagenomic repertoire available for transcription. The most stark finding was that only 8 genes were among those shared across pretreatment groups (Fig. 5A). Although mice receiving the streptomycin and clindamycin pretreatments shared a large number of altered genes, cefoperazone-pretreated mice shared relatively few with the metatranscriptome of the other pretreament groups. This result was likely due to large differences in community compositions. Upon inspection of the `r top_all_genes` genes that were shared across the three pretreatment groups, a Dps family protein gene was the most varied in transcription. The protein product of this gene is associated with DNA protection and iron binding under periods of environmental stress [@Ilari2000]. Furthermore, formate acetyltransferase and phosphopyruvate hydratase are highly varied in their transcription and are central nodes of metabolism, which lend themselves to the hypothesis that the microbiota must process energy sources differently in the presence of *C. difficile*. Pathway-level analysis revealed a larger proportion of overlap between pretreatments than at the gene-level (Fig. 5B). Among these differences, the greatest degree of change was in ABC transporter transcription further supported large-scale shifts in nutrient import across the individual communities. More to this point, numerous genes for transport of simple carbohydrates and glycolysis were also differentially overrepresented in infected conditions across pretreatment groups when compared to mock-infection mice (Fig. S4). Among other pathways in the shared differences grouping, the microbial metabolism in diverse environments KEGG category is a broad classification that includes genes for not only carbohydrate and amino acid catabolism, but also the degradation and metabolism of xenobiotics. Inclusion of this category supports the hypothesis that the microbiota may be restructuring energy acquisition strategies or dealing with additional metabolites introduced due to pathogen colonization. Parallel to these results, large changes in oxidative phosphorylation as well as starch/sucrose metabolism also indicate modification of nutrient niche segregation between mock and infected states that may drive the ability of *C. difficile* to persist. Together, these shifts demonstrated that *C. difficile* colonization is associated with substantial changes in the transcription of nutrient acquisition pathways, which vary greatly between antibiotic-induced susceptible states.
-
-***C. difficile* colonization disproportionately impacted the gene transcription of low-abundance bacterial taxa.**
-
-
-
 **Altered transcription within minority taxa favors reduced nutrient competition with *C. difficile* in communities that permit sustained colonization**
+Based on the previous combine metabolomic and metatranscriptomic results, we hypothesized that pathways with the greatest differences would be related to catabolism of metabolites useable by *C. difficile* for growth. In order to assess these changes, we cross referenced genus-level classification of 16S results (Materials & Methods) below the 0.1% relative abundance threshold in each community with the genes attributed to those genera in the metagenome-enabled metatranscriptome mapping. We further focused this analysis on genes that had also recieved functional KEGG annotation in addition to taxonomic classification (Fig. 5). How I limited the number of genes shown...
 
+
+This revealed...
+
+Larger number of genes associated with starch and sucrose acquisition are reduced during infection in both streptomycin and cefoperazone pretreatments.
+
+add phylotyping to methods section
+
+
+These genes are even more starkly different when in reference to their level of transcription in an untreated, *C. difficile*-resistant community.
+
+
+This trend was partially driven by significant differences in community membership (Fig. 2A), and consequently the metagenomic repertoire available for transcription. 
+
+Furthermore, formate acetyltransferase and phosphopyruvate hydratase are highly varied in their transcription and are central nodes of metabolism, which lend themselves to the hypothesis that the microbiota must process energy sources differently in the presence of *C. difficile*. Pathway-level analysis revealed a larger proportion of overlap between pretreatments than at the gene-level (Fig. 5B). Among these differences, the greatest degree of change was in ABC transporter transcription further supported large-scale shifts in nutrient import across the individual communities. More to this point, numerous genes for transport of simple carbohydrates and glycolysis were also differentially overrepresented in infected conditions across pretreatment groups when compared to mock-infection mice (Fig. S4). 
+
+Parallel to these results, large changes in oxidative phosphorylation as well as starch/sucrose metabolism also indicate modification of nutrient niche segregation between mock and infected states that may drive the ability of *C. difficile* to persist. 
+
+
+Our results indeed suggest that *C. difficile* colonization induces a shift transcriptional activity for a minority subset of species, possibly in an effort to segregate a desired nutrient niche, prior to the introduction of the hallmark disease phenotypes associated with CDI.
 
 
 
