@@ -7,8 +7,9 @@ gc()
 # Load in functions
 source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
 
-# Output plot name
+# Output names
 plot_file <- 'results/supplement/figures/figure_S3.pdf'
+table_file <- 'results/supplement/tables/table_S2.tsv'
 
 # Input Metabolomes
 metabolome <- 'data/metabolome/scaled_intensities.log10.tsv'
@@ -61,45 +62,24 @@ metabolome <- subset(metabolome, abx != 'none')
 metabolome$susceptibility <- NULL
 
 # Stickland metabolites
-<<<<<<< HEAD
 stick <- c('proline','trans.4.hydroxyproline','glycine','X5.aminovalerate')
-other_aa <- c('aspartate','serine','threonine','cysteine',
-              'arginine','glutamate','asparagine','valine',
-              'leucine','isoleucine','methionine','phenylalanine','alanine')
-=======
-stickland_aa <- c('proline','trans.4.hydroxyproline',
-                  'aspartate','serine','threonine','cysteine',
-                  'arginine','glutamate','asparagine','glycine','valine','leucine','isoleucine',
-                  'methionine','phenylalanine','alanine')
-stickland_carboxy <- c('X5.aminovalerate')
->>>>>>> parent of d39be29... finalizing figures
+other_aa <- c('glycine', 'alanine', 'valine', 'cysteine', 'proline','leucine','isoleucine','methionine','tryptophan','phenylalanine',
+              'lysine','arginine',
+              'serine','threonine','tyrosine','asparagine','glutamine',
+              'glutamate','aspartate')
+
+
 
 # Get metabolites in Stickland fermentation pathway
 stickland <- metabolome[, c('abx','infection', stick)]
 otherAA <- metabolome[, c('abx','infection',other_aa)]
 resistant_stickland <- resistant_metabolome[, stick]
-resistant_other <- resistant_metabolome[, other_aa]
+resistant_otherAA <- resistant_metabolome[, other_aa]
 rm(metabolome, resistant_metabolome, stick, other_aa)
 
 # Reformat metabolite names
-<<<<<<< HEAD
 colnames(stickland) <- c('abx','infection','Proline','4-Hydroxyproline','Glycine','5-Aminovalerate')
 colnames(resistant_stickland) <- c('Proline','4-Hydroxyproline','Glycine','5-Aminovalerate')
-=======
-colnames(metabolome_aa) <- c('abx','infection',
-                             'Proline','4-Hydroxyproline',
-                             'Aspartate','Serine','Threonine','Cysteine',
-                             'Arginine','Glutamate','Asparagine','Glycine','Valine','Leucine','Isoleucine',
-                             'Methionine','Phenylalanine','Alanine')
-colnames(resistant_metabolome_aa) <- c('Proline','4-Hydroxyproline',
-                                       'Aspartate','Serine','Threonine','Cysteine',
-                                       'Arginine','Glutamate','Asparagine','Glycine','Valine','Leucine','Isoleucine',
-                                       'Methionine','Phenylalanine','Alanine')
-colnames(metabolome_carboxy) <- c('abx','infection',
-                                  '5-Aminovalerate')
-colnames(resistant_metabolome_carboxy) <- c('5-Aminovalerate')
-
->>>>>>> parent of d39be29... finalizing figures
 
 #------------#
 
@@ -146,9 +126,9 @@ rm(otherAA_infected)
 rm(metadata, stickland, otherAA)
 
 #-------------------------------------------------------------------------------------------------------------------------#
-alphabet <- c('A','B','C','D')
 
 # Plot the figure
+alphabet <- c('A','B','C','D')
 pdf(file=plot_file, width=10, height=8)
 layout(matrix(c(1,2,
                 3,4),
@@ -162,28 +142,67 @@ for (x in 1:ncol(resistant_stickland)) {
 }
 dev.off()
 
-<<<<<<< HEAD
 #-------------------------------------------------------------------------------------------------------------------------#
 
 # Assemble supplemental table
+summary_table <- c('strep_infected_q25','strep_infected_median','strep_infected_q75',
+                   'strep_mock_q25','strep_mock_median','strep_mock_q75',
+                   'strep_mock_vs_infected_pval',
+                   'cef_infected_q25','cef_infected_median','cef_infected_q75',
+                   'cef_mock_q25','cef_mock_median','cef_mock_q75',
+                   'cef_mock_vs_infected_pval',
+                   'clinda_infected_q25','clinda_infected_median','clinda_infected_q75',
+                   'clinda_mock_q25','clinda_mock_median','clinda_mock_q75',
+                   'clinda_mock_vs_infected_pval',
+                   'resistant_q25','resistant_median','resistant_q75',
+                   'resistant_vs_strep_infected_pval','resistant_vs_strep_mock_pval',
+                   'resistant_vs_cef_infected_pval','resistant_vs_cef_mock_pval',
+                   'resistant_vs_clinda_infected_pval','resistant_vs_clinda_mock_pval')
 
+for (x in 1:ncol(otherAA_mock_strep)) {
+  
+  # Statistics
+  infected_strep_iqr <- as.vector(quantile(otherAA_mock_strep[,x])[2:4])
+  mock_strep_iqr <- as.vector(quantile(otherAA_infected_strep[,x])[2:4])
+  strep_pval <- wilcox.test(otherAA_mock_strep[,x], otherAA_infected_strep[,x], exact=FALSE)$p.value
+  strep_pval <- round(strep_pval, 4)
+  
+  infected_cef_iqr <- as.vector(quantile(otherAA_mock_cef[,x])[2:4])
+  mock_cef_iqr <- as.vector(quantile(otherAA_infected_cef[,x])[2:4])
+  cef_pval <- wilcox.test(otherAA_mock_cef[,x], otherAA_infected_cef[,x], exact=FALSE)$p.value
+  cef_pval <- round(cef_pval, 4)
+  
+  infected_clinda_iqr <- as.vector(quantile(otherAA_mock_clinda[,x])[2:4])
+  mock_clinda_iqr <- as.vector(quantile(otherAA_infected_clinda[,x])[2:4])
+  clinda_pval <- wilcox.test(otherAA_mock_clinda[,x], otherAA_infected_clinda[,x], exact=FALSE)$p.value
+  clinda_pval <- round(clinda_pval, 4)
+  
+  resistant_quartile <- as.vector(quantile(resistant_otherAA[,x])[2:4])
+  resistant_pvals <- p.adjust(c(wilcox.test(resistant_otherAA[,x], otherAA_infected_strep[,x], exact=FALSE)$p.value,
+                              wilcox.test(resistant_otherAA[,x], otherAA_mock_strep[,x], exact=FALSE)$p.value,
+                              wilcox.test(resistant_otherAA[,x], otherAA_infected_cef[,x], exact=FALSE)$p.value,
+                              wilcox.test(resistant_otherAA[,x], otherAA_mock_cef[,x], exact=FALSE)$p.value,
+                              wilcox.test(resistant_otherAA[,x], otherAA_infected_clinda[,x], exact=FALSE)$p.value,
+                              wilcox.test(resistant_otherAA[,x], otherAA_mock_clinda[,x], exact=FALSE)$p.value),
+                              method='BH')
+  resistant_pvals <- round(resistant_pvals, 4)
+  
+  # Aggregate column
+  summary_vect <- c(resistant_quartile, resistant_pvals,
+                    infected_strep_iqr, mock_strep_iqr, strep_pval,
+                    infected_cef_iqr, mock_cef_iqr, cef_pval,
+                    infected_clinda_iqr, mock_clinda_iqr, clinda_pval)
+  summary_table <- as.data.frame(cbind(summary_table, summary_vect))
 
+}
+colnames(summary_table) <- c('Statistic',
+                             'Glycine', 'Alanine', 'Valine', 'Cysteine', 'Proline','Leucine','Isoleucine','Methionine','Tryptophan','Phenylalanine',
+                             'Lysine','Arginine',
+                             'Serine','Threonine','Tyrosine','Asparagine','Glutamine',
+                             'Glutamate','Aspartate')
 
-
-
-
-
-=======
-pdf(file=carboxy_plot, width=5, height=4)
-metabolitePlot(resistant_metabolome_carboxy, 
-                 metabolome_carboxy_mock_strep, metabolome_carboxy_infected_strep,
-                 metabolome_carboxy_mock_cef, metabolome_carboxy_infected_cef,
-                 metabolome_carboxy_mock_clinda, metabolome_carboxy_infected_clinda,
-                 1, '')
-dev.off()
->>>>>>> parent of d39be29... finalizing figures
-
-
+# Write supplementary table to file
+write.table(summary_table, file=table_file, sep='\t', row.names=FALSE, quote=FALSE)
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
