@@ -1471,7 +1471,7 @@ The authors declare no conflicts of interest.
 Correspondence to [Patrick D. Schloss](pschloss@umich.edu)
 
 **Data Availability**
-Pooled and quality trimmed transcriptomic (SRA; PRJNA354635) and 16S rRNA gene amplicon read data (SRA; PRJNA383577) from infection experiments are available through the NCBI Sequence Read Archive. Metagenomeic reads, mock-infected metatranscriptomic reads can be found also on the SRA (PRJNA415307). Data processing steps for beginning from raw sequence data to the final manuscript are hosted at https://github.com/mjenior/Jenior_Metatranscriptomics_mSphere_2018.
+Pooled and quality trimmed *C. difficile*-infected metatranscriptomes (SRA; PRJNA354635) and 16S rRNA gene amplicon read data (SRA; PRJNA383577) from infection experiments are available through the NCBI Sequence Read Archive. Metagenomic reads and mock-infected metatranscriptomic reads can be found also on the SRA (PRJNA415307). Data processing steps for beginning from raw sequence data to the final manuscript are hosted at https://github.com/mjenior/Jenior_Metatranscriptomics_mSphere_2018.
 
 
 **Figure and Table Legends**
