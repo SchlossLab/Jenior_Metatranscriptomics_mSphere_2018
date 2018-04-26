@@ -190,13 +190,13 @@ colnames(res_metabolome) <- c("Nudifloramide","N-Acetylproline","Sebacate / Deca
 colnames(sus_metabolome) <- c("Nudifloramide","N-Acetylproline","Sebacate / Decanedioate","Hyodeoxycholate","Murideoxycholate")
 # 16S
 # Top BLAST results
-species <- c("Clostridium aerotolerans","Dialister succinatiphilus",
-             "Clostridium saccharolyticum","Clostridium saccharolyticum",
-             "Ruthenibacterium lactatiformans")
-otu <- c("(OTU42)","(OTU102)","(OTU111)","(OTU115)","(OTU128)")
-formatted_names <- lapply(1:length(species), function(i) bquote(paste(italic(.(species[i])), ' ', .(otu[i]), sep='')))
-rm(species, otu)
-# c("Lachnospiraceae (OTU42)","Clostridia unclassified (OTU102)","Lachnospiraceae (OTU111)","Clostridiales unclassified (OTU115)","Lachnospiraceae (OTU128)")
+#species <- c("Clostridium aerotolerans","Dialister succinatiphilus",
+#             "Clostridium saccharolyticum","Clostridium saccharolyticum",
+#             "Ruthenibacterium lactatiformans")
+#otu <- c("(OTU42)","(OTU102)","(OTU111)","(OTU115)","(OTU128)")
+#formatted_names <- lapply(1:length(species), function(i) bquote(paste(italic(.(species[i])), ' ', .(otu[i]), sep='')))
+#rm(species, otu)
+formatted_names <- c("Lachnospiraceae (OTU42)","Clostridia unclassified (OTU102)","Lachnospiraceae (OTU111)","Clostridiales unclassified (OTU115)","Lachnospiraceae (OTU128)")
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -251,7 +251,7 @@ dev.off()
 # 16S
 multiStripchart(otu_plot, res_shared_otu, sus_shared_otu, shared_otu_pval, shared_otu_aucrf_oob, 
                 'Resistant', 'Susceptible', noabx_col, 'forestgreen', '', 'black', 
-                formatted_names, expression(paste('Relative Abundance (',log[10],')')))
+                as.list(formatted_names), expression(paste('Relative Abundance (',log[10],')')))
 # Metabolome
 multiStripchart(metabolome_plot, res_metabolome, sus_metabolome, metabolome_pval, metabolome_aucrf_oob, 
                 'Resistant', 'Susceptible', noabx_col, 'forestgreen', '', 'black', 
