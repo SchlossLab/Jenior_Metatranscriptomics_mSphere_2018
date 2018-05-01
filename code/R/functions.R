@@ -3,7 +3,7 @@
 setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/')
 
 # Load dependencies
-deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'AUCRF','RColorBrewer', 'gplots','viridis', 'scales','Hmisc','VennDiagram')
+deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'AUCRF','RColorBrewer', 'gplots','viridis', 'scales','Hmisc','VennDiagram','dtw')
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE);

@@ -56,8 +56,13 @@ cef_veg <- as.numeric(subset(wetlab, treatment == 'cefoperazone')$cfu_vegetative
 clinda_veg <- as.numeric(subset(wetlab, treatment == 'clindamycin')$cfu_vegetative)
 rm(wetlab)
 
+# Test differences in time series
+cfu_dtw <- read.delim('data/cfu_time_test.tsv', sep='\t', header=TRUE)
+cfu_dtw_dist <- dist(cfu_dtw[,2:ncol(cfu_dtw)], method='DTW')
+cfu_dtw_pval <- adonis(cfu_dtw_dist ~ cfu_dtw$abx, cfu_dtw[,2:ncol(cfu_dtw)], perm=999)$aov.tab[[6]][1]
+cfu_dtw_pval <- as.character(round(cfu_dtw_pval, 3))
+rm(cfu_dtw_dist, cfu_dtw)
 # Format CFU over time
-# Aggregate median by abx
 cfu[,2:ncol(cfu)] <- log10(cfu[,2:ncol(cfu)] + 1)
 cfu_median <- aggregate(cfu[,2:ncol(cfu)], by=list(cfu$abx), FUN=quantile, probs=0.5)
 rownames(cfu_median) <- cfu_median$Group.1
@@ -153,12 +158,14 @@ lines(cfu_median$clindamycin, lwd=2.5, col=clinda_col, type='b', pch=19)
 segments(x0=c(1:11), y0=cfu_q25$clindamycin, x1=c(1:11), y1=cfu_q75$clindamycin, col=clinda_col, lwd=2.5)
 lines(cfu_median$none, lwd=2.5, col=noabx_col, type='b', pch=19) 
 segments(x0=c(1:11), y0=cfu_q25$none, x1=c(1:11), y1=cfu_q75$none, col=noabx_col, lwd=2.5)
-text(x=10, y=9.5, '*', cex=2, font=2)
 abline(h=2, lwd=2, lty=2)
 axis(side=1, at=c(0:11), labels=c(-1:10))
 axis(side=2, at=seq(0,10,1), labels=c(0, parse(text=paste(rep(10,10), '^', seq(1,10,1), sep=''))), las=1)
 legend(x=1.7, y=4, legend=c('Streptomycin', 'Cefoperazone', 'Clindamycin', 'No Antibiotics'),
        pch=16, col=c(strep_col, cef_col, clinda_col, noabx_col), cex=0.9, pt.cex=1.5)
+text(x=9, y=4, '*', cex=2, font=2)
+legend('topright', legend=as.expression(bquote(paste(italic('p'),' = ', .(cfu_dtw_pval)))), 
+       pch=1, cex=1.2, pt.cex=0, bty='n')
 mtext('A', side=2, line=2, las=2, adj=1.4, padj=-9.2, cex=1.4, font=2)
 box(lwd=1.5)
 
