@@ -46,11 +46,11 @@ metabolome <- read.delim(metabolome, sep='\t', header=TRUE)
 
 # 16S
 shared_otu <- read.delim(shared_otu, sep='\t', header=T, row.names=2)
+shared_otu$numOtus <- NULL
+shared_otu$label <- NULL
 shared_otu <- shared_otu[!rownames(shared_otu) %in% c('CefC5M2'), ]  # Remove possible contaminated sample
 cdf_otu <- shared_otu[,(names(shared_otu) %in% c('Otu0004','Otu0308'))] 
 shared_otu <- shared_otu[,!(names(shared_otu) %in% c('Otu0004','Otu0308'))] # Remove residual C. difficile OTUs
-shared_otu$numOtus <- NULL
-shared_otu$label <- NULL
 shared_noncdf <- subset(shared_otu, rowSums(cdf_otu) != 0)
 cdf_otu <- subset(cdf_otu, rowSums(cdf_otu) != 0)
 cdf_percent <- as.character(round(mean(rowSums(cdf_otu) / rowSums(shared_noncdf)) * 100, 3))
@@ -90,6 +90,13 @@ metabolome$susceptibility <- NULL
 metabolome$infection <- NULL
 
 # 16S
+subSize <- min(rowSums(shared_otu))
+shared_otu <- t(shared_otu)
+for (x in 1:ncol(shared_otu)) {
+  shared_otu[,x] <- as.vector(rrarefy(shared_otu[,x], sample=subSize))
+}
+rm(subSize)
+shared_otu <- as.data.frame(t(shared_otu))
 otu_tax$genus <- gsub('_', ' ', otu_tax$genus)
 otu_tax$genus <- gsub('Ruminococcus2', 'Ruminococcus', otu_tax$genus)
 otu_tax$taxon <- paste(otu_tax$genus, otu_tax$OTU.1, sep='_')
@@ -154,7 +161,6 @@ otu_colonized_centroids <- aggregate(cbind(otu_nmds_colonized$MDS1, otu_nmds_col
 # permANOVA
 otu_permANOVA_pval <- adonis(otu_dist ~ shared_otu$clearance, shared_otu, perm=999)$aov.tab
 otu_permANOVA_pval <- round(otu_permANOVA_pval[1,6], 3)
-# Average within group distances
 rm(otu_dist)
 
 rm(metadata)
@@ -197,14 +203,17 @@ cleared_shared_otu <- subset(shared_otu, clearance == 'cleared')[, shared_otu_au
 cleared_shared_otu$clearance <- NULL
 colonized_shared_otu <- subset(shared_otu, clearance == 'colonized')[, shared_otu_aucrf]
 colonized_shared_otu$clearance <- NULL
-rm(shared_otu, shared_otu_aucrf)
 # Find significant differences
 shared_otu_pval <- c()
 for (i in 1:ncol(cleared_shared_otu)){shared_otu_pval[i] <- wilcox.test(cleared_shared_otu[,i], colonized_shared_otu[,i], exact=FALSE)$p.value}
 shared_otu_pval <- round(p.adjust(shared_otu_pval, method='BH'), 4)
-# Log transform values
-cleared_shared_otu <- log10(cleared_shared_otu + 1)
-colonized_shared_otu <- log10(colonized_shared_otu + 1)
+# Calculate relative abundance
+shared_otu[,2:ncol(shared_otu)] <- (shared_otu[,2:ncol(shared_otu)] / rowSums(shared_otu[,2:ncol(shared_otu)])) * 100
+cleared_shared_otu <- subset(shared_otu, clearance == 'cleared')[, shared_otu_aucrf]
+cleared_shared_otu$clearance <- NULL
+colonized_shared_otu <- subset(shared_otu, clearance == 'colonized')[, shared_otu_aucrf]
+colonized_shared_otu$clearance <- NULL
+rm(shared_otu, shared_otu_aucrf)
 
 #-------------#
 
@@ -214,13 +223,12 @@ colnames(cleared_metabolome) <- c("cis-4-Decenoylcarnitine","Sucrose","4-Imidazo
 colnames(colonized_metabolome) <- c("cis-4-Decenoylcarnitine","Sucrose","4-Imidazoleacetate","Nicotinamide-ribonucleotide","Palmitoyl-Dihydrosphingomyelin")
 # 16S
 # Top BLAST results
-otu <- c("(OTU2)","(OTU6)","(OTU17)","(OTU3)","(OTU16)")
-# "Escherichia.Shigella_.OTU2." "Turicibacter_.OTU6." "Arthrobacter_.OTU17." "Bacteroides_.OTU3." "Lactobacillus_.OTU16."  
+otu <- c("(OTU2)","(OTU6)","(OTU17)","(OTU10)","(OTU1)")
 species <- c("Escherichia coli",
              "Turicibacter sanguinis",
              "Arthrobacter spp.",
-             "Bacteroides caecimuris",
-             "Lactobacillus spp.")
+             "Muribaculum intestinale",
+             "Lactobacillus murinus")
 formatted_names <- lapply(1:length(species), function(i) bquote(paste(italic(.(species[i])), ' ', .(otu[i]), sep='')))
 rm(species, otu)
 
@@ -273,9 +281,33 @@ dev.off()
 
 # Feature selection results
 # 16S
-multiStripchart(otu_plot, cleared_shared_otu, colonized_shared_otu, shared_otu_pval, shared_otu_aucrf_oob, 
-                'Cleared', 'Colonized', 'white', 'darkorchid4', '', 'black', 
-                formatted_names, expression(paste('Relative Abundance (',log[10],')')))
+pdf(file=otu_plot, width=4, height=6)
+par(mar=c(3, 1, 1.25, 1), mgp=c(1.8, 0.5, 0), xpd=FALSE, yaxs='i')
+plot(1, type='n', ylim=c(0.5,nrow(cleared_shared_otu)+6.5), xlim=c(0,100), 
+     ylab='', xlab='Relative Abundance (%)', xaxt='n', yaxt='n', cex.lab=0.9)
+index <- 2
+for(i in c(1:ncol(cleared_shared_otu))){
+  
+  stripchart(at=index+0.4, cleared_shared_otu[,i], 
+             pch=21, bg='white', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+  stripchart(at=index-0.8, colonized_shared_otu[,i], 
+             pch=21, bg='mediumorchid4', method='jitter', jitter=0.12, cex=1.5, lwd=0.5, add=TRUE)
+  if (i != ncol(cleared_shared_otu)){
+    abline(h=index+1.5, lty=2)
+  }
+  # Medians
+  segments(median(cleared_shared_otu[,i]), index+0.8, median(cleared_shared_otu[,i]), index, lwd=2)
+  segments(median(colonized_shared_otu[,i]), index-1.2, median(colonized_shared_otu[,i]), index-0.4, lwd=2)
+  index <- index + 3
+}
+axis(1, at=c(0,20,40,60,80,100), labels=c(0,20,40,60,80,100), cex.axis=0.8) 
+box()
+text(x=c(82,78,80,75,78), y=c(3,6,9,12,15), labels=do.call(expression, formatted_names), cex=0.75)
+mtext('OOB Error = 0%', side=1, cex=0.75, padj=3.4, adj=1)
+mtext(c('*','*','n.s.','n.s.','n.s.'), side=4, at=c(2,5,8,11,14), # Significance
+      cex=c(1.5,1.5,0.8,0.8,0.8), font=c(2,2,1,1,1), padj=c(0.25,0.25,-0.5,-0.5,-0.5))
+dev.off()
+
 # Metabolome
 multiStripchart(metabolome_plot, cleared_metabolome, colonized_metabolome, metabolome_pval, metabolome_aucrf_oob, 
                 'Cleared', 'Colonized', 'white', 'darkorchid4', '', 'black', 
