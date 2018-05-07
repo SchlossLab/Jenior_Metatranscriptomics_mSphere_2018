@@ -1092,18 +1092,18 @@ strep_genus_diff_01 <- subset(strep_genus_diff, strep_genus_diff$relAbund < 0.1)
 # Richness testing
 strep_genus_01_richness <- (as.numeric(length(strep_genus_diff_01$transcriptChange)) /
   as.numeric(length(strep_genus_diff$transcriptChange))) 
-strep_genus_01_richness <- round(strep_genus_01_richness * 100, 2)
+strep_genus_01_richness <- strep_genus_01_richness * 100
 
 cef_genus_01_richness <- as.numeric(length(cef_genus_diff_01$transcriptChange)) /
   as.numeric(length(cef_genus_diff$transcriptChange))
-cef_genus_01_richness <- round(cef_genus_01_richness * 100, 2)
+cef_genus_01_richness <- cef_genus_01_richness * 100
 
 clinda_genus_01_richness <- as.numeric(length(clinda_genus_diff_01$transcriptChange)) /
   as.numeric(length(clinda_genus_diff$transcriptChange))
-clinda_genus_01_richness <- round(clinda_genus_01_richness * 100, 2)
+clinda_genus_01_richness <- rclinda_genus_01_richness * 100
 
 genus_01_richness <- median(c(strep_genus_01_richness, cef_genus_01_richness, clinda_genus_01_richness))
-genus_01_richness <- as.character(genus_01_richness)
+genus_01_richness <- as.character(round(genus_01_richness, 1))
 
 rm(cef_genus_diff, clinda_genus_diff, strep_genus_diff,
    strep_genus_01_richness, cef_genus_01_richness, clinda_genus_01_richness)
