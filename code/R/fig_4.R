@@ -443,10 +443,11 @@ pdf(file=plot_file, width=13, height=7)
 
 # Transcript abundance by species abundance
 par(mar=c(5, 5, 2, 2), yaxs='i')
-plot(1, type='n', ylim=c(0,15), xlim=c(0,8),
+plot(1, type='n', ylim=c(0,15), xlim=c(0.25,7.75),
      ylab='', xlab='', xaxt='n', yaxt='n', las=1)
-axis(1, at=c(1,3,5,7), label=c('<=0.1%','>0.1% and <=1%','>1% and <=10%','>10% and <=100%'), 
-     tick=FALSE, cex.axis=1.4, font=2)
+axis(1, at=c(1,3,5,7), label=c('   0.1%','> 0.1% and    1%','> 1% and    10%','> 10% and    100%'), 
+     tick=FALSE, cex.axis=1.4)
+text(x=c(0.75,3.28,5.16,7.16), y=-0.78, expression(phantom(x) <=''), xpd=TRUE, cex=1.4)
 axis(2, at=c(0,5,10,15), cex.axis=1.5, las=1)
 mtext('Genus-level Relative Abundance (16S)', side=1, padj=3, cex=1.4)
 mtext(expression(paste('Absolute Difference in Metatranscriptome (',log[2],')')), side=2, padj=-2, cex=1.4)
@@ -494,6 +495,7 @@ stripchart(at=1.5, clinda_genus_diff_01$transcriptChange, pch=21, bg=clinda_genu
 temp <- subset(clinda_genus_diff_01, rownames(clinda_genus_diff_01) %in% c('Bifidobacterium','Parabacteroides') )
 stripchart(at=1.5, temp$transcriptChange, pch=21, bg=temp$color, 
            method='jitter', jitter=0.09, cex=2.5, lwd=1.5, vertical=TRUE, add=TRUE)
+text(x=1.65, y=10, '*', cex=2, font=2)
 
 # >0.1% and <1%
 stripchart(at=2.5, strep_genus_diff_01_1$transcriptChange, pch=21, bg=strep_genus_diff_01_1$color, 
