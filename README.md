@@ -21,7 +21,7 @@ Susceptibility to *Clostridium difficile* infection is primarily associated with
 	|- Jenior_Metatransciptomics_mSphere_2018.docx		# Word document of study manuscript
 	|- manuscript_format.docx				# Word document associated with Rmd for proper formatting
 	|- references.bib					# BibTeX formatted references
-	|- plos-pathogens.csl					# csl file to format references
+	|- msphere.csl					# csl file to format references
 	|
 	|- doc/		# Metagenome & metatranscriptome bioinformatic processing pipelines
 	|
