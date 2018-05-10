@@ -5,7 +5,7 @@ rm(list=ls())
 gc()
 
 # Load in functions
-source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_mSphere_2018/code/R/functions.R')
 
 # Output names
 plot_file <- 'results/supplement/figures/figure_S3.pdf'

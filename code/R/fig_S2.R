@@ -5,7 +5,7 @@ gc()
 
 # Load in functions
 starting_dir <- getwd()
-source('~/Desktop/Repositories/Jenior_Metatranscriptomics_PLOSPathogens_2017/code/R/functions.R')
+source('~/Desktop/Repositories/Jenior_Metatranscriptomics_mSphere_2018/code/R/functions.R')
 
 # Output plot name
 plot_ac <- 'results/supplement/figures/figure_S2ac.pdf'

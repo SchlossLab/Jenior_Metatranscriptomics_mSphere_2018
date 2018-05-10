@@ -2,7 +2,7 @@
 csl: msphere.csl
 output:
  word_document:
-  keep_md: true
+  keep_md: false
   reference_docx: manuscript_format.docx
 bibliography: references.bib
 ---
