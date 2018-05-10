@@ -215,6 +215,12 @@ metadata$mouse <- NULL
 metadata$gender <- NULL
 wetlab <- read.delim('data/wetlab_assays.tsv', sep='\t', header=T, row.names=1)
 cfu <- read.delim('data/cfu_time.tsv', sep='\t', header=TRUE)
+taxonomy_family <- read.delim('data/16S_analysis/all_treatments.family.cons.format.taxonomy', sep='\t', header=T)
+shared_family <- read.delim('data/16S_analysis/all_treatments.family.subsample.shared', sep='\t', header=T, row.names=2)
+shared_family <- shared_family[!rownames(shared_family) %in% c('CefC5M2'), ]
+shared_family <- shared_family[ ,!(names(shared_family) == 'Otu008')]
+shared_family$numOtus <- NULL
+shared_family$label <- NULL
 
 # Format wetlab assay data
 wetlab <- subset(wetlab, infection == '630') # Remove uninfected controls
@@ -257,12 +263,50 @@ p_val <- p.adjust(c(wilcox.test(strep_stoolCFU, clinda_stoolCFU, exact=FALSE)$p.
 stoolCFU_pval <- as.character(max(round(p_val, 3)))
 rm(strep_stoolCFU, cef_stoolCFU, clinda_stoolCFU, p_val)
 
+# Convert to relative abundance
+relabund_family <- (shared_family / rowSums(shared_family)) * 100
+rm(shared_family)
+
+# Rename OTUs to families
+relabund_family <- t(relabund_family)
+relabund_family <- merge(taxonomy_family, relabund_family, by.x='otu', by.y='row.names')
+rownames(relabund_family) <- relabund_family$family
+relabund_family$otu <- NULL
+relabund_family$phylum <- NULL
+relabund_family$family <- NULL
+relabund_family <- t(relabund_family)
+
+# Combine with metadata and subset to pretreatments
+relabund_family <- clean_merge(metadata, relabund_family)
+relabund_family$susceptibility <- NULL
+relabund_family <- subset(relabund_family, infection == '630')
+relabund_family$infection <- NULL
+relabund_family_cef <- subset(relabund_family, abx == 'cefoperazone')
+relabund_family_cef <- subset(relabund_family_cef, rownames(relabund_family_cef) != 'CefC3M2')
+relabund_family_cef$abx <- NULL
+relabund_family_strep <- subset(relabund_family, abx == 'streptomycin')
+relabund_family_strep$abx <- NULL
+relabund_family_clinda <- subset(relabund_family, abx == 'clindamycin')
+relabund_family_clinda$abx <- NULL
+rm(relabund_family)
+
+# Get % of community for specific groups
+cef_bacter <- median(relabund_family_cef$Bacteroidaceae)
+cef_bacter <- as.character(round(cef_bacter, 2))
+rm(relabund_family_cef)
+strep_lacto <- median(relabund_family_strep$Lactobacillaceae)
+strep_lacto <- as.character(round(strep_lacto, 2))
+rm(relabund_family_strep)
+clinda_lacto <- median(relabund_family_clinda$Lactobacillaceae)
+clinda_lacto <- as.character(round(clinda_lacto, 2))
+rm(relabund_family_clinda)
+
 ```
 
 #### Distinct antibiotic pretreatments are associated with alternative community structures that are equally susceptible to initial *C. difficile* colonization, but differ in patterns of clearance.
 We have previously shown that when conventionally-reared SPF mice were pretreated with one of three different antibiotics (streptomycin, cefoperazone, and clindamycin; Table S1), each pretreatment was associated with altered patterns of *C. difficile* virulence factor expression [@Jenior2017]. These antibiotics were chosen for not only the ability to to reduce *C. difficile* colonization resistance in a mouse model [@Schubert2015], but also for distinct and significant impacts on the structure and diversity of the cecal microbiota (Fig. 1A) [@Jenior2017]. In each antibiotic pretreatment, we observed equally high levels of *C. difficile* colonization on the day after infection, however, over the subsequent 9 days  the amount of *C. difficile* in the feces of clindamycin-pretreated mice were the only mice to fall below the limit of detection, while mice receiving the other pretreatments remained highly colonized (*p* = `r stoolCFU_pval`; Fig. 1A). We hypothesized that this occurred in the clindamycin-pretreated mice because the perturbed intestinal community occupied niche space that overlapped with that of *C. difficile*.
 
-We chose to focus our remaining experiments on cecal samples collected 18 hours after infection to the assess behavior of *C. difficile* directly prior to the reduction in detectable *C. difficile*. This end point corresponded with a previous study where *C. difficile* reached maximum cecal vegetative cell load with few detectable spores [@Koenigsknecht2015]. We also elected to examine cecal content because it was more likely to be a site of active bacterial metabolism compared to stool and would allow for an assessment of functional differences in the microbiota. At 18 hours after infection, we found that the communities remained highly differentiated from untreated controls as measured by 16S rRNA gene sequencing of the V4 region (Fig. 1B). The composition of streptomycin-pretreated communities was more variable between cages, but was generally enriched for members of the *Bacteroidetes* phylum. Cefoperazone and clindamycin-pretreated cecal communities were consistently dominated by members of the *Lactobacillaceae* and *Enterobacteriaceae* families, respectively. Despite variation in the community structures, there were no significant differences in the number of vegetative cells between any antibiotic-pretreatment group (Fig. 1C). All susceptible mice were colonized with ~1x10^8^ vegetative colony forming units (CFU) per gram of cecal content and untreated mice maintained *C. difficile* colonization resistance. We have also perviously demonstrated that both *C. difficile* spore production and toxin activity differ between these pretreatment regimes [@Jenior2017]. As both processes have been linked to environmental concentrations of specific growth nutrients [@Bouillaut2015], these results suggested that despite high initial *C. difficile* colonization the microbiomes across pretreatments may vary in available nutrients or profiles of competitors for those niches.
+We chose to focus our remaining experiments on cecal samples collected 18 hours after infection to the assess behavior of *C. difficile* directly prior to the reduction in detectable *C. difficile*. This end point corresponded with a previous study where *C. difficile* reached maximum cecal vegetative cell load with few detectable spores [@Koenigsknecht2015]. We also elected to examine cecal content because it was more likely to be a site of active bacterial metabolism compared to stool and would allow for an assessment of functional differences in the microbiota. At 18 hours after infection, we found that the communities remained highly differentiated from untreated controls as measured by 16S rRNA gene sequencing of the V4 region (Fig. 1B). The composition of streptomycin-pretreated communities was more variable between cages, but was generally enriched for members of the *Bacteroidetes* phylum. Cefoperazone and clindamycin-pretreated cecal communities were consistently dominated by members of the *Lactobacillaceae* and *Enterobacteriaceae* families, respectively. Despite variation in the community structures, there were no significant differences in the number of vegetative cells between any antibiotic-pretreatment group (Fig. 1C). All susceptible mice were colonized with ~1x10^8^ vegetative colony forming units (CFU) per gram of cecal content and untreated mice maintained *C. difficile* colonization resistance. We have also previously demonstrated that both *C. difficile* spore production and toxin activity differ between these pretreatment regimes [@Jenior2017]. As both processes have been linked to environmental concentrations of specific growth nutrients [@Bouillaut2015], these results suggested that despite high initial *C. difficile* colonization the microbiomes across pretreatments may vary in available nutrients or profiles of competitors for those niches.
 
 ```{r figure_2, echo=F, warning=F, message=F, results='hide', cache=F}
 
@@ -786,7 +830,7 @@ Despite the strong associations between bacterial community structure and the me
 
 We hypothesized that the degree of change in the metatranscriptome corresponding with *C. difficile* colonization would reflect the shifts seen at in the metabolome. As disparate bacterial taxa possess vastly different metabolic capabilities and the antibiotic pretreatments induced distinct species profiles in each community, we tested our hypothesis by delineating the transcriptomic contributions of separate bacterial taxa within each metatranscriptome. Since many genes lack a specific functional annotation in KEGG but retain general taxonomic information, we continued the analysis at the genus level of classification for all genes contributed to each metagenome. Using this approach, we directly compared the normalized transcript abundances for each gene between infected and uninfected states for each antibiotic pretreatment and calculated the Spearman correlation to identify distinct patterns of transcription (Fig. 3). This resulted in `r strep_outs` genes that had an average distance of `r strep_mean_dist` units of deviation (UD) associated with streptomycin-pretreatment, `r cef_outs` genes at an average distance of `r cef_mean_dist` UD with cefoperazone-pretreatment, and only `r clinda_outs` genes at an average distance of `r clinda_mean_dist` UD with clindamycin-pretreatment. Overall, the clindamycin pretreatment was associated with the fewest transcription outliers between uninfected and infection conditions compared with those of the other antibiotic groups. This suggested that the degree to which the metatranscriptome was altered by infection corresponded to prolonged colonization.
 
-This analysis also revealed that outlier genes originated in underrepresented genera. In streptomycin-pretreated mice, 937 genes belonging to *Lactobacillus* that higher transcription during *C. difficile* infection; *Lactobacillus* accounted for XX% of the 16S rRNA gene sequences (Fig. 3A). In cefoperazone-pretreated mice, 2290 genes belonging to *Bacteroides* had lower transcription during *C. difficile* infection; *Bacteroides* accounted for ~1.35% of the 16S rRNA gene sequences (Fig. 3B). A consistent trend in streptomycin and cefoperazone-pretreated mice was an overrepresentation of highly transcribed genes from genera belonging to *Bacteroidetes* during mock infection. The metatransciptomes among mice from both of these pretreatment conditions poorly correlated between mock and infected conditions, indicating a high degree of change induced by *C. difficile* colonization (*R* = `r strep_corr` & *R* = `r cef_corr`). In clindamycin-pretreated mice the largest difference in transcription was for 510 *Lactobacillus* genes with increased transcription during CDI; *Lactobacillus* accounted for 1.25% of the 16S rRNA gene sequences (Fig. 3C). Infected and uninfected metatranscriptomes from mice pretreated with clindamycin were more strongly correlated with each other than either of the other pretreatments (*R* = `r clinda_corr`). This suggests that although *C. difficile* altered the streptomycin and cefoperazone-pretreated communities in which it was able to remain stably colonized, it had minimal impact on the clindamycin-pretreated community in which it was not able to remain colonized.
+This analysis also revealed that outlier genes originated in underrepresented genera. In streptomycin-pretreated mice, 937 genes belonging to *Lactobacillus* that higher transcription during *C. difficile* infection; *Lactobacillus* accounted for `r strep_lacto`% of the 16S rRNA gene sequences (Fig. 3A). In cefoperazone-pretreated mice, 2290 genes belonging to *Bacteroides* had lower transcription during *C. difficile* infection; *Bacteroides* accounted for `r cef_bacter`% of the 16S rRNA gene sequences (Fig. 3B). A consistent trend in streptomycin and cefoperazone-pretreated mice was an overrepresentation of highly transcribed genes from genera belonging to *Bacteroidetes* during mock infection. The metatransciptomes among mice from both of these pretreatment conditions poorly correlated between mock and infected conditions, indicating a high degree of change induced by *C. difficile* colonization (*R* = `r strep_corr` & *R* = `r cef_corr`). In clindamycin-pretreated mice the largest difference in transcription was for 510 *Lactobacillus* genes with increased transcription during CDI; *Lactobacillus* accounted for `r clinda_lacto`% of the 16S rRNA gene sequences (Fig. 3C). Infected and uninfected metatranscriptomes from mice pretreated with clindamycin were more strongly correlated with each other than either of the other pretreatments (*R* = `r clinda_corr`). This suggests that although *C. difficile* altered the streptomycin and cefoperazone-pretreated communities in which it was able to remain stably colonized, it had minimal impact on the clindamycin-pretreated community in which it was not able to remain colonized.
 
 
 ```{r figure_4, echo=F, warning=F, message=F, results='hide', cache=F}
