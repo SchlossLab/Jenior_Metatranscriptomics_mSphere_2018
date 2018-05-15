@@ -1,6 +1,6 @@
 
 # Set sorking directory
-setwd('~/Desktop/Repositories/Jenior_Metatranscriptomics_mSphere_2018/')
+setwd('~/Desktop/repositories/Jenior_Metatranscriptomics_mSphere_2018/')
 
 # Load dependencies
 deps <- c('vegan', 'shape', 'plotrix', 'reshape2', 'GMD', 'randomForest', 'AUCRF','RColorBrewer', 'gplots','viridis', 'scales','Hmisc','VennDiagram','dtw')
