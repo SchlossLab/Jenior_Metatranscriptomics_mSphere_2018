@@ -5,7 +5,7 @@ gc()
 
 # Load in functions
 starting_dir <- getwd()
-source('~/Desktop/Repositories/Jenior_Metatranscriptomics_mSphere_2018/code/R/functions.R')
+source('~/Desktop/repositories/Jenior_Metatranscriptomics_mSphere_2018/code/R/functions.R')
 
 # Define input files
 wetlab_file <- 'data/wetlab_assays.tsv'
@@ -164,6 +164,8 @@ axis(side=2, at=seq(0,10,1), labels=c(0, parse(text=paste(rep(10,10), '^', seq(1
 legend(x=1.7, y=4, legend=c('Streptomycin', 'Cefoperazone', 'Clindamycin', 'No Antibiotics'),
        pch=16, col=c(strep_col, cef_col, clinda_col, noabx_col), cex=0.9, pt.cex=1.5)
 text(x=9, y=4, '*', cex=2, font=2)
+
+text(x=10.6, y=2.2, 'LOD', cex=0.9)
 legend('topright', legend=as.expression(bquote(paste(italic('p'),' = ', .(cfu_dtw_pval)))), 
        pch=1, cex=1.2, pt.cex=0, bty='n')
 mtext('A', side=2, line=2, las=2, adj=1.4, padj=-9.2, cex=1.4, font=2)
