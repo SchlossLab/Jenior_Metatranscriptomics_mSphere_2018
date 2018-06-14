@@ -520,7 +520,7 @@ text(x=1.5, y=4.8, labels='Escherichia', cex=0.9, font=3) # Proteobacteria
 points(x=2.75, y=4.8, pch=22, cex=2.2, col='black', bg='#CCCC00') # yellow
 text(x=1.5, y=1.7, labels='Akkermansia', cex=0.9, font=3) # Verrucomicrobia
 points(x=2.75, y=1.7, pch=22, cex=2.2, col='black', bg='#990099') # purple
-text(x=1.5, y=-0.85, labels='<=0.01% Each', cex=0.9) # Other bacteria
+text(x=1.5, y=-0.85, labels='<0.01% Each', cex=0.9) # Other bacteria
 points(x=2.75, y=-0.85, pch=22, cex=2.2, col='black', bg='white') # Other Bacteria - white
 text(x=1.3, y=-3.1, labels='Methanobrevibacter', cex=0.9, font=3) # Archeae
 points(x=2.75, y=-3.1, pch=22, cex=2.2, col='black', bg='#FF8000') # orange
